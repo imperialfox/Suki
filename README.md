@@ -13,7 +13,7 @@ Suki is a personal Philippines travel companion designed for iPhone, iPad and de
 - Export purchases as CSV and export or restore a JSON backup.
 - Work offline after the app has loaded once online.
 
-The catalogue has no verified nationwide or destination price ranges. It does not label anything cheap, typical or expensive without reliable comparison data. Personal observations remain separate from market-wide price information.
+Search includes a bundled official weekly price snapshot for selected grocery items from the Philippine Department of Agriculture (DA-AMAS). The checked snapshot is for NCR markets for 5–11 October 2026; it is not nationwide and is not a live feed. Prices are shown with their reported commodity specifications. Items without a matching official reference continue to show personal observations only. Personal observations remain separate from market-wide price information.
 
 ## Tabs and tools
 
@@ -32,7 +32,7 @@ The interface adapts to phone, landscape, tablet and desktop widths. It uses sys
 
 Suki uses vanilla HTML, CSS and JavaScript with no framework or build step. Purchase records, personal observations and the saved exchange rate stay in browser storage on the device. There is no account, backend or cloud sync. The service worker caches the app shell and tries the network first for page loads.
 
-Clearing browser data can erase records, so export a backup regularly. Backups contain purchases, observations and the cached exchange rate. The exchange-rate refresh contacts `api.frankfurter.app`; purchase records are not sent to that service.
+Clearing browser data can erase records, so export a backup regularly. Backups contain purchases, observations and the cached exchange rate. Official price references are bundled with the app for offline use. The exchange-rate refresh contacts `api.frankfurter.app`; purchase records are not sent to that service.
 
 ## Add to the Home Screen
 

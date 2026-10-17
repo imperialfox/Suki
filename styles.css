@@ -170,3 +170,13 @@ main{width:min(100%,462px);margin:0 auto;padding:17px 16px 32px}
 .category-mark.activity{background:linear-gradient(145deg,#ffc74e,#f08a2f)}
 .category-mark.other{background:linear-gradient(145deg,#9ba8bd,#68768e)}
 .ui-glyph{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+.market-price{margin:16px 0 22px;padding:15px;border:1px solid var(--separator);border-radius:18px;background:var(--surface)}
+.market-price .eyebrow{margin:0 0 4px}
+.market-price-list{margin-top:9px;border-top:1px solid var(--separator)}
+.market-price-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--separator)}
+.market-price-row>div{min-width:0}.market-price-row strong{font-size:14px;line-height:1.35}
+.market-price-row small{display:block;margin-top:3px;color:var(--fg2);font-size:12px}
+.market-price-row .market-price-value{flex:none;font-size:16px;font-variant-numeric:tabular-nums}
+.market-price .foot{font-size:12px;margin:10px 0 6px}
+.price-source{display:inline-flex;align-items:center;gap:5px;min-height:38px;color:var(--accent);font-size:14px;font-weight:600;text-decoration:none}

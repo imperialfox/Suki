@@ -21,42 +21,49 @@
 </head>
 <body>
   <header class="top" id="topBar">
-    <div class="brand"><div class="brand-copy"><h1>Suki</h1><p>Your personal travel companion</p></div></div>
+    <div class="brand"><div class="brand-copy"><h1>Suki</h1></div></div>
     <div class="top-actions">
       <span class="status" id="network" aria-live="polite">Checking…</span>
-      <button class="icon-button glass" data-go="settings" aria-label="Settings" title="Settings"><span aria-hidden="true">⚙</span></button>
+      <button class="icon-button glass" data-go="settings" aria-label="Settings" title="Settings"><svg class="ui-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="m19.4 13.5 1.2.9-1.5 2.6-1.5-.6a7.7 7.7 0 0 1-1.5.9l-.3 1.6h-3l-.3-1.6a7.7 7.7 0 0 1-1.5-.9l-1.5.6L8 14.4l1.2-.9a7.5 7.5 0 0 1 0-1.8L8 10.8l1.5-2.6 1.5.6a7.7 7.7 0 0 1 1.5-.9l.3-1.6h3l.3 1.6a7.7 7.7 0 0 1 1.5.9l1.5-.6 1.5 2.6-1.2.9a7.5 7.5 0 0 1 0 1.8Z"/></svg></button>
     </div>
   </header>
   <main id="mainContent">
     <section class="view active" id="v-home" aria-labelledby="homeTitle">
       <p class="eyebrow">Philippines trip</p>
-      <h2 class="title" id="homeTitle">Ready when you are.</h2>
-      <p class="lede">Money tools, local price notes and spending records, together in one place.</p>
+      <h2 class="title" id="homeTitle">Your spending.</h2>
 
       <section class="home-summary" aria-label="Spending summary">
-        <div><div class="summary-number" id="homeTotal">₱0.00</div><div class="summary-label">Purchases logged</div></div>
-        <button class="text-action" data-go="spending">View history <span aria-hidden="true">›</span></button>
+        <div><div class="summary-number" id="homeTotal">₱0.00</div><div class="summary-label">Total spent</div></div>
       </section>
-      <button class="backup-reminder hide" id="backupReminder" data-go="settings">Your records have not been backed up yet. Open settings to save a copy.</button>
 
-      <div class="section"><h2>Quick actions</h2></div>
-      <div class="quick-list">
-        <button class="quick-row" data-go="till"><span class="icon-tile" aria-hidden="true">₱</span><span class="quick-copy"><strong>Quick Till</strong><small>Work out change</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
-        <button class="quick-row" data-go="convert"><span class="icon-tile" aria-hidden="true">⇄</span><span class="quick-copy"><strong>Convert money</strong><small>GBP and PHP reference rate</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
-        <button class="quick-row" data-go="search"><span class="icon-tile" aria-hidden="true">⌕</span><span class="quick-copy"><strong>Check a price</strong><small>Search Tagalog or English</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
-        <button class="quick-row" data-go="spending"><span class="icon-tile" aria-hidden="true">＋</span><span class="quick-copy"><strong>Log a purchase</strong><small>Keep a note for yourself</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
+      <div class="section home-log-title"><h2>Log a purchase</h2></div>
+      <div class="form-group home-purchase">
+        <form id="purchaseForm">
+          <div class="field"><label for="pItem">What did you buy?</label><input id="pItem" required placeholder="e.g. Lunch, groceries, bus fare"></div>
+          <div class="two">
+            <div class="field"><label for="pPrice">Amount · ₱</label><input id="pPrice" type="number" min=".01" step=".01" required placeholder="0.00"></div>
+            <div class="field"><label for="pCat">Category</label><select id="pCat"><option>Food & drink</option><option>Transport</option><option>Groceries</option><option>Shopping</option><option>Accommodation</option><option>Activities</option><option>Other</option></select></div>
+          </div>
+          <details class="optional-fields">
+            <summary>Add details</summary>
+            <div class="field"><label for="pDate">Date</label><input id="pDate" type="date" required></div>
+            <div class="two"><div class="field"><label for="pLoc">Location</label><input id="pLoc" placeholder="e.g. Cebu City"></div><div class="field"><label for="pVenue">Where bought</label><select id="pVenue"><option value="">Not specified</option><option>Palengke</option><option>Street vendor</option><option>Carinderia</option><option>Restaurant</option><option>Convenience store</option><option>Supermarket</option><option>Transport</option><option>Other</option></select></div></div>
+            <div class="field"><label for="pPay">Payment method</label><select id="pPay"><option>Cash</option><option>Revolut</option><option>Other card</option><option>Other</option></select></div>
+            <div class="field"><label for="pNotes">Notes · optional</label><textarea id="pNotes" placeholder="Anything to remember"></textarea></div>
+          </details>
+          <button class="btn primary full" type="submit">Save purchase</button>
+        </form>
       </div>
 
       <div class="section"><h2>Recent purchases</h2><button class="text-action" data-go="spending">See all <span aria-hidden="true">›</span></button></div>
       <div class="list-group" id="homeRecent"><div class="empty">No purchases yet.</div></div>
-      <p class="foot">Your records stay on this device. Make a backup before clearing browser data.</p>
     </section>
 
     <section class="view" id="v-search" aria-labelledby="searchTitle">
       <p class="eyebrow">Price catalogue</p>
       <h2 class="title" id="searchTitle">Find an item.</h2>
       <p class="lede">Search naturally. Misspellings, mixed languages and partial phrases are welcome.</p>
-      <label class="search glass"><span aria-hidden="true">⌕</span><input id="query" type="search" placeholder="Try “sinigan baboy” or “1 kilo bigas”" aria-label="Search catalogue"></label>
+      <label class="search"><span aria-hidden="true">⌕</span><input id="query" type="search" placeholder="Try “sinigan baboy” or “1 kilo bigas”" aria-label="Search catalogue"></label>
       <div class="chips" aria-label="Example searches"><button class="chip" data-q="sinigan baboy">sinigan baboy</button><button class="chip" data-q="1 kilo bigas">1 kilo bigas</button><button class="chip" data-q="tubig bote">tubig bote</button><button class="chip" data-q="kwek kwek">kwek kwek</button><button class="chip" data-q="baboy adobo">baboy adobo</button></div>
       <div class="section"><h2 id="resultsTitle">Common searches</h2><span class="small muted" id="count"></span></div>
       <div class="list-group" id="results"></div>
@@ -92,17 +99,9 @@
     </section>
 
     <section class="view" id="v-spending" aria-labelledby="spendingTitle">
-      <p class="eyebrow">Your own records</p><h2 class="title" id="spendingTitle">Spending, your way.</h2><p class="lede">Purchases you record are never treated as market-wide price evidence.</p>
+      <p class="eyebrow">Your own records</p><h2 class="title" id="spendingTitle">Spending, your way.</h2>
+      <p class="lede">Purchases you record are never treated as market-wide price evidence.</p>
       <div class="spending-summary"><div><div class="summary-number" id="sumPHP">₱0</div><div class="summary-label">Total spending</div></div><div><div class="summary-number" id="sumCount">0</div><div class="summary-label">Purchases logged</div></div></div>
-      <div class="section"><h2>Log a purchase</h2></div>
-      <div class="form-group"><form id="purchaseForm">
-        <div class="field"><label for="pItem">Item or description</label><input id="pItem" required placeholder="e.g. Taho, pamasahe, lunch"></div>
-        <div class="two"><div class="field"><label for="pPrice">Amount · ₱</label><input id="pPrice" type="number" min=".01" step=".01" required placeholder="0.00"></div><div class="field"><label for="pDate">Date</label><input id="pDate" type="date" required></div></div>
-        <div class="two"><div class="field"><label for="pCat">Category</label><select id="pCat"><option>Food & drink</option><option>Transport</option><option>Groceries</option><option>Shopping</option><option>Accommodation</option><option>Activities</option><option>Other</option></select></div><div class="field"><label for="pLoc">Location</label><input id="pLoc" placeholder="e.g. Cebu City"></div></div>
-        <div class="two"><div class="field"><label for="pVenue">Where bought</label><select id="pVenue"><option value="">Not specified</option><option>Palengke</option><option>Street vendor</option><option>Carinderia</option><option>Restaurant</option><option>Convenience store</option><option>Supermarket</option><option>Transport</option><option>Other</option></select></div><div class="field"><label for="pPay">Payment method</label><select id="pPay"><option>Cash</option><option>Revolut</option><option>Other card</option><option>Other</option></select></div></div>
-        <div class="field"><label for="pNotes">Notes · optional</label><textarea id="pNotes" placeholder="Size, quantity, anything to remember"></textarea></div>
-        <button class="btn primary full" type="submit">Save purchase</button>
-      </form></div>
       <div class="section"><h2>Purchase history</h2><button class="text-action" id="csv">Export CSV</button></div>
       <div class="field filter-field"><label for="filter">Filter history</label><input id="filter" type="search" placeholder="Search item or location"></div>
       <div class="list-group" id="history"></div>
@@ -131,13 +130,12 @@
   </main>
 
   <nav class="tabbar glass" id="tabBar" aria-label="Main navigation">
-    <button class="nav active" data-go="home" aria-current="page"><b aria-hidden="true">⌂</b><span>Home</span></button>
-    <button class="nav" data-go="search"><b aria-hidden="true">⌕</b><span>Search</span></button>
-    <button class="nav" data-go="till"><b aria-hidden="true">₱</b><span>Till</span></button>
-    <button class="nav" data-go="convert"><b aria-hidden="true">⇄</b><span>Convert</span></button>
-    <button class="nav" data-go="spending"><b aria-hidden="true">▤</b><span>Spending</span></button>
-  </nav>
-  <div class="toast glass" id="toast" role="status" aria-live="polite"></div>
+    <button class="nav active" data-go="home" aria-current="page"><svg class="nav-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 10.7 8.5-7 8.5 7"/><path d="M5.5 9.5v10h13v-10M9.5 19.5v-6h5v6"/></svg><span>Home</span></button>
+    <button class="nav" data-go="till"><svg class="nav-glyph" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M7.5 7.5h9M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg><span>Till</span></button>
+    <button class="nav" data-go="search"><svg class="nav-glyph" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg><span>Search</span></button>
+    <button class="nav" data-go="spending"><svg class="nav-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17l-2.4-1.6-3.6 1.6-3.6-1.6L6 20.5z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><span>Spending</span></button>
+    <button class="nav" data-go="convert"><svg class="nav-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h15l-3-3"/><path d="M20 16H5l3 3"/></svg><span>Convert</span></button>
+  </nav>  <div class="toast glass" id="toast" role="status" aria-live="polite"></div>
 
   <dialog class="sheet" id="backupSheet">
     <div class="sheet-handle" aria-hidden="true"></div><div class="sheet-head"><h2>Save a backup</h2><button class="sheet-close glass" data-close-dialog aria-label="Close">×</button></div>

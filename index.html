@@ -120,7 +120,7 @@
       <div class="list-group settings-list">
         <div class="settings-row"><span class="icon-tile" aria-hidden="true">◉</span><div class="settings-copy"><strong>Offline status</strong><small>Service worker · <span id="swStatus">Checking…</span></small></div></div>
         <div class="settings-row"><span class="icon-tile" aria-hidden="true">₱</span><div class="settings-copy"><strong>Saved exchange rate</strong><small id="savedRate">Not loaded</small></div></div>
-        <div class="settings-row"><span class="icon-tile" aria-hidden="true">⌕</span><div class="settings-copy"><strong>Price catalogue</strong><small>No verified local price ranges; personal observations stay separate.</small></div></div>
+        <div class="settings-row"><span class="icon-tile" aria-hidden="true">⌕</span><div class="settings-copy"><strong>Price catalogue</strong><small>Official DA weekly reference prices for selected groceries in NCR.</small></div></div>
         <div class="settings-row"><span class="icon-tile" aria-hidden="true">⌂</span><div class="settings-copy"><strong>Install on iPhone</strong><small>Open in Safari → Share → Add to Home Screen.</small></div></div>
         <a class="settings-row settings-link" href="https://github.com/imperialfox/Suki" target="_blank" rel="noreferrer"><span class="icon-tile" aria-hidden="true">↗</span><div class="settings-copy"><strong>View on GitHub</strong><small>Open the Suki repository</small></div><span class="row-chevron" aria-hidden="true">›</span></a>
       </div>
@@ -149,6 +149,7 @@
     <div class="sheet-handle" aria-hidden="true"></div><div class="sheet-head"><h2 id="confirmTitle">Are you sure?</h2><button class="sheet-close glass" data-close-dialog aria-label="Close">×</button></div>
     <p id="confirmMessage"></p><div class="sheet-actions"><button class="btn danger full" id="confirmAccept">Continue</button><button class="btn glass full" id="confirmCancel">Cancel</button></div>
   </dialog>
+  <script src="price-data.js"></script>
   <script src="app.js"></script>
   <script src="enhancements.js"></script>
 </body>

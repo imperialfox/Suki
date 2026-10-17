@@ -1,13 +1,155 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#fff8ed"><meta name="description" content="Your personal Philippines travel companion"><title>Suki</title><link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="styles.css"></head><body>
-<header class="top"><div class="brand"><div class="logo">S</div><div><h1>Suki</h1><p>Your personal travel companion</p></div></div><div class="row" style="gap:7px"><span class="status" id="network">Checking…</span><button class="btn ghost sm" data-go="settings" aria-label="Settings">⚙</button></div></header>
-<main>
-<section class="view active" id="v-home"><div class="card hero"><p class="eyebrow">November trip · Philippines</p><h2 class="title">Ready when you are.</h2><p>Convert money, check a quote, work out change and keep your spending in one place.</p><div class="row"><div><div class="metric" id="homeTotal">₱0.00</div><div class="mlabel">Purchases logged</div></div><button class="btn secondary" data-go="spending">History ↗</button></div></div><div class="section"><h2>Quick actions</h2></div><div class="grid"><button class="quick" data-go="till"><span class="ico">₱</span><strong>Quick Till</strong><small>Calculate change fast</small></button><button class="quick" data-go="convert"><span class="ico">⇄</span><strong>Convert</strong><small>GBP ↔ PHP</small></button><button class="quick" data-go="search"><span class="ico">⌕</span><strong>Check a price</strong><small>Search Tagalog or English</small></button><button class="quick" data-go="spending"><span class="ico">＋</span><strong>Log a purchase</strong><small>Keep your own records</small></button></div><div class="section"><h2>Recent purchases</h2><button class="btn ghost sm" data-go="spending">See all</button></div><div class="card" id="homeRecent"><div class="empty">🧾<br>No purchases yet.</div></div><p class="foot">Records stay on this device. Download a backup before clearing browser data.</p></section>
-<section class="view" id="v-search"><p class="eyebrow">Price intelligence</p><h2 class="title">Hanapin ang presyo.</h2><p class="lede">Search naturally. Misspellings, mixed languages and partial phrases are welcome.</p><div class="search"><span>⌕</span><input id="query" type="search" placeholder="Try ‘sinigan baboy’ or ‘1 kilo bigas’" aria-label="Search catalogue"></div><div class="chips"><button class="chip" data-q="sinigan baboy">sinigan baboy</button><button class="chip" data-q="1 kilo bigas">1 kilo bigas</button><button class="chip" data-q="tubig bote">tubig bote</button><button class="chip" data-q="kwek kwek">kwek kwek</button><button class="chip" data-q="baboy adobo">baboy adobo</button></div><div class="card"><div class="row"><h2 id="resultsTitle">Common searches</h2><span class="small muted" id="count"></span></div><div id="results"></div></div><div class="card hide" id="detail"></div></section>
-<section class="view" id="v-till"><p class="eyebrow">Quick Till</p><h2 class="title">What’s the change?</h2><p class="lede">Fast, simple and works offline.</p><div class="card"><div class="field"><label for="bill">Total bill (PHP ₱)</label><input id="bill" type="number" min="0" step=".01" inputmode="decimal" placeholder="e.g. 789.50"></div><div class="field"><label for="cash">Cash received (PHP ₱)</label><input id="cash" type="number" min="0" step=".01" inputmode="decimal" placeholder="e.g. 1000"></div><div class="denoms"><button data-cash="500">₱500</button><button data-cash="1000">₱1,000</button><button data-cash="1500">₱1,500</button><button data-cash="2000">₱2,000</button></div><div class="divider"></div><div id="tillOutput" class="empty">Enter the bill and cash received to calculate.</div><button class="btn full" id="saveTill" disabled>Save bill as purchase</button></div><p class="foot">If cash is short, the calculator shows how much is still owed. Exact payment means no change.</p></section>
-<section class="view" id="v-convert"><p class="eyebrow">Currency converter</p><h2 class="title">GBP ⇄ PHP</h2><p class="lede">Reference conversion, not a promise of the rate your bank or card will charge.</p><div class="card"><div class="field"><label for="gbp">British pounds (GBP £)</label><input id="gbp" type="number" min="0" step=".01" value="100" inputmode="decimal"></div><div class="row"><span class="muted">Reference value</span><strong class="metric" id="phpOut">—</strong></div><div class="divider"></div><div class="field"><label for="php">Philippine pesos (PHP ₱)</label><input id="php" type="number" min="0" step=".01" placeholder="Enter pesos" inputmode="decimal"></div><div class="row"><span class="muted">Reference value</span><strong class="metric" id="gbpOut">—</strong></div><div class="divider"></div><div class="row wrap"><div><span class="pill" id="rateBadge">Rate not loaded</span><p class="small muted" id="rateDate">Connect to refresh the reference rate.</p></div><button class="btn secondary" id="refresh">Refresh rate ↻</button></div><p class="foot">Offline uses the last saved rate, if available. Your card provider may use a different rate or fees.</p><button class="btn ghost full" id="copy">Copy conversion</button></div></section>
-<section class="view" id="v-spending"><p class="eyebrow">Your own records</p><h2 class="title">Spending, your way.</h2><p class="lede">Your purchases are not treated as market-wide price evidence.</p><div class="grid"><div class="card"><div class="metric" id="sumPHP">₱0</div><div class="mlabel">Total spending</div></div><div class="card"><div class="metric" id="sumCount">0</div><div class="mlabel">Purchases logged</div></div></div><div class="card"><h2>Log a purchase</h2><form id="purchaseForm"><div class="field"><label for="pItem">Item or description</label><input id="pItem" required placeholder="e.g. Taho, pamasahe, lunch"></div><div class="two"><div class="field"><label for="pPrice">Amount (₱)</label><input id="pPrice" type="number" min=".01" step=".01" required placeholder="0.00"></div><div class="field"><label for="pDate">Date</label><input id="pDate" type="date" required></div></div><div class="two"><div class="field"><label for="pCat">Category</label><select id="pCat"><option>Food & drink</option><option>Transport</option><option>Groceries</option><option>Shopping</option><option>Accommodation</option><option>Activities</option><option>Other</option></select></div><div class="field"><label for="pLoc">Location</label><input id="pLoc" placeholder="e.g. Cebu City"></div></div><div class="two"><div class="field"><label for="pVenue">Where bought</label><select id="pVenue"><option value="">Not specified</option><option>Palengke</option><option>Street vendor</option><option>Carinderia</option><option>Restaurant</option><option>Convenience store</option><option>Supermarket</option><option>Transport</option><option>Other</option></select></div><div class="field"><label for="pPay">Payment method</label><select id="pPay"><option>Cash</option><option>Revolut</option><option>Other card</option><option>Other</option></select></div></div><div class="field"><label for="pNotes">Notes (optional)</label><textarea id="pNotes" placeholder="Size, quantity, anything to remember"></textarea></div><button class="btn full" type="submit">Save purchase</button></form></div><div class="section"><h2>Purchase history</h2><button class="btn ghost sm" id="csv">Export CSV</button></div><div class="card"><div class="field"><label for="filter">Filter history</label><input id="filter" type="search" placeholder="Search item or location"></div><div id="history"></div></div></section>
-<section class="view" id="v-settings"><p class="eyebrow">Settings & safety</p><h2 class="title">Your data, your call.</h2><p class="lede">No account, cloud sync or public submissions.</p><div class="card"><h2>Data backup</h2><p class="small muted">Export purchases, personal price observations and saved exchange rate as JSON. Restore only a backup you trust.</p><div class="row wrap"><button class="btn" id="backup">Download backup</button><button class="btn ghost" id="restoreBtn">Restore backup</button><input class="hide" id="restoreFile" type="file" accept="application/json,.json"></div></div><div class="card"><h2>Offline status</h2><div class="row"><span class="muted">Service worker</span><strong id="swStatus">Checking…</strong></div><div class="row"><span class="muted">Saved exchange rate</span><strong id="savedRate">Not loaded</strong></div><p class="foot">Open once while online before relying on offline use. iOS may clear browser data; keep backups.</p></div><div class="card"><h2>Price intelligence</h2><p class="small muted">Starter catalogue only; no verified nationwide or destination price ranges included. Personal observations remain separate from market averages.</p><div class="notice">No “cheap”, “typical” or “expensive” labels without reliable comparison data.</div></div><div class="card"><h2>Install on iPhone</h2><p class="small muted">After publishing to HTTPS, open in Safari → Share → Add to Home Screen. Open once online before relying on offline use.</p></div><div class="card"><h2>Your price observations</h2><div id="obsList"><p class="small muted">None yet.</p></div></div></section>
-</main><nav class="tabbar" aria-label="Main navigation"><button class="nav active" data-go="home"><b>⌂</b>Home</button><button class="nav" data-go="search"><b>⌕</b>Search</button><button class="nav" data-go="till"><b>₱</b>Quick Till</button><button class="nav" data-go="convert"><b>⇄</b>Convert</button><button class="nav" data-go="spending"><b>▤</b>Spending</button></nav><div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="app.js"></script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <style>html{background:#f2f2f7}@media(prefers-color-scheme:dark){html{background:#000}}</style>
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="A personal Philippines travel companion">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Suki">
+  <title>Suki</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="enhancements.css">
+</head>
+<body>
+  <header class="top" id="topBar">
+    <div class="brand"><div class="brand-copy"><h1>Suki</h1><p>Your personal travel companion</p></div></div>
+    <div class="top-actions">
+      <span class="status" id="network" aria-live="polite">Checking…</span>
+      <button class="icon-button glass" data-go="settings" aria-label="Settings" title="Settings"><span aria-hidden="true">⚙</span></button>
+    </div>
+  </header>
+  <main id="mainContent">
+    <section class="view active" id="v-home" aria-labelledby="homeTitle">
+      <p class="eyebrow">Philippines trip</p>
+      <h2 class="title" id="homeTitle">Ready when you are.</h2>
+      <p class="lede">Money tools, local price notes and spending records, together in one place.</p>
+
+      <section class="home-summary" aria-label="Spending summary">
+        <div><div class="summary-number" id="homeTotal">₱0.00</div><div class="summary-label">Purchases logged</div></div>
+        <button class="text-action" data-go="spending">View history <span aria-hidden="true">›</span></button>
+      </section>
+      <button class="backup-reminder hide" id="backupReminder" data-go="settings">Your records have not been backed up yet. Open settings to save a copy.</button>
+
+      <div class="section"><h2>Quick actions</h2></div>
+      <div class="quick-list">
+        <button class="quick-row" data-go="till"><span class="icon-tile" aria-hidden="true">₱</span><span class="quick-copy"><strong>Quick Till</strong><small>Work out change</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
+        <button class="quick-row" data-go="convert"><span class="icon-tile" aria-hidden="true">⇄</span><span class="quick-copy"><strong>Convert money</strong><small>GBP and PHP reference rate</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
+        <button class="quick-row" data-go="search"><span class="icon-tile" aria-hidden="true">⌕</span><span class="quick-copy"><strong>Check a price</strong><small>Search Tagalog or English</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
+        <button class="quick-row" data-go="spending"><span class="icon-tile" aria-hidden="true">＋</span><span class="quick-copy"><strong>Log a purchase</strong><small>Keep a note for yourself</small></span><span class="row-chevron" aria-hidden="true">›</span></button>
+      </div>
+
+      <div class="section"><h2>Recent purchases</h2><button class="text-action" data-go="spending">See all <span aria-hidden="true">›</span></button></div>
+      <div class="list-group" id="homeRecent"><div class="empty">No purchases yet.</div></div>
+      <p class="foot">Your records stay on this device. Make a backup before clearing browser data.</p>
+    </section>
+
+    <section class="view" id="v-search" aria-labelledby="searchTitle">
+      <p class="eyebrow">Price catalogue</p>
+      <h2 class="title" id="searchTitle">Find an item.</h2>
+      <p class="lede">Search naturally. Misspellings, mixed languages and partial phrases are welcome.</p>
+      <label class="search glass"><span aria-hidden="true">⌕</span><input id="query" type="search" placeholder="Try “sinigan baboy” or “1 kilo bigas”" aria-label="Search catalogue"></label>
+      <div class="chips" aria-label="Example searches"><button class="chip" data-q="sinigan baboy">sinigan baboy</button><button class="chip" data-q="1 kilo bigas">1 kilo bigas</button><button class="chip" data-q="tubig bote">tubig bote</button><button class="chip" data-q="kwek kwek">kwek kwek</button><button class="chip" data-q="baboy adobo">baboy adobo</button></div>
+      <div class="section"><h2 id="resultsTitle">Common searches</h2><span class="small muted" id="count"></span></div>
+      <div class="list-group" id="results"></div>
+      <div class="detail-layer hide" id="detail" role="dialog" aria-modal="true" aria-label="Item details"></div>
+      <p class="foot">Personal observations are your own notes, not verified market averages.</p>
+    </section>
+
+    <section class="view" id="v-till" aria-labelledby="tillTitle">
+      <p class="eyebrow">Quick Till</p><h2 class="title" id="tillTitle">What’s the change?</h2><p class="lede">A quick calculator that works offline.</p>
+      <div class="form-group">
+        <div class="field"><label for="bill">Total bill · PHP ₱</label><input id="bill" type="number" min="0" step=".01" inputmode="decimal" placeholder="e.g. 789.50"></div>
+        <div class="field"><label for="cash">Cash received · PHP ₱</label><input id="cash" type="number" min="0" step=".01" inputmode="decimal" placeholder="e.g. 1,000"></div>
+        <div class="denoms" aria-label="Common cash amounts"><button data-cash="500">₱500</button><button data-cash="1000">₱1,000</button><button data-cash="1500">₱1,500</button><button data-cash="2000">₱2,000</button></div>
+        <div class="divider"></div><div id="tillOutput" class="calculation-output" aria-live="polite">Enter the bill and cash received to calculate.</div>
+        <button class="btn primary full" id="saveTill" disabled>Save bill as purchase</button>
+      </div>
+      <p class="foot">If cash is short, the calculator shows how much is still owed. Exact payment means no change.</p>
+    </section>
+
+    <section class="view" id="v-convert" aria-labelledby="convertTitle">
+      <p class="eyebrow">Currency converter</p><h2 class="title" id="convertTitle">GBP ⇄ PHP</h2>
+      <p class="lede">Reference conversions only. Your card provider may use a different rate or fees.</p>
+      <div class="form-group">
+        <div class="field"><label for="gbp">British pounds · GBP £</label><input id="gbp" type="number" min="0" step=".01" value="100" inputmode="decimal"></div>
+        <div class="conversion-result"><span>Reference value</span><strong id="phpOut">—</strong></div>
+        <div class="field"><label for="php">Philippine pesos · PHP ₱</label><input id="php" type="number" min="0" step=".01" placeholder="Enter pesos" inputmode="decimal"></div>
+        <div class="conversion-result"><span>Reference value</span><strong id="gbpOut">—</strong></div>
+        <div class="divider"></div>
+        <div class="rate-row"><div><span class="pill" id="rateBadge">Rate not loaded</span><p class="small muted" id="rateDate">Connect to refresh the reference rate.</p></div><button class="btn glass secondary" id="refresh">Refresh rate <span aria-hidden="true">↻</span></button></div>
+        <p class="foot">When offline, the last saved reference rate is used if available.</p>
+        <button class="btn glass full" id="copy">Copy conversion</button>
+      </div>
+    </section>
+
+    <section class="view" id="v-spending" aria-labelledby="spendingTitle">
+      <p class="eyebrow">Your own records</p><h2 class="title" id="spendingTitle">Spending, your way.</h2><p class="lede">Purchases you record are never treated as market-wide price evidence.</p>
+      <div class="spending-summary"><div><div class="summary-number" id="sumPHP">₱0</div><div class="summary-label">Total spending</div></div><div><div class="summary-number" id="sumCount">0</div><div class="summary-label">Purchases logged</div></div></div>
+      <div class="section"><h2>Log a purchase</h2></div>
+      <div class="form-group"><form id="purchaseForm">
+        <div class="field"><label for="pItem">Item or description</label><input id="pItem" required placeholder="e.g. Taho, pamasahe, lunch"></div>
+        <div class="two"><div class="field"><label for="pPrice">Amount · ₱</label><input id="pPrice" type="number" min=".01" step=".01" required placeholder="0.00"></div><div class="field"><label for="pDate">Date</label><input id="pDate" type="date" required></div></div>
+        <div class="two"><div class="field"><label for="pCat">Category</label><select id="pCat"><option>Food & drink</option><option>Transport</option><option>Groceries</option><option>Shopping</option><option>Accommodation</option><option>Activities</option><option>Other</option></select></div><div class="field"><label for="pLoc">Location</label><input id="pLoc" placeholder="e.g. Cebu City"></div></div>
+        <div class="two"><div class="field"><label for="pVenue">Where bought</label><select id="pVenue"><option value="">Not specified</option><option>Palengke</option><option>Street vendor</option><option>Carinderia</option><option>Restaurant</option><option>Convenience store</option><option>Supermarket</option><option>Transport</option><option>Other</option></select></div><div class="field"><label for="pPay">Payment method</label><select id="pPay"><option>Cash</option><option>Revolut</option><option>Other card</option><option>Other</option></select></div></div>
+        <div class="field"><label for="pNotes">Notes · optional</label><textarea id="pNotes" placeholder="Size, quantity, anything to remember"></textarea></div>
+        <button class="btn primary full" type="submit">Save purchase</button>
+      </form></div>
+      <div class="section"><h2>Purchase history</h2><button class="text-action" id="csv">Export CSV</button></div>
+      <div class="field filter-field"><label for="filter">Filter history</label><input id="filter" type="search" placeholder="Search item or location"></div>
+      <div class="list-group" id="history"></div>
+    </section>
+
+    <section class="view" id="v-settings" aria-labelledby="settingsTitle">
+      <p class="eyebrow">Settings & safety</p><h2 class="title" id="settingsTitle">Your data, your call.</h2><p class="lede">No account, cloud sync or public submissions.</p>
+      <div class="section"><h2>Data backup</h2></div>
+      <div class="list-group settings-list">
+        <div class="settings-row"><span class="icon-tile" aria-hidden="true">⇧</span><div class="settings-copy"><strong>Export a backup</strong><small>Purchases, price notes and saved rate</small></div><button class="btn glass secondary" id="backup">Save…</button></div>
+        <div class="settings-row"><span class="icon-tile" aria-hidden="true">⇩</span><div class="settings-copy"><strong>Restore a backup</strong><small>Review the file before replacing data</small></div><button class="btn glass" id="restoreBtn">Choose file</button><input class="hide" id="restoreFile" type="file" accept="application/json,.json"></div>
+        <div class="settings-row"><span class="icon-tile" aria-hidden="true">◷</span><div class="settings-copy"><strong>Last backed up</strong><small id="lastBackup">Not backed up yet</small></div></div>
+        <div class="settings-row"><span class="icon-tile" aria-hidden="true">▤</span><div class="settings-copy"><strong>Storage used</strong><small id="storageUsed">Checking…</small></div></div>
+      </div>
+      <div class="section"><h2>App information</h2></div>
+      <div class="list-group settings-list">
+        <div class="settings-row"><span class="icon-tile" aria-hidden="true">◉</span><div class="settings-copy"><strong>Offline status</strong><small>Service worker · <span id="swStatus">Checking…</span></small></div></div>
+        <div class="settings-row"><span class="icon-tile" aria-hidden="true">₱</span><div class="settings-copy"><strong>Saved exchange rate</strong><small id="savedRate">Not loaded</small></div></div>
+        <div class="settings-row"><span class="icon-tile" aria-hidden="true">⌕</span><div class="settings-copy"><strong>Price catalogue</strong><small>No verified local price ranges; personal observations stay separate.</small></div></div>
+        <div class="settings-row"><span class="icon-tile" aria-hidden="true">⌂</span><div class="settings-copy"><strong>Install on iPhone</strong><small>Open in Safari → Share → Add to Home Screen.</small></div></div>
+        <a class="settings-row settings-link" href="https://github.com/imperialfox/Suki" target="_blank" rel="noreferrer"><span class="icon-tile" aria-hidden="true">↗</span><div class="settings-copy"><strong>View on GitHub</strong><small>Open the Suki repository</small></div><span class="row-chevron" aria-hidden="true">›</span></a>
+      </div>
+      <div class="section"><h2>Your price observations</h2></div><div class="list-group" id="obsList"><p class="empty">No personal observations saved yet.</p></div>
+      <p class="foot settings-foot">Suki 2.0.0 · 17 Oct 2026<br>Records stay on this device. iOS may clear browser data, so keep a backup.</p>
+    </section>
+  </main>
+
+  <nav class="tabbar glass" id="tabBar" aria-label="Main navigation">
+    <button class="nav active" data-go="home" aria-current="page"><b aria-hidden="true">⌂</b><span>Home</span></button>
+    <button class="nav" data-go="search"><b aria-hidden="true">⌕</b><span>Search</span></button>
+    <button class="nav" data-go="till"><b aria-hidden="true">₱</b><span>Till</span></button>
+    <button class="nav" data-go="convert"><b aria-hidden="true">⇄</b><span>Convert</span></button>
+    <button class="nav" data-go="spending"><b aria-hidden="true">▤</b><span>Spending</span></button>
+  </nav>
+  <div class="toast glass" id="toast" role="status" aria-live="polite"></div>
+
+  <dialog class="sheet" id="backupSheet">
+    <div class="sheet-handle" aria-hidden="true"></div><div class="sheet-head"><h2>Save a backup</h2><button class="sheet-close glass" data-close-dialog aria-label="Close">×</button></div>
+    <p id="backupHelp">Preparing your backup…</p><div class="sheet-actions"><button class="btn primary full" id="saveBackup" disabled>Preparing…</button></div>
+  </dialog>
+  <dialog class="sheet" id="restoreSheet">
+    <div class="sheet-handle" aria-hidden="true"></div><div class="sheet-head"><h2>Review backup</h2><button class="sheet-close glass" data-close-dialog aria-label="Close">×</button></div>
+    <div id="restoreSummary"></div><div class="sheet-actions"><button class="btn danger full" id="restoreReplace">Replace saved data</button><button class="btn glass full" data-close-dialog>Cancel</button></div>
+  </dialog>
+  <dialog class="sheet confirm-sheet" id="confirmSheet">
+    <div class="sheet-handle" aria-hidden="true"></div><div class="sheet-head"><h2 id="confirmTitle">Are you sure?</h2><button class="sheet-close glass" data-close-dialog aria-label="Close">×</button></div>
+    <p id="confirmMessage"></p><div class="sheet-actions"><button class="btn danger full" id="confirmAccept">Continue</button><button class="btn glass full" id="confirmCancel">Cancel</button></div>
+  </dialog>
+  <script src="app.js"></script>
+  <script src="enhancements.js"></script>
+</body>
+</html>

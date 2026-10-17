@@ -1,37 +1,47 @@
 # Suki
 
-My little filipino travel companion
+**Current version: 2.0.0 · 17 Oct 2026** · [Changelog](CHANGELOG.md)
 
-A mobile-first installable web app, built with vanilla HTML/CSS/JS for personal use.
+Suki is a personal Philippines travel companion designed for iPhone, iPad and desktop browsers.
 
-## Features
-- Tagalog-first starter catalogue with English aliases, fuzzy spelling and partial search.
-- Quick Till: change, exact payment and short-cash calculations.
-- GBP↔PHP converter using a reference-rate API and cached last successful rate.
-- Personal purchase log with date, category, location, venue, payment method and notes.
-- Personal price observations kept separate from market-wide price intelligence.
-- CSV purchase export, JSON backup/restore, IndexedDB with localStorage fallback.
-- PWA manifest and service worker for app-shell offline support.
+## What it does
 
-## Price-data limitation
-This build intentionally has **no verified nationwide or destination price ranges**. Catalogue entries help identify products but do not assert current prices. The app does not label items cheap/typical/expensive without a reliable comparison dataset. Personal observations are not treated as representative market data.
+- Search a Tagalog-first starter catalogue with English aliases, fuzzy spelling and partial phrase matching.
+- Calculate change, exact payment or the amount still owed with Quick Till.
+- Convert GBP and PHP using a reference exchange rate, including the last saved rate while offline.
+- Keep personal purchase and price-observation records on this device.
+- Export purchases as CSV and export or restore a JSON backup.
+- Work offline after the app has loaded once online.
 
-## Publish with GitHub Pages
-1. In this repository, open **Settings → Pages**.
-2. Choose deployment from the `main` branch and `/ (root)`, then save.
-3. Wait for GitHub Pages to publish the HTTPS URL.
-4. Open that URL in Safari on iPhone → Share → Add to Home Screen.
-5. Open the app once online before relying on offline use.
+The catalogue has no verified nationwide or destination price ranges. It does not label anything cheap, typical or expensive without reliable comparison data. Personal observations remain separate from market-wide price information.
 
-## Test checklist
-- Search `sinigan baboy`, `1 kilo bigas`, `tubig bote`, `kwek kwek`, `baboy adobo`.
-- Quick Till: ₱789 bill + ₱1,000 cash should show ₱211 change.
-- Test short payment and exact payment.
-- Refresh the reference exchange rate online; check date and saved rate.
-- Save/filter/delete/export purchases; download and restore JSON backup.
-- Add a personal price observation and confirm it is not called a market average.
-- After first online load, test airplane mode and local records.
-- Verify on actual iPhone Safari. iOS installation/storage/offline behaviour has not been independently verified here.
+## Tabs and tools
 
-## Privacy and technical notes
-No account, backend, or cloud sync. Records stay in browser storage on the device. Clearing Safari website data can erase them, so back up regularly. Rate refresh requests `api.frankfurter.app`; purchase records are not sent to that service. `index.html` contains the UI and app logic; `sw.js` and `manifest.json` are separate because installable PWAs require them.
+- **Home:** quick actions, spending summary and recent purchases.
+- **Search:** find catalogue items and save your own price observations.
+- **Quick Till:** calculate change and carry a bill into the purchase form.
+- **Convert:** calculate a GBP or PHP reference value, refresh the rate, or copy a conversion.
+- **Spending:** add, filter, remove and export purchase records.
+- **Settings:** backup and restore, offline status, saved rate, installation help and repository information.
+
+## Layout
+
+The interface adapts to phone, landscape, tablet and desktop widths. It uses system type, automatic light and dark appearances, safe-area spacing, large touch targets, a floating glass-style navigation bar and native-style confirmation sheets.
+
+## Offline and storage
+
+Suki uses vanilla HTML, CSS and JavaScript with no framework or build step. Purchase records, personal observations and the saved exchange rate stay in browser storage on the device. There is no account, backend or cloud sync. The service worker caches the app shell and tries the network first for page loads.
+
+Clearing browser data can erase records, so export a backup regularly. Backups contain purchases, observations and the cached exchange rate. The exchange-rate refresh contacts `api.frankfurter.app`; purchase records are not sent to that service.
+
+## Add to the Home Screen
+
+On iPhone or iPad, open the GitHub Pages site in Safari, tap **Share**, then **Add to Home Screen**. Open Suki once while online before relying on offline use.
+
+## Privacy
+
+This is a public repository and site. Do not add private or licensed content. Personal app records are stored locally in your browser and are not published to GitHub.
+
+## Stack and licence
+
+Vanilla HTML, CSS and JavaScript, a web app manifest, and a service worker. Licensed under MIT; see [LICENSE.txt](LICENSE.txt).

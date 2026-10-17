@@ -1,13 +1,13 @@
 {
-  "name": "Suki \u2014 Personal Travel Toolkit",
+  "name": "Suki — Personal Travel Toolkit",
   "short_name": "Suki",
-  "description": "Your personal Philippines travel companion.",
+  "description": "A personal Philippines travel companion.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait-primary",
-  "background_color": "#f5f5f7",
-  "theme_color": "#176b57",
+  "orientation": "any",
+  "background_color": "#f2f2f7",
+  "theme_color": "#f2f2f7",
   "icons": [
     {
       "src": "icon.svg",

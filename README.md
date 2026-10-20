@@ -1,47 +1,78 @@
 # Suki
 
-**Current version: 2.0.0 · 17 Oct 2026** · [Changelog](CHANGELOG.md)
+![Version 2.1.0](https://img.shields.io/badge/version-2.1.0-blue)
 
-Suki is a personal Philippines travel companion designed for iPhone, iPad and desktop browsers.
+**Current version: 2.1.0 · 20 Oct 2026.** See the [changelog](CHANGELOG.md) for what's new.
+
+Suki is a personal travel companion for the Philippines. It checks your change, converts pounds and pesos, looks up prices and keeps track of what you spend. It's a Home Screen web app for iPhone, iPad and Mac, and works offline.
 
 ## What it does
 
-- Search a Tagalog-first starter catalogue with English aliases, fuzzy spelling and partial phrase matching.
-- Calculate change, exact payment or the amount still owed with Quick Till.
-- Convert GBP and PHP using a reference exchange rate, including the last saved rate while offline.
-- Keep personal purchase and price-observation records on this device.
-- Export purchases as CSV and export or restore a JSON backup.
-- Work offline after the app has loaded once online.
+- **Log what you spend** in a few taps, with categories, places and notes, and see it by day and by category.
+- **Check your change** before you walk away from the till.
+- **Convert pounds and pesos** with a reference rate, even offline.
+- **Look up prices**: official weekly averages from the Department of Agriculture (DA-AMAS) for selected groceries in Metro Manila (NCR) markets, plus your own price notes. Search understands Tagalog, English, misspellings and phrases like "1 kilo bigas".
 
-Search includes a bundled official weekly price snapshot for selected grocery items from the Philippine Department of Agriculture (DA-AMAS). The checked snapshot is for NCR markets for 5–11 October 2026; it is not nationwide and is not a live feed. Prices are shown with their reported commodity specifications. Items without a matching official reference continue to show personal observations only. Personal observations remain separate from market-wide price information.
+The official prices are a snapshot for 5–11 October 2026, bundled with the app so they work offline. They cover NCR markets only and aren't a live feed. Your own price notes are kept separate and are never treated as market averages.
 
-## Tabs and tools
+## Tabs
 
-- **Home:** quick actions, spending summary and recent purchases.
-- **Search:** find catalogue items and save your own price observations.
-- **Quick Till:** calculate change and carry a bill into the purchase form.
-- **Convert:** calculate a GBP or PHP reference value, refresh the rate, or copy a conversion.
-- **Spending:** add, filter, remove and export purchase records.
-- **Settings:** backup and restore, offline status, saved rate, installation help and repository information.
+- **Home**: your total and today's spending, a quick form to log a purchase, and your recent purchases. The gear opens Settings.
+- **Till** (Quick Till): enter the bill and the cash you hand over to see the change due, or what's still to pay. "Log this bill" saves it as a purchase.
+- **Search**: the official prices and the catalogue. Open an item for its official price, a link to the DA report and your price notes.
+- **Spending**: every purchase grouped by day, with category chips, a filter, details, editing, deleting (swipe left or from the details) and CSV export.
+- **Convert**: linked pound and peso boxes, handy amounts, and Refresh for the latest reference rate.
+- **Settings**: backup and restore, price notes, storage, Erase all data, and information about the app.
 
-## Layout
+## Layouts
 
-The interface adapts to phone, landscape, tablet and desktop widths. It uses system type, automatic light and dark appearances, safe-area spacing, large touch targets, a floating glass-style navigation bar and native-style confirmation sheets.
+- **iPhone upright**: a floating tab bar at the bottom that shrinks to the current tab while you scroll.
+- **iPhone on its side**: a compact tab bar with icons beside their labels, and two columns on Home.
+- **iPad, or a Mac window**: tabs at the top, Home in two columns, and Search and Spending show details beside the list. Sheets open in the middle of the screen.
+- **Mac, or iPad on its side**: a sidebar with every section and Settings.
+- On a keyboard, Cmd (or Ctrl) + 1–5 switches sections and Esc closes a sheet.
+- Light and dark appearance follow your device. Reduce Motion is respected: things fade instead of moving.
 
-## Offline and storage
+## Offline
 
-Suki uses vanilla HTML, CSS and JavaScript with no framework or build step. Purchase records, personal observations and the saved exchange rate stay in browser storage on the device. There is no account, backend or cloud sync. The service worker caches the app shell and tries the network first for page loads.
+Open Suki once while online. After that it opens with no signal, and everything works except refreshing the exchange rate (the last saved rate is used). When you're online, pull down on Home or Spending to check for an update.
 
-Clearing browser data can erase records, so export a backup regularly. Backups contain purchases, observations and the cached exchange rate. Official price references are bundled with the app for offline use. The exchange-rate refresh contacts `api.frankfurter.app`; purchase records are not sent to that service.
+## Add it to your Home Screen
 
-## Add to the Home Screen
+**iPhone or iPad**
+1. Open the Suki website in Safari.
+2. Tap the Share button (the square with an arrow).
+3. Tap **Add to Home Screen**, then **Add**.
 
-On iPhone or iPad, open the GitHub Pages site in Safari, tap **Share**, then **Add to Home Screen**. Open Suki once while online before relying on offline use.
+**Mac**
+1. Open the Suki website in Safari.
+2. Choose **File › Add to Dock**.
 
-## Privacy
+## Changing the icon safely
 
-This is a public repository and site. Do not add private or licensed content. Personal app records are stored locally in your browser and are not published to GitHub.
+iOS only reads the icon and launch screen when the app is added to the Home Screen. To pick up a new icon without losing anything:
+1. In Suki, go to **Settings › Export a backup** and save it to Files.
+2. Remove Suki from your Home Screen.
+3. Add it again from Safari (steps above).
+4. Go to **Settings › Restore a backup** and choose the file.
+
+The launch images in `splash/` are made from `icon-512.png` by `python tools/splash.py`.
+
+## Your data and privacy
+
+- Everything you enter stays on your device, in the browser's storage. There's no account, server or cloud sync.
+- iOS can clear a website's storage if it isn't opened for a few weeks, so export a backup now and then. Suki reminds you after two weeks.
+- Backups are JSON files named by month and device (for example "Suki backup · 2026-10 · iPhone.json"), so backing up again in the same month replaces that month's file in Files.
+- Refreshing the exchange rate contacts `api.frankfurter.app`. Only the currencies are sent, never your records.
+- This repository and its website are public. Don't add private or licensed content.
+
+## Adapting it
+
+- The catalogue (names, English names, other spellings) is in `js/catalog.js`.
+- The official price snapshot is in `js/prices.js`. Item ids must match the catalogue.
+- Categories, places and payment methods are at the top of `js/storage.js`.
+- See [MAINTAINING.md](MAINTAINING.md) for how the code fits together, the tests and releasing.
 
 ## Stack and licence
 
-Vanilla HTML, CSS and JavaScript, a web app manifest, and a service worker. Licensed under MIT; see [LICENSE.txt](LICENSE.txt).
+Vanilla HTML, CSS and JavaScript with no frameworks or build step, a web app manifest and a service worker, hosted on GitHub Pages. It shares its foundations (motion, offline support, layouts and tests) with Vocal Sessions. Licensed under MIT; see [LICENSE.txt](LICENSE.txt).

@@ -1,7 +1,7 @@
 {
-  "name": "Suki — Personal Travel Toolkit",
+  "name": "Suki",
   "short_name": "Suki",
-  "description": "A personal Philippines travel companion.",
+  "description": "A personal Philippines travel companion: prices, change, currency and spending.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

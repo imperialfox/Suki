@@ -1,156 +1,108 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en-GB">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-  <style>html{background:#f2f2f7}@media(prefers-color-scheme:dark){html{background:#000}}</style>
-  <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-  <meta name="description" content="A personal Philippines travel companion">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Suki">
-  <title>Suki</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="icon" href="icon-512.png" type="image/png" sizes="512x512">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="enhancements.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<style>html{background:#f2f2f7}@media (prefers-color-scheme:dark){html{background:#000}}</style>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Suki">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="description" content="A personal Philippines travel companion: prices, change, currency and spending.">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="icon" href="icon-512.png" type="image/png" sizes="512x512">
+<!-- iOS launch images: shown by iOS the moment the app opens, before the page loads (made by tools/splash.py) -->
+<link rel="apple-touch-startup-image" href="splash/launch-1320x2868-light.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1320x2868-dark.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-1260x2736-light.png" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1260x2736-dark.png" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-1206x2622-light.png" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1206x2622-dark.png" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-1290x2796-light.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1290x2796-dark.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-1179x2556-light.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1179x2556-dark.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-1284x2778-light.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1284x2778-dark.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-1170x2532-light.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1170x2532-dark.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-1242x2688-light.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1242x2688-dark.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-1125x2436-light.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1125x2436-dark.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-828x1792-light.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-828x1792-dark.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-750x1334-light.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-750x1334-dark.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-2064x2752-light.png" media="(device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-2064x2752-dark.png" media="(device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-2752x2064-light.png" media="(device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-2752x2064-dark.png" media="(device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-2048x2732-light.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-2048x2732-dark.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-2732x2048-light.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-2732x2048-dark.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-1668x2420-light.png" media="(device-width: 834px) and (device-height: 1210px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1668x2420-dark.png" media="(device-width: 834px) and (device-height: 1210px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-2420x1668-light.png" media="(device-width: 834px) and (device-height: 1210px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-2420x1668-dark.png" media="(device-width: 834px) and (device-height: 1210px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-1668x2388-light.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1668x2388-dark.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-2388x1668-light.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-2388x1668-dark.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-1640x2360-light.png" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1640x2360-dark.png" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-2360x1640-light.png" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-2360x1640-dark.png" media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-1620x2160-light.png" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1620x2160-dark.png" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-2160x1620-light.png" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-2160x1620-dark.png" media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-1488x2266-light.png" media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-1488x2266-dark.png" media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) and (prefers-color-scheme: dark)">
+<link rel="apple-touch-startup-image" href="splash/launch-2266x1488-light.png" media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: light)">
+<link rel="apple-touch-startup-image" href="splash/launch-2266x1488-dark.png" media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: dark)">
+<title>Suki</title>
+<link rel="stylesheet" href="css/app.css?v=2.1.0">
 </head>
 <body>
-  <header class="top" id="topBar">
-    <div class="brand"><div class="brand-copy"><h1>Suki</h1></div></div>
-    <div class="top-actions">
-      <span class="status" id="network" aria-live="polite">Checking…</span>
-      <button class="icon-button glass" data-go="settings" aria-label="Settings" title="Settings"><svg class="ui-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="m19.4 13.5 1.2.9-1.5 2.6-1.5-.6a7.7 7.7 0 0 1-1.5.9l-.3 1.6h-3l-.3-1.6a7.7 7.7 0 0 1-1.5-.9l-1.5.6L8 14.4l1.2-.9a7.5 7.5 0 0 1 0-1.8L8 10.8l1.5-2.6 1.5.6a7.7 7.7 0 0 1 1.5-.9l.3-1.6h3l.3 1.6a7.7 7.7 0 0 1 1.5.9l1.5-.6 1.5 2.6-1.2.9a7.5 7.5 0 0 1 0 1.8Z"/></svg></button>
-    </div>
+<!-- launch screen: the icon on the plain background until your data has loaded (js/boot.js) -->
+<div id="splash" aria-hidden="true"><img src="data:image/webp;base64,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" alt="" width="112" height="112" decoding="sync"></div>
+<div class="edge" aria-hidden="true"></div>
+<nav class="side-nav glass" id="side" aria-label="Sections" hidden></nav>
+<div id="ptr" aria-hidden="true"><div class="spin" id="spin"></div></div>
+<div class="wrap">
+  <header class="bar glass" id="bar">
+    <span class="side" id="barL"></span>
+    <span class="mt" id="barT"></span>
+    <span class="side r" id="barR"></span>
   </header>
-  <main id="mainContent">
-    <section class="view active" id="v-home" aria-labelledby="homeTitle">
-      <p class="eyebrow">Philippines trip</p>
-      <h2 class="title" id="homeTitle">Your spending.</h2>
+  <main id="app"></main>
+</div>
+<div class="dock"><div class="in" id="dock"></div></div>
+<div id="layer"></div>
+<input type="file" id="importIn" accept=".json,application/json" hidden>
 
-      <section class="home-summary" aria-label="Spending summary">
-        <div><div class="summary-number" id="homeTotal">₱0.00</div><div class="summary-label">Total spent</div></div>
-      </section>
-
-      <div class="section home-log-title"><h2>Log a purchase</h2></div>
-      <div class="form-group home-purchase">
-        <form id="purchaseForm">
-          <div class="field"><label for="pItem">What did you buy?</label><input id="pItem" required placeholder="e.g. Lunch, groceries, bus fare"></div>
-          <div class="two">
-            <div class="field"><label for="pPrice">Amount · ₱</label><input id="pPrice" type="number" min=".01" step=".01" required placeholder="0.00"></div>
-            <div class="field"><label for="pCat">Category</label><select id="pCat"><option>Food & drink</option><option>Transport</option><option>Groceries</option><option>Shopping</option><option>Accommodation</option><option>Activities</option><option>Other</option></select></div>
-          </div>
-          <details class="optional-fields">
-            <summary>Add details</summary>
-            <div class="field"><label for="pDate">Date</label><input id="pDate" type="date" required></div>
-            <div class="two"><div class="field"><label for="pLoc">Location</label><input id="pLoc" placeholder="e.g. Cebu City"></div><div class="field"><label for="pVenue">Where bought</label><select id="pVenue"><option value="">Not specified</option><option>Palengke</option><option>Street vendor</option><option>Carinderia</option><option>Restaurant</option><option>Convenience store</option><option>Supermarket</option><option>Transport</option><option>Other</option></select></div></div>
-            <div class="field"><label for="pPay">Payment method</label><select id="pPay"><option>Cash</option><option>Revolut</option><option>Other card</option><option>Other</option></select></div>
-            <div class="field"><label for="pNotes">Notes · optional</label><textarea id="pNotes" placeholder="Anything to remember"></textarea></div>
-          </details>
-          <button class="btn primary full" type="submit">Save purchase</button>
-        </form>
-      </div>
-
-      <div class="section"><h2>Recent purchases</h2><button class="text-action" data-go="spending">See all <span aria-hidden="true">›</span></button></div>
-      <div class="list-group" id="homeRecent"><div class="empty">No purchases yet.</div></div>
-    </section>
-
-    <section class="view" id="v-search" aria-labelledby="searchTitle">
-      <p class="eyebrow">Price catalogue</p>
-      <h2 class="title" id="searchTitle">Find an item.</h2>
-      <p class="lede">Search naturally. Misspellings, mixed languages and partial phrases are welcome.</p>
-      <label class="search"><span aria-hidden="true">⌕</span><input id="query" type="search" placeholder="Try “sinigan baboy” or “1 kilo bigas”" aria-label="Search catalogue"></label>
-      <div class="chips" aria-label="Example searches"><button class="chip" data-q="sinigan baboy">sinigan baboy</button><button class="chip" data-q="1 kilo bigas">1 kilo bigas</button><button class="chip" data-q="tubig bote">tubig bote</button><button class="chip" data-q="kwek kwek">kwek kwek</button><button class="chip" data-q="baboy adobo">baboy adobo</button></div>
-      <div class="section"><h2 id="resultsTitle">Common searches</h2><span class="small muted" id="count"></span></div>
-      <div class="list-group" id="results"></div>
-      <div class="detail-layer hide" id="detail" role="dialog" aria-modal="true" aria-label="Item details"></div>
-      <p class="foot">Personal observations are your own notes, not verified market averages.</p>
-    </section>
-
-    <section class="view" id="v-till" aria-labelledby="tillTitle">
-      <p class="eyebrow">Quick Till</p><h2 class="title" id="tillTitle">What’s the change?</h2><p class="lede">A quick calculator that works offline.</p>
-      <div class="form-group">
-        <div class="field"><label for="bill">Total bill · PHP ₱</label><input id="bill" type="number" min="0" step=".01" inputmode="decimal" placeholder="e.g. 789.50"></div>
-        <div class="field"><label for="cash">Cash received · PHP ₱</label><input id="cash" type="number" min="0" step=".01" inputmode="decimal" placeholder="e.g. 1,000"></div>
-        <div class="denoms" aria-label="Common cash amounts"><button data-cash="500">₱500</button><button data-cash="1000">₱1,000</button><button data-cash="1500">₱1,500</button><button data-cash="2000">₱2,000</button></div>
-        <div class="divider"></div><div id="tillOutput" class="calculation-output" aria-live="polite">Enter the bill and cash received to calculate.</div>
-        <button class="btn primary full" id="saveTill" disabled>Save bill as purchase</button>
-      </div>
-      <p class="foot">If cash is short, the calculator shows how much is still owed. Exact payment means no change.</p>
-    </section>
-
-    <section class="view" id="v-convert" aria-labelledby="convertTitle">
-      <p class="eyebrow">Currency converter</p><h2 class="title" id="convertTitle">GBP ⇄ PHP</h2>
-      <p class="lede">Reference conversions only. Your card provider may use a different rate or fees.</p>
-      <div class="form-group">
-        <div class="field"><label for="gbp">British pounds · GBP £</label><input id="gbp" type="number" min="0" step=".01" value="100" inputmode="decimal"></div>
-        <div class="conversion-result"><span>Reference value</span><strong id="phpOut">—</strong></div>
-        <div class="field"><label for="php">Philippine pesos · PHP ₱</label><input id="php" type="number" min="0" step=".01" placeholder="Enter pesos" inputmode="decimal"></div>
-        <div class="conversion-result"><span>Reference value</span><strong id="gbpOut">—</strong></div>
-        <div class="divider"></div>
-        <div class="rate-row"><div><span class="pill" id="rateBadge">Rate not loaded</span><p class="small muted" id="rateDate">Connect to refresh the reference rate.</p></div><button class="btn glass secondary" id="refresh">Refresh rate <span aria-hidden="true">↻</span></button></div>
-        <p class="foot">When offline, the last saved reference rate is used if available.</p>
-        <button class="btn glass full" id="copy">Copy conversion</button>
-      </div>
-    </section>
-
-    <section class="view" id="v-spending" aria-labelledby="spendingTitle">
-      <p class="eyebrow">Your own records</p><h2 class="title" id="spendingTitle">Spending, your way.</h2>
-      <p class="lede">Purchases you record are never treated as market-wide price evidence.</p>
-      <div class="spending-summary"><div><div class="summary-number" id="sumPHP">₱0</div><div class="summary-label">Total spending</div></div><div><div class="summary-number" id="sumCount">0</div><div class="summary-label">Purchases logged</div></div></div>
-      <div class="section"><h2>Purchase history</h2><button class="text-action" id="csv">Export CSV</button></div>
-      <div class="field filter-field"><label for="filter">Filter history</label><input id="filter" type="search" placeholder="Search item or location"></div>
-      <div class="list-group" id="history"></div>
-    </section>
-
-    <section class="view" id="v-settings" aria-labelledby="settingsTitle">
-      <p class="eyebrow">Settings & safety</p><h2 class="title" id="settingsTitle">Your data, your call.</h2><p class="lede">No account, cloud sync or public submissions.</p>
-      <div class="section"><h2>Data backup</h2></div>
-      <div class="list-group settings-list">
-        <div class="settings-row"><span class="icon-tile" aria-hidden="true">⇧</span><div class="settings-copy"><strong>Export a backup</strong><small>Purchases, price notes and saved rate</small></div><button class="btn glass secondary" id="backup">Save…</button></div>
-        <div class="settings-row"><span class="icon-tile" aria-hidden="true">⇩</span><div class="settings-copy"><strong>Restore a backup</strong><small>Review the file before replacing data</small></div><button class="btn glass" id="restoreBtn">Choose file</button><input class="hide" id="restoreFile" type="file" accept="application/json,.json"></div>
-        <div class="settings-row"><span class="icon-tile" aria-hidden="true">◷</span><div class="settings-copy"><strong>Last backed up</strong><small id="lastBackup">Not backed up yet</small></div></div>
-        <div class="settings-row"><span class="icon-tile" aria-hidden="true">▤</span><div class="settings-copy"><strong>Storage used</strong><small id="storageUsed">Checking…</small></div></div>
-      </div>
-      <div class="section"><h2>App information</h2></div>
-      <div class="list-group settings-list">
-        <div class="settings-row"><span class="icon-tile" aria-hidden="true">◉</span><div class="settings-copy"><strong>Offline status</strong><small>Service worker · <span id="swStatus">Checking…</span></small></div></div>
-        <div class="settings-row"><span class="icon-tile" aria-hidden="true">₱</span><div class="settings-copy"><strong>Saved exchange rate</strong><small id="savedRate">Not loaded</small></div></div>
-        <div class="settings-row"><span class="icon-tile" aria-hidden="true">⌕</span><div class="settings-copy"><strong>Price catalogue</strong><small>Official DA weekly reference prices for selected groceries in NCR.</small></div></div>
-        <div class="settings-row"><span class="icon-tile" aria-hidden="true">⌂</span><div class="settings-copy"><strong>Install on iPhone</strong><small>Open in Safari → Share → Add to Home Screen.</small></div></div>
-        <a class="settings-row settings-link" href="https://github.com/imperialfox/Suki" target="_blank" rel="noreferrer"><span class="icon-tile" aria-hidden="true">↗</span><div class="settings-copy"><strong>View on GitHub</strong><small>Open the Suki repository</small></div><span class="row-chevron" aria-hidden="true">›</span></a>
-      </div>
-      <div class="section"><h2>Your price observations</h2></div><div class="list-group" id="obsList"><p class="empty">No personal observations saved yet.</p></div>
-      <p class="foot settings-foot">Suki 2.0.0 · 17 Oct 2026<br>Records stay on this device. iOS may clear browser data, so keep a backup.</p>
-    </section>
-  </main>
-
-  <nav class="tabbar glass" id="tabBar" aria-label="Main navigation">
-    <button class="nav active" data-go="home" aria-current="page"><svg class="nav-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 10.7 8.5-7 8.5 7"/><path d="M5.5 9.5v10h13v-10M9.5 19.5v-6h5v6"/></svg><span>Home</span></button>
-    <button class="nav" data-go="till"><svg class="nav-glyph" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M7.5 7.5h9M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg><span>Till</span></button>
-    <button class="nav" data-go="search"><svg class="nav-glyph" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg><span>Search</span></button>
-    <button class="nav" data-go="spending"><svg class="nav-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17l-2.4-1.6-3.6 1.6-3.6-1.6L6 20.5z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><span>Spending</span></button>
-    <button class="nav" data-go="convert"><svg class="nav-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h15l-3-3"/><path d="M20 16H5l3 3"/></svg><span>Convert</span></button>
-  </nav>  <div class="toast glass" id="toast" role="status" aria-live="polite"></div>
-
-  <dialog class="sheet" id="backupSheet">
-    <div class="sheet-handle" aria-hidden="true"></div><div class="sheet-head"><h2>Save a backup</h2><button class="sheet-close glass" data-close-dialog aria-label="Close">×</button></div>
-    <p id="backupHelp">Preparing your backup…</p><div class="sheet-actions"><button class="btn primary full" id="saveBackup" disabled>Preparing…</button></div>
-  </dialog>
-  <dialog class="sheet" id="restoreSheet">
-    <div class="sheet-handle" aria-hidden="true"></div><div class="sheet-head"><h2>Review backup</h2><button class="sheet-close glass" data-close-dialog aria-label="Close">×</button></div>
-    <div id="restoreSummary"></div><div class="sheet-actions"><button class="btn danger full" id="restoreReplace">Replace saved data</button><button class="btn glass full" data-close-dialog>Cancel</button></div>
-  </dialog>
-  <dialog class="sheet confirm-sheet" id="confirmSheet">
-    <div class="sheet-handle" aria-hidden="true"></div><div class="sheet-head"><h2 id="confirmTitle">Are you sure?</h2><button class="sheet-close glass" data-close-dialog aria-label="Close">×</button></div>
-    <p id="confirmMessage"></p><div class="sheet-actions"><button class="btn danger full" id="confirmAccept">Continue</button><button class="btn glass full" id="confirmCancel">Cancel</button></div>
-  </dialog>
-  <script src="price-data.js?v=20261017-1"></script>
-  <script src="app.js?v=20261017-1"></script>
-  <script src="enhancements.js"></script>
+<script>
+// The version lives here so pull to refresh can check it, and tools/release.py updates it with the ?v= on each file.
+const APP_VERSION='2.1.0', RELEASE_DATE='20 Oct 2026';
+</script>
+<script src="js/motion.js?v=2.1.0"></script>
+<script src="js/catalog.js?v=2.1.0"></script>
+<script src="js/prices.js?v=2.1.0"></script>
+<script src="js/storage.js?v=2.1.0"></script>
+<script src="js/helpers.js?v=2.1.0"></script>
+<script src="js/screens.js?v=2.1.0"></script>
+<script src="js/ui.js?v=2.1.0"></script>
+<script src="js/rate.js?v=2.1.0"></script>
+<script src="js/backup.js?v=2.1.0"></script>
+<script src="js/events.js?v=2.1.0"></script>
+<script src="js/gestures.js?v=2.1.0"></script>
+<script src="js/boot.js?v=2.1.0"></script>
 </body>
 </html>

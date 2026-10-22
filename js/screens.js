@@ -85,7 +85,7 @@ function officialCard(id) {
     return '<div class="card quiet">There’s no official price for this item in the current snapshot. Your own price notes are below.</div>';
   return (
     '<section class="card official" aria-label="Official price reference"><div class="ofhead"><div><div class="eyebrow">Official price · ' + esc(R.area) + '</div><b>' + esc(R.period) + '</b></div><span class="badge">Weekly average</span></div>' +
-    rows.map((r) => '<div class="ofrow"><span><b>' + esc(r.item) + '</b><small>' + esc(r.unit) + '</small></span><span class="amt">' + cash(r.price) + '</span></div>').join('') +
+    rows.map((r) => '<div class="ofrow"><span><b>' + esc(r.item) + '</b><small>' + esc(r.unit) + '</small></span><span class="amt">' + cash(r.price) + (inGbp(r.price) ? '<small>' + esc(inGbp(r.price)) + '</small>' : '') + '</span></div>').join('') +
     '<p class="small">' + esc(R.source) + ', ' + R.marketCount + ' markets. Prices are for the product described and can differ outside ' + esc(R.area.replace(' markets', '')) + '.</p>' +
     '<a class="link" href="' + esc(R.sourceUrl) + '" target="_blank" rel="noopener">View the DA report ' + ICON.out + '</a></section>'
   );
@@ -113,7 +113,7 @@ function itemDetail(id, inPane) {
         obs
           .map(
             (o) =>
-              '<div class="row"><span class="lbl"><b>' + cash(o.price) + '</b><small>' + esc([relDay(o.date), o.location, o.venue, o.note].filter(Boolean).join(' · ')) + '</small></span>' +
+              '<div class="row"><span class="lbl"><b>' + cash(o.price) + (inGbp(o.price) ? ' <span class="gb">' + esc(inGbp(o.price)) + '</span>' : '') + '</b><small>' + esc([relDay(o.date), o.location, o.venue, o.note].filter(Boolean).join(' · ')) + '</small></span>' +
               '<button class="ibtn" data-a="delObs" data-k="' + esc(o.id) + '" aria-label="Delete this price note">' + ICON.bin + '</button></div>'
           )
           .join('') +
@@ -192,7 +192,7 @@ function itemRow(it) {
   return (
     '<button class="row' + (split() && U.item === it.id ? ' sel' : '') + '" data-a="openItem" data-k="' + esc(it.id) + '">' + tile(it.group) +
     '<span class="lbl"><b>' + esc(it.name) + '</b><small>' + esc(it.english) + (r ? '' : ' · ' + esc(it.unit)) + '</small></span>' +
-    (r ? '<span class="amt">' + (r.many ? '<small class="from">from</small>' : '') + cash(r.price) + '<small>' + esc(r.unit) + '</small></span>' : '') +
+    (r ? '<span class="amt">' + (r.many ? '<small class="from">from</small>' : '') + cash(r.price) + '<small>' + esc([inGbp(r.price), r.unit].filter(Boolean).join(' · ')) + '</small></span>' : '') +
     ICON.chev + '</button>'
   );
 }

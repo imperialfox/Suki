@@ -455,6 +455,12 @@ h1 {
   display: inline;
   margin-right: 3px;
 }
+.gb {
+  margin-left: 4px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--fg2);
+}
 .chev {
   flex: none;
   color: var(--fg3);

@@ -78,12 +78,15 @@ function render(keepScroll) {
 const rerender = () => render(true);
 function go(tab) {
   if (!SCREENS[tab]) return;
-  const same = U.tab === tab;
+  const same = U.tab === tab,
+    from = U.tab;
   U.tab = tab;
   tabMin = false;
   if (!same) window.scrollTo(0, 0);
   render(same);
-  if (!same) {
+  // the five main tabs swap instantly; only Settings (reached from the gear on Home) still fades in
+  const main = (t) => t !== 'settings';
+  if (!same && !(main(from) && main(tab))) {
     const a = $('app');
     MOTION.animate(a, [{ opacity: 0.4, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { spring: 'gentle', fade: true });
   }

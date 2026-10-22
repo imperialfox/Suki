@@ -16,6 +16,13 @@ function cash(n, cur = 'PHP') {
   return fmt[cur].format(Number(n) || 0);
 }
 const gbp = (n) => cash(n, 'GBP');
+// a peso amount in pounds at the saved rate, e.g. "≈ £1.23"; empty until a rate has loaded
+function inGbp(n) {
+  const r = D.rate;
+  if (!r || !(r.value > 0) || !Number.isFinite(Number(n))) return '';
+  const g = Number(n) / r.value;
+  return '≈ ' + (g > 0 && g < 0.01 ? '<£0.01' : gbp(g));
+}
 const sum = (list) => Math.round(list.reduce((s, p) => s + (+p.price || 0), 0) * 100) / 100;
 // a typed amount: "1,000" and " 12.5 " both work; anything else is null
 const amount = (v) => {

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.2 · 22 Oct 2026
+*Prices in pounds on Search, and snappier navigation*
+
+**Search**
+- Every price now shows roughly what it is in pounds (for example ≈ £2.40) under the peso amount, so you can gauge the cost without working it out. This covers the results list, the official price in an item's details and your own price notes.
+- The pound value appears once an exchange rate has loaded, and uses the same saved rate as Convert.
+
+**Navigation**
+- Switching between Home, Till, Search, Spending and Convert is now instant, with no fade. The launch animation into Home is unchanged, and Settings still fades in.
+
 ## 2.1.0 · 20 Oct 2026
 *Polished, faster to use and at home on every screen*
 

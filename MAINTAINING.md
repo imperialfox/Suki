@@ -47,7 +47,7 @@ Suki shares its foundations with Vocal Sessions (`imperialfox/Vocal-Sessions`): 
 | `js/rate.js` | The exchange rate (`refreshRate`, `autoRate`) and the linked converter boxes. The rate comes from the first source in `RATE_SOURCES` that answers with a rate inside `RATE_RANGE`; `RATE_CHECK` keeps why the last check failed, for Settings |
 | `js/backup.js` | Saving files (share sheet or download), backups, restoring, erasing and the CSV export |
 | `js/events.js` | Every button action (`ACT`), the forms, typing, swipe to delete, blocking zoom and keyboard shortcuts |
-| `js/gestures.js` | Pull to refresh and the update check, scrolling (top bar and shrinking tab bar), rotating, online/offline, sheet scrolling and dragging sheets down |
+| `js/gestures.js` | Pull to refresh and the update check, scrolling (the top bar turning to glass), rotating, online/offline, sheet scrolling and dragging sheets down |
 | `js/boot.js` | Starts the app. Always last |
 
 They're plain scripts, not modules: they share one global scope, and the tests reach into the app through its globals (`D`, `U`, `go`, `openSheet`…).
@@ -114,7 +114,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 | `test_flows.py` | Logging (with errors and the draft), Spending (chips, filter, days, details, edit, delete, swipe, CSV), Quick Till, Convert, Search and price notes, Settings, empty states |
 | `test_data.py` | Older and damaged data, the backup reminder, export, erase, restore (good, damaged, other and 2.0 files), the rate failing, and updating from the real Suki 2.0 |
 | `test_offline.py` | Opening and working offline, and pull to refresh finding an update that then works offline too |
-| `test_layout.py` | Every screen and sheet on iPhone (three sizes and on its side), iPad both ways and Mac, light and dark; the details pane, the sidebar, shortcuts, the shrinking tab bar, pull to refresh, and motion on and Reduce Motion |
+| `test_layout.py` | Every screen and sheet on iPhone (three sizes and on its side), iPad both ways and Mac, light and dark; the details pane, the sidebar, shortcuts, the tab bar clearing the end of every page, pull to refresh, and motion on and Reduce Motion |
 | `test_fuzz.py` | Hundreds of random taps, typing, resizing and reloads, checking nothing breaks after each one |
 
 ---

@@ -8,7 +8,7 @@ TOUCH = """(a)=>{const [sel,type,x,y]=a;const el=document.querySelector(sel);con
 
 
 def tab(pg, name):
-    """Tap a tab in the tab bar (scrolling up first, as the bar shrinks to the current tab while you scroll down)."""
+    """Tap a tab in the tab bar (from the top of the page)."""
     pg.evaluate("window.scrollTo(0,0)"); pg.wait_for_timeout(80)
     pg.click(f'#dock [data-v={name}]'); pg.wait_for_timeout(120)
 

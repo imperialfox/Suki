@@ -40,14 +40,12 @@ function renderSide() {
     '<div class="sbt">Suki</div>' + tabButtons('sbi', true) +
     '<div class="sbgap"></div><button class="sbi' + (U.tab === 'settings' ? ' on' : '') + '" data-a="tab" data-v="settings" aria-current="' + (U.tab === 'settings' ? 'page' : 'false') + '">' + ICON.gear + '<span>Settings</span></button>';
 }
-let tabMin = false;
 function renderDock() {
   if (MQ.reg.matches || U.sheet) {
     $('dock').innerHTML = '';
     return;
   }
-  if (window.scrollY < 60) tabMin = false; // never leave it shrunk at the top of a page
-  $('dock').innerHTML = '<nav class="tabbar glass' + (tabMin ? ' min' : '') + '" aria-label="Tabs">' + tabButtons('', true) + '</nav>';
+  $('dock').innerHTML = '<nav class="tabbar glass" aria-label="Tabs">' + tabButtons('', true) + '</nav>';
 }
 
 /* ===== Drawing ===== */
@@ -80,7 +78,6 @@ function go(tab) {
   if (!SCREENS[tab]) return;
   const same = U.tab === tab;
   U.tab = tab;
-  tabMin = false;
   if (!same) window.scrollTo(0, 0);
   // every tab, Settings included, swaps instantly; the launch into Home has its own fade in boot.js
   render(same);

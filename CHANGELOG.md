@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.4 · 23 Oct 2026
+*A tab bar that stays put*
+
+**Navigation**
+- The tab bar on iPhone now stays full size however far you scroll, instead of shrinking to the current tab. All five tabs are always one tap away.
+- Every page now ends 20px above the tab bar, upright and on its side, so nothing at the bottom is hidden behind it and there's no extra empty space.
+
 ## 2.3 · 23 Oct 2026
 *An exchange rate you can rely on*
 

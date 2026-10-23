@@ -1215,9 +1215,10 @@ a.row:active {
   height: 16px;
 }
 
-/* ===== Tab bar (iPhone): a floating glass capsule that shrinks to the current tab while you scroll ===== */
+/* ===== Tab bar (iPhone): a floating glass capsule that always stays full size =====
+   The page ends 20px above it: the bar is 64px tall and sits 12px up, plus the home indicator's space */
 main {
-  padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
 }
 .dock {
   position: fixed;
@@ -1272,29 +1273,6 @@ main {
   color: var(--accent);
   background: var(--fill);
 }
-.tabbar.min {
-  gap: 0;
-}
-.tabbar.min button {
-  height: 48px;
-}
-.tabbar.min button:not(.on) {
-  max-width: 0;
-  flex-basis: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-.tabbar.min button.on {
-  width: 48px;
-  max-width: 48px;
-  flex-basis: 48px;
-  font-size: 0;
-  gap: 0;
-}
-.tabbar.min button.on span {
-  display: none;
-}
-
 /* ===== Sheets ===== */
 #layer .scrim {
   position: fixed;
@@ -1505,7 +1483,7 @@ body.land .wrap {
   max-width: 860px;
 }
 body.land main {
-  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px)); /* the compact bar (50px, 12px up) and the same 20px gap */
 }
 body.land .tabbar button {
   flex-direction: row;

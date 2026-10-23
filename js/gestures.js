@@ -1,5 +1,5 @@
 /* Suki · gestures.js (pull to refresh, sheet dragging and scroll guards come from Vocal Sessions)
-   Pull to refresh and the update check, scrolling (the top bar and the shrinking tab bar), rotating and resizing,
+   Pull to refresh and the update check, scrolling (the top bar turning to glass), rotating and resizing,
    going online and offline, dragging sheets down to close them.
    Plain script (not a module): files share one global scope and load in the order listed in index.html. */
 
@@ -123,8 +123,7 @@ async function refreshApp() {
   return 'ok';
 }
 
-/* ===== Scrolling: the top bar turns to glass, and the tab bar shrinks while you scroll down ===== */
-let lastY = 0;
+/* ===== Scrolling: the top bar turns to glass. The tab bar always stays full size ===== */
 window.addEventListener(
   'scroll',
   () => {
@@ -133,13 +132,6 @@ window.addEventListener(
       sc = y > 36;
     $('bar').classList.toggle('scrolled', sc);
     document.body.classList.toggle('scrolled', sc);
-    const tb = document.querySelector('#dock .tabbar');
-    if (tb && !U.sheet && !document.body.classList.contains('land')) {
-      if (y > lastY + 6 && y > 120) tabMin = true;
-      else if (y < lastY - 6 || y < 60) tabMin = false;
-      tb.classList.toggle('min', tabMin);
-    }
-    lastY = y;
   },
   { passive: true }
 );
@@ -148,7 +140,6 @@ window.addEventListener(
 Object.values(MQ).forEach((m) => {
   const f = () => {
     layout();
-    tabMin = false;
     rerender();
   };
   if (m.addEventListener) m.addEventListener('change', f);

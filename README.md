@@ -1,8 +1,8 @@
 # Suki
 
-![Version 2.3](https://img.shields.io/badge/version-2.3-blue)
+![Version 2.4](https://img.shields.io/badge/version-2.4-blue)
 
-**Current version: 2.3 · 23 Oct 2026.** See the [changelog](CHANGELOG.md) for what's new.
+**Current version: 2.4 · 23 Oct 2026.** See the [changelog](CHANGELOG.md) for what's new.
 
 Suki is a personal travel companion for the Philippines. It checks your change, converts pounds and pesos, looks up prices and keeps track of what you spend. It's a Home Screen web app for iPhone, iPad and Mac, and works offline.
 
@@ -26,7 +26,7 @@ The official prices are a snapshot for 5–11 October 2026, bundled with the app
 
 ## Layouts
 
-- **iPhone upright**: a floating tab bar at the bottom that shrinks to the current tab while you scroll.
+- **iPhone upright**: a floating tab bar at the bottom that stays full size, with the end of every page clear of it.
 - **iPhone on its side**: a compact tab bar with icons beside their labels, and two columns on Home.
 - **iPad, or a Mac window**: tabs at the top, Home in two columns, and Search and Spending show details beside the list. Sheets open in the middle of the screen.
 - **Mac, or iPad on its side**: a sidebar with every section and Settings.

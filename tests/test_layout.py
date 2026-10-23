@@ -1,5 +1,5 @@
 """Every screen at every size: iPhone (three sizes, upright and on its side), iPad both ways and Mac, light and dark.
-Also the details pane on iPad and Mac, the shrinking tab bar, keyboard shortcuts and pull to refresh.
+Also the details pane on iPad and Mac, the tab bar staying clear of every page, keyboard shortcuts and pull to refresh.
 Screenshots of each go to tests/output/."""
 import os
 from harness import READ
@@ -77,13 +77,19 @@ def run(b, t):
             pg.context.close()
 
     if not any(x[0] == 'iphone' for x in SIZES): return
-    # the tab bar shrinks while you scroll down, centred, and comes back
+    # the tab bar stays full size however far you scroll, and the end of every page clears it
     pg = t.page(b, touch=True)
     pg.evaluate("go('search')"); pg.evaluate("window.scrollTo(0,300)"); pg.wait_for_timeout(100); pg.evaluate("window.scrollTo(0,700)"); pg.wait_for_timeout(500)
-    r = pg.evaluate("(()=>{const b=document.querySelector('.tabbar');const r=b.getBoundingClientRect();return {min:b.classList.contains('min'),c:r.left+r.width/2,w:r.width}})()")
-    ok(r['min'] and abs(r['c'] - 195) < 2 and r['w'] < 70, f'the tab bar shrinks to the current tab, centred ({r})')
-    pg.evaluate("window.scrollTo(0,0)"); pg.wait_for_timeout(500)
-    ok(not pg.evaluate("document.querySelector('.tabbar').classList.contains('min')"), 'and comes back at the top')
+    r = pg.evaluate("(()=>{const b=document.querySelector('.tabbar');return {min:b.classList.contains('min'),w:b.getBoundingClientRect().width,n:[...b.querySelectorAll('button')].filter(x=>x.getBoundingClientRect().width>40).length}})()")
+    ok(not r['min'] and r['n'] == 5 and r['w'] > 300, f'scrolling down leaves the tab bar full size with all five tabs ({r})')
+    for w, h in [(390, 844), (844, 390)]:
+        pg.set_viewport_size({'width': w, 'height': h}); pg.wait_for_timeout(300)
+        for tb in ['home', 'till', 'search', 'spending', 'convert', 'settings']:
+            pg.evaluate(f"go('{tb}')"); pg.evaluate("window.scrollTo(0,1e6)"); pg.wait_for_timeout(150)
+            gap = pg.evaluate("""(()=>{const top=document.querySelector('#dock .tabbar').getBoundingClientRect().top;let last=0;
+              for(const e of document.querySelectorAll('main *')){const r=e.getBoundingClientRect();if(r.width&&r.height&&r.bottom>last)last=r.bottom}return Math.round(top-last)})()""")
+            ok(16 <= gap, f'{w}x{h} {tb}: the end of the page sits clear of the tab bar ({gap}px)')
+    pg.set_viewport_size({'width': 390, 'height': 844}); pg.wait_for_timeout(300)
     # pull to refresh on Home
     pg.evaluate("go('home')")
     def drag(y0, y1, steps=10):

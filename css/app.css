@@ -435,6 +435,11 @@ h1 {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* a few lines that must be read in full (Settings › Last rate check) */
+.lbl small.wrap {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 .lbl.plain {
   padding: 4px 0;
   text-align: left;
@@ -657,6 +662,10 @@ h1 {
 }
 .sumcard.static {
   padding-right: 18px;
+}
+/* Spending with nothing logged (or nothing matching): no chips sit between the total and the message, so keep a gap */
+.sumcard.static + #spendList > .grp:first-child {
+  margin-top: 12px;
 }
 .nudge {
   display: flex;

@@ -96,8 +96,42 @@ def run(b, t):
     pg = t.page(b, data={**sample(), 'rate': None}, rate_fail=True)
     pg.evaluate("go('convert')"); pg.wait_for_timeout(200)
     ok(pg.locator('#conv-gbp').is_disabled() and 'No rate yet' in pg.inner_text('#app'), 'with no rate, Convert says so')
-    pg.click('#refreshRate'); pg.wait_for_timeout(400)
-    ok('Couldn’t load a rate' in pg.inner_text('.toast'), 'a failed refresh explains')
+    pg.click('#refreshRate'); pg.wait_for_function("!rateBusy"); pg.wait_for_timeout(100)
+    ok('Couldn’t reach the rate service. Try again in a moment.' in pg.inner_text('.toast'), 'a failed refresh explains, without blaming the connection')
+    ok(pg.evaluate("D.rate===null&&RATE_CHECK&&!RATE_CHECK.ok&&RATE_CHECK.fails.length===4"), 'it tried all four sources')
+    pg.evaluate("go('settings')"); pg.wait_for_timeout(100)
+    txt = pg.inner_text('#app')
+    ok('Couldn’t load a rate' in txt and 'frankfurter.dev: error 503' in txt and 'currency-api.pages.dev: error 503' in txt, 'Settings says which sources failed and why')
+    pg.context.close()
+
+    # ── rate sources: falls back, keeps a good rate, rejects nonsense ──
+    pg = t.page(b, data={**sample(), 'rate': None}, rate_opts={'down': ['api.frankfurter.dev', 'api.frankfurter.app']})
+    pg.evaluate("go('convert')"); pg.click('#refreshRate'); pg.wait_for_function("!rateBusy"); pg.wait_for_timeout(100)
+    ok(pg.evaluate(f"D.rate&&D.rate.value==={RATE}&&D.rate.source==='Currency API'"), 'with Frankfurter down, the rate comes from the Currency API')
+    ok('Rate updated' in pg.inner_text('.toast'), 'and the refresh says it worked')
+    pg.evaluate("go('settings')"); pg.wait_for_timeout(100)
+    txt = pg.inner_text('#app')
+    ok('From Currency API' in txt and 'Loaded from Currency API' in txt and 'Tried first' in txt, 'Settings names the source and what was tried first')
+    pg.context.close()
+
+    pg = t.page(b, rate_opts={'values': {'api.frankfurter.dev': 0.0128}})
+    pg.evaluate("D.rate.cachedAt='2000-01-01T00:00:00Z';go('convert')"); pg.click('#refreshRate'); pg.wait_for_function("!rateBusy"); pg.wait_for_timeout(100)
+    ok(pg.evaluate(f"D.rate.value==={RATE}&&D.rate.source.startsWith('Frankfurter')&&/out of range/.test(RATE_CHECK.fails[0].why)"),
+       'a rate the wrong way round (0.0128) is rejected and the next source used')
+    pg.context.close()
+
+    pg = t.page(b, rate_opts={'values': {'api.frankfurter.dev': 9999, 'api.frankfurter.app': -1, 'cdn.jsdelivr.net': 0, 'currency-api.pages.dev': 'abc'}})
+    before = pg.evaluate("D.rate.value")
+    pg.evaluate("go('convert')"); pg.click('#refreshRate'); pg.wait_for_function("!rateBusy"); pg.wait_for_timeout(100)
+    ok(pg.evaluate(f"D.rate.value==={before}") and pg.evaluate(READ, 'rate')['value'] == before, 'bad replies from every source never replace the saved rate')
+    ok('the saved rate is still in use' in pg.inner_text('.toast'), 'and the refresh says the saved rate is still in use')
+    pg.context.close()
+
+    pg = t.page(b)
+    pg.context.set_offline(True); pg.wait_for_timeout(100)
+    pg.evaluate("go('convert')"); pg.click('#refreshRate'); pg.wait_for_timeout(200)
+    ok('You’re offline. Using your saved rate.' in pg.inner_text('.toast'), 'offline, the refresh says so and keeps the saved rate')
+    pg.context.set_offline(False)
     pg.context.close()
 
     # ── updating from Suki 2.0: what the old app saved is all there ──

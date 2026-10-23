@@ -158,6 +158,15 @@ def run(b, t):
     pg.keyboard.press('Escape'); pg.wait_for_timeout(100)
     ok(pg.evaluate("U.sheet") is None, 'Escape closes the sheet')
 
+    # an old rate: a quiet note under the pound values, and none while it's fresh
+    tab(pg, 'search'); pg.fill('#q', ''); pg.wait_for_timeout(60)
+    ok(pg.locator('#staleRate').count() == 0, 'with a fresh rate, Search has no note about its age')
+    pg.evaluate("D.rate.cachedAt=new Date(Date.now()-3*864e5).toISOString();rerender()"); pg.wait_for_timeout(60)
+    ok('rate from 3 days ago' in pg.inner_text('#results'), 'with a rate three days old, Search says the pound values use it')
+    pg.fill('#q', 'bigas'); pg.wait_for_timeout(60)
+    ok(pg.locator('#staleRate').count() == 1, 'and it stays under the matches while searching')
+    pg.evaluate("D.rate.cachedAt=new Date().toISOString();U.q='';rerender()"); pg.wait_for_timeout(60)
+
     # ── Settings ──────────────────────────────────────────────────
     tab(pg, 'home'); pg.click('#barR [data-v=settings]'); pg.wait_for_timeout(100)
     ok('Suki ' in pg.inner_text('.ver') and pg.locator('#barL [data-v=home]').count() == 1, 'Settings has the version and a way back')
@@ -176,6 +185,16 @@ def run(b, t):
     pg = t.page(b, data=None)
     ok('No purchases yet' in pg.inner_text('#app'), 'Home has an empty state')
     tab(pg, 'spending'); ok('appear here' in pg.inner_text('#app') and pg.locator('[data-a=csv]').count() == 0, 'Spending has an empty state and no export')
+    gap = pg.evaluate("document.querySelector('#spendList .grp').getBoundingClientRect().top-document.getElementById('spendSum').getBoundingClientRect().bottom")
+    ok(gap >= 10, f'the empty state keeps a gap under the total ({gap:.0f}px)')
     tab(pg, 'convert')
     ok(pg.evaluate("!!D.rate"), 'with no saved rate, one loads on opening')
+    pg.context.close()
+
+    # with motion on, every tab swaps instantly, Settings included
+    pg = t.page(b, init="localStorage.setItem('suki:motion','1')")
+    for to in ['settings', 'home', 'search', 'settings', 'convert']:
+        pg.evaluate(f"go('{to}')")
+        n = pg.evaluate("document.getElementById('app').getAnimations().length")
+        ok(n == 0, f'going to {to.title()} is instant ({n} animations)')
     pg.context.close()

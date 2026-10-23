@@ -75,14 +75,26 @@ SEED = """async o=>{const m=localStorage.getItem('suki:motion');localStorage.cle
 READ = """async k=>{const db=await new Promise(res=>{const r=indexedDB.open('suki-db',1);r.onsuccess=()=>res(r.result)});
  return await new Promise(res=>{const r=db.transaction('kv','readonly').objectStore('kv').get(k);r.onsuccess=()=>{res(r.result);db.close()}})}"""
 
-def rate_route(ctx, value=RATE, fail=False):
-    """Answer the exchange-rate request ourselves, so tests never need the internet."""
+# every address the app asks for the rate, in the order it tries them
+RATE_HOSTS = ['api.frankfurter.dev', 'api.frankfurter.app', 'cdn.jsdelivr.net', 'currency-api.pages.dev']
+
+def rate_route(ctx, value=RATE, fail=False, down=(), values=None):
+    """Answer the exchange-rate requests ourselves, so tests never need the internet.
+    fail: every source is down. down: hosts that answer 503. values: {host: rate} to answer a host with another rate."""
     def handle(route):
-        if fail: return route.fulfill(status=503, body='down')
-        route.fulfill(status=200, content_type='application/json',
-                      headers={'Access-Control-Allow-Origin': '*'},
-                      body=json.dumps({'amount': 1.0, 'base': 'GBP', 'date': today.isoformat(), 'rates': {'PHP': value}}))
-    ctx.route('**/api.frankfurter.app/**', handle)
+        host = route.request.url.split('/')[2]
+        if fail or any(host.endswith(h) for h in down): return route.fulfill(status=503, body='down', headers={'Access-Control-Allow-Origin': '*'})
+        v = next((x for h, x in (values or {}).items() if host.endswith(h)), value)
+        d = today.isoformat()
+        if host == 'api.frankfurter.dev': body = {'date': d, 'base': 'GBP', 'quote': 'PHP', 'rate': v}
+        elif host == 'api.frankfurter.app': body = {'amount': 1.0, 'base': 'GBP', 'date': d, 'rates': {'PHP': v}}
+        else: body = {'date': d, 'gbp': {'php': v, 'eur': 1.15}}
+        route.fulfill(status=200, content_type='application/json', headers={'Access-Control-Allow-Origin': '*'}, body=json.dumps(body))
+    for h in RATE_HOSTS: ctx.route(f'**/*{h}/**', handle)
+
+def rate_noise(m):
+    """A rate source that's down on purpose logs a failed load; that isn't a fault in the app."""
+    return 'Failed to load resource' in m.text and any(h in (m.location or {}).get('url', '') for h in RATE_HOSTS)
 
 
 class T:
@@ -95,7 +107,7 @@ class T:
         else: self.fails.append(msg)
         print(('  pass  ' if cond else '  FAIL  ') + msg, flush=True)
 
-    def page(self, b, w=390, h=844, sc='light', touch=False, ua=UA_IPHONE, data='sample', init=None, rate_fail=False, ctx_args=None):
+    def page(self, b, w=390, h=844, sc='light', touch=False, ua=UA_IPHONE, data='sample', init=None, rate_fail=False, ctx_args=None, rate_opts=None):
         """A fresh app page. data='sample' seeds sample(); None leaves the app empty; a dict seeds that dict."""
         args = dict(viewport={'width': w, 'height': h}, device_scale_factor=2 if w < 500 else 1, color_scheme=sc,
                     has_touch=touch, accept_downloads=True, timezone_id='Europe/London', locale='en-GB',
@@ -103,15 +115,15 @@ class T:
         if ua: args['user_agent'] = ua
         args.update(ctx_args or {})
         ctx = b.new_context(**args)
-        rate_route(ctx, fail=rate_fail)
+        rate_route(ctx, fail=rate_fail, **(rate_opts or {}))
         # motion off by default, so nothing waits on springs; a test can turn it back on with its own init
         ctx.add_init_script("try{if(localStorage.getItem('suki:motion')===null)localStorage.setItem('suki:motion','0')}catch(e){}")
         if init: ctx.add_init_script(init)
         pg = ctx.new_page()
         tag = f'{self.name} {w}x{h}'
         pg.on('pageerror', lambda e: self.errors.append(f'{tag}: {str(e).splitlines()[0]}'))
-        # with the rate switched off on purpose, its failed request isn't a fault
-        quiet = (lambda m: rate_fail and 'Failed to load resource' in m.text)
+        # a rate source switched off on purpose logs a failed request, which isn't a fault
+        quiet = rate_noise
         pg.on('console', lambda m: self.errors.append(f'{tag} console: {m.text}') if m.type == 'error' and not quiet(m) else None)
         pg.goto(url())
         ready(pg)

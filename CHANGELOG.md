@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.3 · 23 Oct 2026
+*An exchange rate you can rely on*
+
+**Exchange rate**
+- The rate now has backups. Suki asks Frankfurter for the European Central Bank's rate first, then Frankfurter's older address, then the Currency API and its mirror, and uses the first that answers.
+- It stays on the European Central Bank's rate whenever Frankfurter answers, so the number matches what Suki used before.
+- Every rate is checked before it's saved. Anything outside ₱30 to ₱120 per pound is turned away, so a bad reply can never replace a good saved rate.
+- The messages are honest now. "You're offline" only appears when you really are. Otherwise it says the rate service couldn't be reached, and whether your saved rate is still in use.
+
+**Settings**
+- Saved exchange rate now says where the rate came from.
+- A new Last rate check row shows what happened the last time the rate was checked, and why each source failed if it did.
+- Settings now opens instantly, like the five main tabs.
+
+**Search**
+- When the saved rate is more than two days old, a quiet line under the prices says how old it is. It disappears once the rate is fresh.
+
+**Spending**
+- With nothing logged yet, the total and the message underneath no longer touch.
+
 ## 2.2 · 22 Oct 2026
 *Prices in pounds on Search, and snappier navigation*
 

@@ -44,7 +44,7 @@ Suki shares its foundations with Vocal Sessions (`imperialfox/Vocal-Sessions`): 
 | `js/helpers.js` | Money and dates, icons, category tiles, layout (`MQ`, `layout()`), tabs and the on-screen state `U` |
 | `js/screens.js` | Home, Till, Search, Spending, Convert and Settings, plus the shared purchase form, purchase details and item details |
 | `js/ui.js` | Form state `F`, the top bar, tab bar, top tabs and sidebar, `render()` and `go()`, sheets and toasts |
-| `js/rate.js` | The exchange rate (`refreshRate`, `autoRate`) and the linked converter boxes |
+| `js/rate.js` | The exchange rate (`refreshRate`, `autoRate`) and the linked converter boxes. The rate comes from the first source in `RATE_SOURCES` that answers with a rate inside `RATE_RANGE`; `RATE_CHECK` keeps why the last check failed, for Settings |
 | `js/backup.js` | Saving files (share sheet or download), backups, restoring, erasing and the CSV export |
 | `js/events.js` | Every button action (`ACT`), the forms, typing, swipe to delete, blocking zoom and keyboard shortcuts |
 | `js/gestures.js` | Pull to refresh and the update check, scrolling (top bar and shrinking tab bar), rotating, online/offline, sheet scrolling and dragging sheets down |
@@ -106,7 +106,7 @@ python tests/run.py data flows       # just some files
 SUKI_FUZZ_STEPS=2000 python tests/run.py fuzz   # a longer random-tap run
 ```
 
-The tests drive the real app in Chromium, served from `localhost` as GitHub Pages would serve it, with motion off so nothing waits on a spring. The exchange rate is answered by the tests themselves, so they never need the internet. Screenshots of every screen go to `tests/output/`.
+The tests drive the real app in Chromium, served from `localhost` as GitHub Pages would serve it, with motion off so nothing waits on a spring. Every exchange-rate source is answered by the tests themselves (`rate_route` in `tests/harness.py`, which can also take a source down or give it a bad rate), so they never need the internet. Add a new source's address to `RATE_HOSTS` there too. Screenshots of every screen go to `tests/output/`.
 
 | File | Covers |
 |---|---|

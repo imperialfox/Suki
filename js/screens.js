@@ -196,6 +196,16 @@ function itemRow(it) {
     ICON.chev + '</button>'
   );
 }
+// a quiet note when the pound values come from a rate over two days old; nothing when it's fresh or missing
+const RATE_OLD = 2 * 864e5;
+function staleRate() {
+  const r = D.rate;
+  if (!r) return '';
+  const at = new Date(r.cachedAt);
+  if (isNaN(at) || Date.now() - at < RATE_OLD) return '';
+  const n = dayDiff(localISO(at));
+  return '<p class="foot stale" id="staleRate">Pound values use a rate from ' + (n < 7 ? n + ' days ago' : shortDate(localISO(at))) + '. Refresh it on Convert.</p>';
+}
 function searchResults() {
   const q = U.q.trim();
   if (q) {
@@ -204,14 +214,15 @@ function searchResults() {
       hdr('Matches', '<span class="hint">' + plural(hits.length, 'result') + '</span>') +
       (hits.length
         ? '<div class="grp tiled">' + hits.map(itemRow).join('') + '</div>'
-        : '<div class="grp"><div class="empty"><b>No clear match</b><br>Try fewer words, another spelling or the English name.</div></div>')
+        : '<div class="grp"><div class="empty"><b>No clear match</b><br>Try fewer words, another spelling or the English name.</div></div>') +
+      (hits.length ? staleRate() : '')
     );
   }
   const R = REFS();
   return (
     hdr('Official prices · ' + esc(R.area || 'NCR')) +
     '<div class="grp tiled">' + OFFICIAL_IDS().map((id) => itemRow(itemById(id))).join('') + '</div>' +
-    '<p class="foot">Weekly averages from ' + esc(R.source || 'the Department of Agriculture') + ', ' + esc(R.period || '') + '.</p>' +
+    '<p class="foot">Weekly averages from ' + esc(R.source || 'the Department of Agriculture') + ', ' + esc(R.period || '') + '.</p>' + staleRate() +
     hdr('Dishes and street food') +
     '<div class="grp tiled">' + CATALOG.filter((i) => kindOf(i.group) === 'food').slice(0, 8).map(itemRow).join('') + '</div>'
   );
@@ -325,6 +336,14 @@ function scrConvert() {
 }
 
 /* ===== Settings ===== */
+// what happened the last time the rate was checked this session, so a failure can be explained
+function rateCheckText() {
+  const c = RATE_CHECK,
+    when = whenAgo(new Date(c.at)),
+    fails = c.fails.map((f) => esc(f.source) + ': ' + esc(f.why)).join('<br>');
+  if (c.ok) return { t: 'Loaded from ' + esc(c.source) + ' · ' + when.charAt(0).toLowerCase() + when.slice(1) + (fails ? '<br>Tried first: ' + fails : ''), cls: 'wrap' };
+  return { t: 'Couldn’t load a rate · ' + when.charAt(0).toLowerCase() + when.slice(1) + '<br>' + fails, cls: 'wrap red' };
+}
 let SW_STATE = 'Checking…',
   STORAGE_USED = 'Checking…';
 function scrSettings() {
@@ -352,7 +371,8 @@ function scrSettings() {
     hdr('About') +
     '<div class="grp tiled set">' +
     row('wifi', '#30b0c7', 'Works offline', '<span id="swStatus">' + esc(SW_STATE) + '</span>') +
-    row('peso', '#5856d6', 'Saved exchange rate', D.rate ? '£1 = ' + D.rate.value.toFixed(2) + ' PHP · ' + shortDate(D.rate.date) : 'Not loaded yet') +
+    row('peso', '#5856d6', 'Saved exchange rate', D.rate ? '£1 = ' + D.rate.value.toFixed(2) + ' PHP · ' + shortDate(D.rate.date) + '<br>From ' + esc(D.rate.source) : 'Not loaded yet') +
+    (RATE_CHECK ? row('refresh', RATE_CHECK.ok ? '#34c759' : '#ff9500', 'Last rate check', rateCheckText()) : '') +
     row('book', '#34c759', 'Official prices', esc((R.source || '') + ' · ' + (R.area || '') + ' · ' + (R.period || ''))) +
     row('phone', '#007aff', 'Add to your Home Screen', 'In Safari: Share › Add to Home Screen') +
     '<a class="row" href="https://github.com/imperialfox/Suki" target="_blank" rel="noopener">' + stile('code', '#1c1c1e') + '<span class="lbl"><b>View on GitHub</b></span>' + ICON.out + '</a>' +

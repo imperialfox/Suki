@@ -1,8 +1,8 @@
 # Suki
 
-![Version 2.2](https://img.shields.io/badge/version-2.2-blue)
+![Version 2.3](https://img.shields.io/badge/version-2.3-blue)
 
-**Current version: 2.2 · 22 Oct 2026.** See the [changelog](CHANGELOG.md) for what's new.
+**Current version: 2.3 · 23 Oct 2026.** See the [changelog](CHANGELOG.md) for what's new.
 
 Suki is a personal travel companion for the Philippines. It checks your change, converts pounds and pesos, looks up prices and keeps track of what you spend. It's a Home Screen web app for iPhone, iPad and Mac, and works offline.
 
@@ -63,7 +63,7 @@ The launch images in `splash/` are made from `icon-512.png` by `python tools/spl
 - Everything you enter stays on your device, in the browser's storage. There's no account, server or cloud sync.
 - iOS can clear a website's storage if it isn't opened for a few weeks, so export a backup now and then. Suki reminds you after two weeks.
 - Backups are JSON files named by month and device (for example "Suki backup · 2026-10 · iPhone.json"), so backing up again in the same month replaces that month's file in Files.
-- Refreshing the exchange rate contacts `api.frankfurter.app`. Only the currencies are sent, never your records.
+- Refreshing the exchange rate contacts Frankfurter for the European Central Bank's rate (`api.frankfurter.dev`, then `api.frankfurter.app`). If neither answers, it falls back to the Currency API (`cdn.jsdelivr.net`, then `currency-api.pages.dev`). Only the currencies are sent, never your records.
 - This repository and its website are public. Don't add private or licensed content.
 
 ## Adapting it

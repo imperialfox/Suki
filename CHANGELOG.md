@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.6 · 31 Oct 2026
+*Spending over time (Q03)*
+
+**Spending**
+- A D · W · M · All switch at the top, with arrows to step back through earlier days, weeks and months. The total, the list and everything below follow it.
+- A bar for each day, stacked by category. Tap or slide across the bars to read a day.
+- A breakdown by category, with each one's share. Tap a category to show only its purchases.
+- Rows show one detail under the name (the place), so nothing is cut off. The rest is in the purchase's details.
+- A long list shows the newest 60 purchases, then a Show more row, so Spending stays quick however much you log.
+- Delete now offers Undo for a few seconds.
+- Category chips fade at the edge when there are more to scroll to.
+
+**Home**
+- Tap the date or the Home title to open a calendar. Days you spent on are tinted, today is outlined, and tapping a day lists what you bought.
+- Left open past midnight, the app moves on to the new day by itself.
+
 ## 2.5 · 31 Oct 2026
 *Fixes before the trip (Q01)*
 

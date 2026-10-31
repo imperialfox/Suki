@@ -81,6 +81,67 @@ def run(b, t):
     ok(pg.evaluate("U.sheet") == 'purchase', 'Cancel goes back to the purchase')
     pg.click('.sheet [data-a=delPurchase]'); pg.click('.sheet [data-a=delPurchaseYes]'); pg.wait_for_timeout(200)
     ok(pg.evaluate("U.sheet") is None and not any(p['id'] == 'a1' for p in pg.evaluate(READ, 'purchases')), 'confirming deletes it and closes the sheets')
+    # Undo puts it back where it was (Q03)
+    ok(pg.locator('.toast button').inner_text() == 'Undo', 'deleting shows Undo')
+    pg.click('.toast button'); pg.wait_for_timeout(200)
+    ok(any(p['id'] == 'a1' for p in pg.evaluate(READ, 'purchases')) and pg.locator('#spendList [data-a=openPurchase][data-k=a1]').count() == 1, 'Undo brings the purchase back')
+
+    # ── Spending over time (Q03) ─────────────────────────────────
+    ok(pg.evaluate("U.range") == 'all' and 'Since' in pg.inner_text('#spendSum') and pg.locator('#chart .col').count() == 10,
+       'Spending starts on All, with a bar for each day since the first purchase')
+    amts = [float(a.split('₱')[1].split('\n')[0].replace(',', '')) for a in pg.locator('#spendBrk .row .amt').all_inner_texts()]
+    ok(len(amts) >= 4 and amts == sorted(amts, reverse=True), f'the breakdown lists each category, biggest first ({amts})')
+    pg.click('#rangeSeg [data-v=week]'); pg.wait_for_timeout(100)
+    ok(pg.locator('#chart .col').count() == 7 and 'This week' in pg.inner_text('#spendSum'), 'W shows this week, a bar a day')
+    ok(pg.evaluate("getComputedStyle(document.getElementById('rangeSeg')).getPropertyValue('--i').trim()") == '1', 'the knob moves to W')
+    wk = pg.locator('#spendList [data-a=openPurchase]').count()
+    pg.click('#rangeSeg [data-v=day]'); pg.wait_for_timeout(100)
+    ok(pg.locator('#chart').count() == 0 and 'Today' in pg.inner_text('#spendSum') and pg.locator('#spendList [data-a=openPurchase]').count() <= wk, 'D shows today, and the list follows')
+    pg.click('#spendSum [data-a=rangeStep][data-v="1"]'); pg.wait_for_timeout(100)
+    ok('Yesterday' in pg.inner_text('#spendSum') and '₱1,247.50' in pg.inner_text('#spendSum'), 'the back arrow steps to yesterday')
+    ok(pg.locator('#spendSum [data-a=rangeStep][data-v="-1"]').is_enabled(), 'and the forward arrow comes alive')
+    pg.click('#rangeSeg [data-v=all]'); pg.wait_for_timeout(100)
+    # tap a bar to read that day
+    last = pg.locator('#chart .col').last.bounding_box()
+    pg.mouse.click(last['x'] + last['width'] / 2, last['y'] + last['height'] - 4); pg.wait_for_timeout(100)
+    ok(pg.evaluate("U.bar") == 9 and 'Today' in pg.inner_text('#spendSum .plabel'), 'tapping a bar shows that day in the headline')
+    pg.mouse.click(20, 20); pg.wait_for_timeout(100)
+    ok(pg.evaluate("U.bar") is None, 'tapping elsewhere goes back to the whole period')
+    pg.click('#spendBrk .row:has-text("Groceries")'); pg.wait_for_timeout(100)
+    ok(pg.evaluate("U.cat") == 'Groceries' and pg.locator('#spendList [data-a=openPurchase]').count() == 1, 'a breakdown row filters the list to that category')
+    pg.click('#spendBrk [data-a=cat][data-v=all] >> nth=0'); pg.wait_for_timeout(100)
+    ok(pg.evaluate("U.cat") == 'all', 'and Show all clears it')
+    # Home's date and title open the calendar
+    tab(pg, 'home'); pg.click('h1 .hometitle'); pg.wait_for_timeout(150)
+    ok(pg.evaluate("U.sheet") == 'calendar' and pg.locator('.cday.today').count() == 1 and pg.locator('.cday.has').count() >= 2, 'the calendar shows today and the days you spent on')
+    y1 = pg.evaluate("localISO(new Date(Date.now()-864e5))")
+    if y1[:7] == pg.evaluate("U.calM").replace('-01', '')[:7]:
+        pg.click(f'.cday[data-v="{y1}"]'); pg.wait_for_timeout(100)
+        ok(pg.locator('.sheet [data-a=openPurchase]').count() == 2, 'tapping a day lists what you bought')
+        pg.click('.sheet [data-a=openPurchase] >> nth=0'); pg.wait_for_timeout(150)
+        ok(pg.evaluate("U.sheet") == 'purchase', 'a purchase opens from the calendar')
+        pg.click('.sheet [data-a=close]'); pg.wait_for_timeout(150)
+        ok(pg.evaluate("U.sheet") == 'calendar', 'and closing it goes back to the calendar')
+    pg.click('.sheet [data-a=calStep][data-v="-1"]'); pg.wait_for_timeout(100)
+    ok(pg.evaluate("U.calM") < pg.evaluate("localISO().slice(0,8)+'01'"), 'the arrows step through months')
+    pg.click('.sheet [data-a=close]'); pg.wait_for_timeout(100)
+    tab(pg, 'spending')
+    # a long list draws 60 at a time, while the totals count everything (Q03, from the stress test)
+    pg.evaluate("""(()=>{const keep=D.purchases;window.__keep=keep;const many=[];for(let i=0;i<130;i++)many.push({id:'m'+i,item:'Snack '+i,price:10,date:localISO(),category:'Food & drink',location:'',venue:'',payment:'Cash',notes:''});
+      D.purchases=many.concat(keep);U.range='all';rerender()})()"""); pg.wait_for_timeout(100)
+    n0 = pg.locator('#spendList [data-a=openPurchase]').count()
+    ok(n0 == 60 and 'Show 60 more' in pg.inner_text('#spendList'), f'a long list draws the newest 60, then Show more ({n0})')
+    tot = float(pg.locator('#spendList .hdr .hint').first.inner_text().replace('₱', '').replace(',', ''))
+    ok(tot >= 1300, f'and the day’s total still counts every purchase ({tot})')
+    pg.click('[data-a=moreRows]'); pg.wait_for_timeout(100)
+    ok(pg.locator('#spendList [data-a=openPurchase]').count() == 120, 'Show more draws the next 60')
+    pg.evaluate("D.purchases=window.__keep;U.shown=60;rerender()"); pg.wait_for_timeout(100)
+    # a new day redraws in place: here the day is made to look stale
+    pg.evaluate("document.querySelector('#app h1').dataset.old='1';drawnDay='2000-01-01'")
+    ok(pg.evaluate("dayCheck()") and not pg.evaluate("!!document.querySelector('#app h1[data-old]')"), 'when the date moves on, the screen redraws itself')
+    pg.evaluate("drawnDay='2000-01-01';document.getElementById('filter').focus()")
+    ok(not pg.evaluate("dayCheck()"), 'but not while you’re typing')
+    pg.evaluate("document.activeElement.blur()")
 
     # swipe to delete
     sel = '#spendList .sw:has([data-k=a2]) .fg'
@@ -100,7 +161,7 @@ def run(b, t):
         pg.click('[data-a=csv]')
     path = dl.value.path(); csv = open(path, encoding='utf-8-sig').read()
     ok(dl.value.suggested_filename.startswith('Suki purchases') and csv.splitlines()[0].startswith('"Date","Item","Amount (PHP)"'), 'Export as CSV saves a spreadsheet file')
-    ok('"Halo-halo"' in csv and '"1250.50"' in csv and csv.count('\n') == 3, 'the CSV has every purchase shown')
+    ok('"Halo-halo"' in csv and '"1250.50"' in csv and csv.count('\n') == 4, 'the CSV has every purchase shown')
     t.shot(pg, 'spending')
 
     # ── Quick Till ────────────────────────────────────────────────

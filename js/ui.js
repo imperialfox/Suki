@@ -64,6 +64,8 @@ function render(keepScroll) {
   renderDock();
   renderSheet();
   if (keepScroll) window.scrollTo(0, y);
+  fadeScrollers();
+  drawnDay = localISO();
   // put the cursor back where it was, so a redraw while typing doesn't interrupt
   if (focusId && $(focusId) && !U.sheet) {
     const el = $(focusId);
@@ -78,10 +80,36 @@ function go(tab) {
   if (!SCREENS[tab]) return;
   const same = U.tab === tab;
   U.tab = tab;
-  if (!same) window.scrollTo(0, 0);
+  if (!same) {
+    window.scrollTo(0, 0);
+    U.shown = SHOW_STEP;
+  }
   // every tab, Settings included, swaps instantly; the launch into Home has its own fade in boot.js
   render(same);
 }
+
+/* ===== A new day: when the date moves on (coming back to the app, or a check each minute), redraw in place so
+   "Today", the bars and the calendar move on too. It waits while a sheet is open or a box has the cursor (Q03). ===== */
+let drawnDay = null;
+function dayCheck() {
+  if (!drawnDay || localISO() === drawnDay || document.visibilityState === 'hidden') return false;
+  const ae = document.activeElement;
+  if (U.sheet || (ae && ae.matches && ae.matches('input,textarea,select'))) return false;
+  rerender();
+  return true;
+}
+setInterval(dayCheck, 60000);
+document.addEventListener('visibilitychange', dayCheck);
+
+/* ===== A row that scrolls sideways fades at the edge that has more to see ===== */
+function fadeScrollers(root) {
+  (root ? [root] : document.querySelectorAll('.scroller')).forEach((s) => {
+    const more = s.scrollWidth - s.clientWidth;
+    s.classList.toggle('fl', more > 2 && s.scrollLeft > 2);
+    s.classList.toggle('fr', more > 2 && s.scrollLeft < more - 2);
+  });
+}
+document.addEventListener('scroll', (e) => e.target.classList && e.target.classList.contains('scroller') && fadeScrollers(e.target), { capture: true, passive: true });
 
 /* ===== Sheets =====
    A sheet rises from the bottom on iPhone and opens in the middle on iPad and Mac. One opened from another
@@ -170,6 +198,36 @@ function sheetHTML() {
           '<div class="gap"></div><button class="cta red" data-a="restoreYes">Replace with this backup</button><button class="ghost" data-a="close">Cancel</button>'
       );
     }
+    case 'calendar': {
+      // a month: days you spent on are tinted, today is outlined; tap a day to see what you bought (Q03)
+      const m = U.calM || localISO().slice(0, 8) + '01',
+        first = atNoon(m),
+        lead = (first.getDay() + 6) % 7,
+        last = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate(),
+        t = localISO(),
+        spent = {};
+      D.purchases.forEach((p) => p.date.slice(0, 7) === m.slice(0, 7) && (spent[p.date] = (spent[p.date] || 0) + (+p.price || 0)));
+      let cells = '';
+      for (let i = 0; i < lead; i++) cells += '<span></span>';
+      for (let d = 1; d <= last; d++) {
+        const iso = m.slice(0, 8) + String(d).padStart(2, '0');
+        cells +=
+          '<button class="cday' + (spent[iso] ? ' has' : '') + (iso === t ? ' today' : '') + (U.calD === iso ? ' on' : '') + '" data-a="calDay" data-v="' + iso + '" aria-label="' + esc(longDate(iso)) + (spent[iso] ? ', ' + cash(spent[iso]) : '') + '"' + (U.calD === iso ? ' aria-pressed="true"' : '') + '>' + d + '</button>';
+      }
+      const day = U.calD ? D.purchases.filter((p) => p.date === U.calD).sort(byNewest) : [],
+        mTotal = Object.values(spent).reduce((a, b) => a + b, 0);
+      return sheetWrap(
+        monthName(m),
+        '<div class="calhead"><span class="small">' + (mTotal ? cash(Math.round(mTotal * 100) / 100) + ' this month' : 'Nothing logged this month') + '</span><span><button class="circ glass sm" data-a="calStep" data-v="-1" aria-label="Earlier month">' + ICON.back + '</button><button class="circ glass sm fwd" data-a="calStep" data-v="1" aria-label="Later month">' + ICON.back + '</button></span></div>' +
+          '<div class="calgrid"><div class="cdows" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div><div class="cdays">' + cells + '</div></div>' +
+          (U.calD
+            ? hdr(dayHeading(U.calD), day.length ? '<span class="hint">' + cash(sum(day)) + '</span>' : '') +
+              (day.length ? '<div class="grp tiled">' + day.map((p) => purchaseRow(p, { push: true, meta: p.location || p.venue || p.category })).join('') + '</div>' : '<div class="grp"><div class="empty">Nothing logged on this day.</div></div>')
+            : '<p class="foot">Tap a day to see what you bought.</p>'),
+        '',
+        'Calendar'
+      );
+    }
     case 'notes': {
       const list = D.observations.slice().sort((a, b) => b.date.localeCompare(a.date));
       return sheetWrap(
@@ -225,17 +283,32 @@ function renderSheet() {
 
 /* ===== Toasts ===== */
 let toastT = null;
-function toast(t) {
+// undo: a function that puts back what was just removed; the toast then shows an Undo button and stays a little longer
+function toast(t, undo) {
   clearTimeout(toastT);
   const o = document.querySelector('.toast');
   if (o) o.remove();
   const el = document.createElement('div');
-  el.className = 'toast glass';
+  el.className = 'toast glass' + (undo ? ' undo' : '');
   el.setAttribute('role', 'status');
-  el.textContent = t;
+  const s = document.createElement('span');
+  s.textContent = t;
+  el.appendChild(s);
+  if (undo) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = 'Undo';
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearTimeout(toastT);
+      el.remove();
+      undo();
+    });
+    el.appendChild(b);
+  }
   document.body.appendChild(el);
   toastT = setTimeout(() => {
     el.classList.add('out');
     setTimeout(() => el.remove(), 250);
-  }, 2200);
+  }, undo ? 4500 : 2200);
 }

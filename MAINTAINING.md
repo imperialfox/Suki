@@ -119,6 +119,15 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 
 ---
 
+## Spending over time (Q03)
+
+`period()` gives the range switch's period (`U.range`, `U.roff`), `buckets()` its bars and `spendBreakdown()` the categories. The list, total, chart and breakdown all follow the period; typing in the filter updates them in place (`updateSpending`). The range knob slides in place (never redraw it mid-slide). Chart scrubbing is pointer events on `#chart` (`touch-action: pan-y`), updating only `#spendSum`.
+
+- The list draws `SHOW_STEP` (60) purchases, then a "Show more" row (`U.shown`); day totals and everything above the list still count every purchase. With 3,000 purchases and the processor slowed 4×, Spending opens in about 0.2 s.
+- `dayCheck()` redraws when the date moves on (every minute and on coming back to the app), but not while a sheet is open or a box has the cursor.
+- Category colours are `--cat-*`, checked with the dataviz palette validator in light and dark. Shopping is purple so it never sits next to green.
+- Deleting shows a toast with Undo (`toast(text, undo)`).
+
 ## Style
 
 Native iOS look (Liquid Glass imitated in CSS), no in-app branding, British English in plain, friendly words. Everything must work on iPhone, iPhone on its side, iPad and Mac, in light and dark.

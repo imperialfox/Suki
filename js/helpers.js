@@ -174,6 +174,12 @@ const freshU = () => ({
   stack: [], // sheets to return to when this one closes
   q: '', // the search box
   cat: 'all', // Spending's category chip
+  range: 'all', // Spending's period: day, week, month or all
+  roff: 0, // how many periods back the arrows have stepped
+  bar: null, // the bar picked on Spending's chart (its index), or null for the whole period
+  shown: 60, // how many purchases Spending's list draws before "Show more"
+  calM: null, // the calendar sheet's month (YYYY-MM-01) and picked day
+  calD: null,
   filter: '', // Spending's filter box
   sel: null, // iPad and Mac: the purchase shown beside the list
   item: null, // iPad and Mac: the catalogue item shown beside the results

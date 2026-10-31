@@ -32,7 +32,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 l
 **Done when:** tests pass; MAINTAINING.md says how to update `typical.js`.
 
 ## Q03 · Spending: over time, calendar, Undo, Show more, new day
-**Render:** 31 Oct 2026, 22:56, scope as below · **Build:** awaiting.
+**Render:** 31 Oct 2026, 22:56, scope as below · **Build:** 31 Oct 2026 · shipped as 2.6.
 
 **Goal:** see where the money went, day by day.
 **Agreed:**
@@ -44,6 +44,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 l
 6. *From the stress test (#10):* the list draws the newest 60 purchases, then a "Show 60 more" row; the total, chart and breakdown still count everything in the period.
 7. *From the stress test (#7):* when the date changes (coming back to the app, or a check each minute), the screen redraws in place so "Today", the bars and the calendar move on. *Default if unanswered:* it waits while a sheet is open or a box has the cursor.
 **Done when:** tests pass, including the new Spending, calendar, Show more and new-day ones.
+**Debrief:** Built from the prototype, plus the two stress-test additions. Show more draws 60 at a time; with 3,000 purchases and the processor slowed 4×, Spending opens in 0.23 s (was about 2 s) and the filter keeps up at 70–140 ms a key. The new-day check runs every minute and on returning to the app, and waits while a sheet is open or a box has the cursor (the default). Tests: range switch, stepping, bar picking, breakdown filtering, calendar, Undo, Show more and the new-day redraw.
 
 ## Q04 · Look: soft-edge bar, dock position, tokens, Accessibility, item glyphs
 **Render:** 31 Oct 2026, 22:56, scope as below · **Build:** awaiting.

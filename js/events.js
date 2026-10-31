@@ -94,12 +94,75 @@ function updateSearch() {
 }
 function updateSpending() {
   const list = spendingList();
+  U.shown = SHOW_STEP;
   $('spendSum').innerHTML = spendSummary(list);
+  $('spendBrk').innerHTML = spendBreakdown();
   $('spendList').innerHTML = spendRows(list);
   const c = document.querySelector('#app .searchbox .clr');
   if (c) c.hidden = !U.filter;
 }
 const fmtAmt = (n) => (Math.round(n * 100) / 100).toString();
+
+/* ===== Spending over time (Q03) ===== */
+// the segmented control's knob squishes as it lands (from Vocal Sessions)
+function squish(k) {
+  if (k) MOTION.animate(k, [{ scale: '1 1' }, { scale: '1.22 .86' }, { scale: '.96 1.04' }, { scale: '1 1' }], { ms: 450, easing: 'ease-out' });
+}
+// redraw the numbers, chart, breakdown and list for a new period; step says which way time moved
+function spendingChanged(step) {
+  const keep = $('spendSum');
+  if (!keep) return rerender();
+  rerender();
+  const st = $('spendSum');
+  if (step && st) MOTION.animate(st.querySelector('.tot'), [{ transform: 'translateX(' + (step > 0 ? 24 : -24) + 'px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { fade: true });
+  // the bars arrive in a small staggered ripple, Suki's one signature movement on this page
+  document.querySelectorAll('#chart .bfill').forEach((b, i) =>
+    MOTION.animate(b, [{ transform: 'scaleY(.55)', opacity: 0.4 }, { transform: 'none', opacity: 1 }], { spring: 'ripple', delay: MOTION.stagger(i, 'bar') / Math.max(1, document.querySelectorAll('#chart .bfill').length / 10) })
+  );
+}
+// tap or slide across the bars to read one day (scrubbing follows the finger instantly, no easing)
+let chartDrag = null;
+function chartPick(e) {
+  const ch = $('chart');
+  if (!ch) return;
+  const cols = ch.querySelectorAll('.col');
+  if (!cols.length) return;
+  const r = ch.querySelector('.cols').getBoundingClientRect(),
+    i = Math.max(0, Math.min(cols.length - 1, Math.floor(((e.clientX - r.left) / r.width) * cols.length)));
+  if (U.bar === i && e.type === 'pointerdown') return (chartDrag.clear = true);
+  if (U.bar === i) return;
+  U.bar = i;
+  const list = spendingList();
+  $('spendSum').innerHTML = spendSummary(list);
+}
+document.addEventListener('pointerdown', (e) => {
+  if (!e.target.closest('#chart')) {
+    if (U.bar != null && U.tab === 'spending' && !e.target.closest('#spendSum,.sheet')) {
+      U.bar = null;
+      if ($('spendSum')) $('spendSum').innerHTML = spendSummary(spendingList());
+    }
+    return;
+  }
+  chartDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, clear: false };
+  chartPick(e);
+});
+document.addEventListener('pointermove', (e) => {
+  if (!chartDrag || e.pointerId !== chartDrag.id) return;
+  if (Math.abs(e.clientX - chartDrag.x) > 6) chartDrag.clear = false;
+  chartPick(e);
+});
+const chartUp = (e) => {
+  if (!chartDrag || e.pointerId !== chartDrag.id) return;
+  if (chartDrag.clear) {
+    U.bar = null;
+    if ($('spendSum')) $('spendSum').innerHTML = spendSummary(spendingList());
+  }
+  chartDrag = null;
+};
+document.addEventListener('pointerup', chartUp);
+document.addEventListener('pointercancel', (e) => {
+  if (chartDrag && e.pointerId === chartDrag.id) chartDrag = null;
+});
 
 /* ===== Saving forms ===== */
 function formError(form, msg, f) {
@@ -233,7 +296,7 @@ const ACT = {
       U.sel = el.dataset.k;
       return rerender();
     }
-    openSheet('purchase', { id: el.dataset.k });
+    openSheet('purchase', { id: el.dataset.k }, el.dataset.v === 'push');
   },
   editPurchase: (el) => {
     const p = D.purchases.find((x) => x.id === el.dataset.k);
@@ -252,14 +315,22 @@ const ACT = {
     );
   },
   delPurchaseYes: async (el) => {
-    const id = el.dataset.k;
+    const id = el.dataset.k,
+      at = D.purchases.findIndex((p) => p.id === id),
+      gone = D.purchases[at];
     D.purchases = D.purchases.filter((p) => p.id !== id);
     if (U.sel === id) U.sel = null;
     U.stack = [];
     U.sheet = null;
     U.sd = {};
     rerender();
-    toast('Purchase deleted');
+    toast('Purchase deleted', gone && (async () => {
+      if (D.purchases.some((p) => p.id === gone.id)) return;
+      D.purchases.splice(Math.min(at, D.purchases.length), 0, gone);
+      rerender();
+      toast('Purchase restored');
+      await save('purchases');
+    }));
     await save('purchases');
   },
   openItem: (el) => {
@@ -290,10 +361,18 @@ const ACT = {
     openSheet('confirm', { title: 'Delete this price note?', text: o.itemName + ', ' + cash(o.price) + ' on ' + shortDate(o.date) + '.', btn: 'Delete note', action: 'delObsYes', k: o.id }, !!U.sheet);
   },
   delObsYes: async (el) => {
+    const at = D.observations.findIndex((o) => o.id === el.dataset.k),
+      gone = D.observations[at];
     D.observations = D.observations.filter((o) => o.id !== el.dataset.k);
     if (U.sheet === 'confirm') closeSheet();
     else rerender();
-    toast('Price note deleted');
+    toast('Price note deleted', gone && (async () => {
+      if (D.observations.some((o) => o.id === gone.id)) return;
+      D.observations.splice(Math.min(at, D.observations.length), 0, gone);
+      rerender();
+      toast('Price note restored');
+      await save('observations');
+    }));
     await save('observations');
   },
   example: (el) => {
@@ -313,6 +392,50 @@ const ACT = {
   },
   cat: (el) => {
     U.cat = el.dataset.v;
+    U.bar = null;
+    U.shown = SHOW_STEP;
+    rerender();
+  },
+  // the range switch: the knob slides in place, then the numbers, bars and list below change (Q03)
+  range: (el) => {
+    if (U.range === el.dataset.v) return;
+    U.range = el.dataset.v;
+    U.roff = 0;
+    U.bar = null;
+    U.shown = SHOW_STEP;
+    const seg = $('rangeSeg');
+    if (seg) {
+      seg.style.setProperty('--i', RANGES.findIndex((r) => r[0] === U.range));
+      seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.v === U.range));
+      squish(seg.querySelector('.knob'));
+    }
+    spendingChanged(0);
+  },
+  rangeStep: (el) => {
+    const step = +el.dataset.v;
+    U.roff = Math.max(0, (U.roff || 0) + step);
+    U.bar = null;
+    U.shown = SHOW_STEP;
+    spendingChanged(step);
+  },
+  calendar: () => {
+    const t = localISO();
+    U.calM = t.slice(0, 8) + '01';
+    U.calD = D.purchases.some((p) => p.date === t) ? t : null;
+    openSheet('calendar');
+  },
+  calStep: (el) => {
+    const d = atNoon(U.calM);
+    d.setMonth(d.getMonth() + +el.dataset.v);
+    U.calM = localISO(d).slice(0, 8) + '01';
+    U.calD = null;
+    rerender();
+    const g = document.querySelector('.sheet .calgrid');
+    // earlier months come in moving right to left, later ones left to right (Ivan's rule for time)
+    if (g) MOTION.animate(g, [{ transform: 'translateX(' + (+el.dataset.v < 0 ? 28 : -28) + 'px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { fade: true });
+  },
+  calDay: (el) => {
+    U.calD = U.calD === el.dataset.v ? null : el.dataset.v;
     rerender();
   },
   clearFilter: () => {
@@ -324,9 +447,16 @@ const ACT = {
     }
     updateSpending();
   },
+  moreRows: () => {
+    U.shown = (U.shown || SHOW_STEP) + SHOW_STEP;
+    $('spendList').innerHTML = spendRows(spendingList());
+    fadeScrollers();
+  },
   clearFilters: () => {
     U.filter = '';
     U.cat = 'all';
+    U.bar = null;
+    U.shown = SHOW_STEP;
     rerender();
   },
   csv: () => exportCSV(),

@@ -48,7 +48,7 @@ function purchaseRow(p, opts) {
   opts = opts || {};
   const meta = opts.meta || [relDay(p.date), p.location].filter(Boolean).join(' · ');
   const row =
-    '<button class="row' + (U.sel === p.id && split() && U.tab === 'spending' ? ' sel' : '') + '" data-a="openPurchase" data-k="' + esc(p.id) + '">' +
+    '<button class="row' + (U.sel === p.id && split() && U.tab === 'spending' ? ' sel' : '') + '" data-a="openPurchase" data-k="' + esc(p.id) + '"' + (opts.push ? ' data-v="push"' : '') + '>' +
     tile(p.category) +
     '<span class="lbl"><b>' + esc(p.item) + '</b><small>' + esc(meta || p.category) + '</small></span>' +
     '<span class="amt">' + cash(p.price) + '</span></button>';
@@ -148,7 +148,9 @@ function scrHome() {
         (D.purchases.length > recent.length ? '<button class="row more" data-a="tab" data-v="spending"><span class="lbl">Show all ' + D.purchases.length + ' purchases</span>' + ICON.chev + '</button>' : '') + '</div>'
       : '<div class="grp"><div class="empty">No purchases yet. Log your first one ' + (split() ? 'here.' : 'above.') + '</div></div>');
   return (
-    '<div class="dateline">' + longDate(localISO()) + '</div><h1>Home</h1>' +
+    // the date and the title both open the calendar (Apple Books style)
+    '<button class="dateline hometitle" data-a="calendar" tabindex="-1" aria-hidden="true">' + longDate(localISO()) + '</button>' +
+    '<h1><button class="hometitle" data-a="calendar" aria-label="Home. Open the calendar, ' + esc(longDate(localISO())) + '">Home' + ICON.chev + '</button></h1>' +
     (split() || MQ.land.matches
       ? '<div class="dash"><div>' + dash + log + '</div><div>' + rec + '</div></div>'
       : dash + log + rec)
@@ -245,59 +247,212 @@ function scrSearch() {
 }
 
 /* ===== Spending ===== */
-function spendingList() {
-  const q = norm(U.filter);
+/* Over time (Health style): a range switch D · W · M · All, the total for the period with arrows to step back,
+   a bar a day stacked by category, and a breakdown by category. The list below follows the same period. */
+const RANGES = [['day', 'D', 'Day'], ['week', 'W', 'Week'], ['month', 'M', 'Month'], ['all', 'All', 'All time']];
+const addDays = (iso, n) => {
+  const d = atNoon(iso);
+  d.setDate(d.getDate() + n);
+  return localISO(d);
+};
+const monthName = (iso, withYear) =>
+  atNoon(iso).toLocaleDateString('en-GB', { month: 'long', year: withYear || atNoon(iso).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined });
+// the period the range switch and arrows point at: {from, to, label}
+function period() {
+  const t = localISO(),
+    off = U.roff || 0;
+  if (U.range === 'day') {
+    const d = addDays(t, -off);
+    return { from: d, to: d, label: dayHeading(d) };
+  }
+  if (U.range === 'week') {
+    const mon = addDays(t, -((atNoon(t).getDay() + 6) % 7) - 7 * off),
+      sun = addDays(mon, 6);
+    return { from: mon, to: sun, label: off === 0 ? 'This week' : off === 1 ? 'Last week' : shortDate(mon) + ' – ' + shortDate(sun) };
+  }
+  if (U.range === 'month') {
+    const d = atNoon(t);
+    d.setDate(1);
+    d.setMonth(d.getMonth() - off);
+    const from = localISO(d),
+      to = localISO(new Date(d.getFullYear(), d.getMonth() + 1, 0, 12));
+    return { from, to, label: monthName(from) };
+  }
+  const dates = D.purchases.map((p) => p.date).sort();
+  const from = dates[0] || t,
+    to = dates.length && dates[dates.length - 1] > t ? dates[dates.length - 1] : t;
+  return { from, to, label: dates.length ? 'Since ' + shortDate(from) : 'All time' };
+}
+const inPeriod = (p, per) => p.date >= per.from && p.date <= per.to;
+function spendingList(ignoreCat) {
+  const q = norm(U.filter),
+    per = period();
   return D.purchases
-    .filter((p) => U.cat === 'all' || p.category === U.cat)
+    .filter((p) => inPeriod(p, per))
+    .filter((p) => ignoreCat || U.cat === 'all' || p.category === U.cat)
     .filter((p) => !q || norm([p.item, p.location, p.venue, p.category, p.payment, p.notes].join(' ')).includes(q))
     .sort(byNewest);
 }
+// a round number just above the tallest bar, for the axis
+function niceMax(m) {
+  if (!(m > 0)) return 100;
+  const p = Math.pow(10, Math.floor(Math.log10(m))),
+    f = m / p;
+  return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
+}
+// the bars: a day each (a week each when "All" spans more than two months)
+function buckets(list, per) {
+  if (U.range === 'day') return [];
+  const span = dayDiff(per.from) - dayDiff(per.to) + 1,
+    weekly = U.range === 'all' && span > 62,
+    out = [];
+  let d = weekly ? addDays(per.from, -((atNoon(per.from).getDay() + 6) % 7)) : per.from;
+  while (d <= per.to && out.length < 200) {
+    const to = weekly ? addDays(d, 6) : d;
+    out.push({ from: d, to, total: 0, by: {} });
+    d = addDays(to, 1);
+  }
+  list.forEach((p) => {
+    const b = out.find((x) => p.date >= x.from && p.date <= x.to);
+    if (!b) return;
+    b.total += +p.price || 0;
+    b.by[p.category] = (b.by[p.category] || 0) + (+p.price || 0);
+  });
+  out.forEach((b) => (b.total = Math.round(b.total * 100) / 100));
+  out.weekly = weekly;
+  return out;
+}
+const barLabel = (b, weekly) => (weekly ? 'Week of ' + shortDate(b.from) : dayHeading(b.from));
+function spendChart(bs) {
+  if (!bs.length) return '';
+  const max = niceMax(Math.max(...bs.map((b) => b.total))),
+    n = bs.length,
+    tick = (i) => {
+      if (U.range === 'week') return 'MTWTFSS'[i];
+      if (U.range === 'month') return (i % 7 === 0 ? String(i + 1) : '');
+      return i === 0 || i === n - 1 ? shortDate(bs[i].from) : '';
+    };
+  const cols = bs
+    .map((b, i) => {
+      const segs = CATS.filter((c) => b.by[c] > 0)
+        .map((c) => '<i class="seg-' + kindOf(c) + '" style="flex-grow:' + b.by[c] + '"></i>')
+        .join('');
+      return (
+        '<span class="col' + (U.bar === i ? ' on' : '') + '" data-i="' + i + '"><span class="bfill" style="height:' + ((b.total / max) * 100).toFixed(2) + '%">' + segs + '</span></span>'
+      );
+    })
+    .join('');
+  return (
+    '<div class="chart' + (U.bar != null ? ' picking' : '') + (n > 14 ? ' dense' : '') + '" id="chart" data-own-gesture="1" role="img" aria-label="Spending per ' + (bs.weekly ? 'week' : 'day') + ', up to ' + cash(max) + '">' +
+    '<div class="plot"><span class="grid g1"></span><span class="grid g2"></span><div class="cols">' + cols + '</div></div>' +
+    '<div class="axis"><span>' + cash(max).replace(/\.00$/, '') + '</span><span>' + cash(max / 2).replace(/\.00$/, '') + '</span><span>₱0</span></div>' +
+    '<div class="ticks">' + bs.map((b, i) => '<span>' + tick(i) + '</span>').join('') + '</div></div>'
+  );
+}
 function spendSummary(list) {
-  const total = sum(list),
+  const per = period(),
+    bs = buckets(list, per),
+    pick = U.bar != null && bs[U.bar] ? bs[U.bar] : null,
+    total = pick ? pick.total : sum(list),
+    days = Math.max(1, dayDiff(per.from) - Math.max(0, dayDiff(per.to)) + 1),
+    avg = U.range !== 'day' && !pick && total ? total / days : 0,
+    canBack = U.range !== 'all',
+    canFwd = U.range !== 'all' && (U.roff || 0) > 0,
     filtered = U.cat !== 'all' || U.filter.trim();
   return (
-    '<span class="stat"><span class="big">' + cash(total) + '</span><span class="cap">' + (filtered ? (U.cat !== 'all' ? esc(U.cat) : 'Matching') : 'Total spent') + (D.rate && total ? ' · ≈ ' + gbp(total / D.rate.value) : '') + '</span></span>' +
-    '<span class="stat r"><span class="mid">' + list.length + '</span><span class="cap">' + (list.length === 1 ? 'Purchase' : 'Purchases') + '</span></span>'
+    '<div class="eyebrow">' + (pick ? (U.range === 'all' && bs.weekly ? 'Week' : 'Day') : filtered ? (U.cat !== 'all' ? esc(U.cat) : 'Matching') : 'Total') + '</div>' +
+    '<div class="tot"><span class="big">' + cash(total) + '</span>' + (D.rate && total ? '<span class="gb">≈ ' + gbp(total / D.rate.value) + '</span>' : '') + '</div>' +
+    '<div class="perline">' +
+    (canBack ? '<button class="pstep" data-a="rangeStep" data-v="1" aria-label="Earlier">‹</button>' : '') +
+    '<span class="plabel">' + esc(pick ? barLabel(pick, bs.weekly) : per.label) + '</span>' +
+    (canBack ? '<button class="pstep" data-a="rangeStep" data-v="-1" aria-label="Later"' + (canFwd ? '' : ' disabled') + '>›</button>' : '') +
+    '<span class="avg">' + (avg ? cash(avg).replace(/\.\d\d$/, '') + ' a day' : plural(pick ? list.filter((p) => p.date >= pick.from && p.date <= pick.to).length : list.length, 'purchase')) + '</span></div>' +
+    spendChart(bs)
+  );
+}
+// money by category for the period, biggest first: also the doors to filter the list
+function spendBreakdown() {
+  const list = spendingList(true),
+    total = sum(list);
+  if (!total) return '';
+  const rows = CATS.map((c) => [c, sum(list.filter((p) => p.category === c))])
+    .filter((r) => r[1] > 0)
+    .sort((a, b) => b[1] - a[1]);
+  return (
+    hdr('By category', U.cat !== 'all' ? '<button class="tbtn" data-a="cat" data-v="all">Show all</button>' : '') +
+    '<div class="grp brk">' +
+    rows
+      .map((r) => {
+        const pc = Math.round((r[1] / total) * 100),
+          pcs = pc < 1 ? '<1%' : pc + '%';
+        return (
+          '<button class="row' + (U.cat === r[0] ? ' sel' : '') + '" data-a="cat" data-v="' + esc(U.cat === r[0] ? 'all' : r[0]) + '" aria-pressed="' + (U.cat === r[0]) + '">' +
+          tileDot(r[0]) + '<span class="lbl"><b>' + esc(r[0]) + '</b><span class="share"><i class="seg-' + kindOf(r[0]) + '" style="width:' + Math.max(2, pc) + '%"></i></span></span>' +
+          '<span class="amt">' + cash(r[1]) + '<small>' + pcs + '</small></span></button>'
+        );
+      })
+      .join('') +
+    '</div>'
   );
 }
 function spendRows(list) {
   if (!D.purchases.length) return '<div class="grp"><div class="empty">Purchases you log on Home appear here.</div></div>';
-  if (!list.length) return '<div class="grp"><div class="empty">No purchases match.' + (U.cat !== 'all' || U.filter ? ' <button class="tbtn inline" data-a="clearFilters">Show all</button>' : '') + '</div></div>';
+  if (!list.length)
+    return (
+      '<div class="grp"><div class="empty">' + (U.cat !== 'all' || U.filter ? 'No purchases match.' : 'Nothing spent ' + (U.range === 'day' ? 'on this day.' : 'in this period.')) +
+      (U.cat !== 'all' || U.filter ? ' <button class="tbtn inline" data-a="clearFilters">Show all</button>' : '') + '</div></div>'
+    );
+  // the newest SHOW_STEP purchases are drawn, then a "Show more" row, so a long trip (or several) stays quick (Q03)
+  const shown = list.slice(0, U.shown || SHOW_STEP),
+    dayTotal = {};
+  list.forEach((p) => (dayTotal[p.date] = (dayTotal[p.date] || 0) + (+p.price || 0)));
   const days = [];
-  list.forEach((p) => {
+  shown.forEach((p) => {
     const last = days[days.length - 1];
     if (last && last.date === p.date) last.items.push(p);
     else days.push({ date: p.date, items: [p] });
   });
-  return days
-    .map(
-      (d) =>
-        hdr(dayHeading(d.date), '<span class="hint">' + cash(sum(d.items)) + '</span>') +
-        '<div class="grp tiled">' + d.items.map((p) => purchaseRow(p, { swipe: true, meta: [p.location, p.venue, p.payment].filter(Boolean).join(' · ') })).join('') + '</div>'
-    )
-    .join('');
+  const left = list.length - shown.length;
+  return (
+    days
+      .map(
+        (d) =>
+          hdr(dayHeading(d.date), '<span class="hint">' + cash(Math.round(dayTotal[d.date] * 100) / 100) + '</span>') +
+          // one detail under the name (the place, or the kind of shop); the rest is in the purchase's details
+          '<div class="grp tiled">' + d.items.map((p) => purchaseRow(p, { swipe: true, meta: p.location || p.venue || p.category })).join('') + '</div>'
+      )
+      .join('') +
+    (left > 0 ? '<div class="grp morerows"><button class="row more" data-a="moreRows"><span class="lbl">Show ' + Math.min(left, SHOW_STEP) + ' more</span><span class="hint">' + plural(left, 'left', 'left') + '</span></button></div>' : '')
+  );
 }
+const SHOW_STEP = 60;
+const rangeSeg = () =>
+  '<div class="segc" id="rangeSeg" role="group" aria-label="Period" style="--n:' + RANGES.length + ';--i:' + Math.max(0, RANGES.findIndex((r) => r[0] === U.range)) + '"><span class="knob glass" aria-hidden="true"></span>' +
+  RANGES.map((r) => '<button data-a="range" data-v="' + r[0] + '" aria-label="' + r[2] + '" aria-pressed="' + (U.range === r[0]) + '">' + r[1] + '</button>').join('') + '</div>';
 function scrSpending() {
   const list = spendingList();
   const counts = {};
-  D.purchases.forEach((p) => (counts[p.category] = (counts[p.category] || 0) + 1));
+  spendingList(true).forEach((p) => (counts[p.category] = (counts[p.category] || 0) + 1));
   const chips =
-    D.purchases.length
+    D.purchases.length && Object.keys(counts).length
       ? '<div class="chips scroller" data-own-gesture="1" role="group" aria-label="Filter by category">' +
-        [['all', 'All', D.purchases.length]]
+        [['all', 'All', Object.values(counts).reduce((a, b) => a + b, 0)]]
           .concat(CATS.filter((c) => counts[c]).map((c) => [c, c, counts[c]]))
           .map((c) => '<button class="chip' + (U.cat === c[0] ? ' on' : '') + '" data-a="cat" data-v="' + esc(c[0]) + '" aria-pressed="' + (U.cat === c[0]) + '">' + (c[0] === 'all' ? '' : tileDot(c[0])) + esc(c[1]) + '<span class="n">' + c[2] + '</span></button>')
           .join('') + '</div>'
       : '';
   const main =
     '<h1>Spending</h1>' +
-    '<div class="card sumcard static" id="spendSum">' + spendSummary(list) + '</div>' + chips +
+    (D.purchases.length ? rangeSeg() : '') +
+    '<div class="card stats" id="spendSum">' + spendSummary(list) + '</div>' +
+    '<div id="spendBrk">' + spendBreakdown() + '</div>' +
+    (D.purchases.length ? hdr('Purchases') : '') + chips +
     (D.purchases.length
       ? '<label class="searchbox">' + ICON.search + '<input id="filter" type="search" placeholder="Filter by item, place or note" aria-label="Filter purchases" autocomplete="off" value="' + esc(U.filter) + '">' +
         '<button type="button" class="clr" data-a="clearFilter" aria-label="Clear filter"' + (U.filter ? '' : ' hidden') + '>' + ICON.x + '</button>' + '</label>'
       : '') +
     '<div id="spendList">' + spendRows(list) + '</div>' +
-    (D.purchases.length ? '<button class="btn glass wide csv" data-a="csv">' + ICON.upload + 'Export as CSV</button><p class="foot">Exports the purchases shown above, for Numbers or Excel.</p>' : '');
+    (list.length ? '<button class="btn glass wide csv" data-a="csv">' + ICON.upload + 'Export as CSV</button><p class="foot">Exports the purchases shown above, for Numbers or Excel.</p>' : '');
   if (!split()) return main;
   const p = D.purchases.find((x) => x.id === U.sel);
   return (
@@ -306,7 +461,7 @@ function scrSpending() {
     '</aside></div>'
   );
 }
-const tileDot = (cat) => '<i class="dot k-' + kindOf(cat) + '" aria-hidden="true"></i>';
+const tileDot = (cat) => '<i class="dot seg-' + kindOf(cat) + '" aria-hidden="true"></i>';
 
 /* ===== Convert ===== */
 // handy amounts follow whichever currency is on top: pounds to pesos, or pesos to pounds

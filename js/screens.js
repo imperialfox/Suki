@@ -186,7 +186,7 @@ function tillOut() {
 }
 
 /* ===== Search ===== */
-const EXAMPLES = ['sinigan baboy', '1 kilo bigas', 'tubig bote', 'kwek kwek', 'baboy adobo'];
+const EXAMPLES = ['sinigang baboy', '1 kilo bigas', 'tubig bote', 'kwek kwek', 'baboy adobo'];
 function itemRow(it) {
   const r = refFrom(it.id);
   return (
@@ -230,7 +230,7 @@ function searchResults() {
 function scrSearch() {
   const list =
     '<label class="searchbox">' + ICON.search +
-    '<input id="q" type="search" placeholder="Try “sinigan baboy” or “1 kilo bigas”" aria-label="Search the catalogue" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" value="' + esc(U.q) + '">' +
+    '<input id="q" type="search" placeholder="Try “sinigang baboy” or “1 kilo bigas”" aria-label="Search the catalogue" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" value="' + esc(U.q) + '">' +
     '<button type="button" class="clr" data-a="clearQ" aria-label="Clear search"' + (U.q ? '' : ' hidden') + '>' + ICON.x + '</button>' + '</label>' +
     '<div class="chips scroller" id="examples" data-own-gesture="1" aria-label="Example searches"' + (U.q ? ' hidden' : '') + '>' +
     EXAMPLES.map((e) => '<button class="chip" data-a="example" data-v="' + esc(e) + '">' + esc(e) + '</button>').join('') + '</div>' +
@@ -309,28 +309,42 @@ function scrSpending() {
 const tileDot = (cat) => '<i class="dot k-' + kindOf(cat) + '" aria-hidden="true"></i>';
 
 /* ===== Convert ===== */
-const QUICK_GBP = [1, 5, 10, 20, 50, 100];
+// handy amounts follow whichever currency is on top: pounds to pesos, or pesos to pounds
+const QUICK = { gbp: [1, 5, 10, 20, 50, 100], php: [20, 50, 100, 500, 1000, 5000] };
 function rateLine() {
   const r = D.rate;
   if (!r) return navigator.onLine ? 'No rate saved yet. Tap Refresh to load one.' : 'You’re offline and no rate is saved yet. Connect once to load one.';
-  const when = whenAgo(new Date(r.cachedAt));
-  return 'Reference date ' + shortDate(r.date) + ' · updated ' + when.charAt(0).toLowerCase() + when.slice(1) + (navigator.onLine ? '' : ' · offline, using the saved rate');
+  const at = new Date(r.cachedAt),
+    when = isNaN(at) ? '' : 'Updated ' + relDay(localISO(at)).replace(/^(Today|Yesterday)$/, (m) => m.toLowerCase());
+  return (when || 'Saved rate') + (navigator.onLine ? '' : ' · offline, using the saved rate');
+}
+function convBox(c, r) {
+  const sym = c === 'gbp' ? '£' : '₱';
+  return field(
+    'conv-' + c,
+    c === 'gbp' ? 'British pounds' : 'Philippine pesos',
+    '<div class="cur"><span aria-hidden="true">' + sym + '</span><input class="inp big" id="conv-' + c + '" data-conv="' + c + '" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" value="' + esc(U.conv[c]) + '"' + (r ? '' : ' disabled') + '></div>'
+  );
 }
 function scrConvert() {
-  const r = D.rate;
+  const r = D.rate,
+    top = U.conv.top === 'php' ? 'php' : 'gbp',
+    bottom = top === 'gbp' ? 'php' : 'gbp',
+    money = (c, n) => (c === 'gbp' ? gbp(n) : cash(n)).replace(/\.00$/, '');
   return (
     '<h1>Convert</h1><p class="note">A reference rate only. Your card or Revolut may use a different rate or add fees.</p>' +
-    '<div class="card form conv">' +
-    field('conv-gbp', 'British pounds', '<div class="cur"><span aria-hidden="true">£</span><input class="inp big" id="conv-gbp" data-conv="gbp" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" value="' + esc(U.conv.gbp) + '"' + (r ? '' : ' disabled') + '></div>') +
-    '<div class="swapline" aria-hidden="true">' + ICON.swap + '</div>' +
-    field('conv-php', 'Philippine pesos', '<div class="cur"><span aria-hidden="true">₱</span><input class="inp big" id="conv-php" data-conv="php" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" value="' + esc(U.conv.php) + '"' + (r ? '' : ' disabled') + '></div>') +
+    '<div class="card form conv" id="convCard">' + '<div class="cbox" data-c="' + top + '">' + convBox(top, r) + '</div>' +
+    '<div class="swapline"><button type="button" class="circ swap" data-a="swapConv" aria-label="Swap currencies"' + (r ? '' : ' disabled') + '>' + ICON.swap + '</button></div>' +
+    '<div class="cbox" data-c="' + bottom + '">' + convBox(bottom, r) + '</div>' +
     '</div>' +
     '<div class="raterow"><div><b id="rateBadge">' + (r ? '£1 = ' + cash(r.value) : 'No rate yet') + '</b><small id="rateLine">' + esc(rateLine()) + '</small></div>' +
     '<button class="btn glass" id="refreshRate" data-a="refreshRate">' + ICON.refresh + 'Refresh</button></div>' +
     (r
       ? '<button class="btn glass wide" data-a="copyConv">' + ICON.copy + 'Copy conversion</button>' +
         hdr('Handy amounts') +
-        '<div class="grp quick">' + QUICK_GBP.map((g) => '<button class="row" data-a="quickGbp" data-v="' + g + '"><span class="lbl">' + gbp(g).replace('.00', '') + '</span><span class="amt">' + cash(g * r.value) + '</span></button>').join('') + '</div>'
+        '<div class="grp quick">' +
+        QUICK[top].map((n) => '<button class="row" data-a="quickConv" data-c="' + top + '" data-v="' + n + '"><span class="lbl">' + money(top, n) + '</span><span class="amt">' + (top === 'gbp' ? cash(n * r.value) : gbp(n / r.value)) + '</span></button>').join('') +
+        '</div>'
       : '')
   );
 }
@@ -371,7 +385,7 @@ function scrSettings() {
     hdr('About') +
     '<div class="grp tiled set">' +
     row('wifi', '#30b0c7', 'Works offline', '<span id="swStatus">' + esc(SW_STATE) + '</span>') +
-    row('peso', '#5856d6', 'Saved exchange rate', D.rate ? '£1 = ' + D.rate.value.toFixed(2) + ' PHP · ' + shortDate(D.rate.date) + '<br>From ' + esc(D.rate.source) : 'Not loaded yet') +
+    row('peso', '#5856d6', 'Saved exchange rate', D.rate ? '£1 = ' + cash(D.rate.value) + ' · ' + shortDate(D.rate.date) + '<br>From ' + esc(D.rate.source) : 'Not loaded yet') +
     (RATE_CHECK ? row('refresh', RATE_CHECK.ok ? '#34c759' : '#ff9500', 'Last rate check', rateCheckText()) : '') +
     row('book', '#34c759', 'Official prices', esc((R.source || '') + ' · ' + (R.area || '') + ' · ' + (R.period || ''))) +
     row('phone', '#007aff', 'Add to your Home Screen', 'In Safari: Share › Add to Home Screen') +

@@ -6,7 +6,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 
 | ID | Item | State | Prototype | Notes |
 |---|---|---|---|---|
-| Q01 | Fixes: confirm labels, search, swap, rate line | Approved — awaiting Build | [Suki prototype](https://claude.ai/artifact/GYRLsBqjns8tCFveFhAhE8) | Light. Blank red confirm buttons are the urgent one |
+| Q01 | Fixes: confirm labels, search, swap, rate line | Shipped · 2.5 | [Suki prototype](https://claude.ai/artifact/GYRLsBqjns8tCFveFhAhE8) | Light. Blank red confirm buttons are the urgent one |
 | Q03 | Spending: over time, calendar, Undo, Show more, new day | Approved — awaiting Build | same | Medium. Show more and new-day refresh added from the stress test |
 | Q02 | Prices: a sourced price database and browsing by category | Approved — awaiting Build | same | Medium. 100 prices with sources, checked 31 Oct 2026 |
 | Q04 | Look: soft-edge bar, dock position, tokens, Accessibility, item glyphs | Approved — awaiting Build | same | Medium |

@@ -331,7 +331,7 @@ h1 {
   color: var(--fg2);
   letter-spacing: 0.01em;
 }
-.red {
+.red:not(.cta) {
   color: var(--danger) !important;
 }
 .hdr {
@@ -1158,8 +1158,20 @@ a.row:active {
 .swapline {
   display: flex;
   justify-content: center;
+  margin: 2px 0 -10px;
+}
+.swapline .swap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--fill);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.swapline .swap:disabled {
   color: var(--fg3);
-  margin: 6px 0 -6px;
 }
 .swapline svg.i {
   width: 20px;

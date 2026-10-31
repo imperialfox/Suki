@@ -180,6 +180,6 @@ const freshU = () => ({
   more: false, // Home: "More details" open
   obsFor: null, // the item whose "Add a price note" form is open
   till: { bill: '', cash: '' },
-  conv: { gbp: '100', php: '', last: 'gbp' },
+  conv: { gbp: '100', php: '', last: 'gbp', top: 'gbp' }, // top: which currency you type into first (the swap button flips it)
 });
 let U = freshU();

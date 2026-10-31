@@ -5,7 +5,7 @@ One block per queue item. Each fits on one screen; long notes are linked, not pa
 ---
 
 ## Q01 · Fixes: confirm labels, search, swap, rate line
-**Render:** 31 Oct 2026, 22:56, scope as below · **Build:** awaiting
+**Render:** 31 Oct 2026, 22:56, scope as below · **Build:** 31 Oct 2026 · shipped as 2.5
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 live on `main`.
 
 **Goal:** fix what's broken or misleading before the trip.
@@ -17,6 +17,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 l
 5. Settings shows the rate with ₱; the example search is spelt "sinigang baboy".
 **Out of scope:** new prices, layout changes.
 **Done when:** all tests pass, including the new ones in `test_flows.py`. **Checks:** full suite.
+**Debrief:** Built from the prototype commit unchanged. The swap trades the two boxes' places with a small slide (it fades with Reduce Motion). Tests: new checks for the button label colour, search not showing unrelated items, the swap and peso handy amounts, the plain rate line and ₱ in Settings.
 
 ## Q02 · Prices: a sourced price database and browsing by category
 **Render:** 31 Oct 2026, 22:56, scope as below · **Build:** awaiting · Needs: Q01 (stricter search).

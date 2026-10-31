@@ -341,11 +341,27 @@ const ACT = {
   },
   refreshRate: () => refreshRate(true),
   copyConv: () => copyConv(),
-  quickGbp: (el) => {
-    convInput('gbp', el.dataset.v);
-    const g = $('conv-gbp');
+  quickConv: (el) => {
+    const c = el.dataset.c === 'php' ? 'php' : 'gbp';
+    convInput(c, el.dataset.v);
+    const g = $('conv-' + c);
     if (g) g.value = el.dataset.v;
     window.scrollTo({ top: 0, behavior: MOTION.on() ? 'smooth' : 'auto' });
+  },
+  // the two boxes trade places (FLIP: redraw in the new order, then slide each from where it was)
+  swapConv: () => {
+    const before = {};
+    document.querySelectorAll('#convCard .cbox').forEach((b) => (before[b.dataset.c] = b.getBoundingClientRect().top));
+    U.conv.top = U.conv.top === 'php' ? 'gbp' : 'php';
+    rerender();
+    document.querySelectorAll('#convCard .cbox').forEach((b) => {
+      const dy = before[b.dataset.c] - b.getBoundingClientRect().top;
+      if (dy) MOTION.animate(b, [{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { fade: true });
+    });
+    const sw = document.querySelector('#convCard .swap svg');
+    if (sw) MOTION.animate(sw, [{ transform: 'rotate(-180deg)' }, { transform: 'none' }]);
+    const f = $('conv-' + U.conv.top);
+    if (f) f.focus({ preventScroll: true });
   },
   exportBackup: (el) => exportBackup(el.dataset.v === 'push'),
   saveBackup: () => saveBackup(),

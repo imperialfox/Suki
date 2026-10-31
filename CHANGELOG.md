@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.5 · 31 Oct 2026
+*Fixes before the trip (Q01)*
+
+**Confirm sheets**
+- The red button on every "Are you sure?" sheet shows its words again (Delete purchase, Delete note, Erase everything, Replace with this backup). They were red on red.
+
+**Search**
+- Stricter matching: a clear match is no longer followed by unrelated items, so "water" doesn't show Kwek-kwek and "adobo" doesn't show Banana cue. Misspellings like "sinigan baboy" still work.
+- The example search is spelt "sinigang baboy".
+
+**Convert**
+- The swap button works: it puts the other currency on top and puts the cursor there. Handy amounts follow, so with pesos on top they go from ₱20 to ₱5,000 in pounds.
+- The rate line says when it was updated in plain words ("Updated today", "3 days ago"), without a clock time or a second date.
+
+**Settings**
+- The saved rate shows ₱, like everywhere else.
+
 ## 2.4 · 23 Oct 2026
 *A tab bar that stays put*
 

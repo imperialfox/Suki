@@ -98,7 +98,11 @@ function likeness(a, b) {
   if (!a || !b) return 0;
   if (a === b) return 1;
   if (a.startsWith(b) || b.startsWith(a)) return (Math.min(a.length, b.length) / Math.max(a.length, b.length)) * 0.4 + 0.6;
-  return 1 - editDist(a, b) / Math.max(a.length, b.length);
+  // short words need to be nearly exact, so "water" doesn't match "batter" or "rice" match "ice"
+  const d = editDist(a, b),
+    n = Math.max(a.length, b.length);
+  if (n <= 5 && d > 1) return 0;
+  return 1 - d / n;
 }
 const FILLER = ['kilo', 'kg', 'gram', 'grams', 'g', 'isang', 'na', 'per', 'the', 'a', 'ng', 'for'];
 function score(item, q) {
@@ -112,7 +116,7 @@ function score(item, q) {
   let sum = 0;
   for (const t of toks) {
     const best = Math.max(0, ...words.map((w) => likeness(t, w)));
-    if (best >= 0.56) sum += best;
+    if (best >= 0.7) sum += best;
   }
   return (
     (sum / toks.length) * 72 + Math.max(0, ...names.map((n) => likeness(q, n))) * 24 + (sum / toks.length === 1 ? 4 : 0)
@@ -120,9 +124,13 @@ function score(item, q) {
 }
 function searchItems(q, max = 12) {
   if (!norm(q)) return [];
-  return CATALOG.map((i) => ({ i, s: score(i, q) }))
-    .filter((x) => x.s >= 38)
-    .sort((a, b) => b.s - a.s)
+  const hits = CATALOG.map((i) => ({ i, s: score(i, q) }))
+    .filter((x) => x.s >= 40)
+    .sort((a, b) => b.s - a.s);
+  // keep only results close to the best one, so a clear match isn't followed by unrelated items
+  const top = hits.length ? hits[0].s : 0;
+  return hits
+    .filter((x) => x.s >= top * 0.72)
     .slice(0, max)
     .map((x) => x.i);
 }

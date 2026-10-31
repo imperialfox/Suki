@@ -25,7 +25,7 @@ const tabButtons = (cls, withIcon) =>
   TABS.map(
     (t, i) =>
       '<button class="' + cls + (tabOf(U.tab) === t[0] ? ' on' : '') + '" data-a="tab" data-v="' + t[0] + '" aria-current="' +
-      (tabOf(U.tab) === t[0] ? 'page' : 'false') + '" title="' + t[1] + ' (⌘' + (i + 1) + ')">' + (withIcon ? t[2] : '') + '<span>' + t[1] + '</span></button>'
+      (tabOf(U.tab) === t[0] ? 'page' : 'false') + '" title="' + t[1] + ' (' + (APPLE ? '⌘' : 'Ctrl+') + (i + 1) + ')">' + (withIcon ? t[2] : '') + '<span>' + t[1] + '</span></button>'
   ).join('');
 const topTabs = () => '<nav class="toptabs glass" aria-label="Tabs">' + tabButtons('', false) + '</nav>';
 function renderSide() {
@@ -226,6 +226,20 @@ function sheetHTML() {
             : '<p class="foot">Tap a day to see what you bought.</p>'),
         '',
         'Calendar'
+      );
+    }
+    case 'access': {
+      const opts = [['auto', 'Match iPhone'], ['on', 'On'], ['off', 'Off']],
+        i = Math.max(0, opts.findIndex((o) => o[0] === MOTION.reducePref()));
+      return sheetWrap(
+        'Accessibility',
+        hdr('Reduce motion') +
+          '<div class="segc" id="reduceSeg" role="group" aria-label="Reduce motion" style="--n:3;--i:' + i + '"><span class="knob glass" aria-hidden="true"></span>' +
+          opts.map((o) => '<button data-a="setReduce" data-v="' + o[0] + '" aria-pressed="' + (MOTION.reducePref() === o[0]) + '">' + o[1] + '</button>').join('') + '</div>' +
+          '<p class="foot">Things fade instead of sliding, zooming or springing. Match iPhone follows Settings › Accessibility › Motion on your iPhone.</p>' +
+          hdr('Slow motion') +
+          '<div class="grp"><label class="row toggle"><span class="lbl"><b>Slow motion</b></span><input type="checkbox" role="switch" data-a="slowMotion"' + (MOTION.speed() > 1 ? ' checked' : '') + '><span class="sw-ui" aria-hidden="true"></span></label></div>' +
+          '<p class="foot">Plays every movement four times slower, for checking how things move. Both settings stay on this device and aren’t saved in backups.</p>'
       );
     }
     case 'notes': {

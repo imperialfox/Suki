@@ -78,6 +78,7 @@ Everything stays on the device. There is no server.
 | localStorage | `suki:lastBackup` | When a backup was last saved (not backed up) |
 | localStorage | `suki:draft` | A half-typed purchase on Home (not backed up) |
 | localStorage | `suki:motion` | Motion speed on this device (not backed up) |
+| localStorage | `suki:reduceMotion` | Reduce Motion: `on`, `off`, or missing to match the iPhone (not backed up) |
 
 **These names have been the same since Suki 2.0. Never change them**; the tests load data saved by the real 2.0 app (`tests/fixtures/app-2.0.0`) to prove updating keeps everything.
 
@@ -133,6 +134,19 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 - Category colours are `--cat-*`, checked with the dataviz palette validator in light and dark. Shopping is purple so it never sits next to green.
 - Deleting shows a toast with Undo (`toast(text, undo)`).
 
+### Known test issues
+
+- On a small machine (two processors), running the whole suite side by side can occasionally make one file time out waiting for the page; it passes when run again or with `--one-at-a-time`. GitHub's runner hasn't shown this.
+- On 31 Oct 2026 the suite was run locally against a newer Chromium (the pinned Playwright 1.56.0 pointed at it), because 1.56's own browser couldn't be downloaded there. GitHub's run uses the pinned one.
+
 ## Style
 
 Native iOS look (Liquid Glass imitated in CSS), no in-app branding, British English in plain, friendly words. Everything must work on iPhone, iPhone on its side, iPad and Mac, in light and dark.
+
+- **Colours** are tokens: Apple's system colours are `--sys-*` (light and dark); category chart colours are `--cat-*`. No hex in rules; `test_release.py` checks.
+- **Type** uses Apple's text styles only: 34, 28, 22, 20, 17, 16, 15, 13, 12, 11 (and 44, 56, 68 for big numerals). `test_release.py` checks.
+- **Top bar** has no card; once you scroll, `.edge` (a soft blur from the top of the screen) and the compact title appear.
+- **Tab bar** stays full size (Ivan, 31 Oct 2026). On iPhone upright it sits 21pt from the bottom with 21pt sides; `--dockb` is its bottom offset everywhere. Safe areas are `--sat/--sab/--sal/--sar`.
+- **Reduce Motion** is `html.motion-reduced`, set from the iPhone or Settings › Accessibility (`suki:reduceMotion`, device-only, never in backups). Write new CSS against the class, not the media query.
+- **Item glyphs**: `GLYPH` and `ITEM_GLYPH` in `helpers.js`. A new catalogue item needs a glyph (or it falls back to its kind's picture).
+- **Shortcuts** use Cmd on Apple devices (`APPLE`) and Ctrl elsewhere, so Ctrl stays free for text editing on a Mac.

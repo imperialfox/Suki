@@ -272,6 +272,7 @@ function onField(e) {
 document.addEventListener('input', onField);
 document.addEventListener('change', (e) => {
   if (e.target.matches('select,input[type=date]')) onField(e);
+  if (e.target.dataset.a === 'slowMotion') MOTION.setSpeed(e.target.checked ? 4 : 1);
 });
 $('importIn').addEventListener('change', (e) => {
   const f = e.target.files && e.target.files[0];
@@ -515,6 +516,16 @@ const ACT = {
   erase: () => openSheet('erase'),
   eraseYes: () => eraseYes(),
   openNotes: () => openSheet('notes'),
+  openAccess: () => openSheet('access'),
+  setReduce: (el) => {
+    MOTION.setReduce(el.dataset.v);
+    const seg = $('reduceSeg');
+    if (seg) {
+      seg.style.setProperty('--i', ['auto', 'on', 'off'].indexOf(el.dataset.v));
+      seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.v === el.dataset.v));
+      squish(seg.querySelector('.knob'));
+    }
+  },
 };
 document.addEventListener('click', (e) => {
   const el = e.target.closest('[data-a]');
@@ -546,7 +557,7 @@ document.addEventListener('keydown', (e) => {
     } else if (swOpen) closeSwipes();
     return;
   }
-  if ((e.metaKey || e.ctrlKey) && /^[1-5]$/.test(e.key) && !U.sheet) {
+  if ((APPLE ? e.metaKey : e.ctrlKey) && /^[1-5]$/.test(e.key) && !U.sheet) {
     e.preventDefault();
     go(TABS[+e.key - 1][0]);
   }

@@ -48,7 +48,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 l
 **Debrief:** Built from the prototype, plus the two stress-test additions. Show more draws 60 at a time; with 3,000 purchases and the processor slowed 4×, Spending opens in 0.23 s (was about 2 s) and the filter keeps up at 70–140 ms a key. The new-day check runs every minute and on returning to the app, and waits while a sheet is open or a box has the cursor (the default). Tests: range switch, stepping, bar picking, breakdown filtering, calendar, Undo, Show more and the new-day redraw.
 
 ## Q04 · Look: soft-edge bar, dock position, tokens, Accessibility, item glyphs
-**Render:** 31 Oct 2026, 22:56, scope as below · **Build:** awaiting.
+**Render:** 31 Oct 2026, 22:56, scope as below · **Build:** 31 Oct 2026 · shipped as 2.8.
 
 **Goal:** match the updated `ivan-app-look`.
 **Agreed:**
@@ -59,6 +59,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 l
 5. A glyph per catalogue item (34 glyphs). Shortcuts use Cmd on Apple devices, Ctrl elsewhere.
 **Out of scope:** the tab bar collapsing (decided against, 31 Oct).
 **Done when:** tests pass at every size, light and dark.
+**Debrief:** Built from the prototype unchanged. Tests: font sizes on Apple's scale and no hex colours in rules (test_release), the tab bar 21pt from the bottom with 21pt sides, the soft edge appearing only after scrolling, distinct item glyphs, and Accessibility (on, back to Match iPhone, slow motion, and neither setting in backups).
 
 ## Q05 · Data: keep your data safe
 **Render:** 31 Oct 2026, 22:56, scope as below (wireframe skipped by Ivan) · **Build:** awaiting.

@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.8 · 31 Oct 2026
+*The updated look (Q04)*
+
+**Look**
+- The top bar no longer becomes a card. When you scroll, a soft blurred edge appears at the top of the screen with the small title, as in iOS 27.
+- On iPhone upright the tab bar sits lower, 21pt from the bottom edge, where Apple's own apps put it. It still stays full size.
+- Colours come from Apple's system colours in light and dark, and text sizes follow Apple's text styles.
+- Every item in Search has its own picture: rice, eggs, meat, fish, jeepney, tricycle, train, SIM card, scissors and more.
+
+**Settings**
+- A new Accessibility page. Reduce motion can match your iPhone or be turned on or off just for Suki; with it on, things fade instead of sliding. Slow motion plays every movement four times slower. Both stay on this device and aren't saved in backups.
+
+**Keyboard**
+- On a Mac or iPad keyboard, ⌘1 to ⌘5 switch sections; other computers use Ctrl.
+
 ## 2.7 · 31 Oct 2026
 *A price for what you'll actually buy and ride (Q02)*
 

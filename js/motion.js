@@ -18,6 +18,7 @@ const MOTION = (() => {
   const STAGGER = { word: 30, row: 45, bar: 30 };
   const BLUR_MAX = 1.5; // px. Ivan chose 1.5 over 2 so far lyrics stay recognisable
   const KEY = 'suki:motion';
+  const RKEY = 'suki:reduceMotion'; // auto (match iPhone), on or off. This device only, never in backups
   const mq = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
   const linearOK = !!(window.CSS && CSS.supports && CSS.supports('transition-timing-function', 'linear(0, 1)'));
 
@@ -44,7 +45,20 @@ const MOTION = (() => {
     if (s !== null && !isNaN(+s)) speed = Math.max(0, Math.min(8, +s));
   } catch (e) {}
 
-  const reduced = () => !!(mq && mq.matches);
+  let rpref = 'auto';
+  try {
+    const r = localStorage.getItem(RKEY);
+    if (r === 'on' || r === 'off') rpref = r;
+  } catch (e) {}
+  const reduced = () => rpref === 'on' || (rpref === 'auto' && !!(mq && mq.matches));
+  function setReduce(v) {
+    rpref = v === 'on' || v === 'off' ? v : 'auto';
+    try {
+      if (rpref === 'auto') localStorage.removeItem(RKEY);
+      else localStorage.setItem(RKEY, rpref);
+    } catch (e) {}
+    publish();
+  }
   const on = () => speed > 0 && !reduced();
   const dur = (name) => (C[name] ? C[name].ms : C.gentle.ms) * speed;
   const ease = (name) => (C[name] || C.gentle).ease;
@@ -153,6 +167,8 @@ const MOTION = (() => {
     animate,
     spring,
     setSpeed,
+    setReduce,
+    reducePref: () => rpref,
     speed: () => speed,
     publish,
     blur,

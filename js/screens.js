@@ -587,24 +587,28 @@ function scrSettings() {
     '<h1>Settings</h1><p class="note">Your records stay on this device. No account, no cloud.</p>' +
     hdr('Backup') +
     '<div class="grp tiled set">' +
-    row('upload', '#007aff', 'Export a backup', 'Purchases, price notes and the saved rate', 'exportBackup') +
-    row('download', '#34c759', 'Restore a backup', 'You’ll see what’s in it before anything changes', 'importPick') +
-    row('clock', overdue || !lb ? '#ff9500' : '#8e8e93', 'Last backed up', { t: lb ? whenAgo(lb) + (overdue ? ' · over two weeks ago' : '') : 'Not backed up yet', cls: overdue ? 'red' : '' }) +
+    row('upload', 'blue', 'Export a backup', 'Purchases, price notes and the saved rate', 'exportBackup') +
+    row('download', 'green', 'Restore a backup', 'You’ll see what’s in it before anything changes', 'importPick') +
+    row('clock', overdue || !lb ? 'orange' : 'gray', 'Last backed up', { t: lb ? whenAgo(lb) + (overdue ? ' · over two weeks ago' : '') : 'Not backed up yet', cls: overdue ? 'red' : '' }) +
     '</div><p class="foot">iOS can clear a website’s data if it isn’t opened for a few weeks, so keep a recent backup in Files.</p>' +
     hdr('Your data') +
     '<div class="grp tiled set">' +
-    row('tag', '#ff9f0a', 'Price notes', plural(D.observations.length, 'note'), 'openNotes') +
-    row('disk', '#8e8e93', 'Storage used', '<span id="storageUsed">' + esc(STORAGE_USED) + '</span>') +
-    '<button class="row danger" data-a="erase">' + stile('erase', '#ff3b30') + '<span class="lbl"><b>Erase all data</b><small>Purchases, price notes and the saved rate</small></span></button>' +
+    row('tag', 'orange', 'Price notes', plural(D.observations.length, 'note'), 'openNotes') +
+    row('disk', 'gray', 'Storage used', '<span id="storageUsed">' + esc(STORAGE_USED) + '</span>') +
+    '<button class="row danger" data-a="erase">' + stile('erase', 'red') + '<span class="lbl"><b>Erase all data</b><small>Purchases, price notes and the saved rate</small></span></button>' +
+    '</div>' +
+    hdr('This device') +
+    '<div class="grp tiled set">' +
+    row('access', 'blue', 'Accessibility', { t: 'Reduce motion: ' + { auto: 'Match iPhone', on: 'On', off: 'Off' }[MOTION.reducePref()] + (MOTION.speed() > 1 ? ' · Slow motion on' : '') }, 'openAccess') +
     '</div>' +
     hdr('About') +
     '<div class="grp tiled set">' +
-    row('wifi', '#30b0c7', 'Works offline', '<span id="swStatus">' + esc(SW_STATE) + '</span>') +
-    row('peso', '#5856d6', 'Saved exchange rate', D.rate ? '£1 = ' + cash(D.rate.value) + ' · ' + shortDate(D.rate.date) + '<br>From ' + esc(D.rate.source) : 'Not loaded yet') +
-    (RATE_CHECK ? row('refresh', RATE_CHECK.ok ? '#34c759' : '#ff9500', 'Last rate check', rateCheckText()) : '') +
-    row('book', '#34c759', 'Official prices', esc((R.source || '') + ' · ' + (R.area || '') + ' · ' + (R.period || ''))) +
-    row('phone', '#007aff', 'Add to your Home Screen', 'In Safari: Share › Add to Home Screen') +
-    '<a class="row" href="https://github.com/imperialfox/Suki" target="_blank" rel="noopener">' + stile('code', '#1c1c1e') + '<span class="lbl"><b>View on GitHub</b></span>' + ICON.out + '</a>' +
+    row('wifi', 'teal', 'Works offline', '<span id="swStatus">' + esc(SW_STATE) + '</span>') +
+    row('peso', 'indigo', 'Saved exchange rate', D.rate ? '£1 = ' + cash(D.rate.value) + ' · ' + shortDate(D.rate.date) + '<br>From ' + esc(D.rate.source) : 'Not loaded yet') +
+    (RATE_CHECK ? row('refresh', RATE_CHECK.ok ? 'green' : 'orange', 'Last rate check', rateCheckText()) : '') +
+    row('book', 'green', 'Official prices', esc((R.source || '') + ' · ' + (R.area || '') + ' · ' + (R.period || ''))) +
+    row('phone', 'blue', 'Add to your Home Screen', 'In Safari: Share › Add to Home Screen') +
+    '<a class="row" href="https://github.com/imperialfox/Suki" target="_blank" rel="noopener">' + stile('code', 'ink') + '<span class="lbl"><b>View on GitHub</b></span>' + ICON.out + '</a>' +
     '</div>' +
     '<p class="ver">Suki ' + APP_VERSION + ' · ' + RELEASE_DATE + '</p>'
   );

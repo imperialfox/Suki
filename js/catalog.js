@@ -57,6 +57,39 @@ const CATALOG = [
   ['shampoo', 'Shampoo', 'Shampoo', 'Everyday essentials', 'per sachet/bottle', 'shampoo sachet'],
   ['toothpaste', 'Toothpaste', 'Toothpaste', 'Everyday essentials', 'per tube', 'tooth paste|pampinis ng ngipin'],
   ['detergent', 'Detergent', 'Laundry detergent', 'Everyday essentials', 'per sachet/pack', 'washing powder|laundry soap|detergent powder'],
+  // added in Q02: transport, services, fast food, drinks, pantry
+  ['jeepney', 'Dyip', 'Jeepney', 'Transport', 'first 4 km', 'jeep|jeepney|jeepney fare|pamasahe|dyipni|modern jeepney|e-jeep'],
+  ['tricycle', 'Traysikel', 'Tricycle', 'Transport', 'per ride', 'trike|tricycle fare|tryk|pedicab|padyak'],
+  ['bus-city', 'Bus sa lungsod', 'City bus', 'Transport', 'first 5 km', 'bus|city bus|carousel|aircon bus'],
+  ['bus-sanjose', 'Bus papuntang San Jose', 'Bus to San Jose City, Nueva Ecija', 'Transport', 'one way', 'baliwag|baliwag transit|five star|cubao bus|nueva ecija bus|cabanatuan bus|provincial bus'],
+  ['bus-naia', 'Airport bus', 'Airport bus, NAIA to Cubao', 'Transport', 'one way', 'ube express|p2p|p2p bus|naia bus|airport bus'],
+  ['grab', 'Grab', 'Ride-hailing car', 'Transport', 'base fare', 'grab car|grabcar|ride hailing|uber|tnvs|joyride car'],
+  ['taxi', 'Taxi', 'Metered taxi', 'Transport', 'flag-down', 'taxi fare|cab|metered taxi'],
+  ['taxi-naia', 'Airport taxi', 'Yellow airport taxi, NAIA', 'Transport', 'flag-down', 'naia taxi|airport taxi|yellow taxi'],
+  ['mrt3', 'MRT-3', 'Metro Rail Transit, EDSA', 'Transport', 'per ride', 'mrt|mrt3|metro rail|train|train edsa|tren'],
+  ['lrt1', 'LRT-1', 'Light Rail Transit Line 1', 'Transport', 'per ride', 'lrt|lrt1|lrt 1|light rail|train|tren'],
+  ['lrt2', 'LRT-2', 'Light Rail Transit Line 2', 'Transport', 'per ride', 'lrt2|lrt 2|light rail|train|tren'],
+  ['uv', 'UV Express', 'Shared van', 'Transport', 'per km', 'uv express|fx|van|shuttle van'],
+  ['sim', 'SIM card', 'Prepaid SIM', 'Services', 'per SIM', 'sim|esim|globe sim|smart sim|tourist sim|load'],
+  ['data', 'Data promo', 'Mobile data', 'Services', 'per promo', 'data|load|mobile data|internet|globe|smart|go99|goplus|magic data|power all'],
+  ['laundry', 'Laba', 'Laundry', 'Services', 'per kg', 'laundry|labahan|laundromat|wash dry fold|laundry shop'],
+  ['haircut', 'Gupit', 'Haircut', 'Services', 'per cut', 'haircut|barber|barbershop|gupit lalaki|salon'],
+  ['massage', 'Masahe', 'Massage', 'Services', '1 hour', 'massage|hilot|spa|masahe|swedish massage'],
+  ['chickenjoy', 'Chickenjoy', 'Jollibee fried chicken', 'Fast food', 'per meal', 'jollibee|chicken joy|chickenjoy|fried chicken'],
+  ['yumburger', 'Yumburger', 'Jollibee burger', 'Fast food', 'per burger', 'jollibee burger|yum burger|burger'],
+  ['chickenmcdo', 'Chicken McDo', 'McDonald’s fried chicken', 'Fast food', 'per meal', 'mcdo|mcdonalds|mcdonald s|chicken mcdo'],
+  ['pm1', 'Mang Inasal PM1', 'Grilled chicken with rice', 'Fast food', 'per meal', 'mang inasal|inasal|chicken inasal|pm1|unli rice'],
+  ['latte', 'Kape sa café', 'Café latte', 'Fast food', 'per cup', 'starbucks|latte|cafe latte|coffee shop'],
+  ['carinderia', 'Karinderya', 'Carinderia meal', 'Ulam / lutong-bahay', 'per plate', 'carinderia|karinderya|turo turo|turo-turo|ulam with rice|rice meal|silog'],
+  ['kikiam', 'Kikiam', 'Fried fish roll', 'Street food', 'per stick', 'kikyam|que kiam'],
+  ['beer', 'Serbesa', 'Beer', 'Inumin', 'per bottle/can', 'beer|san miguel|pale pilsen|red horse|san mig light|cerveza|alak'],
+  ['gatorade', 'Gatorade', 'Sports drink', 'Inumin', 'per bottle', 'sports drink|pocari'],
+  ['noodles', 'Instant noodles', 'Instant noodles', 'Palengke / groceries', 'per pack', 'noodles|mami|pancit canton|lucky me|payless|instant mami|ramen|cup noodles'],
+  ['sardinas', 'Sardinas', 'Canned sardines', 'Palengke / groceries', 'per can', 'sardines|ligo|555|mega sardines|de lata'],
+  ['cornedbeef', 'Corned beef', 'Corned beef', 'Palengke / groceries', 'per can', 'corned beef|argentina|delata|de lata'],
+  ['tasty', 'Tinapay na tasty', 'Sliced loaf', 'Tinapay', 'per loaf', 'loaf|sliced bread|pinoy tasty|gardenia|white bread'],
+  ['asin', 'Asin', 'Salt', 'Palengke / groceries', 'per pack', 'salt|iodized salt'],
+  ['asukal', 'Asukal', 'Sugar', 'Palengke / groceries', 'per pack', 'sugar|white sugar'],
 ].map((a) => ({ id: a[0], name: a[1], english: a[2], group: a[3], unit: a[4], aliases: a[5].split('|') }));
 
 const itemById = (id) => CATALOG.find((i) => i.id === id);
@@ -72,6 +105,42 @@ function refFrom(id) {
   return { price: low.price, unit: low.unit, many: r.length > 1 };
 }
 const OFFICIAL_IDS = () => [...new Set((REFS().records || []).map((r) => r.itemId))].filter(itemById);
+
+/* ===== Typical prices (js/typical.js, Q02) and browsing by kind ===== */
+const TYPICAL = () => (window.sukiTypical && window.sukiTypical.items) || {};
+const typicalFor = (id) => TYPICAL()[id] || [];
+// the price shown in a list row: the official weekly average where there is one, otherwise the typical range
+function priceOf(id) {
+  const o = refFrom(id);
+  if (o) return { low: o.price, high: o.price, unit: o.unit, many: o.many, official: true };
+  const t = typicalFor(id);
+  if (!t.length) return null;
+  return {
+    low: Math.min(...t.map((x) => x.low)),
+    high: Math.max(...t.map((x) => x.high)),
+    unit: '',
+    many: t.length > 1,
+  };
+}
+// the chips on Search: every catalogue item belongs to one
+const BROWSE = [['all', 'All'], ['transport', 'Transport'], ['food', 'Food'], ['market', 'Market'], ['drinks', 'Drinks'], ['services', 'Services'], ['essentials', 'Essentials']];
+function browseOf(it) {
+  const g = it.group || '';
+  if (g === 'Transport') return 'transport';
+  if (g === 'Services') return 'services';
+  if (/inumin/i.test(g)) return 'drinks';
+  if (/palengke|groceries/i.test(g)) return 'market';
+  if (/essential/i.test(g)) return 'essentials';
+  return 'food';
+}
+// which catalogue item a logged purchase is ("Jeepney to Cubao" is the jeepney), or null when nothing is a clear match
+const matchCache = {};
+function itemFor(text) {
+  const k = norm(text);
+  if (k in matchCache) return matchCache[k];
+  const h = searchItems(k, 1)[0];
+  return (matchCache[k] = h && score(h, k) >= 70 ? h.id : null);
+}
 
 /* ===== Fuzzy search =====
    Exact names and spellings score highest, then names containing what you typed, then word-by-word likeness,

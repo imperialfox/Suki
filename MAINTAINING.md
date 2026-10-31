@@ -40,6 +40,7 @@ Suki shares its foundations with Vocal Sessions (`imperialfox/Vocal-Sessions`): 
 | `js/motion.js` | **The shared springs** (`MOTION`), copied from Vocal Sessions: gentle, nav and ripple springs as CSS `linear()` easings and `--ease-*`/`--dur-*` variables, Reduce Motion, and the speed setting (`suki:motion`; 0 = off, used by the tests) |
 | `js/catalog.js` | The catalogue (`CATALOG`), official price lookups (`refsFor`, `refFrom`) and the fuzzy search (`searchItems`) |
 | `js/prices.js` | The official DA-AMAS price snapshot (`window.sukiPriceReferences`) |
+| `js/typical.js` | Typical prices with their sources (`window.sukiTypical`, Q02): fares, DTI suggested retail prices, shop and menu prices, rough guides |
 | `js/storage.js` | Categories, places and payment methods; checking (`cleanData`) and loading/saving data; the draft and last-backup date |
 | `js/helpers.js` | Money and dates, icons, category tiles, layout (`MQ`, `layout()`), tabs and the on-screen state `U` |
 | `js/screens.js` | Home, Till, Search, Spending, Convert and Settings, plus the shared purchase form, purchase details and item details |
@@ -88,6 +89,10 @@ A price note: `{id, itemId, itemName, price, date, location, venue, note}`. `ite
 ## Backups
 
 A backup is a JSON file: a plain-English `README`, `app: 'Suki'`, `schemaVersion: 1`, `appVersion`, `exportedAt`, `device`, `purchases`, `observations` and `rate`. Backups from 2.0 (without `README`, `appVersion` or `device`) still restore. Files are named `Suki backup · YYYY-MM · Device.json`.
+
+## Updating the typical prices (Q02)
+
+`js/typical.js` maps a catalogue id to a list of prices: `{label, low, high, unit, area, kind, source, url, date, note?}`. `kind` is one of `fare` (set by LTFRB), `srp` (DTI suggested retail price), `shop` (a supermarket shelf price), `menu` (the chain's own menu), `listed` (published by the company or a news report) or `guide` (a rough guide from travel writers). Change a price, its source, link and date together, and update `checked` at the top. **Never add a number without a source.** Search shows the official DA price in a row where there is one, otherwise the typical range. Every catalogue item belongs to one Search chip through `browseOf()`; "You paid" matches logged purchases to an item with `itemFor()`.
 
 ## Updating the official prices
 

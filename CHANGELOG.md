@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.7 · 31 Oct 2026
+*A price for what you'll actually buy and ride (Q02)*
+
+**Prices**
+- About 100 prices, each with where it came from and when, checked 31 Oct 2026. They cover:
+  - jeepney, bus, taxi, Grab, airport and train fares, including the new fares from 28 Sep 2026 (traditional jeepney ₱14, modern ₱17)
+  - the DTI's suggested retail prices for water, noodles, sardines, coffee, bread, soap and more
+  - supermarket prices for beer and soft drinks
+  - fast-food menu prices
+  - SIM cards and data promos
+  - rough guides for street food, carinderia meals, laundry, haircuts and massage
+- 32 new things to search for, from jeepney and tricycle to beer, Chickenjoy and SIM cards.
+- Each price says what kind it is (set fare, suggested retail price, supermarket price, menu price or rough guide), with links to its sources.
+
+**Search**
+- Chips under the search box to browse by category: Transport, Food, Market, Drinks, Services and Essentials. They narrow a search too.
+- With nothing typed, Search shows a few of each category, each with a Show all row.
+
+**An item's page**
+- Typical prices first, then the official Department of Agriculture price where there is one.
+- You paid: what you logged for it, newest first.
+- A Log what you paid button that starts the form with the item and its category.
+
 ## 2.6 · 31 Oct 2026
 *Spending over time (Q03)*
 

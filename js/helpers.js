@@ -173,6 +173,7 @@ const freshU = () => ({
   sd: {}, // that sheet's details
   stack: [], // sheets to return to when this one closes
   q: '', // the search box
+  scat: 'all', // Search's category chip (Q02)
   cat: 'all', // Spending's category chip
   range: 'all', // Spending's period: day, week, month or all
   roff: 0, // how many periods back the arrows have stepped

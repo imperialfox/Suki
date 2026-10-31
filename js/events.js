@@ -88,7 +88,6 @@ function setTillCash(v) {
 }
 function updateSearch() {
   $('results').innerHTML = searchResults();
-  $('examples').hidden = !!U.q;
   const c = document.querySelector('#app .searchbox .clr');
   if (c) c.hidden = !U.q;
 }
@@ -375,11 +374,27 @@ const ACT = {
     }));
     await save('observations');
   },
-  example: (el) => {
-    U.q = el.dataset.v;
-    const q = $('q');
-    if (q) q.value = U.q;
-    updateSearch();
+  // Search's category chips, and the "Show all" rows that lead to them (Q02)
+  scat: (el) => {
+    U.scat = el.dataset.v;
+    rerender();
+    if (el.classList.contains('more')) window.scrollTo({ top: 0, behavior: MOTION.on() ? 'smooth' : 'auto' });
+    const c = document.querySelector('#browse .chip.on');
+    if (c && c.scrollIntoView) c.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    fadeScrollers();
+  },
+  // log a purchase of this item, starting from its name and a fitting category
+  logItem: (el) => {
+    const it = itemById(el.dataset.k);
+    if (!it) return;
+    const b = browseOf(it),
+      cat = { transport: 'Transport', market: 'Groceries', essentials: 'Shopping', services: 'Other' }[b] || 'Food & drink';
+    F.edit = { item: b === 'food' || b === 'market' ? it.name : it.english, price: '', category: cat, date: localISO(), payment: 'Cash' };
+    openSheet('edit', {}, !!U.sheet);
+    setTimeout(() => {
+      const p = $('edit-price');
+      if (p) p.focus({ preventScroll: true });
+    }, 80);
   },
   clearQ: () => {
     U.q = '';

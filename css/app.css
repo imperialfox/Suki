@@ -1135,6 +1135,54 @@ a.row:active {
   height: 16px;
 }
 
+/* typical prices (Q02) */
+.typical .ofrow {
+  align-items: flex-start;
+}
+.typical .ofrow .amt {
+  text-align: right;
+  white-space: nowrap;
+}
+.typical .ofrow .amt small {
+  font-weight: 400;
+}
+.ofrow small.kind {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg2);
+  margin-top: 4px;
+}
+.ofrow small.k-guide {
+  color: var(--warnfg);
+}
+.ofrow small.tnote {
+  line-height: 1.35;
+  margin-top: 3px;
+}
+.typical .small {
+  margin-top: 10px;
+}
+.link.src {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 36px;
+  padding: 6px 0;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.link.src svg.i {
+  flex: none;
+  margin-top: 1px;
+}
+.amt.dim {
+  color: var(--fg3);
+  font-weight: 400;
+}
+.logit {
+  margin-top: 12px;
+}
 /* ===== Quick Till ===== */
 .denoms {
   margin-top: 12px;

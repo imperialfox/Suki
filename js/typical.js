@@ -1,0 +1,1274 @@
+/* Suki · typical.js
+   Typical prices with their sources, researched 31 Oct 2026 (Q02). Each item id points at a catalogue id.
+   kind: fare (set by LTFRB), srp (DTI suggested retail price), shop (a supermarket shelf price), menu (the chain’s own menu),
+   listed (published by the company or a news report), guide (a rough guide from travel writers).
+   To update: replace a value and its source, url and date together. Never guess a price. */
+window.sukiTypical = {
+ "checked": "2026-10-31",
+ "items": {
+  "jeepney": [
+   {
+    "label": "Traditional jeepney",
+    "low": 14,
+    "high": 14,
+    "unit": "first 4 km, then ₱2 a km",
+    "area": "Nationwide (LTFRB)",
+    "kind": "fare",
+    "source": "GMA News",
+    "url": "https://www.gmanetwork.com/news/money/economy/1003882/puvs-must-post-fare-matrix-before-charging-higher-fares-acto/story/",
+    "date": "2026-09-27",
+    "note": "New fare from 28 Sep 2026 (was ₱13). Drivers must show the new fare matrix before charging it."
+   },
+   {
+    "label": "Modern jeepney",
+    "low": 17,
+    "high": 17,
+    "unit": "first 4 km, then ₱2.40 a km",
+    "area": "Nationwide (LTFRB)",
+    "kind": "fare",
+    "source": "GMA News",
+    "url": "https://www.gmanetwork.com/news/money/economy/1003882/puvs-must-post-fare-matrix-before-charging-higher-fares-acto/story/",
+    "date": "2026-09-27",
+    "note": "New fare from 28 Sep 2026 (was ₱15)."
+   }
+  ],
+  "bus-city": [
+   {
+    "label": "Ordinary city bus",
+    "low": 15,
+    "high": 15,
+    "unit": "first 5 km, then ₱2.49 a km",
+    "area": "Metro Manila / city buses (LTFRB)",
+    "kind": "fare",
+    "source": "Top Gear Philippines",
+    "url": "https://www.topgear.com.ph/news/industry-news/dotr-fare-hike-september-28-2026-a6941-20260928",
+    "date": "2026-09-28"
+   },
+   {
+    "label": "Air-con city bus",
+    "low": 18,
+    "high": 18,
+    "unit": "first 5 km, then ₱2.98 a km",
+    "area": "Metro Manila / city buses (LTFRB)",
+    "kind": "fare",
+    "source": "Top Gear Philippines",
+    "url": "https://www.topgear.com.ph/news/industry-news/dotr-fare-hike-september-28-2026-a6941-20260928",
+    "date": "2026-09-28"
+   }
+  ],
+  "bus-sanjose": [
+   {
+    "label": "Cubao to San Jose City (Baliwag Transit)",
+    "low": 339,
+    "high": 339,
+    "unit": "one way",
+    "area": "Cubao (QC) → San Jose City, Nueva Ecija",
+    "kind": "guide",
+    "source": "Out of Town Blog",
+    "url": "https://outoftownblog.com/baliwag-transit-bus-schedule-terminals-routes-and-fare-rates/",
+    "date": "2026-08-30",
+    "note": "Listed before the 28 Sep 2026 fare rise, so it’s likely a little higher now. Check at the ticket counter."
+   },
+   {
+    "label": "Cubao to Cabanatuan (Baliwag Transit)",
+    "low": 257,
+    "high": 275,
+    "unit": "one way",
+    "area": "Cubao (QC) ↔ Cabanatuan City, Nueva Ecija",
+    "kind": "guide",
+    "source": "Out of Town Blog",
+    "url": "https://outoftownblog.com/baliwag-transit-bus-schedule-terminals-routes-and-fare-rates/",
+    "date": "2026-08-30",
+    "note": "Listed before the 28 Sep 2026 fare rise. ₱257 towards Cabanatuan, ₱275 back to Cubao."
+   }
+  ],
+  "tricycle": [
+   {
+    "label": "Dagupan, Pangasinan",
+    "low": 20,
+    "high": 30,
+    "unit": "first 2 km, then ₱10 a km",
+    "area": "Dagupan City, Pangasinan (Luzon example, not Nueva Ecija)",
+    "kind": "listed",
+    "source": "Sunday Punch, Dagupan",
+    "url": "https://punch.dagupan.com/?p=617793",
+    "date": "2025-11-02",
+    "note": "₱20 a passenger on a shared ride, ₱30 for a special trip on your own. No fare for San Jose City is published online."
+   },
+   {
+    "label": "City of Manila",
+    "low": 16,
+    "high": 16,
+    "unit": "first 1 km, then ₱5 every 500 m",
+    "area": "City of Manila (LGU ordinance)",
+    "kind": "listed",
+    "source": "Inquirer",
+    "url": "https://newsinfo.inquirer.net/1856068/manila-sets-new-tricycle-pedicab-fare-of-p16-for-first-kilometer-of-trip",
+    "date": "2023-11-07",
+    "note": "Set in 2023; it may have changed since."
+   }
+  ],
+  "grab": [
+   {
+    "label": "Grab or other ride-hailing car, base fare",
+    "low": 55,
+    "high": 165,
+    "unit": "base fare, by car type",
+    "area": "Nationwide TNVS (LTFRB)",
+    "kind": "fare",
+    "source": "SunStar",
+    "url": "https://www.sunstar.com.ph/manila/ltfrb-sets-new-puv-rates-effective-sept-28",
+    "date": "2026-09-29",
+    "note": "Hatchback ₱55, sedan ₱65, SUV ₱75, premium ₱165. Then ₱13–18 a km and ₱2 a minute."
+   }
+  ],
+  "taxi": [
+   {
+    "label": "Metered taxi, flag-down",
+    "low": 65,
+    "high": 65,
+    "unit": "flag-down, then ₱13.50 a km and ₱2 a minute",
+    "area": "Nationwide (LTFRB), provisional",
+    "kind": "fare",
+    "source": "Philstar",
+    "url": "https://www.philstar.com/headlines/2026/09/27/2559277/jeepney-fares-p14-starting-sept-28-buses-taxis-tnvs-also-hike-rates",
+    "date": "2026-09-27",
+    "note": "Provisional fare from 28 Sep 2026 (was ₱50)."
+   }
+  ],
+  "taxi-naia": [
+   {
+    "label": "Yellow airport taxi, flag-down",
+    "low": 115,
+    "high": 115,
+    "unit": "first 500 m, then ₱4 every 300 m",
+    "area": "NAIA (Manila airport)",
+    "kind": "fare",
+    "source": "Philstar",
+    "url": "https://www.philstar.com/headlines/2026/09/27/2559277/jeepney-fares-p14-starting-sept-28-buses-taxis-tnvs-also-hike-rates",
+    "date": "2026-09-27",
+    "note": "New flag-down from 28 Sep 2026 (was ₱75)."
+   }
+  ],
+  "bus-naia": [
+   {
+    "label": "UBE Express, NAIA Terminal 3 to Cubao",
+    "low": 200,
+    "high": 200,
+    "unit": "one way, cash",
+    "area": "NAIA Terminal 3 → Araneta City Cubao",
+    "kind": "listed",
+    "source": "Top Gear Philippines",
+    "url": "https://www.topgear.com.ph/features/feature-articles/naia-cubao-p2p-bus-2026-guide-a4682-20260401-lfrm",
+    "date": "2026-04-01",
+    "note": "April 2026 fare. Airport buses went up 15% on 28 Sep 2026, so it may be higher now."
+   }
+  ],
+  "mrt3": [
+   {
+    "label": "MRT-3, North Avenue to Taft",
+    "low": 13,
+    "high": 28,
+    "unit": "shortest to longest ride",
+    "area": "Metro Manila (EDSA)",
+    "kind": "listed",
+    "source": "Expressway.ph",
+    "url": "https://www.expressway.ph/transit/mrt-line-guide",
+    "date": "2026-10-03",
+    "note": "Half price for everyone since 23 Mar 2026, until further notice, so about ₱6.50–14."
+   }
+  ],
+  "lrt1": [
+   {
+    "label": "LRT-1",
+    "low": 16,
+    "high": 55,
+    "unit": "shortest to longest ride",
+    "area": "Metro Manila (Taft / Rizal Ave / Cavite ext.)",
+    "kind": "fare",
+    "source": "Top Gear Philippines",
+    "url": "https://topgear.com.ph/news/motoring-news/lrt-1-price-hike-2025-a6888-20250402",
+    "date": "2025-04-02",
+    "note": "Single-journey ticket ₱20–55; beep card ₱16–52. Not included in the half-price offer."
+   }
+  ],
+  "lrt2": [
+   {
+    "label": "LRT-2, Recto to Antipolo",
+    "low": 14,
+    "high": 35,
+    "unit": "shortest to longest ride",
+    "area": "Metro Manila / Rizal",
+    "kind": "fare",
+    "source": "LRTA",
+    "url": "https://www.lrta.gov.ph/lrt-2-fare-adjustment/",
+    "date": "2023-08 (f",
+    "note": "Half price for everyone since 23 Mar 2026, applied at the gates."
+   }
+  ],
+  "uv": [
+   {
+    "label": "UV Express",
+    "low": 2.6,
+    "high": 3.0,
+    "unit": "per km",
+    "area": "Nationwide (LTFRB), provisional",
+    "kind": "fare",
+    "source": "Philstar",
+    "url": "https://www.philstar.com/headlines/2026/09/27/2559277/jeepney-fares-p14-starting-sept-28-buses-taxis-tnvs-also-hike-rates",
+    "date": "2026-09-27",
+    "note": "Provisional from 28 Sep 2026. Traditional ₱2.60 a km, modern ₱3.00 a km."
+   }
+  ],
+  "sim": [
+   {
+    "label": "Globe prepaid SIM",
+    "low": 59,
+    "high": 59,
+    "unit": "per SIM",
+    "area": "Nationwide",
+    "kind": "listed",
+    "source": "Globe",
+    "url": "https://globe.com.ph/prepaid/5g-sim-guide",
+    "date": "",
+    "note": "You register it with an ID."
+   },
+   {
+    "label": "Globe prepaid eSIM",
+    "low": 99,
+    "high": 99,
+    "unit": "per eSIM",
+    "area": "Nationwide",
+    "kind": "listed",
+    "source": "Globe",
+    "url": "https://globe.com.ph/prepaid/5g-sim-guide",
+    "date": ""
+   },
+   {
+    "label": "Smart tourist SIM at the NAIA booth",
+    "low": 500,
+    "high": 1000,
+    "unit": "per package",
+    "area": "NAIA, Pasay",
+    "kind": "guide",
+    "source": "Trvlogue",
+    "url": "https://www.trvlogue.com/en/manila-airport-sim-prices",
+    "date": "2026-08-08",
+    "note": "Airport packages are dearer than a normal SIM and promo from a convenience store."
+   }
+  ],
+  "data": [
+   {
+    "label": "Globe GoPLUS99",
+    "low": 99,
+    "high": 99,
+    "unit": "8 GB + 8 GB for apps, 7 days",
+    "area": "Nationwide",
+    "kind": "listed",
+    "source": "Globe",
+    "url": "https://www.globe.com.ph/go/technology/article/ultimate-list-globe-prepaid-data-promos",
+    "date": ""
+   },
+   {
+    "label": "Smart Power All 109",
+    "low": 109,
+    "high": 109,
+    "unit": "10 GB + extras, 7 days",
+    "area": "Nationwide",
+    "kind": "listed",
+    "source": "WalasTech",
+    "url": "https://walastech.com/news/new-smart-power-all-prepaid-promos-2026/",
+    "date": "2026-07-01"
+   },
+   {
+    "label": "Smart Magic Data 99",
+    "low": 99,
+    "high": 99,
+    "unit": "2 GB, no expiry",
+    "area": "Nationwide",
+    "kind": "guide",
+    "source": "Unbox",
+    "url": "https://unbox.ph/news/ph-digital-and-tech/smart-magic-data-no-expiry/amp/",
+    "date": ""
+   }
+  ],
+  "laundry": [
+   {
+    "label": "Wash, dry and fold",
+    "low": 50,
+    "high": 90,
+    "unit": "per kg, usually 4–5 kg minimum",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Laundry Atlas",
+    "url": "https://laundryatlas.com/blog/how-much-does-laundry-cost-in-manila",
+    "date": "2026-03-01"
+   }
+  ],
+  "haircut": [
+   {
+    "label": "Neighbourhood barbershop",
+    "low": 100,
+    "high": 250,
+    "unit": "per cut",
+    "area": "Philippines (urban)",
+    "kind": "guide",
+    "source": "Visio AI",
+    "url": "https://visioai.app/fil/mga-hairstyle/gupit-ng-lalaki/",
+    "date": ""
+   },
+   {
+    "label": "Mall barbershop",
+    "low": 350,
+    "high": 700,
+    "unit": "per cut",
+    "area": "Metro Manila malls",
+    "kind": "guide",
+    "source": "Visio AI",
+    "url": "https://visioai.app/fil/mga-hairstyle/gupit-ng-lalaki/",
+    "date": ""
+   }
+  ],
+  "massage": [
+   {
+    "label": "Home-service massage",
+    "low": 500,
+    "high": 1000,
+    "unit": "1 hour",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Bed n Body",
+    "url": "https://bednbody.ph/bednbody-newsroom-guide-how-much-home-massage-cost-philippines",
+    "date": "2026-09-04"
+   },
+   {
+    "label": "Spa massage (Swedish)",
+    "low": 700,
+    "high": 2500,
+    "unit": "1 hour",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Top Massage Manila",
+    "url": "https://topmassagemanila.com/massage-price-manila",
+    "date": "2026-04-19"
+   }
+  ],
+  "chickenjoy": [
+   {
+    "label": "1-pc Chickenjoy with rice and a drink",
+    "low": 99,
+    "high": 99,
+    "unit": "per meal",
+    "area": "Nationwide",
+    "kind": "menu",
+    "source": "Jollibee",
+    "url": "https://www.jollibee.com.ph/news/jollibee-chickenjoy-sarap-savers",
+    "date": "2026-01-14"
+   },
+   {
+    "label": "1-pc Chickenjoy, regular menu",
+    "low": 106,
+    "high": 111,
+    "unit": "per order",
+    "area": "Nationwide",
+    "kind": "listed",
+    "source": "Jon to the World",
+    "url": "https://jontotheworld.com/jollibee-menu-with-prices/",
+    "date": "2026-09-18"
+   }
+  ],
+  "yumburger": [
+   {
+    "label": "Yumburger",
+    "low": 45,
+    "high": 56,
+    "unit": "per burger",
+    "area": "Nationwide",
+    "kind": "listed",
+    "source": "Jollibee",
+    "url": "https://www.jollibee.com.ph/news/jollibee-surprises-commuters-nationwide",
+    "date": "2026-02-20",
+    "note": "Jollibee said ₱45 in February 2026; a September list says from ₱56."
+   }
+  ],
+  "chickenmcdo": [
+   {
+    "label": "1-pc Chicken McDo with rice and a drink",
+    "low": 99,
+    "high": 99,
+    "unit": "per meal, from",
+    "area": "Nationwide",
+    "kind": "listed",
+    "source": "Daily Tribune",
+    "url": "https://tribune.net.ph/2026/09/01/bigger-savings-fuller-chicken-how-mcdo-keeps-filipinos-coming-back-for-more",
+    "date": "2026-09-01"
+   }
+  ],
+  "pm1": [
+   {
+    "label": "PM1: Paa Large with 1 rice",
+    "low": 139,
+    "high": 139,
+    "unit": "per meal",
+    "area": "Nationwide",
+    "kind": "menu",
+    "source": "Mang Inasal",
+    "url": "https://www.manginasal.ph/news/menu-and-prices",
+    "date": "2026-08-01",
+    "note": "₱170 with a drink."
+   }
+  ],
+  "latte": [
+   {
+    "label": "Starbucks caffè latte, tall",
+    "low": 160,
+    "high": 160,
+    "unit": "per cup",
+    "area": "Nationwide",
+    "kind": "listed",
+    "source": "Out of Town Blog",
+    "url": "https://outoftownblog.com/starbucks-menu-philippines/",
+    "date": "2026-08-15",
+    "note": "Delivery price; branches vary."
+   }
+  ],
+  "fishball": [
+   {
+    "label": "Fish ball",
+    "low": 10,
+    "high": 30,
+    "unit": "per stick",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01"
+   }
+  ],
+  "kikiam": [
+   {
+    "label": "Kikiam",
+    "low": 5,
+    "high": 30,
+    "unit": "per stick",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Things to Do Manila",
+    "url": "https://thingstodomanila.com/street-food/",
+    "date": "2026-09"
+   }
+  ],
+  "kwek": [
+   {
+    "label": "Kwek-kwek",
+    "low": 10,
+    "high": 30,
+    "unit": "per stick",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "TravelStar360",
+    "url": "https://travelstar360.com/manila-street-food-price-guide/",
+    "date": "2026-04-27"
+   }
+  ],
+  "isaw": [
+   {
+    "label": "Isaw",
+    "low": 10,
+    "high": 25,
+    "unit": "per stick",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Things to Do Manila",
+    "url": "https://thingstodomanila.com/street-food/",
+    "date": "2026-09"
+   }
+  ],
+  "bananacue": [
+   {
+    "label": "Banana cue",
+    "low": 15,
+    "high": 40,
+    "unit": "per stick",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "TravelStar360",
+    "url": "https://travelstar360.com/manila-street-food-price-guide/",
+    "date": "2026-04-27"
+   }
+  ],
+  "turon": [
+   {
+    "label": "Turon",
+    "low": 15,
+    "high": 40,
+    "unit": "per piece",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "TravelStar360",
+    "url": "https://travelstar360.com/manila-street-food-price-guide/",
+    "date": "2026-04-27"
+   }
+  ],
+  "taho": [
+   {
+    "label": "Taho",
+    "low": 20,
+    "high": 50,
+    "unit": "per cup",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Things to Do Manila",
+    "url": "https://thingstodomanila.com/street-food/",
+    "date": "2026-09"
+   }
+  ],
+  "siomai": [
+   {
+    "label": "Master Siomai, 4 pieces",
+    "low": 60,
+    "high": 75,
+    "unit": "per order",
+    "area": "Metro Manila (Quezon City branch)",
+    "kind": "guide",
+    "source": "foodpanda",
+    "url": "https://www.foodpanda.ph/restaurant/q44r/master-siomai-robinsons-holy-spirit",
+    "date": "",
+    "note": "Delivery price; at the kiosk it can be less."
+   }
+  ],
+  "halo": [
+   {
+    "label": "Mang Inasal halo-halo",
+    "low": 70,
+    "high": 95,
+    "unit": "per cup",
+    "area": "Nationwide",
+    "kind": "menu",
+    "source": "Mang Inasal",
+    "url": "https://www.manginasal.ph/news/menu-and-prices",
+    "date": "2026-08-01"
+   },
+   {
+    "label": "From a stall",
+    "low": 20,
+    "high": 60,
+    "unit": "per serving",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "TravelStar360",
+    "url": "https://travelstar360.com/manila-street-food-price-guide/",
+    "date": "2026-04-27"
+   }
+  ],
+  "pandesal": [
+   {
+    "label": "Neighbourhood bakery",
+    "low": 2,
+    "high": 2.5,
+    "unit": "per piece",
+    "area": "Philippines (national)",
+    "kind": "listed",
+    "source": "Malaya Business Insight",
+    "url": "https://malaya.com.ph/business/business-news/community-bakers-disappear-as-pandesal-shrinks",
+    "date": "2025-09-13",
+    "note": "Bakers say pieces have shrunk to about 18 g."
+   },
+   {
+    "label": "Pinoy Pandesal, pack of 10",
+    "low": 27.25,
+    "high": 27.25,
+    "unit": "per pack",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   }
+  ],
+  "carinderia": [
+   {
+    "label": "One ulam with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "tubig": [
+   {
+    "label": "Nature's Spring Purified Water · 500 ml",
+    "low": 10.5,
+    "high": 10.5,
+    "unit": "per bottle",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Nature's Spring Purified Water · 1 L",
+    "low": 16.5,
+    "high": 16.5,
+    "unit": "per bottle",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Wilkins Pure (purified) · 500 ml",
+    "low": 11.0,
+    "high": 11.0,
+    "unit": "per bottle",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Wilkins Pure (purified) · 1 L",
+    "low": 18.0,
+    "high": 18.0,
+    "unit": "per bottle",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Summit Mineralized Water · 500 ml",
+    "low": 12.0,
+    "high": 12.0,
+    "unit": "per bottle",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Absolute Distilled Water · 500 ml",
+    "low": 16.75,
+    "high": 16.75,
+    "unit": "per bottle",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Absolute Distilled Water · 1 L",
+    "low": 25.0,
+    "high": 25.0,
+    "unit": "per bottle",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   }
+  ],
+  "softdrinks": [
+   {
+    "label": "Coca-Cola can",
+    "low": 35.75,
+    "high": 39.0,
+    "unit": "per can",
+    "area": "Metro Supermarket online / Pandamart QC",
+    "kind": "shop",
+    "source": "foodpanda",
+    "url": "https://www.foodpanda.ph/groceries/product/GX190F/coke-regular-can-320ml",
+    "date": "2026-10-31"
+   },
+   {
+    "label": "Coca-Cola 500 ml",
+    "low": 38.25,
+    "high": 38.25,
+    "unit": "per bottle",
+    "area": "Metro Supermarket (online)",
+    "kind": "shop",
+    "source": "Metro Supermarket",
+    "url": "https://shopmetro.ph/?s=coke&post_type=product",
+    "date": "2026-10-31"
+   },
+   {
+    "label": "Coca-Cola 1.5 litres",
+    "low": 66.75,
+    "high": 67.5,
+    "unit": "per bottle",
+    "area": "Metro Supermarket online / Pandamart QC",
+    "kind": "shop",
+    "source": "foodpanda",
+    "url": "https://www.foodpanda.ph/groceries/product/10F7M0/coke-regular-bottle-15l",
+    "date": "2026-10-31"
+   }
+  ],
+  "beer": [
+   {
+    "label": "San Miguel Pale Pilsen, 320 ml bottle",
+    "low": 58.3,
+    "high": 58.3,
+    "unit": "per bottle",
+    "area": "Metro Supermarket (online)",
+    "kind": "shop",
+    "source": "Metro Supermarket",
+    "url": "https://shopmetro.ph/product/san-miguel-pale-pilsen-320ml/",
+    "date": "2026-10-31",
+    "note": "Supermarket price; bars and sari-sari stores differ."
+   },
+   {
+    "label": "San Miguel Pale Pilsen, can",
+    "low": 54.5,
+    "high": 57.0,
+    "unit": "per can",
+    "area": "Metro Supermarket online / Pandamart QC",
+    "kind": "shop",
+    "source": "Metro Supermarket",
+    "url": "https://shopmetro.ph/product/san-miguel-beer-pale-pilsen-can-330ml/",
+    "date": "2026-10-31"
+   },
+   {
+    "label": "Red Horse, 500 ml bottle",
+    "low": 70.8,
+    "high": 70.8,
+    "unit": "per bottle",
+    "area": "Metro Supermarket (online)",
+    "kind": "shop",
+    "source": "Metro Supermarket",
+    "url": "https://shopmetro.ph/product/redhorse-bottle-500ml/",
+    "date": "2026-10-31"
+   },
+   {
+    "label": "Red Horse, can",
+    "low": 58.0,
+    "high": 59.5,
+    "unit": "per can",
+    "area": "Metro Supermarket online / Pandamart QC",
+    "kind": "shop",
+    "source": "Metro Supermarket",
+    "url": "https://shopmetro.ph/brand/red-horse/",
+    "date": "2026-10-31"
+   }
+  ],
+  "gatorade": [
+   {
+    "label": "Gatorade 500 ml",
+    "low": 49.0,
+    "high": 49.0,
+    "unit": "per bottle",
+    "area": "Metro Supermarket (online)",
+    "kind": "shop",
+    "source": "Metro Supermarket",
+    "url": "https://shopmetro.ph/?s=gatorade&post_type=product",
+    "date": "2026-10-31"
+   }
+  ],
+  "kape": [
+   {
+    "label": "Nescafe Original 3-in-1 · 20 g",
+    "low": 7.75,
+    "high": 7.75,
+    "unit": "per sachet",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Great Taste Original Twin Pack · 33 g",
+    "low": 10.0,
+    "high": 10.0,
+    "unit": "per sachet",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Kopiko Black 3-in-1 · 30 g",
+    "low": 8.5,
+    "high": 8.5,
+    "unit": "per sachet",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "San Mig Coffee 3-in-1 Original · 20 g",
+    "low": 7.5,
+    "high": 7.5,
+    "unit": "per sachet",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   }
+  ],
+  "noodles": [
+   {
+    "label": "Lucky Me! Instant Mami (Chicken na Chicken / Beef na Beef) · 55 g",
+    "low": 9.0,
+    "high": 9.0,
+    "unit": "per pack",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Payless Instant Mami (Chicken Espesyal / Beef Paborito) · 55 g",
+    "low": 7.5,
+    "high": 7.5,
+    "unit": "per pack",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Lucky Me! Pancit Canton (Original / Kalamansi / Chilimansi / Sweet & Spicy) · 80 g",
+    "low": 14.75,
+    "high": 14.75,
+    "unit": "per pack",
+    "area": "Metro Supermarket (online)",
+    "kind": "shop",
+    "source": "Metro Supermarket",
+    "url": "https://shopmetro.ph/?s=pancit+canton&post_type=product",
+    "date": "2026-10-31"
+   }
+  ],
+  "sardinas": [
+   {
+    "label": "555 Sardines Bonus Pack · 155 g",
+    "low": 20.5,
+    "high": 20.5,
+    "unit": "per can",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Mikado Sardines (regular lid) · 155 g",
+    "low": 22.5,
+    "high": 22.5,
+    "unit": "per can",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Saba Philippines Sardines · 155 g",
+    "low": 21.5,
+    "high": 21.5,
+    "unit": "per can",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Ligo Sardines in Tomato Sauce (easy open) · 155 g",
+    "low": 24.5,
+    "high": 24.5,
+    "unit": "per can",
+    "area": "Metro Supermarket (online)",
+    "kind": "shop",
+    "source": "Metro Supermarket",
+    "url": "https://shopmetro.ph/?s=ligo+sardines&post_type=product",
+    "date": "2026-10-31"
+   }
+  ],
+  "cornedbeef": [
+   {
+    "label": "Argentina Corned Beef · 150 g",
+    "low": 36.75,
+    "high": 36.75,
+    "unit": "per can",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   }
+  ],
+  "tasty": [
+   {
+    "label": "Pinoy Tasty (loaf) · 450 g",
+    "low": 44.0,
+    "high": 44.0,
+    "unit": "per loaf",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   }
+  ],
+  "asin": [
+   {
+    "label": "Lasap Iodized Salt · 250 g",
+    "low": 9.75,
+    "high": 9.75,
+    "unit": "per pack",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Fidel Refined Salt (Blue) · 250 g",
+    "low": 11.75,
+    "high": 11.75,
+    "unit": "per pack",
+    "area": "Luzon (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   }
+  ],
+  "asukal": [
+   {
+    "label": "Sampaguita Refined Sugar · 250 g",
+    "low": 18.75,
+    "high": 18.75,
+    "unit": "per pack",
+    "area": "Metro Supermarket (online)",
+    "kind": "shop",
+    "source": "Metro Supermarket",
+    "url": "https://shopmetro.ph/?s=sugar&post_type=product",
+    "date": "2026-10-31"
+   }
+  ],
+  "suka": [
+   {
+    "label": "Datu Puti White Vinegar (bottle) · 350 ml",
+    "low": 19.25,
+    "high": 19.25,
+    "unit": "per bottle",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   }
+  ],
+  "toyo": [
+   {
+    "label": "Silver Swan Soy Sauce (bottle) · 350 ml",
+    "low": 22.25,
+    "high": 22.25,
+    "unit": "per bottle",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   }
+  ],
+  "mantika": [
+   {
+    "label": "Golden Fiesta Cooking Oil (stand-up pouch) · 1 L",
+    "low": 144.5,
+    "high": 144.5,
+    "unit": "per pouch",
+    "area": "Metro Supermarket (online)",
+    "kind": "shop",
+    "source": "Metro Supermarket",
+    "url": "https://shopmetro.ph/?s=cooking+oil&post_type=product",
+    "date": "2026-10-31"
+   }
+  ],
+  "gatas": [
+   {
+    "label": "Bear Brand Powdered Milk · 135 g",
+    "low": 50.0,
+    "high": 50.0,
+    "unit": "per pack",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   }
+  ],
+  "sabon": [
+   {
+    "label": "Safeguard Pure White bath soap · 55 g",
+    "low": 22.0,
+    "high": 22.0,
+    "unit": "per bar",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Safeguard Pure White bath soap · 119 g",
+    "low": 49.0,
+    "high": 49.0,
+    "unit": "per bar",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   }
+  ],
+  "detergent": [
+   {
+    "label": "Tide Bar Original Scent (laundry bar) · 380 g",
+    "low": 24.0,
+    "high": 24.0,
+    "unit": "per bar",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Surf Bar Active Clean (Blue) · 360 g",
+    "low": 23.25,
+    "high": 23.25,
+    "unit": "per bar",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   },
+   {
+    "label": "Champion Bar (Supra Clean / Citrus Fresh) · 370 g",
+    "low": 25.0,
+    "high": 25.0,
+    "unit": "per bar",
+    "area": "Nationwide (DTI SRP)",
+    "kind": "srp",
+    "source": "DTI price bulletin",
+    "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
+    "date": "2026-05-11"
+   }
+  ],
+  "toothpaste": [
+   {
+    "label": "Colgate Fresh Confidence toothpaste · 110 g",
+    "low": 102.05,
+    "high": 102.05,
+    "unit": "per tube",
+    "area": "Metro Supermarket (online)",
+    "kind": "shop",
+    "source": "Metro Supermarket",
+    "url": "https://shopmetro.ph/?s=colgate&post_type=product",
+    "date": "2026-10-31"
+   }
+  ],
+  "adobo-p": [
+   {
+    "label": "At a carinderia, with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "adobo-c": [
+   {
+    "label": "At a carinderia, with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "sinigang-p": [
+   {
+    "label": "At a carinderia, with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "sinigang-h": [
+   {
+    "label": "At a carinderia, with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "tinola": [
+   {
+    "label": "At a carinderia, with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "menudo": [
+   {
+    "label": "At a carinderia, with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "afritada": [
+   {
+    "label": "At a carinderia, with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "karekare": [
+   {
+    "label": "At a carinderia, with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "paksiw": [
+   {
+    "label": "At a carinderia, with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "giniling": [
+   {
+    "label": "At a carinderia, with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "laing": [
+   {
+    "label": "At a carinderia, with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "pinakbet": [
+   {
+    "label": "At a carinderia, with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "talong": [
+   {
+    "label": "At a carinderia, with rice",
+    "low": 50,
+    "high": 90,
+    "unit": "per plate",
+    "area": "Metro Manila",
+    "kind": "guide",
+    "source": "Mighty Travels",
+    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
+    "date": "2026-08-01",
+    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ]
+ }
+};

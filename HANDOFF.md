@@ -20,7 +20,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 l
 **Debrief:** Built from the prototype commit unchanged. The swap trades the two boxes' places with a small slide (it fades with Reduce Motion). Tests: new checks for the button label colour, search not showing unrelated items, the swap and peso handy amounts, the plain rate line and ₱ in Settings.
 
 ## Q02 · Prices: a sourced price database and browsing by category
-**Render:** 31 Oct 2026, 22:56, scope as below · **Build:** awaiting · Needs: Q01 (stricter search).
+**Render:** 31 Oct 2026, 22:56, scope as below · **Build:** 31 Oct 2026 · shipped as 2.7 · Needs: Q01 (stricter search).
 
 **Goal:** Search gives a real price, with its source, for what he'll actually buy and ride.
 **Agreed:**
@@ -30,6 +30,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 l
 4. Item page: typical prices, then the DA card where there is one, then **You paid** (your logged purchases of it), **Log what you paid**, and price notes. The sheet is titled with the category.
 **Out of scope:** Nueva Ecija-specific prices (none published).
 **Done when:** tests pass; MAINTAINING.md says how to update `typical.js`.
+**Debrief:** Built from the prototype unchanged, apart from merging the test lists with Q03's. Prices come from three research passes with sources (LTFRB via GMA, Philstar, Top Gear and SunStar; the DTI bulletin of 11 May 2026; Metro Supermarket; Jollibee and Mang Inasal menus; Globe; travel writers for rough guides). Nothing for San Jose City is published, so it isn't guessed. The jeepney fare rise was checked again against SunStar and GMA. Tests: browsing, Show all, chips narrowing a search, an item's typical prices and sources, You paid, and Log what you paid.
 
 ## Q03 · Spending: over time, calendar, Undo, Show more, new day
 **Render:** 31 Oct 2026, 22:56, scope as below · **Build:** 31 Oct 2026 · shipped as 2.6.

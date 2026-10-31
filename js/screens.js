@@ -81,8 +81,7 @@ function purchaseDetail(p, inPane) {
 function officialCard(id) {
   const rows = refsFor(id),
     R = REFS();
-  if (!rows.length)
-    return '<div class="card quiet">There’s no official price for this item in the current snapshot. Your own price notes are below.</div>';
+  if (!rows.length) return '';
   return (
     '<section class="card official" aria-label="Official price reference"><div class="ofhead"><div><div class="eyebrow">Official price · ' + esc(R.area) + '</div><b>' + esc(R.period) + '</b></div><span class="badge">Weekly average</span></div>' +
     rows.map((r) => '<div class="ofrow"><span><b>' + esc(r.item) + '</b><small>' + esc(r.unit) + '</small></span><span class="amt">' + cash(r.price) + (inGbp(r.price) ? '<small>' + esc(inGbp(r.price)) + '</small>' : '') + '</span></div>').join('') +
@@ -90,15 +89,57 @@ function officialCard(id) {
     '<a class="link" href="' + esc(R.sourceUrl) + '" target="_blank" rel="noopener">View the DA report ' + ICON.out + '</a></section>'
   );
 }
+// "₱14" or "₱54.50–57": whole pesos lose their .00
+const peso = (n) => cash(n).replace(/\.00$/, '');
+const pesoRange = (lo, hi) => (lo === hi ? peso(lo) : peso(lo) + '–' + peso(hi).replace('₱', ''));
+const gbpRange = (lo, hi) => {
+  const a = inGbp(lo),
+    b = inGbp(hi);
+  return !a ? '' : lo === hi ? a : a + '–' + b.replace('≈ ', '').replace('£', '');
+};
+const KIND_LABEL = { fare: 'Set fare', srp: 'Suggested retail price', shop: 'Supermarket price', menu: 'Menu price', listed: 'Published price', guide: 'Rough guide' };
+const dateOf = (d) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? shortDate(d) : /^\d{4}-\d{2}$/.test(d) ? monthName(d + '-01', true) : '');
+// typical prices with where each came from: one row per price, the sources listed once underneath (Q02)
+function typicalCard(id) {
+  const rows = typicalFor(id);
+  if (!rows.length) return '';
+  const srcs = [],
+    areas = [...new Set(rows.map((r) => r.area))],
+    one = areas.length === 1;
+  rows.forEach((r) => !srcs.some((s) => s.url === r.url || (s.source === r.source && s.date === r.date)) && srcs.push(r));
+  return (
+    '<section class="card official typical" aria-label="Typical prices"><div class="ofhead"><div><div class="eyebrow">Typical price' + (rows.length > 1 ? 's' : '') + '</div><b>' + esc(one ? areas[0] : 'Several places') + '</b></div></div>' +
+    rows
+      .map(
+        (r) =>
+          '<div class="ofrow"><span><b>' + esc(r.label) + '</b><small>' + esc(r.unit) + '</small><small class="kind k-' + r.kind + '">' + KIND_LABEL[r.kind] + (!one && r.area ? ' · ' + esc(r.area) : '') + '</small>' +
+          (r.note ? '<small class="tnote">' + esc(r.note) + '</small>' : '') + '</span>' +
+          '<span class="amt">' + pesoRange(r.low, r.high) + (gbpRange(r.low, r.high) ? '<small>' + esc(gbpRange(r.low, r.high)) + '</small>' : '') + '</span></div>'
+      )
+      .join('') +
+    '<p class="small">Sources, checked ' + shortDate(window.sukiTypical.checked) + ':</p>' +
+    srcs.map((s) => '<a class="link src" href="' + esc(s.url) + '" target="_blank" rel="noopener"><span>' + esc(s.source) + (dateOf(s.date) ? ', ' + dateOf(s.date) : '') + '</span>' + ICON.out + '</a>').join('') +
+    '</section>'
+  );
+}
+// what you paid for this item, from your own log
+const paidFor = (id) => D.purchases.filter((p) => itemFor(p.item) === id).sort(byNewest);
 function itemDetail(id, inPane) {
   const it = itemById(id);
   if (!it) return '';
   const obs = D.observations.filter((o) => o.itemId === id).sort((a, b) => b.date.localeCompare(a.date));
   const open = U.obsFor === id;
   const f = F.obs;
+  const paid = paidFor(id);
+  const prices = typicalCard(id) + officialCard(id);
   return (
-    '<div class="dhead">' + tile(it.group, true) + '<div class="dmain"><h3>' + esc(it.name) + '</h3><div class="sub">' + esc(it.english) + ' · ' + esc(it.unit) + '</div></div></div>' +
-    officialCard(id) +
+    '<div class="dhead">' + tile(it.group, true, it.id) + '<div class="dmain"><h3>' + esc(it.name) + '</h3><div class="sub">' + esc(it.english !== it.name ? it.english + ' · ' + it.unit : it.unit) + '</div></div></div>' +
+    (prices || '<div class="card quiet">No published price for this yet. Add what you see below, and it’ll show here next time.</div>') +
+    (paid.length
+      ? hdr('You paid', '<span class="hint">' + plural(paid.length, 'time') + '</span>') +
+        '<div class="grp">' + paid.slice(0, 5).map((p) => '<button class="row" data-a="openPurchase" data-k="' + esc(p.id) + '" data-v="push"><span class="lbl"><b>' + cash(p.price) + (inGbp(p.price) ? ' <span class="gb">' + esc(inGbp(p.price)) + '</span>' : '') + '</b><small>' + esc([relDay(p.date), p.location].filter(Boolean).join(' · ')) + '</small></span>' + ICON.chev + '</button>').join('') + '</div>'
+      : '') +
+    '<button class="btn glass wide logit" data-a="logItem" data-k="' + esc(id) + '">' + ICON.plus + 'Log what you paid</button>' +
     hdr('Your price notes', open ? '' : '<button class="tbtn" data-a="obsForm" data-k="' + esc(id) + '">Add</button>') +
     (open
       ? '<form class="card form" data-form="obs" data-k="' + esc(id) + '" novalidate>' +
@@ -188,13 +229,14 @@ function tillOut() {
 }
 
 /* ===== Search ===== */
-const EXAMPLES = ['sinigang baboy', '1 kilo bigas', 'tubig bote', 'kwek kwek', 'baboy adobo'];
 function itemRow(it) {
-  const r = refFrom(it.id);
+  const r = priceOf(it.id);
   return (
-    '<button class="row' + (split() && U.item === it.id ? ' sel' : '') + '" data-a="openItem" data-k="' + esc(it.id) + '">' + tile(it.group) +
-    '<span class="lbl"><b>' + esc(it.name) + '</b><small>' + esc(it.english) + (r ? '' : ' · ' + esc(it.unit)) + '</small></span>' +
-    (r ? '<span class="amt">' + (r.many ? '<small class="from">from</small>' : '') + cash(r.price) + '<small>' + esc([inGbp(r.price), r.unit].filter(Boolean).join(' · ')) + '</small></span>' : '') +
+    '<button class="row' + (split() && U.item === it.id ? ' sel' : '') + '" data-a="openItem" data-k="' + esc(it.id) + '">' + tile(it.group, false, it.id) +
+    '<span class="lbl"><b>' + esc(it.name) + '</b><small>' + esc(it.english !== it.name ? it.english : it.unit) + '</small></span>' +
+    (r
+      ? '<span class="amt">' + (r.many && r.low === r.high ? '<small class="from">from</small>' : '') + pesoRange(r.low, r.high) + '<small>' + esc([gbpRange(r.low, r.high), r.unit || it.unit].filter(Boolean).join(' · ')) + '</small></span>'
+      : '<span class="amt dim" aria-label="No price yet">—</span>') +
     ICON.chev + '</button>'
   );
 }
@@ -208,34 +250,52 @@ function staleRate() {
   const n = dayDiff(localISO(at));
   return '<p class="foot stale" id="staleRate">Pound values use a rate from ' + (n < 7 ? n + ' days ago' : shortDate(localISO(at))) + '. Refresh it on Convert.</p>';
 }
+// items with a price come first, then the rest in catalogue order
+const byPriced = (a, b) => (priceOf(a.id) ? 0 : 1) - (priceOf(b.id) ? 0 : 1);
+const inBrowse = (it) => U.scat === 'all' || browseOf(it) === U.scat;
 function searchResults() {
-  const q = U.q.trim();
+  const q = U.q.trim(),
+    R = REFS(),
+    daNote = '<p class="foot">Market prices are weekly averages from ' + esc(R.source || 'the Department of Agriculture') + ', ' + esc(R.area || '') + ', ' + esc(R.period || '') + '.</p>';
   if (q) {
-    const hits = searchItems(q);
+    const hits = searchItems(q).filter(inBrowse);
     return (
       hdr('Matches', '<span class="hint">' + plural(hits.length, 'result') + '</span>') +
       (hits.length
         ? '<div class="grp tiled">' + hits.map(itemRow).join('') + '</div>'
-        : '<div class="grp"><div class="empty"><b>No clear match</b><br>Try fewer words, another spelling or the English name.</div></div>') +
+        : '<div class="grp"><div class="empty"><b>No clear match</b><br>Try fewer words, another spelling or the English name' + (U.scat !== 'all' ? ', or search All' : '') + '.</div></div>') +
       (hits.length ? staleRate() : '')
     );
   }
-  const R = REFS();
+  // one category: everything in it
+  if (U.scat !== 'all') {
+    const list = CATALOG.filter(inBrowse).slice().sort(byPriced);
+    return hdr(BROWSE.find((b) => b[0] === U.scat)[1], '<span class="hint">' + plural(list.length, 'item') + '</span>') + '<div class="grp tiled">' + list.map(itemRow).join('') + '</div>' + (U.scat === 'market' ? daNote : '') + staleRate();
+  }
+  // All: a few from each category, each with a door to the rest
   return (
-    hdr('Official prices · ' + esc(R.area || 'NCR')) +
-    '<div class="grp tiled">' + OFFICIAL_IDS().map((id) => itemRow(itemById(id))).join('') + '</div>' +
-    '<p class="foot">Weekly averages from ' + esc(R.source || 'the Department of Agriculture') + ', ' + esc(R.period || '') + '.</p>' + staleRate() +
-    hdr('Dishes and street food') +
-    '<div class="grp tiled">' + CATALOG.filter((i) => kindOf(i.group) === 'food').slice(0, 8).map(itemRow).join('') + '</div>'
+    BROWSE.slice(1)
+      .map((b) => {
+        const list = CATALOG.filter((it) => browseOf(it) === b[0]).slice().sort(byPriced),
+          show = list.slice(0, 4);
+        return (
+          hdr(b[1]) + '<div class="grp tiled">' + show.map(itemRow).join('') +
+          (list.length > show.length ? '<button class="row more" data-a="scat" data-v="' + b[0] + '"><span class="lbl">Show all ' + list.length + '</span>' + ICON.chev + '</button>' : '') + '</div>' +
+          (b[0] === 'market' ? daNote : '')
+        );
+      })
+      .join('') + staleRate()
   );
 }
+const browseChips = () =>
+  '<div class="chips scroller" id="browse" data-own-gesture="1" role="group" aria-label="Browse by category">' +
+  BROWSE.map((b) => '<button class="chip' + (U.scat === b[0] ? ' on' : '') + '" data-a="scat" data-v="' + b[0] + '" aria-pressed="' + (U.scat === b[0]) + '">' + b[1] + '</button>').join('') + '</div>';
 function scrSearch() {
   const list =
     '<label class="searchbox">' + ICON.search +
-    '<input id="q" type="search" placeholder="Try “sinigang baboy” or “1 kilo bigas”" aria-label="Search the catalogue" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" value="' + esc(U.q) + '">' +
+    '<input id="q" type="search" placeholder="Try “jeepney” or “1 kilo bigas”" aria-label="Search prices" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" value="' + esc(U.q) + '">' +
     '<button type="button" class="clr" data-a="clearQ" aria-label="Clear search"' + (U.q ? '' : ' hidden') + '>' + ICON.x + '</button>' + '</label>' +
-    '<div class="chips scroller" id="examples" data-own-gesture="1" aria-label="Example searches"' + (U.q ? ' hidden' : '') + '>' +
-    EXAMPLES.map((e) => '<button class="chip" data-a="example" data-v="' + esc(e) + '">' + esc(e) + '</button>').join('') + '</div>' +
+    browseChips() +
     '<div id="results">' + searchResults() + '</div>';
   const head = '<h1>Search</h1>';
   if (!split()) return head + list;

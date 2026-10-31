@@ -165,7 +165,7 @@ function sheetHTML() {
     case 'item': {
       const it = itemById(sd.id);
       if (!it) return null;
-      return sheetWrap(esc(it.group), itemDetail(it.id), '', it.name);
+      return sheetWrap(esc(BROWSE.find((b) => b[0] === browseOf(it))[1]), itemDetail(it.id), '', it.name);
     }
     case 'confirm':
       return sheetWrap(esc(sd.title), confirmBody(esc(sd.text), esc(sd.btn), sd.action, sd.k), '', sd.title);

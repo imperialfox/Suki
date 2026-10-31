@@ -175,6 +175,13 @@ function scrHome() {
     '<button class="card sumcard" data-a="tab" data-v="spending" aria-label="Total spent ' + cash(total) + '. Open Spending">' +
     '<span class="stat"><span class="big">' + cash(total) + '</span><span class="cap">Total spent' + (D.rate && total ? ' · ≈ ' + gbp(total / D.rate.value) : '') + '</span></span>' +
     '<span class="stat r"><span class="mid">' + cash(today) + '</span><span class="cap">Today</span></span>' + ICON.chev + '</button>' +
+    // data safety first: storage that wouldn't open, or records that couldn't be read (Q05)
+    (STORE_WARN
+      ? '<button class="nudge warn" data-a="exportBackup">' + ICON.upload + '<span>Suki couldn’t open its main storage on this device, so it’s saving to a smaller spot. Back up soon.</span></button>'
+      : '') +
+    (rescueDue()
+      ? '<button class="nudge warn" data-a="openRescue">' + ICON.tag + '<span>Some saved data couldn’t be read. A copy is kept safe; tap to save it.</span></button>'
+      : '') +
     (backupDue()
       ? '<button class="nudge" data-a="exportBackup">' + ICON.upload + '<span>' + (lastBackup() ? 'Your last backup was ' + relDay(localISO(lastBackup())).toLowerCase() + '. Save a fresh copy.' : 'Back up your records so they’re safe if your browser data is cleared.') + '</span></button>'
       : '');
@@ -594,6 +601,8 @@ function scrSettings() {
     hdr('Your data') +
     '<div class="grp tiled set">' +
     row('tag', 'orange', 'Price notes', plural(D.observations.length, 'note'), 'openNotes') +
+    (SAFETY ? row('refresh', 'indigo', 'Before your last ' + (SAFETY.why === 'erase' ? 'erase' : 'restore'), plural((SAFETY.data.purchases || []).length, 'purchase') + ' · ' + whenAgo(new Date(SAFETY.at)), 'putBack') : '') +
+    (RESCUE.length ? row('download', 'orange', 'Recovered data', plural(rescueCount(), 'record') + ' Suki couldn’t read, kept safe', 'openRescue') : '') +
     row('disk', 'gray', 'Storage used', '<span id="storageUsed">' + esc(STORAGE_USED) + '</span>') +
     '<button class="row danger" data-a="erase">' + stile('erase', 'red') + '<span class="lbl"><b>Erase all data</b><small>Purchases, price notes and the saved rate</small></span></button>' +
     '</div>' +

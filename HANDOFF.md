@@ -62,7 +62,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 l
 **Debrief:** Built from the prototype unchanged. Tests: font sizes on Apple's scale and no hex colours in rules (test_release), the tab bar 21pt from the bottom with 21pt sides, the soft edge appearing only after scrolling, distinct item glyphs, and Accessibility (on, back to Match iPhone, slow motion, and neither setting in backups).
 
 ## Q05 · Data: keep your data safe
-**Render:** 31 Oct 2026, 22:56, scope as below (wireframe skipped by Ivan) · **Build:** awaiting.
+**Render:** 31 Oct 2026, 22:56, scope as below (wireframe skipped by Ivan) · **Build:** 31 Oct 2026 · shipped as 2.9.
 
 **Goal:** nothing he logged can vanish quietly. From the stress test, A2 (#1–4).
 **Agreed:**
@@ -73,6 +73,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 l
 5. "Couldn't save" stays on screen until tapped, and an Undo message never hides it.
 **Out of scope:** cloud backup, automatic backups.
 **Done when:** tests reproduce each of the stress test's A2 cases and show them handled; full suite passes.
+**Debrief:** Built as agreed, with the defaults: the safety copy is kept until the next restore or erase, and recovered data stays until it's saved and then cleared. Decided within scope: putting back swaps (what's there becomes the new safety copy), and money() reads ₱ and PHP so those records are kept instead of rescued. Tests reproduce each stress-test case: an all-damaged backup, an empty backup, restore and Erase with Undo and put-back, a string where purchases should be, an unreadable price note, storage that won't open then recovers (records merged, fallback cleared), and a failed save after a delete (the warning stays after Undo has gone).
 
 ## Q06 · Tidy-ups: amounts, backup values, rate timeout, long totals
 **Render:** 31 Oct 2026, 22:56, scope as below (wireframe skipped by Ivan) · **Build:** awaiting.

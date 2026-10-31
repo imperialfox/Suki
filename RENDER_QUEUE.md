@@ -10,7 +10,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q03 | Spending: over time, calendar, Undo, Show more, new day | Shipped · 2.6 | same | Medium. Show more and new-day refresh added from the stress test |
 | Q02 | Prices: a sourced price database and browsing by category | Shipped · 2.7 | same | Medium. 100 prices with sources, checked 31 Oct 2026 |
 | Q04 | Look: soft-edge bar, dock position, tokens, Accessibility, item glyphs | Shipped · 2.8 | same | Medium |
-| Q05 | Data: keep your data safe | Approved — awaiting Build | none (wireframe skipped by Ivan) | Light to medium. From the stress test, A2 |
+| Q05 | Data: keep your data safe | Shipped · 2.9 | none (wireframe skipped by Ivan) | Light to medium. From the stress test, A2 |
 | Q06 | Tidy-ups: amounts, backup values, rate timeout, long totals | Approved — awaiting Build | none (wireframe skipped by Ivan) | Light. From the stress test, A3 |
 | Q07 | Onboarding: welcome card, tips and Help | Approved — awaiting Build | [Onboarding prototype](https://claude.ai/artifact/FHaHJmMntjWM9eeDrrDkN9) | Medium. Builds after Q06, as 2.11 |
 

@@ -75,6 +75,8 @@ Everything stays on the device. There is no server.
 |---|---|---|
 | IndexedDB `suki-db` (version 1), store `kv` | `purchases`, `observations`, `rate` | All saved data (`D`) |
 | localStorage | `suki:purchases`, `suki:observations`, `suki:rate` | The same, only when IndexedDB isn't available |
+| IndexedDB `kv` (or localStorage `suki:`) | `rescue` | Records Suki couldn't read, kept before anything saves over them (Q05). Not backed up; Settings › Recovered data saves them as a file |
+| IndexedDB `kv` (or localStorage `suki:`) | `safety` | What was on the phone before the last restore or Erase, so it can be put back (Q05). Not backed up |
 | localStorage | `suki:lastBackup` | When a backup was last saved (not backed up) |
 | localStorage | `suki:draft` | A half-typed purchase on Home (not backed up) |
 | localStorage | `suki:motion` | Motion speed on this device (not backed up) |
@@ -86,6 +88,14 @@ Everything stays on the device. There is no server.
 
 A purchase: `{id, item, price, date (YYYY-MM-DD), category, location, venue, payment, notes, gbpAtPurchase, rateAtPurchase, edited?}`.
 A price note: `{id, itemId, itemName, price, date, location, venue, note}`. `itemId` points at a catalogue id, so **never rename a catalogue id**.
+
+## Keeping data safe (Q05)
+
+- **Loading** (`loadData`): anything that can't be read (a key holding the wrong kind of thing, or records `cleanData` has to drop) is copied to `rescue` first, and Home shows a notice until it's saved as a file. Amounts written as "₱459" or "PHP 1,250" are read rather than dropped.
+- **Storage that won't open:** `STORE_WARN` shows a notice on Home, and saves go to localStorage. The next time IndexedDB opens, records in localStorage that it doesn't have are merged in by id, then the localStorage copies are removed.
+- **Restore and Erase** call `keepSafetyCopy()` first and change nothing if it fails. Afterwards a toast offers Undo, and Settings › Your data offers "Before your last restore/erase" (`putBack()`, which swaps, so it can be undone too).
+- **A backup with nothing usable** (no purchases and no notes after cleaning) is refused before the restore sheet.
+- **"Couldn't save"** is a sticky toast (`toast(text, null, true)`) that stays until OK is tapped; other toasts drop in below it.
 
 ## Backups
 

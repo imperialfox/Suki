@@ -2150,6 +2150,28 @@ h1 .chev {
   font-size: 13px;
   color: var(--fg2);
 }
+/* a warning that stays until it's tapped (Q05); other toasts drop in below it */
+.toast.sticky {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 6px 6px 18px;
+  text-align: left;
+  color: var(--danger);
+}
+.toast.sticky button {
+  flex: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+  min-height: 36px;
+  min-width: 44px;
+  padding: 0 12px;
+  border-radius: 999px;
+}
+body.has-sticky .toast:not(.sticky) {
+  top: calc(76px + var(--sat));
+}
 /* toasts with Undo */
 .toast.undo {
   display: flex;

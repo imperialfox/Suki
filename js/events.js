@@ -516,6 +516,12 @@ const ACT = {
   erase: () => openSheet('erase'),
   eraseYes: () => eraseYes(),
   openNotes: () => openSheet('notes'),
+  openRescue: () => openSheet('rescue'),
+  saveRescue: () => saveRescue(),
+  clearRescue: () => openSheet('confirm', { title: 'Clear recovered data?', text: 'The copy you saved stays wherever you saved it.', btn: 'Clear it', action: 'clearRescueYes' }, true),
+  clearRescueYes: () => clearRescue(),
+  putBack: () => openSheet('putback'),
+  putBackYes: () => putBack(),
   openAccess: () => openSheet('access'),
   setReduce: (el) => {
     MOTION.setReduce(el.dataset.v);

@@ -90,6 +90,83 @@ def run(b, t):
     ok('1 damaged record' in pg.inner_text('.sheet') and '17 Oct 2026' in pg.inner_text('.sheet'), 'a 2.0 backup restores, saying what it leaves out')
     pg.click('.sheet .ghost'); pg.wait_for_timeout(100)
     ok(pg.evaluate("U.sheet") is None and len(pg.evaluate(READ, 'observations')) == 2, 'Cancel changes nothing')
+
+    # ── Q05: a restore can always be undone, and a backup with nothing usable is refused ──
+    allbad = os.path.join(tmp, 'allbad.json'); json.dump({'app': 'Suki', 'purchases': [{'item': ''}, 'junk', {'price': 5}], 'observations': [], 'rate': None}, open(allbad, 'w'))
+    pg.set_input_files('#importIn', allbad); pg.wait_for_timeout(300)
+    ok(pg.evaluate("U.sheet") is None and 'nothing has changed' in pg.inner_text('.toast.sticky') and len(pg.evaluate(READ, 'purchases')) == 4,
+       'a backup where every record is damaged is refused, and nothing changes')
+    pg.click('.toast.sticky button'); pg.wait_for_timeout(100)
+    ok(pg.locator('.toast.sticky').count() == 0, 'the warning stays until OK is tapped')
+    empty = os.path.join(tmp, 'empty.json'); json.dump({'app': 'Suki', 'purchases': [], 'observations': [], 'rate': None}, open(empty, 'w'))
+    pg.set_input_files('#importIn', empty); pg.wait_for_timeout(300)
+    ok(pg.evaluate("U.sheet") is None and 'empty' in pg.inner_text('.toast.sticky') and len(pg.evaluate(READ, 'purchases')) == 4, 'an empty backup is refused too')
+    pg.click('.toast.sticky button')
+    small = os.path.join(tmp, 'small.json'); json.dump({'app': 'Suki', 'purchases': [{'id': 's1', 'item': 'Only this', 'price': 5, 'date': day(0)}], 'observations': [], 'rate': None}, open(small, 'w'))
+    pg.set_input_files('#importIn', small); pg.wait_for_timeout(300)
+    pg.click('.sheet [data-a=restoreYes]'); pg.wait_for_timeout(300)
+    ok(len(pg.evaluate(READ, 'purchases')) == 1 and pg.evaluate(READ, 'safety')['why'] == 'restore' and len(pg.evaluate(READ, 'safety')['data']['purchases']) == 4,
+       'before a restore, what was on the phone is kept as a safety copy')
+    ok(pg.locator('.toast button').inner_text() == 'Undo', 'and the restore offers Undo')
+    pg.click('.toast button'); pg.wait_for_timeout(300)
+    ok(len(pg.evaluate(READ, 'purchases')) == 4 and len(pg.evaluate(READ, 'safety')['data']['purchases']) == 1, 'Undo puts everything back, keeping the restored copy in its place')
+    pg.evaluate("go('settings')"); pg.wait_for_timeout(100)
+    ok('Before your last restore' in pg.inner_text('#app'), 'Settings offers to put back what was there before')
+    pg.click('[data-a=putBack]'); pg.wait_for_timeout(150); pg.click('.sheet [data-a=putBackYes]'); pg.wait_for_timeout(300)
+    ok(len(pg.evaluate(READ, 'purchases')) == 1, 'and it swaps back and forth')
+    pg.evaluate("go('settings')"); pg.click('[data-a=putBack]'); pg.wait_for_timeout(150); pg.click('.sheet [data-a=putBackYes]'); pg.wait_for_timeout(300)
+    pg.evaluate("go('settings')"); pg.click('[data-a=erase]'); pg.wait_for_timeout(150); pg.click('.sheet [data-a=eraseYes]'); pg.wait_for_timeout(300)
+    ok(pg.evaluate(READ, 'purchases') == [] and pg.locator('.toast button').inner_text() == 'Undo', 'Erase offers Undo too')
+    pg.click('.toast button'); pg.wait_for_timeout(300)
+    ok(len(pg.evaluate(READ, 'purchases')) == 4, 'and Undo after Erase brings everything back')
+    pg.context.close()
+
+    # ── Q05: saved data that can't be read is kept safe, never quietly lost ──
+    pg = t.page(b, data={'purchases': 'oops, a string', 'observations': [{'id': 'o1', 'itemId': 'bigas', 'price': 52, 'date': day(1)}, {'nope': 1}], 'rate': None})
+    rs = pg.evaluate(READ, 'rescue')
+    ok(isinstance(rs, list) and len(rs) == 1 and len(rs[0]['items']) == 2 and rs[0]['items'][0]['raw'] == 'oops, a string', 'unreadable saved data is copied somewhere safe as it loads')
+    ok(pg.locator('#app .nudge.warn').count() == 1 and 'couldn’t be read' in pg.inner_text('#app'), 'and Home says so')
+    pg.fill('#home-item', 'Coffee'); pg.fill('#home-price', '120'); pg.click('form[data-form=home] .cta'); pg.wait_for_timeout(300)
+    ok(len(pg.evaluate(READ, 'purchases')) == 1 and pg.evaluate(READ, 'rescue')[0]['items'][0]['raw'] == 'oops, a string', 'saving afterwards keeps the copy')
+    pg.click('#app .nudge.warn'); pg.wait_for_timeout(150)
+    ok(pg.evaluate("U.sheet") == 'rescue' and '2 records' in pg.inner_text('.sheet'), 'the notice opens Recovered data')
+    with pg.expect_download() as dl:
+        pg.click('.sheet [data-a=saveRescue]')
+    saved = json.load(open(dl.value.path(), encoding='utf-8'))
+    ok(saved['kind'] == 'recovered' and saved['recovered'][0]['items'][0]['raw'] == 'oops, a string', 'Save a copy saves exactly what couldn’t be read')
+    pg.wait_for_timeout(200)
+    ok(pg.locator('#app .nudge.warn').count() == 0, 'once saved, the notice goes')
+    pg.click('.sheet [data-a=close]'); pg.wait_for_timeout(100)
+    pg.evaluate("go('settings')"); pg.wait_for_timeout(100); pg.click('[data-a=openRescue]'); pg.wait_for_timeout(150)
+    pg.click('.sheet [data-a=clearRescue]'); pg.wait_for_timeout(150); pg.click('.sheet [data-a=clearRescueYes]'); pg.wait_for_timeout(200)
+    ok(pg.evaluate(READ, 'rescue') == [] and 'Recovered data' not in pg.inner_text('#app'), 'and it can be cleared after that')
+    pg.context.close()
+    pg = t.page(b, data={'purchases': [{'id': 'p1', 'item': 'Chickenjoy', 'price': '₱459', 'date': day(0)}, {'id': 'p2', 'item': 'Load', 'price': 'PHP 1,250', 'date': day(0)}]})
+    ok(pg.evaluate("D.purchases.map(p=>p.price).join()") == '459,1250', 'amounts written as “₱459” or “PHP 1,250” are read, not dropped')
+    pg.context.close()
+
+    # ── Q05: when the storage database won't open ──
+    BREAK = ("(()=>{const o=indexedDB.open.bind(indexedDB);indexedDB.open=function(){"
+             "if(localStorage.getItem('test:break')==='1')throw new Error('broken');return o.apply(null,arguments)}})()")
+    pg = t.page(b, init=BREAK)
+    pg.evaluate("localStorage.setItem('test:break','1')"); pg.reload(); ready(pg)
+    ok(pg.evaluate("STORE_WARN") and 'couldn’t open its main storage' in pg.inner_text('#app'), 'Home says when its storage won’t open')
+    pg.fill('#home-item', 'Saved while broken'); pg.fill('#home-price', '77'); pg.click('form[data-form=home] .cta'); pg.wait_for_timeout(300)
+    ok(any(p['item'] == 'Saved while broken' for p in json.loads(pg.evaluate("localStorage.getItem('suki:purchases')"))), 'purchases still save, to the smaller spot')
+    pg.evaluate("localStorage.removeItem('test:break')"); pg.reload(); ready(pg)
+    items = [p['item'] for p in pg.evaluate(READ, 'purchases')]
+    ok('Saved while broken' in items and len(items) == 5 and not pg.evaluate("STORE_WARN"), 'once it opens again, those purchases are merged back in, none hidden')
+    ok(pg.evaluate("localStorage.getItem('suki:purchases')") is None, 'and the smaller spot is cleared after they’re safely moved')
+    pg.context.close()
+
+    # ── Q05: "Couldn't save" stays up, and an Undo message doesn't hide it ──
+    pg = t.page(b)
+    pg.evaluate("putKey=()=>Promise.resolve(false);go('spending')")
+    pg.click('[data-a=openPurchase][data-k=a1]'); pg.wait_for_timeout(150)
+    pg.click('.sheet [data-a=delPurchase]'); pg.click('.sheet [data-a=delPurchaseYes]'); pg.wait_for_timeout(300)
+    ok(pg.locator('.toast.sticky').count() == 1 and pg.locator('.toast.undo').count() == 1, 'a failed save shows a warning, and Undo is still there below it')
+    pg.wait_for_timeout(5000)
+    ok(pg.locator('.toast.sticky').count() == 1 and 'Couldn’t save' in pg.inner_text('.toast.sticky'), 'the warning is still up after the Undo message has gone')
     pg.context.close()
 
     # ── the rate can't load ───────────────────────────────────────

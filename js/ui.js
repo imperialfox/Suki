@@ -180,6 +180,27 @@ function sheetHTML() {
           '<button class="btn glass wide" data-a="exportBackup" data-v="push">' + ICON.upload + 'Export a backup first</button>'
         )
       );
+    case 'rescue':
+      return sheetWrap(
+        'Recovered data',
+        '<p class="note">' + plural(rescueCount(), 'record') + ' saved on this device couldn’t be read, so ' + (rescueCount() === 1 ? 'it was' : 'they were') + ' kept here instead of being lost. Your other purchases and notes are fine.</p>' +
+          '<button class="cta" data-a="saveRescue">Save a copy</button>' +
+          (RESCUE.some((r) => r && r.saved) ? '<button class="ghost red" data-a="clearRescue">Clear it</button>' : '<p class="foot">Once you’ve saved a copy, you can clear it from here.</p>')
+      );
+    case 'putback': {
+      if (!SAFETY) return null;
+      const s = SAFETY.data,
+        n = (s.purchases || []).length,
+        o = (s.observations || []).length;
+      return sheetWrap(
+        'Put back what was here?',
+        confirmBody(
+          'Before your last ' + (SAFETY.why === 'erase' ? 'erase' : 'restore') + ' (' + whenAgo(new Date(SAFETY.at)).replace(/^./, (c) => c.toLowerCase()) + ') this device had ' + plural(n, 'purchase') + ' and ' + plural(o, 'price note') + '. Putting them back replaces what’s here now, which is kept so you can swap back.',
+          'Put them back',
+          'putBackYes'
+        )
+      );
+    }
     case 'backup':
       return sheetWrap(
         'Export a backup',
@@ -297,10 +318,32 @@ function renderSheet() {
 
 /* ===== Toasts ===== */
 let toastT = null;
-// undo: a function that puts back what was just removed; the toast then shows an Undo button and stays a little longer
-function toast(t, undo) {
+// undo: a function that puts back what was just removed; the toast then shows an Undo button and stays a little longer.
+// sticky: a warning that stays until it's tapped (OK); other toasts drop in below it instead of replacing it (Q05)
+function toast(t, undo, sticky) {
+  if (sticky) {
+    const s = document.querySelector('.toast.sticky');
+    if (s) s.remove();
+    const w = document.createElement('div');
+    w.className = 'toast glass sticky';
+    w.setAttribute('role', 'alert');
+    const span = document.createElement('span');
+    span.textContent = t;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = 'OK';
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      w.remove();
+      document.body.classList.remove('has-sticky');
+    });
+    w.append(span, b);
+    document.body.appendChild(w);
+    document.body.classList.add('has-sticky');
+    return;
+  }
   clearTimeout(toastT);
-  const o = document.querySelector('.toast');
+  const o = document.querySelector('.toast:not(.sticky)');
   if (o) o.remove();
   const el = document.createElement('div');
   el.className = 'toast glass' + (undo ? ' undo' : '');

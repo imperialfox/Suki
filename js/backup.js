@@ -100,23 +100,32 @@ async function readBackupFile(file) {
   const data = cleanData(raw),
     skipped =
       raw.purchases.length - data.purchases.length + (Array.isArray(raw.observations) ? raw.observations.length - data.observations.length : 0);
+  // a backup with nothing usable in it would only empty the phone, so it's turned away (Q05)
+  if (!data.purchases.length && !data.observations.length) {
+    toast(skipped ? 'Nothing in that backup can be read, so nothing has changed.' : 'That backup is empty, so nothing has changed.', null, true);
+    return;
+  }
   const d = new Date(raw.exportedAt);
   openSheet('restore', { data, skipped, when: isNaN(d) ? '' : 'on ' + fileDate(d) + (raw.device ? ' on ' + raw.device : '') });
 }
 async function restoreYes() {
   if (U.sheet !== 'restore' || !U.sd.data) return;
-  D = U.sd.data;
+  const data = U.sd.data;
+  // what's on the phone is kept first; if it can't be kept, nothing changes (Q05)
+  if (!(await keepSafetyCopy('restore'))) return toast('Couldn’t keep a safety copy of what’s here, so nothing has changed.', null, true);
+  D = data;
   U.sel = U.item = null;
   U.stack = [];
   U.sheet = null;
   U.sd = {};
   go('home');
-  toast('Backup restored');
+  toast('Backup restored', putBack);
   await save();
 }
 
 /* ===== Erase everything ===== */
 async function eraseYes() {
+  if (!(await keepSafetyCopy('erase'))) return toast('Couldn’t keep a safety copy of what’s here, so nothing has changed.', null, true);
   D = { purchases: [], observations: [], rate: null };
   F.home = {};
   saveDraft({});
@@ -125,8 +134,52 @@ async function eraseYes() {
   U.sheet = null;
   U.sd = {};
   rerender();
-  toast('Everything erased');
+  toast('Everything erased', putBack);
   await save();
+}
+
+/* ===== Putting back what was there before the last restore or Erase (Q05) =====
+   It swaps: what's here now becomes the safety copy, so putting back can itself be undone. */
+async function putBack() {
+  if (!SAFETY) return;
+  const before = SAFETY;
+  if (!(await keepSafetyCopy(before.why))) return toast('Couldn’t keep a safety copy of what’s here, so nothing has changed.', null, true);
+  D = cleanData(before.data);
+  U.sel = U.item = null;
+  U.stack = [];
+  U.sheet = null;
+  U.sd = {};
+  rerender();
+  toast('Put back what was there before');
+  await save();
+}
+
+/* ===== Recovered data: what Suki couldn't read, saved as a file (Q05) ===== */
+function rescueFile() {
+  const now = new Date();
+  return new File(
+    [JSON.stringify({ README: ['Records Suki couldn’t read, kept so nothing is lost. Send this to whoever helps with the app, or keep it.'], app: 'Suki', kind: 'recovered', exportedAt: now.toISOString(), recovered: RESCUE }, null, 2)],
+    'Suki recovered data · ' + localISO(now) + '.json',
+    { type: 'application/json' }
+  );
+}
+async function saveRescue() {
+  if (!RESCUE.length) return;
+  const r = await shareFile(rescueFile());
+  if (r === 'cancelled') return;
+  RESCUE = RESCUE.map((x) => Object.assign({}, x, { saved: true }));
+  await putKey('rescue', RESCUE);
+  rerender();
+  toast(r === 'shared' ? 'Recovered data saved' : 'Recovered data downloaded');
+}
+async function clearRescue() {
+  RESCUE = [];
+  await putKey('rescue', []);
+  U.stack = [];
+  U.sheet = null;
+  U.sd = {};
+  rerender();
+  toast('Recovered data cleared');
 }
 
 /* ===== CSV (opens in Numbers or Excel) ===== */

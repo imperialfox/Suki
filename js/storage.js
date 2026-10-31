@@ -19,7 +19,8 @@ let D = { purchases: [], observations: [], rate: null };
    Fields these don't know about are kept, so a newer version's data survives a trip through this one. */
 const str = (x) => (typeof x === 'string' ? x.trim() : typeof x === 'number' ? String(x) : '');
 const money = (x) => {
-  const n = typeof x === 'string' ? parseFloat(x.replace(/,/g, '')) : +x;
+  // "₱459", "PHP 1,250" and "1 000" read as amounts too, so an older or hand-made record isn't lost over its format (Q05)
+  const n = typeof x === 'string' ? parseFloat(x.replace(/₱|php/gi, '').replace(/[,\s]/g, '')) : +x;
   return Number.isFinite(n) && n > 0 ? Math.round(n * 100) / 100 : null;
 };
 function isoDate(x) {
@@ -136,6 +137,20 @@ function lsSet(k, v) {
     return false;
   }
 }
+// one key read from both places: what IndexedDB holds (undefined if nothing) and what the localStorage fallback holds
+function readBoth(k) {
+  return new Promise((resolve) => {
+    const ls = lsGet(k);
+    if (!idb) return resolve({ db: undefined, ls });
+    try {
+      const r = idb.transaction('kv', 'readonly').objectStore('kv').get(k);
+      r.onsuccess = () => resolve({ db: r.result, ls });
+      r.onerror = () => resolve({ db: undefined, ls });
+    } catch (e) {
+      resolve({ db: undefined, ls });
+    }
+  });
+}
 function getKey(k) {
   return new Promise((resolve) => {
     if (!idb) return resolve(lsGet(k));
@@ -161,16 +176,93 @@ function putKey(k, v) {
     }
   });
 }
+/* ===== Keeping data safe (Q05) =====
+   - STORE_WARN: the storage database wouldn't open, so saves go to the smaller localStorage spot. Home says so.
+   - Anything saved that Suki can't read is copied to 'rescue' before anything saves over it; Settings can save it as a file.
+   - A restore or Erase first keeps what was on the phone in 'safety', so it can be put back. */
+let STORE_WARN = false,
+  RESCUE = [],
+  SAFETY = null;
+const KEYS = ['purchases', 'observations', 'rate'];
+// what in a key's raw value couldn't be read: the whole value, or the records that had to be dropped
+function unreadable(k, raw) {
+  if (raw === undefined || raw === null) return [];
+  if (k === 'rate') return cleanRate(raw) ? [] : [raw];
+  if (!Array.isArray(raw)) return [raw];
+  const fn = k === 'purchases' ? cleanPurchase : cleanObservation;
+  return raw.filter((r) => !fn(r));
+}
+// records from the fallback spot that IndexedDB doesn't have (saved while it wouldn't open), merged in by id
+function mergeIn(dbList, lsList) {
+  if (!Array.isArray(lsList) || !lsList.length) return { list: dbList, added: 0 };
+  const base = Array.isArray(dbList) ? dbList.slice() : [];
+  const ids = new Set(base.map((r) => r && String(r.id)));
+  let added = 0;
+  lsList.forEach((r) => {
+    if (r && typeof r === 'object' && !ids.has(String(r.id))) {
+      base.push(r);
+      added++;
+    }
+  });
+  return { list: base, added };
+}
 async function loadData() {
   if (!idb) idb = await openDB();
-  const [purchases, observations, rate] = await Promise.all(['purchases', 'observations', 'rate'].map(getKey));
-  D = cleanData({ purchases, observations, rate });
+  STORE_WARN = !idb && 'indexedDB' in window;
+  const got = await Promise.all(KEYS.map(readBoth)),
+    raw = {};
+  let merged = 0;
+  KEYS.forEach((k, i) => {
+    const g = got[i];
+    if (!idb || g.db === undefined) return (raw[k] = g.ls);
+    if (k === 'rate') {
+      // the newer of the two rates
+      const a = cleanRate(g.db),
+        b = cleanRate(g.ls);
+      raw[k] = a && b && new Date(b.cachedAt) > new Date(a.cachedAt) ? g.ls : g.db;
+      return;
+    }
+    const m = mergeIn(g.db, g.ls);
+    raw[k] = m.list;
+    merged += m.added;
+  });
+  D = cleanData(raw);
+  const [rescue, safety] = await Promise.all([getKey('rescue'), getKey('safety')]);
+  RESCUE = Array.isArray(rescue) ? rescue : [];
+  SAFETY = safety && typeof safety === 'object' && safety.data ? safety : null;
+  // copy what couldn't be read somewhere safe before anything can save over it
+  const lost = [];
+  KEYS.forEach((k) => unreadable(k, raw[k]).forEach((r) => lost.push({ key: k, raw: r })));
+  if (lost.length) {
+    RESCUE = RESCUE.concat([{ at: new Date().toISOString(), items: lost }]);
+    await putKey('rescue', RESCUE);
+  }
+  // fallback records now safely in IndexedDB: the fallback copies can go
+  if (idb && merged) {
+    const ok = await Promise.all(KEYS.map((k) => putKey(k, D[k])));
+    if (!ok.includes(false))
+      KEYS.forEach((k) => {
+        try {
+          localStorage.removeItem('suki:' + k);
+        } catch (e) {}
+      });
+  }
 }
-// save one part (or every part) of D; tells you if saving failed, e.g. when storage is full
+const rescueCount = () => RESCUE.reduce((n, r) => n + ((r && r.items && r.items.length) || 0), 0);
+const rescueDue = () => RESCUE.some((r) => r && !r.saved);
+// keep what's on the phone before a restore or Erase; false if it couldn't be kept (then nothing should change)
+async function keepSafetyCopy(why) {
+  const s = { at: new Date().toISOString(), why, data: { purchases: D.purchases, observations: D.observations, rate: D.rate } };
+  const ok = await putKey('safety', s);
+  if (ok) SAFETY = s;
+  return ok;
+}
+// save one part (or every part) of D; tells you if saving failed, e.g. when storage is full.
+// The warning stays until it's tapped, so a purchase that wasn't saved never looks saved (Q05)
 async function save(...keys) {
   if (!keys.length) keys = ['purchases', 'observations', 'rate'];
   const ok = await Promise.all(keys.map((k) => putKey(k, D[k])));
-  if (ok.includes(false)) toast('Couldn’t save. Your device may be out of space.');
+  if (ok.includes(false)) toast('Couldn’t save. Your device may be out of space, so back up soon.', null, true);
   return !ok.includes(false);
 }
 

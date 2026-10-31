@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.9 · 31 Oct 2026
+*Your data stays safe (Q05)*
+
+**Backups**
+- A backup with nothing usable in it, because every record is damaged or it's empty, is turned away and nothing changes. Before, it could empty the phone.
+- Before a restore or Erase, Suki keeps a copy of what's on the phone. Undo appears straight afterwards, and Settings › Your data has Before your last restore (or erase) to put it back at any time. Putting back swaps, so it can be undone too.
+
+**Saved data**
+- Anything saved that Suki can't read is now kept safe instead of being dropped and later written over. Home says so, and Settings › Your data › Recovered data saves it as a file.
+- Amounts written like "₱459" or "PHP 1,250" in older or hand-made records are read rather than lost.
+- If the iPhone's storage won't open, Home says so. Purchases saved meanwhile are merged back in once it opens again, so none go missing.
+- "Couldn't save" now stays on screen until you tap OK, and an Undo message never hides it.
+
 ## 2.8 · 31 Oct 2026
 *The updated look (Q04)*
 

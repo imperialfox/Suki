@@ -172,7 +172,7 @@ function scrHome() {
     today = sum(D.purchases.filter((p) => p.date === localISO())),
     recent = D.purchases.slice().sort(byNewest).slice(0, 4);
   const dash =
-    '<button class="card sumcard" data-a="tab" data-v="spending" aria-label="Total spent ' + cash(total) + '. Open Spending">' +
+    '<button class="card sumcard' + (cash(total).length > 11 || cash(today).length > 11 ? ' long' : '') + '" data-a="tab" data-v="spending" aria-label="Total spent ' + cash(total) + '. Open Spending">' +
     '<span class="stat"><span class="big">' + cash(total) + '</span><span class="cap">Total spent' + (D.rate && total ? ' · ≈ ' + gbp(total / D.rate.value) : '') + '</span></span>' +
     '<span class="stat r"><span class="mid">' + cash(today) + '</span><span class="cap">Today</span></span>' + ICON.chev + '</button>' +
     // data safety first: storage that wouldn't open, or records that couldn't be read (Q05)
@@ -224,7 +224,8 @@ function scrTill() {
 function tillState() {
   const bill = amount(U.till.bill),
     paid = amount(U.till.cash);
-  return { bill: bill > 0 ? bill : 0, paid: paid >= 0 ? paid : null, ok: bill > 0 && paid !== null && paid >= 0 };
+  const b = cents(bill) > 0 ? bill : 0;
+  return { bill: b, paid: paid >= 0 ? paid : null, ok: b > 0 && paid !== null && paid >= 0 };
 }
 function tillOut() {
   const t = tillState();

@@ -65,6 +65,11 @@ async function refreshRate(manual) {
   let got = null,
     src = null;
   for (const s of RATE_SOURCES) {
+    // two timeouts in a row means no real connection, so the rest aren't tried (about 12 s instead of 24) (Q06)
+    if (fails.filter((f) => f.why === 'timed out').length >= 2) {
+      fails.push({ source: 'the rest', why: 'not tried after two timed out' });
+      break;
+    }
     try {
       got = await rateFrom(s);
       src = s;

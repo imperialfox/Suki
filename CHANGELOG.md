@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.10 · 31 Oct 2026
+*Tidy-ups (Q06)*
+
+**Amounts**
+- An amount with two dots, like 12.50.5, asks you to check it instead of quietly saving ₱12.50.
+- A pasted 1 000 reads as ₱1,000.
+- Anything that rounds to ₱0.00 is refused, on the forms and in Quick Till.
+
+**Saved data and backups**
+- A price above ₱10,000,000 or below ₱0.01 counts as damaged (it goes to Recovered data, so it isn't lost).
+- An impossible date like 30 February becomes today, like other bad dates.
+
+**Exchange rate**
+- With no signal, a refresh gives up after two sources time out, in about 12 seconds instead of 24. The saved rate keeps working.
+
+**Home**
+- A very long total steps down a size, with Today underneath, instead of breaking across lines.
+
 ## 2.9 · 31 Oct 2026
 *Your data stays safe (Q05)*
 

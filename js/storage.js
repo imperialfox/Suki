@@ -21,10 +21,16 @@ const str = (x) => (typeof x === 'string' ? x.trim() : typeof x === 'number' ? S
 const money = (x) => {
   // "₱459", "PHP 1,250" and "1 000" read as amounts too, so an older or hand-made record isn't lost over its format (Q05)
   const n = typeof x === 'string' ? parseFloat(x.replace(/₱|php/gi, '').replace(/[,\s]/g, '')) : +x;
+  // above ₱10,000,000 or below ₱0.01 is a damaged value, not a purchase (Q06)
+  if (!(n >= 0.005 && n <= 1e7)) return null;
   return Number.isFinite(n) && n > 0 ? Math.round(n * 100) / 100 : null;
 };
 function isoDate(x) {
-  if (typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x) && !isNaN(new Date(x + 'T12:00:00'))) return x;
+  // a date has to be real: "2026-02-30" isn't, so it's treated like any other bad date (Q06)
+  if (typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x)) {
+    const d = new Date(x + 'T12:00:00');
+    return !isNaN(d) && localISO(d) === x ? x : null;
+  }
   const d = new Date(x);
   return x && !isNaN(d) ? localISO(d) : null;
 }

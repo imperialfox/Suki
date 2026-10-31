@@ -678,6 +678,23 @@ h1 {
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
+/* very long totals (Q06): a size smaller, and Today moves under the total instead of squeezing it */
+.sumcard.long {
+  flex-wrap: wrap;
+  row-gap: 10px;
+}
+.sumcard.long .stat {
+  flex: 1 1 calc(100% - 40px);
+}
+.sumcard.long .stat.r {
+  order: 3;
+  text-align: left;
+  border-left: 0;
+  padding-left: 0;
+}
+.sumcard.long .big {
+  font-size: 22px;
+}
 .sumcard .mid {
   font-size: 22px;
   font-weight: 600;

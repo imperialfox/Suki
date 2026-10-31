@@ -145,6 +145,23 @@ def run(b, t):
     ok(pg.evaluate("D.purchases.map(p=>p.price).join()") == '459,1250', 'amounts written as “₱459” or “PHP 1,250” are read, not dropped')
     pg.context.close()
 
+    # ── Q06: odd values in saved data or a backup ──
+    pg = t.page(b, data={'purchases': [{'id': 'h', 'item': 'Huge', 'price': 1e12, 'date': day(0)}, {'id': 't', 'item': 'Tiny', 'price': 0.001, 'date': day(0)},
+                                       {'id': 'f', 'item': 'Feb 30', 'price': 50, 'date': '2026-02-30'}, {'id': 'k', 'item': 'Kept', 'price': 9999999, 'date': day(1)}]})
+    D = pg.evaluate("D")
+    ok([p['item'] for p in D['purchases']] == ['Feb 30', 'Kept'], 'a price above ₱10,000,000 or below ₱0.01 is treated as damaged (and kept safe, not lost)')
+    ok(D['purchases'][0]['date'] == dt.date.today().isoformat(), 'an impossible date like 30 Feb becomes today')
+    ok(len(pg.evaluate(READ, 'rescue')[0]['items']) == 2, 'the damaged ones are in Recovered data')
+    pg.context.close()
+
+    # ── Q06: with no signal, the rate refresh gives up after two timeouts ──
+    pg = t.page(b)
+    pg.evaluate("rateFrom=()=>new Promise((_,rej)=>setTimeout(()=>rej(new Error('timed out')),30));go('convert')")
+    pg.click('#refreshRate'); pg.wait_for_function("!rateBusy"); pg.wait_for_timeout(100)
+    ok(pg.evaluate("RATE_CHECK.fails.length===3&&RATE_CHECK.fails[2].source==='the rest'"), 'after two sources time out, the rest aren’t tried')
+    ok(pg.evaluate(f"D.rate.value==={RATE}") and 'saved rate is still in use' in pg.inner_text('.toast'), 'and the saved rate keeps working')
+    pg.context.close()
+
     # ── Q05: when the storage database won't open ──
     BREAK = ("(()=>{const o=indexedDB.open.bind(indexedDB);indexedDB.open=function(){"
              "if(localStorage.getItem('test:break')==='1')throw new Error('broken');return o.apply(null,arguments)}})()")

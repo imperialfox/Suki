@@ -24,11 +24,15 @@ function inGbp(n) {
   return '≈ ' + (g > 0 && g < 0.01 ? '<£0.01' : gbp(g));
 }
 const sum = (list) => Math.round(list.reduce((s, p) => s + (+p.price || 0), 0) * 100) / 100;
-// a typed amount: "1,000" and " 12.5 " both work; anything else is null
+// a typed amount: "1,000", "1 000", "₱12.50" and " 12.5 " all work; "12.50.5" or "abc" is null (Q06)
 const amount = (v) => {
-  const n = parseFloat(String(v == null ? '' : v).replace(/,/g, '').trim());
+  const s = String(v == null ? '' : v).replace(/₱|php/gi, '').replace(/[,\s]/g, '');
+  if (!/^(\d+\.?\d*|\.\d+)$/.test(s)) return null;
+  const n = parseFloat(s);
   return Number.isFinite(n) ? n : null;
 };
+// pesos to the centavo: anything that rounds to ₱0.00 doesn't count as an amount
+const cents = (n) => (n === null ? null : Math.round(n * 100) / 100);
 
 /* ===== Dates (British, and relative where it helps) ===== */
 const atNoon = (iso) => new Date(iso + 'T12:00:00');

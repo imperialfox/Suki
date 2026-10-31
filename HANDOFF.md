@@ -76,7 +76,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 l
 **Debrief:** Built as agreed, with the defaults: the safety copy is kept until the next restore or erase, and recovered data stays until it's saved and then cleared. Decided within scope: putting back swaps (what's there becomes the new safety copy), and money() reads ₱ and PHP so those records are kept instead of rescued. Tests reproduce each stress-test case: an all-damaged backup, an empty backup, restore and Erase with Undo and put-back, a string where purchases should be, an unreadable price note, storage that won't open then recovers (records merged, fallback cleared), and a failed save after a delete (the warning stays after Undo has gone).
 
 ## Q06 · Tidy-ups: amounts, backup values, rate timeout, long totals
-**Render:** 31 Oct 2026, 22:56, scope as below (wireframe skipped by Ivan) · **Build:** awaiting.
+**Render:** 31 Oct 2026, 22:56, scope as below (wireframe skipped by Ivan) · **Build:** 31 Oct 2026 · shipped as 2.10.
 
 **Goal:** the small rough edges from the stress test, A3 (#5, #6, #8, #9).
 **Agreed:**
@@ -94,6 +94,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 l
 5. Settings › Accessibility › Reduce motion On: sheets fade instead of rising.
 
 ---
+**Debrief:** Built as agreed. Decided within scope: a long total also moves Today under it, because shrinking the font alone wasn't enough on a 320-point screen. Also made one test steadier: it now reads the sheet's animation name rather than catching the fade mid-play. Tests: two dots, ₱0.00 on the form and in Quick Till, "1 000", out-of-range prices and 30 Feb in saved data, two timeouts stopping the refresh, and a ₱30,000,000 total on one line at 320 points.
 
 ## Q07 · Onboarding: welcome card, tips and Help
 **Render:** 31 Oct 2026, 23:20, scope as below · **Build:** awaiting.

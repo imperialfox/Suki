@@ -178,7 +178,8 @@ function readPurchase(form) {
     item = String(v.item || '').trim(),
     price = amount(v.price);
   if (!item) return formError(form, 'Add what you bought.', 'item');
-  if (!(price > 0)) return formError(form, 'Add an amount above ₱0.', 'price');
+  if (price === null && String(v.price || '').trim()) return formError(form, 'Check the amount. Use numbers and one dot, like 1,250.50.', 'price');
+  if (!(cents(price) > 0)) return formError(form, 'Add an amount above ₱0.', 'price');
   if (price > 10000000) return formError(form, 'That amount looks too big. Check the number.', 'price');
   return {
     item: item.slice(0, 200),
@@ -223,7 +224,7 @@ async function submitForm(form, el) {
     const id = el.dataset.k,
       v = F.obs,
       price = amount(v.price);
-    if (!(price > 0)) return formError('obs', 'Add the price you saw.', 'price');
+    if (!(cents(price) > 0)) return formError('obs', price === null && String(v.price || '').trim() ? 'Check the price. Use numbers and one dot.' : 'Add the price you saw.', 'price');
     const it = itemById(id);
     D.observations.push({
       id: newId(),

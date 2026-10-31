@@ -97,6 +97,13 @@ A price note: `{id, itemId, itemName, price, date, location, venue, note}`. `ite
 - **A backup with nothing usable** (no purchases and no notes after cleaning) is refused before the restore sheet.
 - **"Couldn't save"** is a sticky toast (`toast(text, null, true)`) that stays until OK is tapped; other toasts drop in below it.
 
+## Amounts and limits (Q06)
+
+- `amount()` reads "1,000", "1 000" and "₱12.50", and returns null for anything else ("12.50.5"); `cents()` rounds to the centavo, so anything that rounds to ₱0.00 isn't an amount.
+- Saved or restored prices must be ₱0.01 to ₱10,000,000 (`money()`); others count as damaged and go to Recovered data. Dates must be real (`isoDate()` turns 30 Feb into today, like any bad date).
+- The rate refresh stops after two sources time out, and doesn't start when the phone says it's offline.
+- Home's summary card takes the `long` class for totals over 11 characters: a size smaller, with Today under the total.
+
 ## Backups
 
 A backup is a JSON file: a plain-English `README`, `app: 'Suki'`, `schemaVersion: 1`, `appVersion`, `exportedAt`, `device`, `purchases`, `observations` and `rate`. Backups from 2.0 (without `README`, `appVersion` or `device`) still restore. Files are named `Suki backup · YYYY-MM · Device.json`.
@@ -147,6 +154,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 ### Known test issues
 
 - On a small machine (two processors), running the whole suite side by side can occasionally make one file time out waiting for the page; it passes when run again or with `--one-at-a-time`. GitHub's runner hasn't shown this.
+- Checks on animations read the computed `animation-name`, not running animations: a short fade can finish before a busy machine looks.
 - On 31 Oct 2026 the suite was run locally against a newer Chromium (the pinned Playwright 1.56.0 pointed at it), because 1.56's own browser couldn't be downloaded there. GitHub's run uses the pinned one.
 
 ## Style

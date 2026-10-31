@@ -104,6 +104,12 @@ def run(b, t):
     pg.wait_for_timeout(100)
     g = pg.evaluate("['jeepney','bigas','itlog','beer','haircut'].map(id=>tile('', false, id))")
     ok(len(set(g)) == 5, 'items get their own glyphs')
+    # a very long total on Home steps down a size instead of breaking across lines (Q06)
+    pg.set_viewport_size({'width': 320, 'height': 568}); pg.wait_for_timeout(200)
+    pg.evaluate("D.purchases[0].price=30000000;go('home')"); pg.wait_for_timeout(100)
+    lines = pg.evaluate("document.querySelector('.sumcard .big').getClientRects().length===1&&document.querySelector('.sumcard .big').getBoundingClientRect().height<40")
+    ok(lines and pg.evaluate("document.querySelector('.sumcard').classList.contains('long')"), 'a ₱30,000,000 total fits on one line on a small iPhone')
+    pg.evaluate("D.purchases[0].price=459;rerender()"); pg.set_viewport_size({'width': 390, 'height': 844}); pg.wait_for_timeout(200)
     # pull to refresh on Home
     pg.evaluate("go('home')")
     def drag(y0, y1, steps=10):
@@ -146,8 +152,8 @@ def run(b, t):
     pg.reload(); pg.wait_for_function("!document.getElementById('splash')")
     ok(pg.evaluate("document.documentElement.classList.contains('motion-reduced')"), 'and after reopening')
     pg.evaluate("openSheet('purchase',{id:'a1'})"); pg.wait_for_timeout(30)
-    an = pg.evaluate("document.querySelector('.sheet').getAnimations().map(a=>a.animationName)")
-    ok('fadein' in an, f'with it on, sheets fade in instead of rising ({an})')
+    an = pg.evaluate("getComputedStyle(document.querySelector('.sheet')).animationName")
+    ok(an == 'fadein', f'with it on, sheets fade in instead of rising ({an})')
     pg.evaluate("closeSheet();openSheet('access')"); pg.wait_for_timeout(100)
     pg.click('#reduceSeg [data-v=auto]'); pg.wait_for_timeout(100)
     ok(not pg.evaluate("document.documentElement.classList.contains('motion-reduced')") and pg.evaluate("localStorage.getItem('suki:reduceMotion')") is None, 'Match iPhone goes back to following the iPhone')

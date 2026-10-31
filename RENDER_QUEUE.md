@@ -12,14 +12,18 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q04 | Look: soft-edge bar, dock position, tokens, Accessibility, item glyphs | Shipped · 2.8 | same | Medium |
 | Q05 | Data: keep your data safe | Approved — awaiting Build | none (wireframe skipped by Ivan) | Light to medium. From the stress test, A2 |
 | Q06 | Tidy-ups: amounts, backup values, rate timeout, long totals | Approved — awaiting Build | none (wireframe skipped by Ivan) | Light. From the stress test, A3 |
+| Q07 | Onboarding: welcome card, tips and Help | Approved — awaiting Build | [Onboarding prototype](https://claude.ai/artifact/FHaHJmMntjWM9eeDrrDkN9) | Medium. Builds after Q06, as 2.11 |
 
 **Render:** 31 Oct 2026, 22:56 · Ivan: "render all, then build" · scope: Q01–Q06 exactly as written in HANDOFF.md, built in the order listed above (2.5 to 2.10).
+
+**Render:** 31 Oct 2026, 23:20 · Ivan: "render" · scope: Q07 exactly as written in HANDOFF.md, built after Q06 (2.11). **Build:** awaiting. The "then build" above covered Q01–Q06 only, so Q07 needs its own "build".
 
 Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `suki_audit_2026-10-31.md` and `suki_stress_test_2026-10-31.md`.
 
 ## Decided
 
 - 31 Oct 2026: the tab bar stays full size (it doesn't collapse to a pill). The app is small enough that shrinking makes no difference.
+- 31 Oct 2026: onboarding is one welcome card plus tips next to what they explain (Apple's onboarding guidance), not a multi-page tour. Ivan only sees it from Settings › Help.
 
 ## Ideas, not yet queued
 

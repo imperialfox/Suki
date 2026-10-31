@@ -91,3 +91,22 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 l
 3. Scroll Search: the top edge blurs softly and the tab bar sits low like Music's.
 4. Open a jeepney or beer price and tap a source link.
 5. Settings › Accessibility › Reduce motion On: sheets fade instead of rising.
+
+---
+
+## Q07 · Onboarding: welcome card, tips and Help
+**Render:** 31 Oct 2026, 23:20, scope as below · **Build:** awaiting.
+For: Ivan, and anyone he shares Suki with on the trip · Builder: Claude · Repo: imperialfox/Suki · Needs: 2.10 (Q06) live on `main`. Prototype: [Onboarding prototype](https://claude.ai/artifact/FHaHJmMntjWM9eeDrrDkN9). Recon: Apple's [Onboarding guidance](https://developer.apple.com/design/human-interface-guidelines/onboarding).
+
+**Goal:** someone new gets going without a tour; Ivan never sees it unless he asks.
+**Agreed:**
+1. **Safari sheet.** Opened in a browser tab (not from the Home Screen), Suki shows "Add Suki to your Home Screen" with three steps, **Got it** and **Not now**. It shows on each Safari open, never in the Home Screen app. *Default if unanswered:* the steps read "Tap ⋯ then Share · Choose Add to Home Screen · Open Suki from there" (check against iOS 26 Safari during Build).
+2. **Welcome card.** On the first Home Screen launch with no saved data, after the launch screen: a tall sheet with the icon, "Welcome to Suki", three rows (Convert and count change, Look up fair prices, Track your spending), "Works with no signal once it's been opened" and **Continue**. It can't be dragged away. Shown once.
+3. **Tips**, one at a time, next to what they explain: the Quick Till amount chips; pull to refresh on Home; swipe a purchase left on Spending; drag down on the first detail sheet. Each goes when you do it or tap ✕, and doesn't come back.
+4. **Settings › Help**, its own row above About: **Show welcome** (plays it again), a **Show tips** switch (on for a fresh install, off when Suki already has data; turning it on shows every tip again), a Hidden gestures list, and the Add to Home Screen steps.
+5. Seen-states and the switch are device-only, never in backups.
+6. Motion as in the prototype: the welcome sheet rises after the launch fade, its rows 45 ms apart; tips fade and scale in on the gentle spring and leave quicker; Reduce motion gives fades only. Help is a push.
+**Out of scope:** a multi-page tour, tips for buttons that already explain themselves, rating or permission prompts.
+**Risks:** a tip must never cover a primary button or the tab bar; tips wait while a sheet is open.
+**Done when:** tests cover each item, including an existing install never seeing the welcome card and a backup round trip leaving seen-states alone; full suite passes.
+**Checks:** full suite; screenshots at 375 and 402 px, light and dark.

@@ -75,12 +75,27 @@ document.addEventListener(
 // double-tap zoom is turned off by touch-action:manipulation in the CSS, which keeps quick taps working
 
 /* ===== Small screen updates (so typing is never interrupted by a full redraw) ===== */
+// Quick Till changes its words in place and redraws only the cash pieces that changed (Q13); the figure never animates
 function updateTill() {
   const o = $('tillOut'),
-    b = $('tillLog');
-  if (o) o.innerHTML = tillOut();
+    b = $('tillLog'),
+    x = $('cashClear');
   if (b) b.disabled = !(tillState().bill > 0);
+  if (x) x.hidden = !U.till.cash;
+  if (!o) return;
+  if (!$('cashRow')) return void (o.innerHTML = tillOut());
+  const v = tillView();
+  $('tillEb').textContent = v.eb;
+  $('tillEb').className = 'eyebrow' + (v.red ? ' red' : '');
+  $('tillFig').textContent = v.fig;
+  $('tillFig').className = v.cls;
+  $('tillSmall').textContent = v.small;
+  renderCash(v.cash);
 }
+// the ✕ in the cash box doesn't take the cursor, so the keyboard stays up if it was
+document.addEventListener('pointerdown', (e) => {
+  if (e.target.closest('#cashClear')) e.preventDefault();
+});
 function setTillCash(v) {
   U.till.cash = v;
   const el = $('till-cash');

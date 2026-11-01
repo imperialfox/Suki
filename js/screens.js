@@ -290,18 +290,32 @@ const saveBtn = () =>
 const byNewest = (a, b) => b.date.localeCompare(a.date) || D.purchases.indexOf(a) - D.purchases.indexOf(b);
 
 /* ===== Quick Till ===== */
+// the notes and coin you hand over (Q13): Exact, the ₱20 coin, then the four polymer notes, 44 pt on one row.
+// Labels match the notes ("1000"); VoiceOver says what each one is.
+const TILL_KEYS = [
+  [20, 'c20b', 'Add a ₱20 coin'],
+  [50, 'n50', 'Add a ₱50 note'],
+  [100, 'n100', 'Add a ₱100 note'],
+  [500, 'n500', 'Add a ₱500 note'],
+  [1000, 'n1000', 'Add a ₱1,000 note'],
+];
 function scrTill() {
   return (
     '<h1>Quick Till</h1><p class="note">Check your change before you walk away. Works offline.</p>' +
     '<div class="card form">' +
     field('till-bill', 'Total bill · ₱', '<input class="inp big" id="till-bill" data-till="bill" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 789.50" value="' + esc(U.till.bill) + '">') +
-    field('till-cash', 'Cash handed over · ₱', '<input class="inp big" id="till-cash" data-till="cash" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 1,000" value="' + esc(U.till.cash) + '">') +
-    '<div class="chips denoms" role="group" aria-label="Common amounts"><button class="chip" data-a="cashExact">Exact</button>' +
-    [100, 200, 500, 1000].map((n) => '<button class="chip" data-a="cashAdd" data-v="' + n + '">+' + cash(n).replace('.00', '') + '</button>').join('') +
-    '<button class="chip" data-a="cashClear" aria-label="Clear cash">Clear</button></div>' +
+    field(
+      'till-cash',
+      'Cash handed over · ₱',
+      '<div class="cashbox"><input class="inp big" id="till-cash" data-till="cash" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 1,000" value="' + esc(U.till.cash) + '">' +
+        '<button type="button" class="cx" id="cashClear" data-a="cashClear" aria-label="Clear cash"' + (U.till.cash ? '' : ' hidden') + '><span>' + ICON.x + '</span></button></div>'
+    ) +
+    '<div class="denoms" role="group" aria-label="Notes you hand over"><button type="button" class="dn ex" data-a="cashExact" aria-label="Cash is exactly the bill">Exact</button>' +
+    TILL_KEYS.map((k) => '<button type="button" class="dn ' + k[1] + '" data-a="cashAdd" data-v="' + k[0] + '" aria-label="' + k[2] + '">' + k[0] + '</button>').join('') +
+    '</div>' +
     '<div class="tillout" id="tillOut" aria-live="polite">' + tillOut() + '</div>' +
     '<button class="cta ink" id="tillLog" data-a="tillLog"' + (tillState().bill > 0 ? '' : ' disabled') + '>Log this bill</button></div>' +
-    '<p class="foot">The amount buttons add to the cash, so ₱500 + ₱100 + ₱100 makes ₱700.</p>'
+    '<p class="foot">Tap each note or ₱20 coin you hand over: 20 + 20 makes ₱40.</p>'
   );
 }
 function tillState() {
@@ -310,13 +324,171 @@ function tillState() {
   const b = cents(bill) > 0 ? bill : 0;
   return { bill: b, paid: paid >= 0 ? paid : null, ok: b > 0 && paid !== null && paid >= 0 };
 }
-function tillOut() {
+// what the till says: the eyebrow, the figure, the line under it, and the change as cash (null when there's none)
+function tillView() {
   const t = tillState();
-  if (!t.ok) return '<div class="eyebrow">Change due</div><div class="metric dim">—</div><p class="small">Enter the bill and the cash you handed over.</p>';
-  const diff = Math.round((t.paid - t.bill) * 100) / 100;
-  if (diff > 0) return '<div class="eyebrow">Change due</div><div class="metric">' + cash(diff) + '</div><p class="small">' + cash(t.paid) + ' handed over for a ' + cash(t.bill) + ' bill.</p>';
-  if (diff < 0) return '<div class="eyebrow red">Still to pay</div><div class="metric red">' + cash(-diff) + '</div><p class="small">The cash is short of the ' + cash(t.bill) + ' bill.</p>';
-  return '<div class="eyebrow">Exact payment</div><div class="metric">' + cash(0) + '</div><p class="small">No change needed.</p>';
+  if (!t.ok) return { eb: 'Change due', fig: '—', cls: 'metric dim', small: 'Enter the bill and the cash you handed over.', cash: null };
+  const d = Math.round(t.paid * 100) - Math.round(t.bill * 100); // in centavos, so the breakdown is exact
+  if (d > 0) return { eb: 'Change due', fig: cash(d / 100), cls: 'metric', small: cash(t.paid) + ' handed over for a ' + cash(t.bill) + ' bill.', cash: asCash(d) };
+  if (d < 0) return { eb: 'Still to pay', red: true, fig: cash(-d / 100), cls: 'metric red', small: 'The cash is short of the ' + cash(t.bill) + ' bill.', cash: null };
+  return { eb: 'Exact payment', fig: cash(0), cls: 'metric', small: 'No change needed.', cash: null };
+}
+function tillOut() {
+  const v = tillView(),
+    w = cashWant(v.cash);
+  return (
+    '<div class="eyebrow' + (v.red ? ' red' : '') + '" id="tillEb">' + v.eb + '</div><div class="' + v.cls + '" id="tillFig">' + v.fig + '</div>' +
+    '<div class="cashrow" id="cashRow"' + (v.cash ? ' role="img" aria-label="' + esc(cashWords(v.cash)) + '"' : ' aria-hidden="true"') + '>' +
+    '<span class="stacks">' + w.filter((x) => x.stack).map(pieceHTML).join('') + '</span>' +
+    '<span class="fan">' + w.filter((x) => x.note).map(pieceHTML).join('') + '</span>' +
+    '<span class="coins">' +
+    COINS.filter((k) => w.some((x) => x.coin === k)).map((k) => '<span class="pile" data-den="' + k + '">' + w.filter((x) => x.coin === k).map(pieceHTML).join('') + '</span>').join('') +
+    '</span></div>' +
+    '<p class="small" id="tillSmall">' + v.small + '</p>'
+  );
+}
+
+/* ===== Change as cash (Q13): the fewest notes and coins, the way a cashier hands them over =====
+   Notes: ₱1,000, ₱500, ₱100, ₱50. No ₱200 (the BSP stopped making them in 2021) and no ₱20 note (it's a coin now).
+   Coins, in centavos: ₱20, ₱10, ₱5, ₱1, 25¢, 5¢, 1¢. There's no 50¢ coin, so 50¢ comes as two 25¢.
+   No banknote artwork: copying any part of a note needs the BSP's approval, so they're plain colours and numbers. */
+const NOTES = [1000, 500, 100, 50];
+const COINS = [2000, 1000, 500, 100, 25, 5, 1];
+const BUNDLE_AT = 5; // up to four of a note fan out, so the edges can be counted; five or more become one bundle
+function asCash(c) {
+  const notes = [],
+    coins = [];
+  NOTES.forEach((n) => {
+    const m = Math.floor(c / (n * 100));
+    for (let i = 0; i < m; i++) notes.push(n);
+    c -= m * n * 100;
+  });
+  COINS.forEach((k) => {
+    const m = Math.floor(c / k);
+    if (m) coins.push([k, m]);
+    c -= m * k;
+  });
+  return { notes, coins };
+}
+const coinLabel = (k) => (k >= 100 ? String(k / 100) : k + '¢');
+const wholePeso = (n) => cash(n).replace(/\.00$/, '');
+function cashWords(b) {
+  const parts = [],
+    count = {};
+  b.notes.forEach((n) => (count[n] = (count[n] || 0) + 1));
+  NOTES.forEach((n) => {
+    if (count[n]) parts.push(wholePeso(n) + ' note' + (count[n] > 1 ? ' × ' + count[n].toLocaleString('en-GB') : ''));
+  });
+  b.coins.forEach(([k, m]) => parts.push((k >= 100 ? wholePeso(k / 100) : k + '¢') + ' coin' + (m > 1 ? ' × ' + m : '')));
+  return 'As cash: ' + parts.join(', ');
+}
+// the pieces to show, each with a key that stays the same while it's on screen, so only what changes moves
+function cashWant(b) {
+  const want = [];
+  if (!b) return want;
+  const count = {};
+  b.notes.forEach((n) => (count[n] = (count[n] || 0) + 1));
+  NOTES.forEach((n) => {
+    const c = count[n] || 0;
+    if (c >= BUNDLE_AT) want.push({ k: 's' + n, stack: n, count: c });
+    else for (let i = 0; i < c; i++) want.push({ k: 'n' + n + '.' + i, note: n });
+  });
+  b.coins.forEach(([k, m]) => {
+    for (let i = 0; i < m; i++) want.push({ k: 'c' + k + '.' + i, coin: k });
+  });
+  return want;
+}
+function pieceHTML(w) {
+  if (w.stack) {
+    const n = w.stack;
+    return '<span class="stk" data-k="' + w.k + '"><i class="nt n' + n + '"></i><i class="nt n' + n + '"></i><span class="nt n' + n + '"><b>' + n + '</b><em>×' + w.count.toLocaleString('en-GB') + '</em></span></span>';
+  }
+  if (w.note) return '<span class="nt n' + w.note + '" data-k="' + w.k + '"><b>' + w.note + '</b></span>';
+  if (w.coin === 2000) return '<span class="cn c20" data-k="' + w.k + '"><i>20</i></span>';
+  return '<span class="cn' + (w.coin === 500 ? ' c5' : '') + (w.coin < 25 ? ' tiny' : '') + '" data-k="' + w.k + '">' + coinLabel(w.coin) + '</span>';
+}
+// redraws the cash row in place: new pieces settle in (10 px, 45 ms apart), removed ones shrink away in 160 ms where
+// they were, and the rest glide to their new place on gentle. The bundle's count changes without moving.
+function renderCash(b) {
+  const row = $('cashRow');
+  if (!row) return;
+  const boxes = { stacks: row.querySelector('.stacks'), fan: row.querySelector('.fan'), coins: row.querySelector('.coins') };
+  const items = [...row.querySelectorAll('.stacks > [data-k], .fan > [data-k], .pile > [data-k]')];
+  const small = $('tillSmall'),
+    smallTop = small ? small.getBoundingClientRect().top : 0,
+    rr = row.getBoundingClientRect(),
+    before = new Map(items.map((el) => [el.dataset.k, el.getBoundingClientRect()]));
+  const want = cashWant(b),
+    keep = new Set(want.map((w) => w.k)),
+    old = {};
+  items.forEach((el) => {
+    if (keep.has(el.dataset.k)) return void (old[el.dataset.k] = el);
+    cashLeave(row, el, before.get(el.dataset.k), rr);
+    el.remove();
+  });
+  const fresh = [],
+    piles = [];
+  want.forEach((w) => {
+    let el = old[w.k];
+    if (!el) {
+      const t = document.createElement('template');
+      t.innerHTML = pieceHTML(w);
+      el = t.content.firstChild;
+      fresh.push(el);
+    }
+    if (w.stack) {
+      el.querySelector('em').textContent = '×' + w.count.toLocaleString('en-GB');
+      boxes.stacks.appendChild(el);
+    } else if (w.note) boxes.fan.appendChild(el);
+    else {
+      let p = piles.find((x) => x.dataset.den === String(w.coin)) || boxes.coins.querySelector('.pile[data-den="' + w.coin + '"]');
+      if (!p) {
+        p = document.createElement('span');
+        p.className = 'pile';
+        p.dataset.den = w.coin;
+      }
+      if (!piles.includes(p)) piles.push(p);
+      p.appendChild(el);
+    }
+  });
+  boxes.coins.querySelectorAll('.pile').forEach((p) => {
+    if (!piles.includes(p)) p.remove();
+  });
+  piles.forEach((p) => boxes.coins.appendChild(p));
+  if (b) {
+    row.setAttribute('role', 'img');
+    row.setAttribute('aria-label', cashWords(b));
+    row.removeAttribute('aria-hidden');
+  } else {
+    row.removeAttribute('role');
+    row.removeAttribute('aria-label');
+    row.setAttribute('aria-hidden', 'true');
+  }
+  Object.keys(old).forEach((k) => {
+    const a = before.get(k),
+      n = old[k].getBoundingClientRect(),
+      dx = a.left - n.left,
+      dy = a.top - n.top;
+    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) MOTION.animate(old[k], [{ transform: 'translate(' + dx + 'px,' + dy + 'px)' }, { transform: 'none' }], { spring: 'gentle' });
+  });
+  fresh.forEach((el, i) => MOTION.settle(el, i, 10));
+  if (small) {
+    const dy = smallTop - small.getBoundingClientRect().top;
+    if (Math.abs(dy) > 0.5) MOTION.animate(small, [{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { spring: 'gentle' });
+  }
+}
+// a piece that went: a copy shrinks away where it was (160 ms), or fades with Reduce Motion; nothing with motion off
+function cashLeave(row, el, r, rr) {
+  if (!r) return;
+  const g = el.cloneNode(true);
+  g.removeAttribute('data-k');
+  g.classList.add('cghost');
+  g.setAttribute('aria-hidden', 'true');
+  Object.assign(g.style, { left: r.left - rr.left + 'px', top: r.top - rr.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+  row.appendChild(g);
+  const a = MOTION.leave(g, 160, 0.6);
+  if (a) a.onfinish = () => g.remove();
+  else g.remove();
 }
 
 /* ===== Search ===== */

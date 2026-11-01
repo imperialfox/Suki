@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.17 · 1 Nov 2026
+*Quick Till: bigger buttons, and your change shown as the notes and coins to expect (Q13)*
+
+**Buttons**
+- The amount buttons are now 44 pt tall and all on one row: Exact, 20, 50, 100, 500 and 1000. They're easier to hit with a cashier waiting.
+- They're coloured like the notes, and labelled the way the notes are ("1000"). VoiceOver says "Add a ₱1,000 note".
+- ₱20 is a coin now, so its button looks like one: grey with a bronze ring. ₱50 replaces ₱200, which the BSP stopped making in 2021.
+- Clear is now a ✕ inside the cash box, as in Search. Tapping it keeps the keyboard where it was.
+
+**Change as cash**
+- Under the change figure, the notes and coins to expect: notes first, largest first, fanned with their number up the left edge, then coins in small piles. The ₱20 coin is two-tone and the ₱5 has nine sides.
+- Five or more of one note become a bundle with the count on the front ("×34"), so big amounts never spill out of the card.
+- The breakdown uses the notes and coins in use today: no ₱200 note, no ₱20 note, and no 50¢ coin, so 50¢ shows as two 25¢.
+- Only what changes moves: new pieces settle in, ones that go shrink away, and the rest slide over. The figure never moves. With Reduce Motion, pieces only fade.
+- Note and coin colours stay the same in dark mode, like cards in Wallet. They're plain colours and numbers, with no banknote artwork.
+
 ## 2.16 · 1 Nov 2026
 *Calendar tints and the price range strip: a number next to something to compare it with (Q12)*
 

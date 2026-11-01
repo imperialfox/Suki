@@ -106,17 +106,18 @@ const MOTION = (() => {
   }
 
   // "Settle" (Q11): Suki's own movement, a small drop into place like a coin set down on a counter. Kept for things
-  // that land: a saved purchase arriving in its list, and (later) the Till's notes and coins. i staggers rows 45 ms apart.
-  // Reduce Motion: a fade. Motion off: nothing.
-  function settle(el, i) {
-    return animate(el, [{ transform: 'translateY(-12px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { spring: 'ripple', delay: stagger(i || 0, 'row'), fill: 'backwards', fade: true });
+  // that land: a saved purchase arriving in its list (12 px), and the Till's notes and coins (Q13, 10 px).
+  // i staggers them 45 ms apart. Reduce Motion: a fade. Motion off: nothing.
+  function settle(el, i, drop) {
+    return animate(el, [{ transform: 'translateY(-' + (drop || 12) + 'px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { spring: 'ripple', delay: stagger(i || 0, 'row'), fill: 'backwards', fade: true });
   }
-  // something going away where it was: it fades and shrinks to .94 (220 ms), or only fades with Reduce Motion.
+  // something going away where it was: it fades and shrinks to .94 in 220 ms (a row), or to `to` in `ms` (the Till's
+  // notes and coins: .6 in 160 ms); only fades with Reduce Motion.
   // Returns the animation (null with motion off), ending on its last frame so the caller can remove the element.
-  function leave(el, ms) {
+  function leave(el, ms, to) {
     if (!el || !el.animate || speed === 0) return null;
     if (reduced()) return el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200 * speed, easing: 'ease-out', fill: 'forwards' });
-    return el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.94)' }], { duration: (ms || 220) * speed, easing: 'ease-in', fill: 'forwards' });
+    return el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(' + (to || 0.94) + ')' }], { duration: (ms || 220) * speed, easing: 'ease-in', fill: 'forwards' });
   }
 
   // a spring that starts moving: from and to are {x, y, …} in px, v is the finger's speed in px/s (3.12, the floating

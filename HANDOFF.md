@@ -204,7 +204,7 @@ Tests: `test_motion.py` (63 checks): the exit mid-way and gone after for ✕, Es
 **Left for later:** rows gliding when an edit moves a purchase to another day; the chart bars switching from ripple to settle (visual audit finding 9).
 
 ## Q13 · Quick Till: bigger buttons and change as cash
-**Render:** 1 Nov 2026, 09:45, scope as below · **Build:** awaiting · Needs: Q11 (built first: reuse its "settle" from `motion.js`).
+**Render:** 1 Nov 2026, 09:45, scope as below · **Build:** 1 Nov 2026, 13:07, Ivan: "Q13 build" · shipped as 2.17 · Needs: Q11 (built first: reuse its "settle" from `motion.js`).
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Suki Quick Till prototype](https://claude.ai/artifact/1HLP63FZ3DXfqo7vTdEg8g) (locked in by Ivan, 1 Nov, 08:23). Full spec, tokens and the left-out list: project doc `q13_till_change-as-cash_spec.md`. Recon: visual audit findings 6 and 7.
 
 **Goal:** at a counter, big targets, and change shown the way it will look in his hand.
@@ -219,6 +219,14 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Suki Quick T
 **Where to look:** `screens.js` (scrTill, the change block), `events.js` (till keys), `css/app.css`, `motion.js`. Keep the `.denoms` class (Q07's tip points at it); `.tillout` keeps a minimum height.
 **Done when:** tests: the six buttons fit at 375 px, random amounts break down exactly, bundles at ₱34,750 and ₱999,999 stay inside the card, rapid taps leave no stray pieces, VoiceOver labels; full suite passes. **Checks:** full suite; screenshots at 375 and 402 px, light and dark.
 **For your iPhone:** the settle at full speed; note colours against real notes in daylight; the edge numbers at a glance.
+**Debrief:** Built from the locked prototype and the spec. Decided within scope:
+- **Settle and leave are Q11's,** given an optional size: `MOTION.settle(el, i, 10)` for the 10 px drop and `MOTION.leave(g, 160, .6)` for the 160 ms shrink. Purchases still use 12 px and .94.
+- **Only the cash row redraws.** Typing or a button changes the words in place and keeps each piece that stays (by its key), as the prototype did; a full redraw (switching tabs) draws it still. Removed pieces shrink away as copies, so switching tabs mid-way leaves nothing behind.
+- **The buttons keep their actions** (`cashAdd`, `cashExact`, `cashClear`), so the tip and older tests still work. Labels are centred: the app's buttons inherit text alignment, which the prototype's didn't.
+- **The ✕** doesn't take the cursor, so the keyboard stays up if it was (as in the prototype).
+Tests: `test_till.py` (73 checks). Full suite: 597 of 600 side by side; the 3 were Q11 checks in `test_motion.py` timing out on this 2-processor machine (the known issue), and that file passed 63 of 63 on its own, before and after this change (pinned Playwright 1.56 pointed at a newer Chromium, as before). Also checked by eye: screenshots at 375 and 402 px, light and dark.
+**For your iPhone:** (1) On Till, tap 500 then 1000 for a ₱789.50 bill: do the notes and coins drop in like coins on a counter? (2) Hold a real ₱100, ₱500 and ₱1,000 next to the screen in daylight: do the colours match? (3) Can you read the edge numbers on the fanned notes at a glance? (4) In a pile of 25¢ coins, the coins behind are partly covered: is that still clear? (5) Tap the ✕ while typing: the keyboard should stay up.
+**Left for later:** nothing new. Q18 restyles these notes and coins.
 
 ## Q16 · Logging: location
 **Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q13 (built first; Q13 was slotted in after Q11 on 1 Nov, 09:45). Prototyped as "Q14" in the Q08–Q11 prototype (item 12); renumbered because the quick add Recon (`suki_quick_add_recon_2026-11-01.md`) suggests Q14 and Q15.

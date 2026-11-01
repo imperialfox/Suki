@@ -17,7 +17,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q09 | Search: your records in results | Shipped · 2.13 | same | Medium. Navigation audit (B). After Q08 |
 | Q10 | Spending: calendar and bar doors | Shipped · 2.14 | same | Light. Navigation audit (C). After Q09 |
 | Q11 | Motion: sheets and rows | Shipped · 2.15 | same | Medium. Visual audit (A). After Q10 |
-| Q13 | Quick Till: bigger buttons and change as cash | Approved — awaiting Build | [Quick Till prototype](https://claude.ai/artifact/1HLP63FZ3DXfqo7vTdEg8g) | Light to medium. Visual audit (C); spec in the project doc `q13_till_change-as-cash_spec.md`. After Q11 |
+| Q13 | Quick Till: bigger buttons and change as cash | Shipped · 2.17 | [Quick Till prototype](https://claude.ai/artifact/1HLP63FZ3DXfqo7vTdEg8g) | Light to medium. Visual audit (C); spec in the project doc `q13_till_change-as-cash_spec.md`. After Q11 |
 | Q16 | Logging: location | Approved — awaiting Build | same as Q08 (item 12) | Light to medium. Prototyped as "Q14"; Q12–Q15 are suggested by other Recon. After Q13 |
 | Q17 | Home: exchange rate card | Approved — awaiting Build | [Smart add prototype](https://claude.ai/artifact/KmqSWPKWGBSEWDjMQEgCkF) ("Rate above") | Light. After Q16 |
 | Q14 | Logging: Smart add | Approved — awaiting Build | same | Medium to heavy. Folds in the quick add Recon's suggested Q14. After Q17 |
@@ -36,7 +36,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 
 **Render:** 1 Nov 2026, 09:33 · Ivan: "im happy to render but queue the[m] as two seperate items" · scope: Q17 and Q14 exactly as written in HANDOFF.md and as prototyped, built after Q16, Q17 first (*default*: the light one first, so it can land before the 7 Nov trip). Q12, Q13 and Q15 are not rendered.
 
-**Render:** 1 Nov 2026, 09:45 · Ivan, answering which suggested items to approve: Q13 "Right after Q11", Q15 "Render the slim version now" · scope: Q13 exactly as the locked prototype and its spec (built after Q11, before Q16); Q15 exactly as written in HANDOFF.md (built after Q14). Q12 is not rendered: Ivan wants to go through it as a wireframe and prototype first.
+**Render:** 1 Nov 2026, 09:45 · Ivan, answering which suggested items to approve: Q13 "Right after Q11", Q15 "Render the slim version now" · scope: Q13 exactly as the locked prototype and its spec (built after Q11, before Q16); Q15 exactly as written in HANDOFF.md (built after Q14). Q12 is not rendered: Ivan wants to go through it as a wireframe and prototype first. **Build (Q13):** 1 Nov 2026, 13:07, Ivan: "Q13 build" · shipped as 2.17.
 
 **Render:** 1 Nov 2026, 09:56 · Ivan: "render" · scope: Q12 exactly as written in HANDOFF.md and as prototyped (calendar tints and the price range strip), built after Q15. **Build:** 1 Nov 2026, 12:46, Ivan: "Q12 Build" (ahead of Q13–Q15, which keep their order) · shipped as 2.16.
 
@@ -59,6 +59,7 @@ Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `s
 - 1 Nov 2026: the rate card uses Suki's own icon colours as a one-off. The app style rules (no branding in the app) stay as they are; no other screen uses these colours.
 - 1 Nov 2026: the till drawer and note press is its own item (Q18), not folded into Q13. Ivan: "i can imagine that its a heavy build". Number claimed only; nothing approved.
 - 1 Nov 2026: the till drawer idea is split into four items built in order, Q18 to Q21 (note press, drawer, contents, haul and mark), each with its own Render, Build and version. Ivan chose the recommended split. Rendered together at 13:09; each still waits for its own build.
+- 1 Nov 2026: Quick Till's buttons are Exact, 20, 50, 100, 500 and 1000 (Q13). No ₱200 (no longer made) and no coin row; buttons that change with the bill were turned down because they'd move under his thumb.
 
 ## Ideas, not yet queued
 

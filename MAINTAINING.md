@@ -43,7 +43,7 @@ Suki shares its foundations with Vocal Sessions (`imperialfox/Vocal-Sessions`): 
 | `js/typical.js` | Typical prices with their sources (`window.sukiTypical`, Q02): fares, DTI suggested retail prices, shop and menu prices, rough guides |
 | `js/storage.js` | Categories, places and payment methods; checking (`cleanData`) and loading/saving data; the draft and last-backup date |
 | `js/helpers.js` | Money and dates, icons, category tiles, layout (`MQ`, `layout()`), tabs and the on-screen state `U` |
-| `js/screens.js` | Home, Till, Search, Spending, Convert and Settings, plus the shared purchase form, purchase details and item details |
+| `js/screens.js` | Home, Till (with the change as cash, Q13), Search, Spending, Convert and Settings, plus the shared purchase form, purchase details and item details |
 | `js/ui.js` | Form state `F`, the top bar, tab bar, top tabs and sidebar, `render()` and `go()`, sheets and toasts |
 | `js/rate.js` | The exchange rate (`refreshRate`, `autoRate`) and the linked converter boxes. The rate comes from the first source in `RATE_SOURCES` that answers with a rate inside `RATE_RANGE`; `RATE_CHECK` keeps why the last check failed, for Settings |
 | `js/backup.js` | Saving files (share sheet or download), backups, restoring, erasing and the CSV export |
@@ -153,7 +153,7 @@ The rule: one place per thing, with several doors to it, and every door opens th
 - **The page behind** uses `--mspeed` (published by `motion.js`: the slow-motion speed, or 0 with motion off or Reduce Motion) in its transition, so Slow motion slows it too. While a sheet closes, `body.unsheet` switches it to the quicker 0.33 s curve.
 - **Dragging a sheet down** past 90 px closes it at once; the exit carries on from the finger's position.
 - **Rows:** `rowsBefore()` / `rowsAfter(before)` in `ui.js` wrap a change that redraws a list (FLIP, since lists are innerHTML). They're called where purchases change: `submitForm` (a new purchase), `delPurchaseYes`, its Undo, and `undoSave`. A purchase new to the list (`D.purchases` before and after) settles in with `MOTION.settle()`; purchase rows, "Show all" rows, `.hdr` and the `.grp` under each glide from where they were on `gentle`; a purchase row that went is copied into `#leaving` (`.rowghost`) and `MOTION.leave()` fades and shrinks it. Rows off screen don't move, and rows in a sheet that is itself closing go with the sheet. Editing a purchase doesn't use it yet.
-- **Settle** is `MOTION.settle(el, i)` in `motion.js`: a 12 px drop with opacity 0 → 1 on the `ripple` spring, rows 45 ms apart, a fade with Reduce Motion. Reuse it for anything that lands (Q13's notes and coins). Keep it out of tabs, Settings, Convert and figures.
+- **Settle** is `MOTION.settle(el, i, drop)` in `motion.js`: a 12 px drop (or `drop`: the Till uses 10) with opacity 0 → 1 on the `ripple` spring, rows 45 ms apart, a fade with Reduce Motion. Reuse it for anything that lands. Keep it out of tabs, Settings, Convert and figures. `MOTION.leave(el, ms, to)` shrinks to .94 in 220 ms unless given its own time and size.
 - **Home's Save button** shows "✓ Saved" (`#homeSave.saved`, `savedTick()` / `savedPop()` in `events.js`) for 1.4 s (× slow motion), with or without motion; `saveBtn()` in `screens.js` keeps it through a redraw.
 - **Undo on "Purchase saved"** is `undoSave(id)`: it removes that purchase, saves and says "Purchase removed".
 
@@ -168,6 +168,15 @@ The rule: a number next to something to compare it with. No good or bad words or
 - **Dot and row:** `U.dot` is `'paid:<id>'` or `'note:<id>'`. `ACT.pickDot` toggles a dot; a capture-phase click listener in `events.js` lights a row's dot (`data-dot` on You paid rows and price note rows; a button inside the row, like the bin, is its own tap) and clears it on any other tap, except while another sheet is open over the item (the purchase, deleting a note), so coming back finds it lit. `showDot()` changes only classes and the label in place, so nothing moves under the finger. `openItem` resets it.
 - **The label** (`.slabel`) is placed with `left: x%` and `translateX(-x%)`, which keeps it inside the strip at any position without measuring. Long text ends in an ellipsis.
 - Left out: the Home week strip (Spending's week chart already shows it), a strip on Search rows, budgets.
+
+## Quick Till: change as cash (Q13)
+
+- **Buttons:** `TILL_KEYS` in `screens.js` (₱20 coin, then the ₱50, ₱100, ₱500 and ₱1,000 notes) after Exact, in `.denoms` (a six-column grid, 44 pt). Keep the `.denoms` class: the Till tip (`TIPS.till` in `onboard.js`) points at it. They still use `cashAdd` / `cashExact`; the ✕ in the cash box is `#cashClear` (`cashClear`), hidden while the box is empty. A `pointerdown` on it is cancelled so the keyboard stays where it was.
+- **The breakdown** is `asCash(centavos)`: notes `NOTES` (1000, 500, 100, 50), coins `COINS` in centavos (2000, 1000, 500, 100, 25, 5, 1). No ₱200 note, no ₱20 note, no 50¢ coin. Always work in centavos (`tillView()` does), so it's exact. `cashWords()` is the VoiceOver line on `#cashRow` (`role="img"`).
+- **Drawing:** `cashWant()` lists the pieces, each with a key (`n100.0`, `c25.1`, `s1000` for a bundle) that stays the same while it's on screen. `tillOut()` draws them still (a full redraw); `updateTill()` (typing or a button) changes the words in place and calls `renderCash()`, which keeps pieces whose key stays, settles new ones in (`MOTION.settle(el, i, 10)`), shrinks the ones that went (a `.cghost` copy, `MOTION.leave(g, 160, .6)`) and glides the rest on `gentle`. The figure never animates, and a bundle's count changes in place. With five or more of one note (`BUNDLE_AT`) it's one bundle.
+- **Colours** are `--note-50` … `--note-1000` (each with an `-ink`), `--coin`, `--coin-ink` and `--coin-ring`, in `:root` only, so they're the same in dark mode. No banknote artwork: copying any part of a note needs the BSP's approval.
+- `.tillout` has a 148 px minimum height, so Log this bill only moves when coins wrap onto a second line.
+- **Next:** Q18 (the till drawer and note press) restyles these notes and coins; reuse `asCash` and the keys.
 
 ## Backups
 
@@ -203,6 +212,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 | `test_doors.py` | Q08's doors: Home's two figures, Spending's +, logging on a calendar day, a purchase's prices row (whole words only, and on iPad), the old-rate link, Price notes' links to Search, Search's Log row and Settings rows that open things |
 | `test_search.py` | Q09: Prices, In your purchases (three rows, Show all with the same count in Spending), In your price notes, every word in any order (Search and Spending's filter), no match only when nothing of his matches, the notes row on All, the placeholder, screenshots at 375 px light and dark |
 | `test_compare.py` | Q12: the calendar's three tints (thirds, under three days, equal days), the key and footnote, the picked day in solid ink, today's outline; the price range strip's bands, dots, rings, stacking, axis and key, the dot–row link both ways (and back from a purchase), clearing, the label inside at both ends at 375 px, nothing animating, no strip with nothing to compare; screenshots at 375 and 402 px, light and dark |
+| `test_till.py` | Q13: the six 44 pt buttons on one row at 375 and 402 px with their VoiceOver labels, the ✕ in the cash box, 20,000 random amounts breaking down exactly, fans, bundles (₱34,750 and ₱999,999 inside the card), the ₱20 and ₱5 coins, colours the same in dark mode, Log this bill staying put; with motion on, settle, shrink and glide, the figure and a bundle's count still, rapid taps leaving no strays, Reduce Motion fading only; screenshots at 375 and 402 px, light and dark |
 | `test_motion.py` | Q11, with motion on: a closing sheet is still on screen mid-way and gone after, by ✕, Escape, the dim, Cancel and dragging down; back to the sheet underneath with no second rise; two quick closes; taps go through a leaving sheet; new rows settle in and the rows below move; a deleted row shrinks away and Undo settles it back; Home's Saved and Undo; iPad's shrink and Reduce Motion's fades; tabs, Settings and Convert stay still; frames at 4× slow motion, light and dark |
 | `test_timedoors.py` | Q10: the period label opening the calendar for each range (and a picked day or week), the picked bar narrowing the list with its line and way back, the pick kept when opening a purchase (✕, tapping outside, and the iPad pane), the filter's ✕ and Export as CSV working first time with a day picked, the Help row, screenshots at 375 px light and dark |
 | `test_data.py` | Older and damaged data, the backup reminder, export, erase, restore (good, damaged, other and 2.0 files), the rate failing, and updating from the real Suki 2.0 |
@@ -224,7 +234,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 
 ### Known test issues
 
-- On a small machine (two processors), running the whole suite side by side can occasionally make one file time out waiting for the page; it passes when run again or with `--one-at-a-time`. GitHub's runner hasn't shown this.
+- On a small machine (two processors), running the whole suite side by side can occasionally make one file time out waiting for the page; it passes when run again or with `--one-at-a-time`. GitHub's runner hasn't shown this. On 1 Nov 2026 (Q13) it showed as three Q11 checks in `test_motion.py` (saving from the Log sheet) finding no animation; the file passed 63 of 63 on its own.
 - Checks on animations read the computed `animation-name`, not running animations: a short fade can finish before a busy machine looks.
 - On 31 Oct and 1 Nov 2026 the suite was run locally against a newer Chromium (the pinned Playwright 1.56.0 pointed at it), because 1.56's own browser couldn't be downloaded there. GitHub's run uses the pinned one.
 - Rows and headers only move when they're on screen, so a motion test must scroll the list into view first (Spending's list starts below the chart at 844 px tall), and keep clear of the tab bar.

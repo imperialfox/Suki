@@ -171,8 +171,25 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: 2.11 live on `m
 **Risks:** redraws use innerHTML, so measure before and after the redraw (FLIP); the prototype wraps `render()`, but the build should do it where the change happens. Never block taps mid-animation, and a second close mid-way must still work.
 **Done when:** motion-on tests: a closing sheet is still on screen mid-way and gone after, no stray copies left, a new row has a running animation, rows below move, Reduce Motion only fades; full suite passes. **Checks:** full suite; frames at 4× slow motion, light and dark.
 
+## Q13 · Quick Till: bigger buttons and change as cash
+**Render:** 1 Nov 2026, 09:45, scope as below · **Build:** awaiting · Needs: Q11 (built first: reuse its "settle" from `motion.js`).
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Suki Quick Till prototype](https://claude.ai/artifact/1HLP63FZ3DXfqo7vTdEg8g) (locked in by Ivan, 1 Nov, 08:23). Full spec, tokens and the left-out list: project doc `q13_till_change-as-cash_spec.md`. Recon: visual audit findings 6 and 7.
+
+**Goal:** at a counter, big targets, and change shown the way it will look in his hand.
+**Agreed** (each as in the spec):
+1. **Buttons:** Exact, 20, 50, 100, 500, 1000, all 44 pt on one row; ₱20 looks like the coin (nickel with a bronze ring). Labels match the notes ("1000"); VoiceOver says "Add a ₱1,000 note" / "Add a ₱20 coin". Clear becomes a ✕ inside the cash box.
+2. **The change as cash** under the figure: notes largest first, fanned, number up the left edge; then coins in small piles (8 px overlap); the ₱20 coin two-tone and the ₱5 nine-sided.
+3. **Bundles:** up to four of a note fan out; five or more become one bundle with "×34" on the front; fan, bundle and coins wrap, never cut off; the count changes without animating.
+4. **Breakdown:** notes 1000, 500, 100, 50; coins ₱20, ₱10, ₱5, ₱1, 25¢, 5¢, 1¢ (no ₱200, no 50¢: 50¢ shows as two 25¢).
+5. **Colours as tokens,** the same in light and dark (`--note-50` … `--coin-ring`, values in the spec).
+6. **Motion:** new pieces settle 45 ms apart, removed ones shrink away in 160 ms, staying ones glide on `gentle`; the figure never animates; Reduce Motion fades only.
+**Out of scope:** banknote artwork of any kind (BSP rules; see the spec), a coin row, buttons that change with the bill.
+**Where to look:** `screens.js` (scrTill, the change block), `events.js` (till keys), `css/app.css`, `motion.js`. Keep the `.denoms` class (Q07's tip points at it); `.tillout` keeps a minimum height.
+**Done when:** tests: the six buttons fit at 375 px, random amounts break down exactly, bundles at ₱34,750 and ₱999,999 stay inside the card, rapid taps leave no stray pieces, VoiceOver labels; full suite passes. **Checks:** full suite; screenshots at 375 and 402 px, light and dark.
+**For your iPhone:** the settle at full speed; note colours against real notes in daylight; the edge numbers at a glance.
+
 ## Q16 · Logging: location
-**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q11 (built first). Prototyped as "Q14" in the Q08–Q11 prototype (item 12); renumbered because the quick add Recon (`suki_quick_add_recon_2026-11-01.md`) suggests Q14 and Q15.
+**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q13 (built first; Q13 was slotted in after Q11 on 1 Nov, 09:45). Prototyped as "Q14" in the Q08–Q11 prototype (item 12); renumbered because the quick add Recon (`suki_quick_add_recon_2026-11-01.md`) suggests Q14 and Q15.
 
 **Goal:** the place fills itself in, privately and offline.
 **Agreed:**
@@ -222,3 +239,15 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Smart add pr
 **Done when:** the phrase tests pass; tests for the sides and the remembered side, each ask, the either/or and learning, batch save with Undo, Edit in the form, usual price, suggestions, the typical note, "You typed", and learned words through a backup round trip; a motion-on test that rapid switching leaves no stray copy; full suite passes. **Checks:** full suite; screenshots at 375 and 402 px, light and dark; frames at 4×.
 **For your iPhone:** whether the keyboard hides the preview; whether Siri dictation reads well; whether the fade stays smooth.
 
+## Q15 · Logging: the Siri inbox
+**Render:** 1 Nov 2026, 09:45, scope as below · **Build:** awaiting · Needs: Q14 (built first). Recon: project doc `suki_quick_add_recon_2026-11-01.md` (findings 2 and 3, the Shortcut steps), cut down because Smart add's box already keeps line breaks and reads the Shortcut's time stamps.
+
+**Goal:** say a purchase to Siri anywhere, paste the whole inbox into Smart add later, and nothing is saved twice.
+**Agreed:**
+1. **Already saved:** a pasted line that starts with a Shortcut stamp (`[2026-11-21 13:05]`) and matches a saved purchase's words and stamp shows as "Already saved", greyed, and is left out of Save. The header reads "3 new · 2 already saved". Purchases keep the stamp as `saidAt` beside Q14's `said` (a new field; older data and backups are unaffected).
+2. *Default if unanswered:* lines without a stamp are never skipped, so typing "jeep 14" twice in a day still saves twice.
+3. **Help › Log by voice with Siri:** the six Shortcut steps from the Recon (Dictate Text, Format Date as `yyyy-MM-dd HH:mm`, Text, Append to Note "Suki inbox", Copy to Clipboard, Show Notification), how to run it (Hey Siri, the Action Button, a Lock Screen control), and that clearing the note is optional.
+**Out of scope:** opening Suki from the Shortcut (`webapp://`), a Paste button, any server or AI tidying ("Use Model"), building the Shortcut itself (Ivan does that on his phone).
+**Where to look:** `js/reader.js` (from Q14), the Smart add preview, `storage.js` and `backup.js` (`saidAt`), the Help screen from Q07.
+**Done when:** tests: a stamped inbox saves once, pasting it again marks every line "Already saved", a mix saves only the new lines, unstamped duplicates still save, `saidAt` survives a backup round trip, the Help section lists the steps; full suite passes. **Checks:** full suite; screenshots at 375 px.
+**For your iPhone:** the Shortcut runs from Siri and the Action Button; dictation works with no signal; pasting the note keeps its line breaks.

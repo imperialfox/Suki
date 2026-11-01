@@ -17,9 +17,11 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q09 | Search: your records in results | Approved — awaiting Build | same | Medium. Navigation audit (B). After Q08 |
 | Q10 | Spending: calendar and bar doors | Approved — awaiting Build | same | Light. Navigation audit (C). After Q09 |
 | Q11 | Motion: sheets and rows | Approved — awaiting Build | same | Medium. Visual audit (A). After Q10 |
-| Q16 | Logging: location | Approved — awaiting Build | same (item 12) | Light to medium. Prototyped as "Q14"; Q12–Q15 are suggested by other Recon. After Q11 |
+| Q13 | Quick Till: bigger buttons and change as cash | Approved — awaiting Build | [Quick Till prototype](https://claude.ai/artifact/1HLP63FZ3DXfqo7vTdEg8g) | Light to medium. Visual audit (C); spec in the project doc `q13_till_change-as-cash_spec.md`. After Q11 |
+| Q16 | Logging: location | Approved — awaiting Build | same as Q08 (item 12) | Light to medium. Prototyped as "Q14"; Q12–Q15 are suggested by other Recon. After Q13 |
 | Q17 | Home: exchange rate card | Approved — awaiting Build | [Smart add prototype](https://claude.ai/artifact/KmqSWPKWGBSEWDjMQEgCkF) ("Rate above") | Light. After Q16 |
 | Q14 | Logging: Smart add | Approved — awaiting Build | same | Medium to heavy. Folds in the quick add Recon's suggested Q14. After Q17 |
+| Q15 | Logging: the Siri inbox | Approved — awaiting Build | none (slim follow-on to Q14) | Light. Quick add Recon (B), cut down. After Q14 |
 
 **Render:** 31 Oct 2026, 22:56 · Ivan: "render all, then build" · scope: Q01–Q06 exactly as written in HANDOFF.md, built in the order listed above (2.5 to 2.10).
 
@@ -28,6 +30,8 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 **Render:** 1 Nov 2026, 08:26 · Ivan: "render" · scope: Q08, Q09, Q10, Q11 and Q16 exactly as written in HANDOFF.md and as prototyped, built in that order (each takes the next version when it lands). Q12–Q15 are not rendered.
 
 **Render:** 1 Nov 2026, 09:33 · Ivan: "im happy to render but queue the[m] as two seperate items" · scope: Q17 and Q14 exactly as written in HANDOFF.md and as prototyped, built after Q16, Q17 first (*default*: the light one first, so it can land before the 7 Nov trip). Q12, Q13 and Q15 are not rendered.
+
+**Render:** 1 Nov 2026, 09:45 · Ivan, answering which suggested items to approve: Q13 "Right after Q11", Q15 "Render the slim version now" · scope: Q13 exactly as the locked prototype and its spec (built after Q11, before Q16); Q15 exactly as written in HANDOFF.md (built after Q14). Q12 is not rendered: Ivan wants to go through it as a wireframe and prototype first.
 
 Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `suki_audit_2026-10-31.md`, `suki_stress_test_2026-10-31.md`, `suki_navigation_audit_2026-11-01.md` and `suki_visual_motion_audit_2026-11-01.md` and `suki_quick_add_recon_2026-11-01.md`.
 
@@ -44,13 +48,11 @@ Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `s
 
 ## Ideas, not yet queued
 
-- Quick Till: show the change as notes and coins to expect (₱200 + ₱10 + 50¢); fit the amount chips on one row.
 - iPhone SE: Save purchase and Log this bill sit under the tab bar on first view.
 - A search circle beside the tab bar (four tabs plus Search), as in iOS 26.
 - Nueva Ecija prices: no local tricycle fare or post-rise bus fare is published online yet; add them from price notes during the trip.
-- Home week strip, a price range strip on items, and calendar tints by amount (visual audit, Milestone B; suggested Q12).
+- Home week strip, a price range strip on items, and calendar tints by amount (visual audit, Milestone B; suggested Q12). 1 Nov: Ivan wants it wireframed and prototyped before Render.
 - Search rows: make the peso price the only bold figure (visual audit finding 10; default keeps the pounds).
 - Prices by region, using the town from Q16.
-- Smart add: the Siri Shortcut inbox, pasting several lines with their breaks, and skipping lines already saved (quick add Recon, Milestone B; suggested Q15).
 - Smart add: a receipt already works through iPhone's Live Text (copy the text from a photo, paste it in). Help could say so.
 - Smart add: the flip (the card turning over on its middle) was prototyped beside the fade; the fade was kept.

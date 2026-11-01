@@ -22,7 +22,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q17 | Home: exchange rate card | Approved — awaiting Build | [Smart add prototype](https://claude.ai/artifact/KmqSWPKWGBSEWDjMQEgCkF) ("Rate above") | Light. After Q16 |
 | Q14 | Logging: Smart add | Approved — awaiting Build | same | Medium to heavy. Folds in the quick add Recon's suggested Q14. After Q17 |
 | Q15 | Logging: the Siri inbox | Approved — awaiting Build | none (slim follow-on to Q14) | Light. Quick add Recon (B), cut down. After Q14 |
-| Q12 | Look: calendar tints and price range strip | Approved — awaiting Build | [Q12 prototype](https://claude.ai/artifact/NFwAtWyj5ERxgyGifutbeS) | Light to medium. Visual audit (B), without the week strip. After Q15 |
+| Q12 | Look: calendar tints and price range strip | Shipped · 2.16 | [Q12 prototype](https://claude.ai/artifact/NFwAtWyj5ERxgyGifutbeS) | Light to medium. Visual audit (B), without the week strip. Built before Q13 at Ivan's word |
 
 **Render:** 31 Oct 2026, 22:56 · Ivan: "render all, then build" · scope: Q01–Q06 exactly as written in HANDOFF.md, built in the order listed above (2.5 to 2.10).
 
@@ -34,7 +34,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 
 **Render:** 1 Nov 2026, 09:45 · Ivan, answering which suggested items to approve: Q13 "Right after Q11", Q15 "Render the slim version now" · scope: Q13 exactly as the locked prototype and its spec (built after Q11, before Q16); Q15 exactly as written in HANDOFF.md (built after Q14). Q12 is not rendered: Ivan wants to go through it as a wireframe and prototype first.
 
-**Render:** 1 Nov 2026, 09:56 · Ivan: "render" · scope: Q12 exactly as written in HANDOFF.md and as prototyped (calendar tints and the price range strip), built after Q15.
+**Render:** 1 Nov 2026, 09:56 · Ivan: "render" · scope: Q12 exactly as written in HANDOFF.md and as prototyped (calendar tints and the price range strip), built after Q15. **Build:** 1 Nov 2026, 12:46, Ivan: "Q12 Build" (ahead of Q13–Q15, which keep their order) · shipped as 2.16.
 
 Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `suki_audit_2026-10-31.md`, `suki_stress_test_2026-10-31.md`, `suki_navigation_audit_2026-11-01.md` and `suki_visual_motion_audit_2026-11-01.md` and `suki_quick_add_recon_2026-11-01.md`.
 
@@ -49,6 +49,7 @@ Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `s
 - 1 Nov 2026: it's called Smart add now, to build on later (usual price, suggestions and the typical note are in from the start).
 - 1 Nov 2026: left out of Q12: the Home week strip. Spending's week chart already shows the same bars, and Home now has the rate card.
 - 1 Nov 2026: Spending's filter matches every word in any order, like Search (asked during Q09's build). Then "Show all N in Spending" always opens the same N.
+- 1 Nov 2026: the calendar tints are stronger than the Q12 prototype's, because the prototype's failed the palette check (the lightest step was too close to white, and the top two looked alike). Light goes darker, dark goes brighter.
 - 1 Nov 2026: the rate card uses Suki's own icon colours as a one-off. The app style rules (no branding in the app) stay as they are; no other screen uses these colours.
 
 ## Ideas, not yet queued

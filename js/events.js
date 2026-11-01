@@ -424,8 +424,14 @@ const ACT = {
     }));
     await save('purchases');
   },
+  // the price range strip (Q12): a dot lights itself and its row; tapping it again clears it
+  pickDot: (el) => {
+    U.dot = U.dot === el.dataset.dot ? null : el.dataset.dot;
+    showDot();
+  },
   openItem: (el) => {
     const id = el.dataset.k;
+    U.dot = null;
     if (split() && U.tab === 'search' && !U.sheet) {
       if (U.item !== id) U.obsFor = null;
       U.item = id;
@@ -700,6 +706,49 @@ document.addEventListener('click', (e) => {
   e.preventDefault();
   f(el, e);
 });
+
+/* ===== The price range strip's dots and rows (Q12) =====
+   A row in You paid or Your price notes lights its dot (a You paid row still opens the purchase, so the dot is lit
+   when you come back); a tap anywhere else clears it, except on a sheet opened over the item (the purchase, or
+   deleting a note), so coming back finds it as it was. Only classes and the label change, in place: nothing moves,
+   so the tap that clears it always lands where it was aimed. */
+document.addEventListener('click', (e) => {
+  if (e.target.closest('#leaving') || e.target.closest('.sdot')) return;
+  const d = e.target.closest('[data-dot]'),
+    a = e.target.closest('[data-a]');
+  // a button inside the row (the bin) is its own tap; the scrim around the whole sheet doesn't count
+  if (d && (!a || a === d || a.contains(d))) {
+    U.dot = d.dataset.dot;
+    showDot();
+  } else if (U.dot && !(U.sheet && U.sheet !== 'item')) {
+    U.dot = null;
+    showDot();
+  }
+  // capture: this sees the tap before its action runs, so a close on the purchase sheet still counts as "over the item"
+}, true);
+function showDot() {
+  document.querySelectorAll('.strip').forEach((strip) => {
+    if (strip.closest('#leaving')) return;
+    const root = strip.closest('.sheet') || strip.closest('.pane') || document.body;
+    let lit = null;
+    root.querySelectorAll('[data-dot]').forEach((el) => {
+      const on = el.dataset.dot === U.dot;
+      if (el.classList.contains('sdot')) {
+        el.classList.toggle('on', on);
+        el.setAttribute('aria-pressed', on);
+        if (on) lit = el;
+      } else el.classList.toggle('lit', on);
+    });
+    const l = strip.querySelector('.slabel');
+    if (!l) return;
+    l.textContent = lit ? lit.dataset.label : '';
+    l.classList.toggle('on', !!lit);
+    if (lit) {
+      l.style.left = lit.dataset.x + '%';
+      l.style.setProperty('--x', lit.dataset.x + '%');
+    }
+  });
+}
 
 /* ===== Keyboard (iPad keyboards and Mac) ===== */
 document.addEventListener('keydown', (e) => {

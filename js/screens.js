@@ -114,7 +114,7 @@ const gbpRange = (lo, hi) => {
 const KIND_LABEL = { fare: 'Set fare', srp: 'Suggested retail price', shop: 'Supermarket price', menu: 'Menu price', listed: 'Published price', guide: 'Rough guide' };
 const dateOf = (d) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? shortDate(d) : /^\d{4}-\d{2}$/.test(d) ? monthName(d + '-01', true) : '');
 // typical prices with where each came from: one row per price, the sources listed once underneath (Q02)
-function typicalCard(id) {
+function typicalCard(id, strip) {
   const rows = typicalFor(id);
   if (!rows.length) return '';
   const srcs = [],
@@ -131,6 +131,7 @@ function typicalCard(id) {
           '<span class="amt">' + pesoRange(r.low, r.high) + (gbpRange(r.low, r.high) ? '<small>' + esc(gbpRange(r.low, r.high)) + '</small>' : '') + '</span></div>'
       )
       .join('') +
+    (strip || '') +
     '<p class="small">Sources, checked ' + shortDate(window.sukiTypical.checked) + ':</p>' +
     srcs.map((s) => '<a class="link src" href="' + esc(s.url) + '" target="_blank" rel="noopener"><span>' + esc(s.source) + (dateOf(s.date) ? ', ' + dateOf(s.date) : '') + '</span>' + ICON.out + '</a>').join('') +
     '</section>'
@@ -138,6 +139,64 @@ function typicalCard(id) {
 }
 // what you paid for this item, from your own log
 const paidFor = (id) => D.purchases.filter((p) => itemFor(p.item) === id).sort(byNewest);
+
+/* ===== The price range strip (Q12) =====
+   At the foot of the typical-prices card: one band per typical price (two ranges never merge), a solid dot for each
+   time you paid and a ring for each price note. Where a dot sits says it all: no good or bad words or colours.
+   Dots at the same spot stack upwards. A dot and its row are linked: tapping either lights both and shows the dot's
+   label, kept inside the strip's edges (U.dot, updated in place by showDot() in events.js). Nothing on it animates. */
+const STRIP_STEP = 12, // px between stacked dots
+  STRIP_MAX = 5; // levels drawn before dots at one spot share the top one
+function stripRound(x, up) {
+  const s = x <= 50 ? 5 : x <= 200 ? 10 : x <= 1000 ? 50 : x <= 5000 ? 100 : x <= 20000 ? 500 : 1000;
+  return (up ? Math.ceil(x / s) : Math.floor(x / s)) * s;
+}
+const dotLabel = (price, date, where) => [peso(price), relDay(date), where].filter(Boolean).join(' · ');
+function priceStrip(rows, paid, obs) {
+  if (!rows.length || (!paid.length && !obs.length)) return '';
+  const low = Math.min(...rows.map((r) => r.low)),
+    high = Math.max(...rows.map((r) => r.high)),
+    vals = [low, high, ...paid.map((p) => +p.price), ...obs.map((o) => +o.price)],
+    lo = Math.max(0, stripRound(Math.min(...vals) * 0.8)),
+    hi = Math.max(lo + 5, stripRound(Math.max(...vals) * 1.12, true)),
+    pos = (x) => Math.min(100, Math.max(0, ((x - lo) / (hi - lo)) * 100));
+  // stack dots that land on the same spot (about a dot's width apart)
+  const marks = obs
+    .map((o) => ({ k: 'note:' + o.id, cls: 's-note', v: +o.price, label: dotLabel(o.price, o.date, o.location || o.venue || o.note), say: 'Price note' }))
+    .concat(paid.map((p) => ({ k: 'paid:' + p.id, cls: 's-paid', v: +p.price, label: dotLabel(p.price, p.date, p.location || p.venue), say: 'You paid' })));
+  const spots = {};
+  marks.forEach((m) => {
+    const b = Math.round(pos(m.v) / 3);
+    m.level = Math.min(STRIP_MAX - 1, (spots[b] = (spots[b] || 0) + 1) - 1);
+    m.spot = b;
+  });
+  const top = {};
+  marks.forEach((m) => (top[m.spot] = Math.max(top[m.spot] || 0, m.level)));
+  const levels = Math.max(...marks.map((m) => m.level)),
+    lit = U.dot && marks.find((m) => m.k === U.dot);
+  const dot = (m) => {
+    // each dot's tap area is one stack step tall, so stacked dots don't steal each other's taps;
+    // the top of a stack reaches up and the bottom one down, so a lone dot is easy to hit
+    const up = m.level === top[m.spot] ? 18 : 0,
+      down = m.level === 0 ? 8 : 0;
+    return (
+      '<button class="sdot ' + m.cls + (lit === m ? ' on' : '') + '" data-a="pickDot" data-dot="' + esc(m.k) + '" data-label="' + esc(m.label) + '" data-x="' + pos(m.v).toFixed(2) + '"' +
+      ' style="left:' + pos(m.v).toFixed(2) + '%;bottom:' + (5 + m.level * STRIP_STEP - down) + 'px;height:' + (STRIP_STEP + up + down) + 'px;--down:' + down + 'px"' +
+      ' aria-label="' + esc(m.say + ' ' + m.label.replace(/ · /g, ', ')) + '" aria-pressed="' + (lit === m) + '"><i></i></button>'
+    );
+  };
+  const range = pesoRange(low, high);
+  return (
+    '<div class="strip" role="group" aria-label="' + esc('What you paid and your price notes, against the typical ' + range) + '">' +
+    '<div class="track" style="height:' + (46 + levels * STRIP_STEP) + 'px"><span class="line"></span>' +
+    rows.map((r) => '<span class="band" style="left:calc(' + pos(r.low).toFixed(2) + '% - 5px);width:calc(' + (pos(r.high) - pos(r.low)).toFixed(2) + '% + 10px)"></span>').join('') +
+    marks.map(dot).join('') +
+    '<span class="slabel' + (lit ? ' on' : '') + '" aria-hidden="true"' + (lit ? ' style="left:' + pos(lit.v).toFixed(2) + '%;--x:' + pos(lit.v).toFixed(2) + '%"' : '') + '>' + (lit ? esc(lit.label) : '') + '</span>' +
+    '</div><div class="axis" aria-hidden="true"><span>' + peso(lo) + '</span><span>' + peso(hi) + '</span></div>' +
+    '<div class="skey" aria-hidden="true"><span><i class="kband"></i>Typical</span>' + (paid.length ? '<span><i class="kpaid"></i>You paid</span>' : '') + (obs.length ? '<span><i class="knote"></i>Price notes</span>' : '') + '</div>' +
+    '</div>'
+  );
+}
 function itemDetail(id, inPane) {
   const it = itemById(id);
   if (!it) return '';
@@ -145,13 +204,14 @@ function itemDetail(id, inPane) {
   const open = U.obsFor === id;
   const f = F.obs;
   const paid = paidFor(id);
-  const prices = typicalCard(id) + officialCard(id);
+  const prices = typicalCard(id, priceStrip(typicalFor(id), paid, obs)) + officialCard(id);
+  const lit = (k) => (U.dot === k ? ' lit' : '');
   return (
     '<div class="dhead">' + tile(it.group, true, it.id) + '<div class="dmain"><h3>' + esc(it.name) + '</h3><div class="sub">' + esc(it.english !== it.name ? it.english + ' · ' + it.unit : it.unit) + '</div></div></div>' +
     (prices || '<div class="card quiet">No published price for this yet. Add what you see below, and it’ll show here next time.</div>') +
     (paid.length
       ? hdr('You paid', '<span class="hint">' + plural(paid.length, 'time') + '</span>') +
-        '<div class="grp">' + paid.slice(0, 5).map((p) => '<button class="row" data-a="openPurchase" data-k="' + esc(p.id) + '" data-v="push"><span class="lbl"><b>' + cash(p.price) + (inGbp(p.price) ? ' <span class="gb">' + esc(inGbp(p.price)) + '</span>' : '') + '</b><small>' + esc([relDay(p.date), p.location].filter(Boolean).join(' · ')) + '</small></span>' + ICON.chev + '</button>').join('') + '</div>'
+        '<div class="grp">' + paid.slice(0, 5).map((p) => '<button class="row' + lit('paid:' + p.id) + '" data-a="openPurchase" data-k="' + esc(p.id) + '" data-v="push" data-dot="paid:' + esc(p.id) + '"><span class="lbl"><b>' + cash(p.price) + (inGbp(p.price) ? ' <span class="gb">' + esc(inGbp(p.price)) + '</span>' : '') + '</b><small>' + esc([relDay(p.date), p.location].filter(Boolean).join(' · ')) + '</small></span>' + ICON.chev + '</button>').join('') + '</div>'
       : '') +
     '<button class="btn glass wide logit" data-a="logItem" data-k="' + esc(id) + '">' + ICON.plus + 'Log what you paid</button>' +
     hdr('Your price notes', open ? '' : '<button class="tbtn" data-a="obsForm" data-k="' + esc(id) + '">Add</button>') +
@@ -168,7 +228,7 @@ function itemDetail(id, inPane) {
         obs
           .map(
             (o) =>
-              '<div class="row"><span class="lbl"><b>' + cash(o.price) + (inGbp(o.price) ? ' <span class="gb">' + esc(inGbp(o.price)) + '</span>' : '') + '</b><small>' + esc([relDay(o.date), o.location, o.venue, o.note].filter(Boolean).join(' · ')) + '</small></span>' +
+              '<div class="row' + lit('note:' + o.id) + '" data-dot="note:' + esc(o.id) + '"><span class="lbl"><b>' + cash(o.price) + (inGbp(o.price) ? ' <span class="gb">' + esc(inGbp(o.price)) + '</span>' : '') + '</b><small>' + esc([relDay(o.date), o.location, o.venue, o.note].filter(Boolean).join(' · ')) + '</small></span>' +
               '<button class="ibtn" data-a="delObs" data-k="' + esc(o.id) + '" aria-label="Delete this price note">' + ICON.bin + '</button></div>'
           )
           .join('') +

@@ -1,8 +1,8 @@
 # Suki
 
-![Version 2.15](https://img.shields.io/badge/version-2.15-blue)
+![Version 2.16](https://img.shields.io/badge/version-2.16-blue)
 
-**Current version: 2.15 · 1 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
+**Current version: 2.16 · 1 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
 
 Suki is a personal travel companion for the Philippines. It checks your change, converts pounds and pesos, looks up prices and keeps track of what you spend. It's a Home Screen web app for iPhone, iPad and Mac, and works offline.
 
@@ -19,8 +19,8 @@ The official prices are a snapshot for 5–11 October 2026, bundled with the app
 
 - **Home**: your total and today's spending (tap either to open it in Spending), a quick form to log a purchase, and your recent purchases. The gear opens Settings.
 - **Till** (Quick Till): enter the bill and the cash you hand over to see the change due, or what's still to pay. "Log this bill" saves it as a purchase.
-- **Search**: the official prices and the catalogue, plus your own purchases and price notes. Open an item for its official price, a link to the DA report and your price notes. All starts with a door to every price note.
-- **Spending**: every purchase grouped by day, with category chips, a filter, details, editing, deleting (swipe left or from the details) and CSV export. The + logs a purchase. A purchase that names a catalogue item links to that item's prices. The period's name opens the calendar, and tapping a bar shows just that day.
+- **Search**: the official prices and the catalogue, plus your own purchases and price notes. Open an item for its official price, a link to the DA report and your price notes. Where there's a typical price, a strip under it shows it as a band, with a dot for each time you paid and a ring for each price note. All starts with a door to every price note.
+- **Spending**: every purchase grouped by day, with category chips, a filter, details, editing, deleting (swipe left or from the details) and CSV export. The + logs a purchase. A purchase that names a catalogue item links to that item's prices. The period's name opens the calendar, where days are tinted in three steps by how much you spent, and tapping a bar shows just that day.
 - **Convert**: linked pound and peso boxes, handy amounts, and Refresh for the latest reference rate.
 - **Settings**: backup and restore, price notes, storage, Erase all data, and information about the app.
 

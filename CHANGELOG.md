@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.16 · 1 Nov 2026
+*Calendar tints and the price range strip: a number next to something to compare it with (Q12)*
+
+**Calendar**
+- Days you spent on are now tinted in three steps, light to strong, by how much you spent compared with the rest of that month's spending days. A big day stands out at a glance. With fewer than three spending days in a month, they all get the middle step, and days with the same amount always share a step.
+- A small "Less ● ● ● More" key sits under the days, and the note under the calendar says what the tints mean.
+- A picked day is now solid black (white in dark mode), so it never looks like a big day. Today keeps its outline.
+- VoiceOver still reads each day's amount. Tapping a day works as before.
+
+**Prices**
+- An item's typical-prices card now ends with a strip that puts what you paid next to what it usually costs. Each typical price is a band (two prices stay two bands), each time you paid is a dot and each price note is a ring. Dots at the same price stack upwards. The ends of the strip show a rounded low and high, and a key says which is which.
+- Tap a dot to light its row in You paid or Your price notes, with a label like "₱17 · 3 days ago · Bulakan to Barrio". Tap a row and its dot lights up. A You paid row still opens the purchase, and its dot is lit when you come back. Tap anywhere else to clear it.
+- There are no good or bad words or colours: where the dot sits says it all. Nothing on the strip or the tints moves.
+
 ## 2.15 · 1 Nov 2026
 *Things arrive and leave: sheets slide away, purchases settle in (Q11)*
 

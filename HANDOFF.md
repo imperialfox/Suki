@@ -285,7 +285,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Smart add pr
 **For your iPhone:** the Shortcut runs from Siri and the Action Button; dictation works with no signal; pasting the note keeps its line breaks.
 
 ## Q12 · Look: calendar tints and price range strip
-**Render:** 1 Nov 2026, 09:56, scope as below · **Build:** awaiting · Needs: Q15 (built first; Q08's prices row and Q10's calendar door are in by then).
+**Render:** 1 Nov 2026, 09:56, scope as below · **Build:** 1 Nov 2026, 12:46, Ivan: "Q12 Build" · shipped as 2.16 · Needs: Q08's prices row and Q10's calendar door (both live). Queued after Q15, but built first at Ivan's word: it doesn't touch the parts Q13–Q17 change (the Till, the form, Home), and they keep their order.
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Q12 prototype](https://claude.ai/artifact/NFwAtWyj5ERxgyGifutbeS) (sample spending; typical prices from Suki's list). Recon: visual audit findings 4 and 5 (Milestone B), without the week strip.
 
 **Goal:** a number next to something to compare it with, at a glance.
@@ -298,3 +298,12 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Q12 prototyp
 **Where to look:** `ui.js` (the calendar sheet), `screens.js` (itemDetail, typicalCard, paidFor), `css/app.css` (tint tokens, run through the dataviz palette check in light and dark).
 **Done when:** tests for the three steps (and the under-three-days case), the key, the picked-day look, separate bands, stacked dots, the dot–row link both ways, the label staying inside at both ends; full suite passes. **Checks:** full suite; screenshots at 375 and 402 px, light and dark.
 **For your iPhone:** whether the three tints are easy to tell apart in bright light; whether the strip reads without the key.
+**Debrief:** Built from the handoff and the prototype. Decided within scope:
+- **Tint colours changed from the prototype.** The handoff's palette check (dataviz validator, ordinal) failed the prototype's .12 / .32 / full tints: the lightest step was too close to the white card (1.14:1, floor 2:1), and on screen the top two steps looked alike. The shipped steps pass in light and dark: light goes light blue → the accent → a deeper blue; dark goes deep blue → the accent → a bright blue (dark grows brighter). The day number uses whichever ink reads best on each step. Tokens: `--tint-1/2/3`, `--tint-1-ink`, `--tint-3-ink`.
+- **Thirds** are by rank, and days with the same amount share a step (a month of equal days sits in the middle). The key and the new footnote show only in a month with spending.
+- **The strip** sits under the price rows, before the sources (the comparison next to the prices, the fine print last). Dots within about a dot's width stack (up to five levels); each dot's tap area is one level tall so stacked dots don't steal taps. Every time you paid gets a dot, though You paid lists five rows; a dot without a row still shows its label.
+- **A You paid row still opens the purchase** (it's one of Q08's four doors to it), and lights its dot, which is still lit when you come back. Tapping elsewhere clears it, except on a sheet opened over the item. A price note row lights its ring; its bin is its own tap.
+- **The label** is kept inside the strip by CSS alone (`left: x%` with `translateX(-x%)`), so nothing is measured.
+Tests: `test_compare.py` (44 checks). Full suite: 527 checks, all passing (pinned Playwright 1.56 pointed at a newer Chromium, as before). Also checked by eye: the iPad pane.
+**For your iPhone:** (1) Open the calendar on a busy month: can you tell the three blues apart in daylight, and in dark mode at night? (2) Pick a big day: it turns black (white in dark), not blue. (3) Open Jeepney or Tricycle after logging one: does the strip make sense without reading the key? (4) Tap a dot, then its row, then somewhere else: the light follows and clears. (5) Tap a You paid row, close the purchase: its dot is lit.
+**Left for later:** nothing new.

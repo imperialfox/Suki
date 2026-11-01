@@ -249,23 +249,26 @@ function sheetHTML() {
         t = localISO(),
         spent = {};
       D.purchases.forEach((p) => p.date.slice(0, 7) === m.slice(0, 7) && (spent[p.date] = (spent[p.date] || 0) + (+p.price || 0)));
+      const step = tintSteps(spent);
       let cells = '';
       for (let i = 0; i < lead; i++) cells += '<span></span>';
       for (let d = 1; d <= last; d++) {
         const iso = m.slice(0, 8) + String(d).padStart(2, '0');
         cells +=
-          '<button class="cday' + (spent[iso] ? ' has' : '') + (iso === t ? ' today' : '') + (U.calD === iso ? ' on' : '') + '" data-a="calDay" data-v="' + iso + '" aria-label="' + esc(longDate(iso)) + (spent[iso] ? ', ' + cash(spent[iso]) : '') + '"' + (U.calD === iso ? ' aria-pressed="true"' : '') + '>' + d + '</button>';
+          '<button class="cday' + (spent[iso] ? ' has t' + step[iso] : '') + (iso === t ? ' today' : '') + (U.calD === iso ? ' on' : '') + '" data-a="calDay" data-v="' + iso + '" aria-label="' + esc(longDate(iso)) + (spent[iso] ? ', ' + cash(spent[iso]) : '') + '"' + (U.calD === iso ? ' aria-pressed="true"' : '') + '>' + d + '</button>';
       }
       const day = U.calD ? D.purchases.filter((p) => p.date === U.calD).sort(byNewest) : [],
         mTotal = Object.values(spent).reduce((a, b) => a + b, 0);
       return sheetWrap(
         monthName(m),
         '<div class="calhead"><span class="small">' + (mTotal ? cash(Math.round(mTotal * 100) / 100) + ' this month' : 'Nothing logged this month') + '</span><span><button class="circ glass sm" data-a="calStep" data-v="-1" aria-label="Earlier month">' + ICON.back + '</button><button class="circ glass sm fwd" data-a="calStep" data-v="1" aria-label="Later month">' + ICON.back + '</button></span></div>' +
-          '<div class="calgrid"><div class="cdows" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div><div class="cdays">' + cells + '</div></div>' +
+          '<div class="calgrid"><div class="cdows" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div><div class="cdays">' + cells + '</div>' +
+          (mTotal ? '<div class="tkey" aria-hidden="true">Less <i class="t1"></i><i class="t2"></i><i class="t3"></i> More</div>' : '') +
+          '</div>' +
           (U.calD
             ? hdr(dayHeading(U.calD), day.length ? '<span class="hint">' + cash(sum(day)) + '</span>' : '') +
               (day.length ? '<div class="grp tiled">' + day.map((p) => purchaseRow(p, { push: true, meta: p.location || p.venue || p.category })).join('') + '</div>' : '<div class="grp"><div class="empty">Nothing logged on this day.</div></div>')
-            : '<p class="foot">Tap a day to see what you bought.</p>') +
+            : '<p class="foot">' + (mTotal ? 'Stronger days are the ones you spent more on, compared with the rest of this month. ' : '') + 'Tap a day to see what you bought.</p>') +
           // a picked day (today or earlier) can be logged on, with its date filled in; saving comes back here (Q08)
           (U.calD && U.calD <= t
             ? '<div class="grp tiled spaced"><button class="row more" data-a="newPurchase" data-v="' + U.calD + '"><span class="lbl">Log a purchase on ' + (U.calD === t ? 'today' : esc(shortDate(U.calD))) + '</span>' + ICON.chev + '</button></div>'

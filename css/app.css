@@ -24,6 +24,15 @@
   --spec: rgba(255, 255, 255, 0.55);
   --tint: rgba(0, 122, 255, 0.82);
   --hl: rgba(0, 122, 255, 0.12);
+  /* the calendar's three spending steps and the price range strip's typical band (Q12): one hue, light to strong,
+     checked with the dataviz palette validator (ordinal) against the surface, light and dark. Light grows darker,
+     dark grows brighter; each step's ink is the one that reads best on it (APCA) */
+  --tint-1: rgba(0, 122, 255, 0.55);
+  --tint-2: var(--sys-blue);
+  --tint-3: #0046b0;
+  --tint-1-ink: var(--fg);
+  --tint-3-ink: var(--on-accent);
+  --band: rgba(0, 122, 255, 0.22);
   --glass-shadow: rgba(20, 20, 40, 0.15);
   --scrim: rgba(0, 0, 0, 0.22);
   --warnbg: #fff4e5;
@@ -84,6 +93,12 @@
     --spec: rgba(255, 255, 255, 0.16);
     --tint: rgba(10, 132, 255, 0.78);
     --hl: rgba(10, 132, 255, 0.24);
+    --tint-1: rgba(10, 132, 255, 0.5);
+    --tint-2: var(--sys-blue);
+    --tint-3: #64b5ff;
+    --tint-1-ink: var(--on-accent);
+    --tint-3-ink: var(--bg);
+    --band: rgba(10, 132, 255, 0.32);
     --glass-shadow: rgba(0, 0, 0, 0.55);
     --scrim: rgba(0, 0, 0, 0.5);
     --warnbg: #3a2a12;
@@ -1284,6 +1299,125 @@ a.row:active {
 .logit {
   margin-top: 12px;
 }
+/* the price range strip (Q12): bands for the typical prices, dots for what you paid, rings for price notes.
+   Nothing on it animates: a lit dot, its row and its label change at once. */
+.strip {
+  padding: 12px 0 2px;
+  border-bottom: 0.5px solid var(--sep);
+}
+.strip .track {
+  position: relative;
+  margin: 0 8px;
+}
+.strip .line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--fill2);
+}
+.strip .band {
+  position: absolute;
+  bottom: 6px;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--band);
+}
+.sdot {
+  position: absolute;
+  width: 30px;
+  margin-left: -15px;
+  padding: 0;
+}
+.sdot i {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--down, 0px) - 1px);
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2.5px var(--surface);
+}
+.sdot.s-note i {
+  background: var(--surface);
+  border: 2.5px solid var(--accent);
+}
+.sdot.on {
+  z-index: 2;
+}
+.sdot.on i {
+  transform: scale(1.35);
+}
+.slabel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 100%;
+  transform: translateX(calc(-1 * var(--x, 0%)));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 13px;
+  line-height: 24px;
+  padding: 0 10px;
+  border-radius: 10px;
+  pointer-events: none;
+  visibility: hidden;
+}
+.slabel.on {
+  visibility: visible;
+}
+.strip .axis {
+  display: flex;
+  justify-content: space-between;
+  margin: 4px 8px 0;
+  font-size: 12px;
+  color: var(--fg2);
+  font-variant-numeric: tabular-nums;
+}
+.skey {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 8px 0 8px;
+  font-size: 13px;
+  color: var(--fg2);
+}
+.skey span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.skey i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.skey .kband {
+  width: 22px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--band);
+}
+.skey .kpaid {
+  background: var(--accent);
+}
+.skey .knote {
+  border: 2px solid var(--accent);
+}
+.row.lit,
+.row.lit:active {
+  background: var(--hl);
+}
+[data-dot]:not(.sdot):not(button) {
+  cursor: pointer;
+}
 /* ===== Quick Till ===== */
 .denoms {
   margin-top: 12px;
@@ -2421,16 +2555,56 @@ h1 .chev {
   font-variant-numeric: tabular-nums;
 }
 .cday.has {
-  background: var(--hl);
-  color: var(--accent);
   font-weight: 600;
+}
+/* spending in three steps, by thirds of the month's spending days (Q12) */
+.cday.t1 {
+  background: var(--tint-1);
+  color: var(--tint-1-ink);
+}
+.cday.t2 {
+  background: var(--tint-2);
+  color: var(--on-accent);
+}
+.cday.t3 {
+  background: var(--tint-3);
+  color: var(--tint-3-ink);
 }
 .cday.today {
   box-shadow: inset 0 0 0 1.5px var(--fg);
 }
-.cday.on {
-  background: var(--accent);
-  color: var(--on-accent);
+.cday.has.today {
+  box-shadow: inset 0 0 0 1.5px var(--fg), inset 0 0 0 3px var(--surface);
+}
+/* a picked day is solid ink, so it never reads as a big day */
+.cday.on,
+.cday.has.on {
+  background: var(--fg);
+  color: var(--bg);
+  box-shadow: none;
+}
+.tkey {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin: 10px 6px 0;
+  font-size: 12px;
+  color: var(--fg2);
+}
+.tkey i {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+.tkey .t1 {
+  background: var(--tint-1);
+}
+.tkey .t2 {
+  background: var(--tint-2);
+}
+.tkey .t3 {
+  background: var(--tint-3);
 }
 .morerows {
   margin-top: 12px;

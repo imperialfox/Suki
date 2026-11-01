@@ -276,7 +276,33 @@ const freshU = () => ({
   item: null, // iPad and Mac: the catalogue item shown beside the results
   more: false, // Home: "More details" open
   obsFor: null, // the item whose "Add a price note" form is open
+  dot: null, // the item sheet's price range strip: the lit dot and row ('paid:<id>' or 'note:<id>'), or null (Q12)
   till: { bill: '', cash: '' },
   conv: { gbp: '100', php: '', last: 'gbp', top: 'gbp' }, // top: which currency you type into first (the swap button flips it)
 });
 let U = freshU();
+
+/* ===== Calendar tints (Q12) =====
+   A month's spending days in three steps, by thirds of that month's days ranked by amount: the lightest third is 1,
+   the strongest is 3. Days with the same amount share a step (their average rank), so a month of equal days sits in
+   the middle. Fewer than three days are too few to compare, so they all get the middle step. */
+function tintSteps(spent) {
+  const days = Object.keys(spent).filter((d) => spent[d] > 0),
+    n = days.length,
+    out = {};
+  if (n < 3) {
+    days.forEach((d) => (out[d] = 2));
+    return out;
+  }
+  const c = (d) => Math.round(spent[d] * 100),
+    sorted = days.slice().sort((a, b) => c(a) - c(b));
+  for (let i = 0; i < n; ) {
+    let j = i;
+    while (j + 1 < n && c(sorted[j + 1]) === c(sorted[i])) j++;
+    const rank = (i + j) / 2;
+    for (let k = i; k <= j; k++) out[sorted[k]] = 1 + Math.min(2, Math.floor((rank * 3) / n));
+    i = j + 1;
+  }
+  return out;
+}
+

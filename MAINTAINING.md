@@ -157,6 +157,18 @@ The rule: one place per thing, with several doors to it, and every door opens th
 - **Home's Save button** shows "✓ Saved" (`#homeSave.saved`, `savedTick()` / `savedPop()` in `events.js`) for 1.4 s (× slow motion), with or without motion; `saveBtn()` in `screens.js` keeps it through a redraw.
 - **Undo on "Purchase saved"** is `undoSave(id)`: it removes that purchase, saves and says "Purchase removed".
 
+## Calendar tints and the price range strip (Q12)
+
+The rule: a number next to something to compare it with. No good or bad words or colours, and nothing here animates.
+
+- **Tints:** `tintSteps(spent)` in `helpers.js` ranks a month's spending days by amount and gives each a step 1–3 by thirds (`t1`/`t2`/`t3` on `.cday`, beside `has`). Days with the same amount share their average rank, so equal days sit together; fewer than three days all get step 2. The calendar sheet (`ui.js`) adds the `.tkey` ("Less ● ● ● More", hidden from VoiceOver, since each day's label keeps its amount) and the footnote only when the month has spending.
+- **Colours:** `--tint-1/2/3` with `--tint-1-ink` and `--tint-3-ink` (the day number on each step), and `--band` for the strip. Light grows darker (`--tint-3` is a deeper blue than the accent), dark grows brighter. They passed the dataviz palette validator as an ordinal ramp against the surface in both modes (the prototype's softer .12/.32 tints failed its light-end check and their top two steps looked alike), and each ink is the one with the better APCA score. Change them together and re-run it.
+- **A picked day** is `.cday.on`: solid `--fg` with `--bg` text and no outline, so it never reads as a big day.
+- **The strip:** `priceStrip(rows, paid, obs)` in `screens.js`, passed into `typicalCard(id, strip)` and drawn under the price rows, before the sources. Only when the item has a typical price and at least one purchase or price note. One `.band` per typical row (5 px wider each side, so an exact price is a small pill); `.sdot.s-paid` and `.sdot.s-note` buttons (not `.paid`/`.note`: `.note` is a paragraph style). Dots within about a dot's width (3% of the strip) stack upwards 12 px a level, up to 5 levels; each dot's tap area is one level tall, with the top of a stack reaching up and the bottom down, so stacked dots don't steal each other's taps. The axis rounds to 5, 10, 50, 100, 500 or 1,000 depending on size.
+- **Dot and row:** `U.dot` is `'paid:<id>'` or `'note:<id>'`. `ACT.pickDot` toggles a dot; a capture-phase click listener in `events.js` lights a row's dot (`data-dot` on You paid rows and price note rows; a button inside the row, like the bin, is its own tap) and clears it on any other tap, except while another sheet is open over the item (the purchase, deleting a note), so coming back finds it lit. `showDot()` changes only classes and the label in place, so nothing moves under the finger. `openItem` resets it.
+- **The label** (`.slabel`) is placed with `left: x%` and `translateX(-x%)`, which keeps it inside the strip at any position without measuring. Long text ends in an ellipsis.
+- Left out: the Home week strip (Spending's week chart already shows it), a strip on Search rows, budgets.
+
 ## Backups
 
 A backup is a JSON file: a plain-English `README`, `app: 'Suki'`, `schemaVersion: 1`, `appVersion`, `exportedAt`, `device`, `purchases`, `observations` and `rate`. Backups from 2.0 (without `README`, `appVersion` or `device`) still restore. Files are named `Suki backup · YYYY-MM · Device.json`.
@@ -190,6 +202,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 | `test_flows.py` | Logging (with errors and the draft), Spending (chips, filter, days, details, edit, delete, swipe, CSV), Quick Till, Convert, Search and price notes, Settings, empty states |
 | `test_doors.py` | Q08's doors: Home's two figures, Spending's +, logging on a calendar day, a purchase's prices row (whole words only, and on iPad), the old-rate link, Price notes' links to Search, Search's Log row and Settings rows that open things |
 | `test_search.py` | Q09: Prices, In your purchases (three rows, Show all with the same count in Spending), In your price notes, every word in any order (Search and Spending's filter), no match only when nothing of his matches, the notes row on All, the placeholder, screenshots at 375 px light and dark |
+| `test_compare.py` | Q12: the calendar's three tints (thirds, under three days, equal days), the key and footnote, the picked day in solid ink, today's outline; the price range strip's bands, dots, rings, stacking, axis and key, the dot–row link both ways (and back from a purchase), clearing, the label inside at both ends at 375 px, nothing animating, no strip with nothing to compare; screenshots at 375 and 402 px, light and dark |
 | `test_motion.py` | Q11, with motion on: a closing sheet is still on screen mid-way and gone after, by ✕, Escape, the dim, Cancel and dragging down; back to the sheet underneath with no second rise; two quick closes; taps go through a leaving sheet; new rows settle in and the rows below move; a deleted row shrinks away and Undo settles it back; Home's Saved and Undo; iPad's shrink and Reduce Motion's fades; tabs, Settings and Convert stay still; frames at 4× slow motion, light and dark |
 | `test_timedoors.py` | Q10: the period label opening the calendar for each range (and a picked day or week), the picked bar narrowing the list with its line and way back, the pick kept when opening a purchase (✕, tapping outside, and the iPad pane), the filter's ✕ and Export as CSV working first time with a day picked, the Help row, screenshots at 375 px light and dark |
 | `test_data.py` | Older and damaged data, the backup reminder, export, erase, restore (good, damaged, other and 2.0 files), the rate failing, and updating from the real Suki 2.0 |
@@ -216,6 +229,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 - On 31 Oct and 1 Nov 2026 the suite was run locally against a newer Chromium (the pinned Playwright 1.56.0 pointed at it), because 1.56's own browser couldn't be downloaded there. GitHub's run uses the pinned one.
 - Rows and headers only move when they're on screen, so a motion test must scroll the list into view first (Spending's list starts below the chart at 844 px tall), and keep clear of the tab bar.
 - Don't name a class `gap`: it's the 16px spacer in the restore sheet, so `.grp.gap` collapses to 16px. Use `.grp.spaced` for a group with space above it.
+- Don't name a class `note` or reuse it on a new element: `.note` is a paragraph style with a bottom margin (it shifted the strip's rings up 16 px until they became `.s-note`).
 
 ## Style
 

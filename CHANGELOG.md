@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.14 · 1 Nov 2026
+*Spending: the date opens the calendar, and a picked bar narrows the list (Q10)*
+
+**Spending**
+- The period under the total ("This week", "October", "Since 23 Oct", "Today") is now blue, with a small calendar. Tap it to open the calendar on that month. On D, or with a day's bar picked, that day is already picked.
+- Tapping a bar now narrows the list to that day (or week) too, so the total and the list always say the same thing. A line says "Showing Yesterday only", with a button back to the whole period ("Show this week", "Show all of November").
+- Opening a purchase from that narrowed list keeps the day picked, so closing it brings you back to the same view. Tapping anywhere else goes back to the whole period, as before.
+- With a day picked, the filter's ✕ and Export as CSV work first time: the list widens just after the tap, so nothing jumps away from under your finger.
+
+**Help**
+- Hidden gestures lists "Tap Home's title", which opens the calendar (Spending's date does too).
+
 ## 2.13 · 1 Nov 2026
 *Search finds what you've logged, not only prices (Q09)*
 

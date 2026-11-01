@@ -493,7 +493,8 @@ function spendSummary(list) {
     '<div class="tot"><span class="big">' + cash(total) + '</span>' + (D.rate && total ? '<span class="gb">≈ ' + gbp(total / D.rate.value) + '</span>' : '') + '</div>' +
     '<div class="perline">' +
     (canBack ? '<button class="pstep" data-a="rangeStep" data-v="1" aria-label="Earlier">‹</button>' : '') +
-    '<span class="plabel">' + esc(pick ? barLabel(pick, bs.weekly) : per.label) + '</span>' +
+    // the period's name is a door to the calendar on that month (Q10)
+    '<button class="plabel cal" data-a="calFromSpend" aria-label="' + esc(pick ? barLabel(pick, bs.weekly) : per.label) + '. Open the calendar"><span class="pt">' + esc(pick ? barLabel(pick, bs.weekly) : per.label) + '</span>' + ICON.cal + '</button>' +
     (canBack ? '<button class="pstep" data-a="rangeStep" data-v="-1" aria-label="Later"' + (canFwd ? '' : ' disabled') + '>›</button>' : '') +
     '<span class="avg">' + (avg ? cash(avg).replace(/\.\d\d$/, '') + ' a day' : plural(pick ? list.filter((p) => p.date >= pick.from && p.date <= pick.to).length : list.length, 'purchase')) + '</span></div>' +
     spendChart(bs)
@@ -524,11 +525,35 @@ function spendBreakdown() {
     '</div>'
   );
 }
+// the bar picked on the chart, if any: {b, weekly}
+function pickedBar(list) {
+  if (U.bar == null) return null;
+  const bs = buckets(list, period());
+  return bs[U.bar] ? { b: bs[U.bar], weekly: bs.weekly } : null;
+}
+// "Show this week", "Show all of October", "Show all since 23 Oct": back to the whole period from a picked bar
+function wholePeriod() {
+  const per = period(),
+    off = U.roff || 0;
+  if (U.range === 'week') return off === 0 ? 'Show this week' : off === 1 ? 'Show last week' : 'Show the whole week';
+  if (U.range === 'month') return 'Show all of ' + per.label;
+  return 'Show ' + per.label.replace(/^Since/, 'all since');
+}
 function spendRows(list) {
   if (!D.purchases.length) return '<div class="grp"><div class="empty">Purchases you log on Home appear here.</div></div>';
+  // a picked bar narrows the list to that day (or week), so the headline and the list say the same thing (Q10)
+  const pk = pickedBar(list);
+  let pickLine = '';
+  if (pk) {
+    pickLine =
+      '<div class="pickline" id="pickLine"><span>Showing ' + esc(pk.weekly ? 'the week of ' + shortDate(pk.b.from) : dayHeading(pk.b.from)) + ' only</span>' +
+      '<button class="tbtn" data-a="clearBar">' + esc(wholePeriod()) + '</button></div>';
+    list = list.filter((p) => p.date >= pk.b.from && p.date <= pk.b.to);
+  }
   if (!list.length)
     return (
-      '<div class="grp"><div class="empty">' + (U.cat !== 'all' || U.filter ? 'No purchases match.' : 'Nothing spent ' + (U.range === 'day' ? 'on this day.' : 'in this period.')) +
+      pickLine +
+      '<div class="grp"><div class="empty">' + (U.cat !== 'all' || U.filter ? 'No purchases match.' : 'Nothing spent ' + (U.range === 'day' || (pk && !pk.weekly) ? 'on this day.' : pk ? 'in this week.' : 'in this period.')) +
       (U.cat !== 'all' || U.filter ? ' <button class="tbtn inline" data-a="clearFilters">Show all</button>' : '') + '</div></div>'
     );
   // the newest SHOW_STEP purchases are drawn, then a "Show more" row, so a long trip (or several) stays quick (Q03)
@@ -543,6 +568,7 @@ function spendRows(list) {
   });
   const left = list.length - shown.length;
   return (
+    pickLine +
     days
       .map(
         (d) =>

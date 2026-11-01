@@ -132,14 +132,46 @@ function chartPick(e) {
   if (U.bar === i && e.type === 'pointerdown') return (chartDrag.clear = true);
   if (U.bar === i) return;
   U.bar = i;
-  const list = spendingList();
-  $('spendSum').innerHTML = spendSummary(list);
+  barChanged();
+}
+// the headline and the list follow the picked bar together (Q10); the list fades back in so the change is seen
+function barChanged() {
+  const list = spendingList(),
+    s = $('spendSum'),
+    l = $('spendList');
+  if (s) s.innerHTML = spendSummary(list);
+  if (!l) return;
+  l.innerHTML = spendRows(list);
+  MOTION.animate(l, [{ opacity: 0.35 }, { opacity: 1 }], { ms: 180, easing: 'ease-out' });
+}
+// tapping anywhere else clears the picked bar, except the headline, a sheet, a purchase in the narrowed list
+// (or Show more under it) and the purchase's details beside the list on iPad and Mac (Q10)
+const KEEPS_BAR = '#spendSum, #layer, .sheet, #spendList .tiled, #spendList .morerows, .split .pane';
+// the headline goes back at once; the list widens only once the tap has landed, so whatever was tapped
+// (the filter's ✕, Export as CSV under the list) doesn't jump away from under the finger
+let widenT = null;
+function widenListSoon() {
+  const s = $('spendSum');
+  if (s) s.innerHTML = spendSummary(spendingList());
+  const run = () => {
+    clearTimeout(widenT);
+    document.removeEventListener('click', later);
+    const l = $('spendList');
+    if (U.bar != null || !l || !$('pickLine')) return;
+    l.innerHTML = spendRows(spendingList());
+    MOTION.animate(l, [{ opacity: 0.35 }, { opacity: 1 }], { ms: 180, easing: 'ease-out' });
+  };
+  const later = () => setTimeout(run, 0);
+  clearTimeout(widenT);
+  document.addEventListener('click', later, { once: true });
+  // a scroll or a long press sends no click
+  widenT = setTimeout(run, 700);
 }
 document.addEventListener('pointerdown', (e) => {
   if (!e.target.closest('#chart')) {
-    if (U.bar != null && U.tab === 'spending' && !e.target.closest('#spendSum,.sheet')) {
+    if (U.bar != null && U.tab === 'spending' && !e.target.closest(KEEPS_BAR)) {
       U.bar = null;
-      if ($('spendSum')) $('spendSum').innerHTML = spendSummary(spendingList());
+      widenListSoon();
     }
     return;
   }
@@ -155,7 +187,7 @@ const chartUp = (e) => {
   if (!chartDrag || e.pointerId !== chartDrag.id) return;
   if (chartDrag.clear) {
     U.bar = null;
-    if ($('spendSum')) $('spendSum').innerHTML = spendSummary(spendingList());
+    barChanged();
   }
   chartDrag = null;
 };
@@ -506,6 +538,22 @@ const ACT = {
   calDay: (el) => {
     U.calD = U.calD === el.dataset.v ? null : el.dataset.v;
     rerender();
+  },
+  // Spending's period label opens the calendar on that period's month (Q10): All on this month, D and a picked day
+  // with that day picked. The picked bar stays, so closing the calendar comes back to the same view.
+  calFromSpend: () => {
+    const per = period(),
+      t = localISO(),
+      pk = pickedBar(spendingList()),
+      day = U.range === 'day' ? per.from : pk && !pk.weekly ? pk.b.from : null,
+      at = day || (pk ? pk.b.from : U.range === 'all' || per.to > t ? t : per.to);
+    U.calM = (at > t ? t : at).slice(0, 8) + '01';
+    U.calD = day;
+    openSheet('calendar');
+  },
+  clearBar: () => {
+    U.bar = null;
+    barChanged();
   },
   clearFilter: () => {
     U.filter = '';

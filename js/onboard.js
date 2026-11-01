@@ -201,6 +201,7 @@ function scrHelp() {
     ['download', 'Pull down', 'On Home or Spending, to refresh'],
     ['back', 'Swipe a purchase left', 'To delete it'],
     ['chevdown', 'Drag a sheet down by its top', 'To close it'],
+    ['cal', 'Tap Home’s title', 'To open the calendar (Spending’s date does too)'],
   ];
   return (
     '<h1>Help</h1>' +

@@ -113,6 +113,7 @@ const ICON = {
   help: GL('<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2-2.4 3.6M12 17h.01"/>'),
   access: GL('<circle cx="12" cy="4.8" r="1.6"/><path d="M5 8.5c2.4.8 4.7 1.2 7 1.2s4.6-.4 7-1.2M12 9.7v4.3M12 14l-3 6.5M12 14l3 6.5"/>'),
   tag: GL('<path d="M3.5 12V4.5a1 1 0 0 1 1-1H12l8.5 8.5-8.5 8.5z"/><circle cx="8" cy="8" r="1.4"/>'),
+  cal: GL('<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8 3v4M16 3v4"/>'),
 };
 
 /* ===== Category tiles =====

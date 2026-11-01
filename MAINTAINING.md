@@ -137,6 +137,15 @@ The rule: one place per thing, with several doors to it, and every door opens th
 - Rows reuse `purchaseRow()` and open the same purchase and item sheets as everywhere else.
 - Left out: the search circle beside the tab bar (still an idea).
 
+## Time doors on Spending (Q10)
+
+- **The period label** in `spendSummary()` is a button (`.plabel.cal`, `ACT.calFromSpend`) with `ICON.cal`. It opens the same calendar sheet as Home's title: on that period's month (All and this week: this month; never a month in the future), with the day picked for D or a picked day bar (`U.calD`). A picked week bar opens its Monday's month with no day picked. The picked bar stays, so closing the calendar comes back to the same view.
+- **A picked bar narrows the list:** `spendRows()` filters to `pickedBar()` and starts with `#pickLine` ("Showing Yesterday only", the week of … for weekly bars) and a `clearBar` button whose words come from `wholePeriod()` ("Show this week", "Show all of November", "Show all since 23 Oct"). Anything that changes `U.bar` must redraw both `#spendSum` and `#spendList`: use `barChanged()`.
+- **What keeps the pick:** `KEEPS_BAR` in `events.js`: the headline card, any sheet (and its scrim), a purchase row or Show more in the list, and the details pane on iPad and Mac. Any other tap clears it, as before Q10.
+- **Clearing from a tap outside** (`widenListSoon()`) redraws the headline at once but widens the list only after the click lands (or 700 ms with no click, for a scroll). Widening on pointerdown moved whatever was below the list (Export as CSV) or, near the bottom of the page, above it (the filter's ✕) before the click landed, so the tap was lost.
+- Help › Hidden gestures lists "Tap Home's title" (`scrHelp()` in `onboard.js`).
+- Left out: a calendar tab, changing what the chart shows.
+
 ## Backups
 
 A backup is a JSON file: a plain-English `README`, `app: 'Suki'`, `schemaVersion: 1`, `appVersion`, `exportedAt`, `device`, `purchases`, `observations` and `rate`. Backups from 2.0 (without `README`, `appVersion` or `device`) still restore. Files are named `Suki backup · YYYY-MM · Device.json`.
@@ -170,6 +179,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 | `test_flows.py` | Logging (with errors and the draft), Spending (chips, filter, days, details, edit, delete, swipe, CSV), Quick Till, Convert, Search and price notes, Settings, empty states |
 | `test_doors.py` | Q08's doors: Home's two figures, Spending's +, logging on a calendar day, a purchase's prices row (whole words only, and on iPad), the old-rate link, Price notes' links to Search, Search's Log row and Settings rows that open things |
 | `test_search.py` | Q09: Prices, In your purchases (three rows, Show all with the same count in Spending), In your price notes, every word in any order (Search and Spending's filter), no match only when nothing of his matches, the notes row on All, the placeholder, screenshots at 375 px light and dark |
+| `test_timedoors.py` | Q10: the period label opening the calendar for each range (and a picked day or week), the picked bar narrowing the list with its line and way back, the pick kept when opening a purchase (✕, tapping outside, and the iPad pane), the filter's ✕ and Export as CSV working first time with a day picked, the Help row, screenshots at 375 px light and dark |
 | `test_data.py` | Older and damaged data, the backup reminder, export, erase, restore (good, damaged, other and 2.0 files), the rate failing, and updating from the real Suki 2.0 |
 | `test_offline.py` | Opening and working offline, and pull to refresh finding an update that then works offline too |
 | `test_layout.py` | Every screen and sheet on iPhone (three sizes and on its side), iPad both ways and Mac, light and dark; the details pane, the sidebar, shortcuts, the tab bar clearing the end of every page, pull to refresh, and motion on and Reduce Motion |

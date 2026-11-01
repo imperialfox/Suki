@@ -159,7 +159,7 @@ Tests: `test_search.py` (35 checks): each group, Show all landing on the same si
 **Left for later:** the search circle beside the tab bar (still an idea).
 
 ## Q10 · Spending: calendar and bar doors
-**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q09 (built first). Prototype and Recon as Q08 (navigation audit findings 6 and 8).
+**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** 1 Nov 2026, 11:43 · shipped as 2.14 · Needs: Q09 (built first). Prototype and Recon as Q08 (navigation audit findings 6 and 8).
 
 **Goal:** time is easy to move through, and the screen says one thing at a time.
 **Agreed:**
@@ -168,6 +168,15 @@ Tests: `test_search.py` (35 checks): each group, Show all landing on the same si
 3. **Help › Hidden gestures** adds "Tap Home's title · To open the calendar (Spending's date does too)".
 **Out of scope:** a calendar tab, changing what the chart shows.
 **Done when:** tests for the label door per range, the narrowed list, the kept pick and the Help row; full suite passes. **Checks:** full suite.
+**Debrief:** Built from the handoff and the prototype's Q10 layer. Decided within scope:
+- **With a day's bar picked,** the label reads that day, so its door opens the calendar with that day picked (as D does). A picked week opens on its Monday's month. The pick stays, so closing the calendar comes back to the same view.
+- **The way back names the period properly:** "Show this week", "Show last week", "Show all of November", "Show all since 23 Oct". The prototype lowercased the whole label ("show october").
+- **What keeps the pick:** a purchase row or Show more in the list, any sheet including tapping outside it to close, and the details pane on iPad and Mac (otherwise tapping Edit beside the list would have widened it).
+- **Fixed on the way:** with a day picked, the list widened the moment a finger touched anything else, so the filter's ✕ (near the bottom of the page) and Export as CSV (under the list) jumped away and the tap was lost. Now the headline goes back at once and the list widens just after the tap lands.
+- An empty picked day says "Nothing spent on this day." under the line.
+Tests: `test_timedoors.py` (37 checks): the label door for All, W, an earlier week, M, D and yesterday, a picked day and a picked week; the narrowed list, its line and both ways back; the pick kept through ✕, tapping outside and the iPad pane; the filter and CSV working first time with a day picked; the Help row; no sideways scroll; screenshots at 375 px, light and dark. Full suite: 420 checks, all passing (run locally with the pinned Playwright 1.56 pointed at a newer Chromium, as before).
+**For your iPhone:** (1) On Spending, tap "This week" under the total: the calendar opens on this month. (2) Tap yesterday's bar: the list shows only yesterday, and "Show this week" brings it all back. (3) Open a purchase from that list and close it: yesterday is still picked. (4) The blue date with its little calendar reads as tappable in sunlight.
+**Left for later:** nothing new.
 
 ## Q11 · Motion: sheets and rows
 **Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q10 (built first). Prototype as Q08. Recon: visual audit findings 1–3 and 9.

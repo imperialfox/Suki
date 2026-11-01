@@ -116,7 +116,7 @@ For: Ivan, and anyone he shares Suki with on the trip · Builder: Claude · Repo
 
 
 ## Q08 · Navigation: missing doors
-**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting
+**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** 1 Nov 2026, 10:04 · shipped as 2.12.
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: 2.11 live on `main`. Prototype: [Suki prototype · Q08–Q11](https://claude.ai/artifact/FeN6KP83zyBJrWmh2465Dt) (its last script before `boot.js` is the prototype layer). Recon: project doc `suki_navigation_audit_2026-11-01.md` (findings 1–4, 9) and `suki_visual_motion_audit_2026-11-01.md` (finding 8).
 
 **Goal:** no dead ends. Every word that names a place is a door to it.
@@ -132,6 +132,13 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: 2.11 live on `m
 **Where to look:** `screens.js` (scrHome, scrSpending, purchaseDetail, staleRate, searchResults, scrSettings), `ui.js` (renderBar, sheetHTML calendar and notes), `events.js` (ACT).
 **Risks:** each new sheet opened from a sheet must return to it (push). Q07's tips still find their targets.
 **Done when:** a test per door, including the whole-word rule; full suite passes. **Checks:** full suite; screenshots at 375 and 402 px, light and dark.
+**Debrief:** Built from the prototype and the handoff, with the whole-word default (item 4). Decided within scope:
+- The whole-word rule is its own search over item names (`strictItemFor`): Suki's loose match didn't recognise "Jeepney to Cubao" or "Chickenjoy bucket" at all, so gating it would have hidden the row for the trip's most common purchases. The longest whole name wins. Aliases don't count, so "Water", "Coke" and "San Miguel" get no row yet.
+- The Home Screen row in About opens the steps sheet with ✕ (not the locked Safari version).
+- The empty Spending card is capped at phone width, so its button doesn't stretch across a Mac window.
+Tests: `test_doors.py` (42 checks) covers each door, the whole-word rule (Spaghetti, Mangoes and Banana have loose matches but no row; plurals and longer names still match) and the iPad pane. The empty-Spending check in `test_flows.py` now expects the new card and checks the chart, range switch and + appear after the first purchase. Full suite: 341 checks, all passing (offline timed out once side by side on a 2-processor machine and passed alone, a known issue). Screenshots at 375 and 402 px, light and dark, plus iPad, Mac and landscape.
+**For your iPhone:** (1) Tap the total and then Today on Home: each opens the right Spending. (2) The + beside Spending's large title feels natural. (3) Log on a past day from the calendar and land back on the calendar. (4) A jeepney purchase shows "Jeepney prices", the way you actually type it.
+**Left for later:** "You paid" still uses the loose match (quick add Recon finding 5, fixed with Q14). Safe aliases (water, beer brand names) could join the whole-word rule.
 
 ## Q09 · Search: your records in results
 **Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q08 (built first). Prototype and Recon as Q08 (navigation audit findings 5 and 7).

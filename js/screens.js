@@ -71,6 +71,7 @@ function purchaseDetail(p, inPane) {
   return (
     '<div class="dhead">' + tile(p.category, true) + '<div class="dmain"><div class="dprice">' + cash(p.price) + '</div><h3>' + esc(p.item) + '</h3></div></div>' +
     '<div class="grp">' + rows.map((r) => '<div class="row kv"><span class="k">' + r[0] + '</span><span class="v">' + esc(r[1]) + '</span></div>').join('') + '</div>' +
+    pricesRow(p) +
     (p.notes ? hdr('Notes') + '<div class="card prose">' + esc(p.notes) + '</div>' : '') +
     (inPane
       ? '<div class="actions"><button class="btn glass" data-a="editPurchase" data-k="' + esc(p.id) + '">' + ICON.pencil + 'Edit</button><button class="btn glass red" data-a="delPurchase" data-k="' + esc(p.id) + '">' + ICON.bin + 'Delete</button></div>'
@@ -78,6 +79,19 @@ function purchaseDetail(p, inPane) {
   );
 }
 
+// a purchase leads to its item's prices, opened over the purchase (Q08). Only on a whole-word match (strictItemFor).
+function pricesRow(p) {
+  const id = strictItemFor(p.item),
+    it = id && itemById(id);
+  if (!it) return '';
+  const r = priceOf(id),
+    unit = r && (r.unit || it.unit);
+  return (
+    '<div class="grp tiled spaced"><button class="row" data-a="openItem" data-k="' + esc(id) + '" data-v="push">' + tile(it.group, false, id) +
+    '<span class="lbl"><b>' + esc(it.english && it.english !== it.name ? it.english : it.name) + ' prices</b><small>' +
+    (r ? 'Usually ' + pesoRange(r.low, r.high) + (unit ? ' · ' + esc(unit) : '') : 'What you paid and your notes') + '</small></span>' + ICON.chev + '</button></div>'
+  );
+}
 function officialCard(id) {
   const rows = refsFor(id),
     R = REFS();
@@ -171,10 +185,13 @@ function scrHome() {
   const total = sum(D.purchases),
     today = sum(D.purchases.filter((p) => p.date === localISO())),
     recent = D.purchases.slice().sort(byNewest).slice(0, 4);
+  // two doors in one card: the total opens all your spending, Today opens today's (Q08)
   const dash =
-    '<button class="card sumcard' + (cash(total).length > 11 || cash(today).length > 11 ? ' long' : '') + '" data-a="tab" data-v="spending" aria-label="Total spent ' + cash(total) + '. Open Spending">' +
-    '<span class="stat"><span class="big">' + cash(total) + '</span><span class="cap">Total spent' + (D.rate && total ? ' · ≈ ' + gbp(total / D.rate.value) : '') + '</span></span>' +
-    '<span class="stat r"><span class="mid">' + cash(today) + '</span><span class="cap">Today</span></span>' + ICON.chev + '</button>' +
+    (D.purchases.length
+      ? '<div class="card sumcard doors' + (cash(total).length > 11 || cash(today).length > 11 ? ' long' : '') + '">' +
+        '<button class="stat door" data-a="toSpend" data-v="all" aria-label="Total spent ' + cash(total) + '. Open all spending"><span class="big">' + cash(total) + '</span><span class="cap">Total spent' + (D.rate && total ? ' · ≈ ' + gbp(total / D.rate.value) : '') + '<span class="cv" aria-hidden="true"> ›</span></span></button>' +
+        '<button class="stat r door" data-a="toSpend" data-v="day" aria-label="Today ' + cash(today) + '. Open today’s spending"><span class="mid">' + cash(today) + '</span><span class="cap">Today<span class="cv" aria-hidden="true"> ›</span></span></button></div>'
+      : '<div class="card sumcard static none"><span class="stat"><span class="mid">Nothing spent yet</span><span class="cap">Your total and today’s spending show here once you log something.</span></span></div>') +
     // data safety first: storage that wouldn't open, or records that couldn't be read (Q05)
     (STORE_WARN
       ? '<button class="nudge warn" data-a="exportBackup">' + ICON.upload + '<span>Suki couldn’t open its main storage on this device, so it’s saving to a smaller spot. Back up soon.</span></button>'
@@ -256,7 +273,7 @@ function staleRate() {
   const at = new Date(r.cachedAt);
   if (isNaN(at) || Date.now() - at < RATE_OLD) return '';
   const n = dayDiff(localISO(at));
-  return '<p class="foot stale" id="staleRate">Pound values use a rate from ' + (n < 7 ? n + ' days ago' : shortDate(localISO(at))) + '. Refresh it on Convert.</p>';
+  return '<p class="foot stale" id="staleRate">Pound values use a rate from ' + (n < 7 ? n + ' days ago' : shortDate(localISO(at))) + '. <button class="tlink" data-a="goRefresh">Refresh it on Convert</button></p>';
 }
 // items with a price come first, then the rest in catalogue order
 const byPriced = (a, b) => (priceOf(a.id) ? 0 : 1) - (priceOf(b.id) ? 0 : 1);
@@ -271,7 +288,9 @@ function searchResults() {
       hdr('Matches', '<span class="hint">' + plural(hits.length, 'result') + '</span>') +
       (hits.length
         ? '<div class="grp tiled">' + hits.map(itemRow).join('') + '</div>'
-        : '<div class="grp"><div class="empty"><b>No clear match</b><br>Try fewer words, another spelling or the English name' + (U.scat !== 'all' ? ', or search All' : '') + '.</div></div>') +
+        : '<div class="grp"><div class="empty"><b>No clear match</b><br>Try fewer words, another spelling or the English name' + (U.scat !== 'all' ? ', or search All' : '') + '.</div></div>' +
+          // nothing in the price list: log it instead, with the name filled in (Q08)
+          '<div class="grp tiled spaced"><button class="row more" data-a="newPurchase" data-item="' + esc(q) + '"><span class="lbl">Log “' + esc(q) + '” as a purchase</span>' + ICON.chev + '</button></div>') +
       (hits.length ? staleRate() : '')
     );
   }
@@ -498,6 +517,13 @@ const rangeSeg = () =>
   '<div class="segc" id="rangeSeg" role="group" aria-label="Period" style="--n:' + RANGES.length + ';--i:' + Math.max(0, RANGES.findIndex((r) => r[0] === U.range)) + '"><span class="knob glass" aria-hidden="true"></span>' +
   RANGES.map((r) => '<button data-a="range" data-v="' + r[0] + '" aria-label="' + r[2] + '" aria-pressed="' + (U.range === r[0]) + '">' + r[1] + '</button>').join('') + '</div>';
 function scrSpending() {
+  // nothing logged yet: no empty chart or range switch, just one calm card with the way in (Q08)
+  if (!D.purchases.length)
+    return (
+      '<h1>Spending</h1><div class="card nospend">' + '<span class="ic" aria-hidden="true">' + ICON.spending + '</span><b>No spending yet</b>' +
+      '<p>Log what you buy and it adds up here, by day and by category.</p>' +
+      '<button class="cta ink" data-a="newPurchase">Log a purchase</button></div>'
+    );
   const list = spendingList();
   const counts = {};
   spendingList(true).forEach((p) => (counts[p.category] = (counts[p.category] || 0) + 1));
@@ -597,7 +623,7 @@ function scrSettings() {
     '<div class="grp tiled set">' +
     row('upload', 'blue', 'Export a backup', 'Purchases, price notes and the saved rate', 'exportBackup') +
     row('download', 'green', 'Restore a backup', 'You’ll see what’s in it before anything changes', 'importPick') +
-    row('clock', overdue || !lb ? 'orange' : 'gray', 'Last backed up', { t: lb ? whenAgo(lb) + (overdue ? ' · over two weeks ago' : '') : 'Not backed up yet', cls: overdue ? 'red' : '' }) +
+    row('clock', overdue || !lb ? 'orange' : 'gray', 'Last backed up', { t: lb ? whenAgo(lb) + (overdue ? ' · over two weeks ago' : '') : 'Not backed up yet', cls: overdue ? 'red' : '' }, 'exportBackup') +
     '</div><p class="foot">iOS can clear a website’s data if it isn’t opened for a few weeks, so keep a recent backup in Files.</p>' +
     hdr('Your data') +
     '<div class="grp tiled set">' +
@@ -615,10 +641,10 @@ function scrSettings() {
     hdr('About') +
     '<div class="grp tiled set">' +
     row('wifi', 'teal', 'Works offline', '<span id="swStatus">' + esc(SW_STATE) + '</span>') +
-    row('peso', 'indigo', 'Saved exchange rate', D.rate ? '£1 = ' + cash(D.rate.value) + ' · ' + shortDate(D.rate.date) + '<br>From ' + esc(D.rate.source) : 'Not loaded yet') +
+    row('peso', 'indigo', 'Saved exchange rate', D.rate ? '£1 = ' + cash(D.rate.value) + ' · ' + shortDate(D.rate.date) + '<br>From ' + esc(D.rate.source) : 'Not loaded yet', 'goConvert') +
     (RATE_CHECK ? row('refresh', RATE_CHECK.ok ? 'green' : 'orange', 'Last rate check', rateCheckText()) : '') +
     row('book', 'green', 'Official prices', esc((R.source || '') + ' · ' + (R.area || '') + ' · ' + (R.period || ''))) +
-    row('phone', 'blue', 'Add to your Home Screen', 'In Safari: Share › Add to Home Screen') +
+    row('phone', 'blue', 'Add to your Home Screen', 'The steps, for a new phone', 'openAhs') +
     '<a class="row" href="https://github.com/imperialfox/Suki" target="_blank" rel="noopener">' + stile('code', 'ink') + '<span class="lbl"><b>View on GitHub</b></span>' + ICON.out + '</a>' +
     '</div>' +
     '<p class="ver">Suki ' + APP_VERSION + ' · ' + RELEASE_DATE + '</p>'

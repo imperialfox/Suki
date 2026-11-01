@@ -13,7 +13,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q05 | Data: keep your data safe | Shipped · 2.9 | none (wireframe skipped by Ivan) | Light to medium. From the stress test, A2 |
 | Q06 | Tidy-ups: amounts, backup values, rate timeout, long totals | Shipped · 2.10 | none (wireframe skipped by Ivan) | Light. From the stress test, A3 |
 | Q07 | Onboarding: welcome card, tips and Help | Shipped · 2.11 | [Onboarding prototype](https://claude.ai/artifact/FHaHJmMntjWM9eeDrrDkN9) | Medium. Builds after Q06, as 2.11 |
-| Q08 | Navigation: missing doors | Approved — awaiting Build | [Q08–Q11 prototype](https://claude.ai/artifact/FeN6KP83zyBJrWmh2465Dt) | Light to medium. From the navigation audit (A) and visual audit finding 8 |
+| Q08 | Navigation: missing doors | Shipped · 2.12 | [Q08–Q11 prototype](https://claude.ai/artifact/FeN6KP83zyBJrWmh2465Dt) | Light to medium. From the navigation audit (A) and visual audit finding 8 |
 | Q09 | Search: your records in results | Approved — awaiting Build | same | Medium. Navigation audit (B). After Q08 |
 | Q10 | Spending: calendar and bar doors | Approved — awaiting Build | same | Light. Navigation audit (C). After Q09 |
 | Q11 | Motion: sheets and rows | Approved — awaiting Build | same | Medium. Visual audit (A). After Q10 |
@@ -28,7 +28,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 
 **Render:** 31 Oct 2026, 23:20 · Ivan: "render" · scope: Q07 exactly as written in HANDOFF.md, built after Q06 (2.11). **Build:** 1 Nov 2026, Ivan: "build q07 - onboarding" · shipped as 2.11.
 
-**Render:** 1 Nov 2026, 08:26 · Ivan: "render" · scope: Q08, Q09, Q10, Q11 and Q16 exactly as written in HANDOFF.md and as prototyped, built in that order (each takes the next version when it lands). Q12–Q15 are not rendered.
+**Render:** 1 Nov 2026, 08:26 · Ivan: "render" · scope: Q08, Q09, Q10, Q11 and Q16 exactly as written in HANDOFF.md and as prototyped, built in that order (each takes the next version when it lands). Q12–Q15 are not rendered. **Build (Q08):** 1 Nov 2026, 10:04, Ivan: "Build Q08" · shipped as 2.12.
 
 **Render:** 1 Nov 2026, 09:33 · Ivan: "im happy to render but queue the[m] as two seperate items" · scope: Q17 and Q14 exactly as written in HANDOFF.md and as prototyped, built after Q16, Q17 first (*default*: the light one first, so it can land before the 7 Nov trip). Q12, Q13 and Q15 are not rendered.
 

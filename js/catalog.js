@@ -142,6 +142,36 @@ function itemFor(text) {
   return (matchCache[k] = h && score(h, k) >= 70 ? h.id : null);
 }
 
+// the stricter match behind a purchase's "… prices" row (Q08): the item's name or English name must appear in what
+// you typed as whole words, plurals allowed ("Jeepney to Cubao", "Fish balls"), so a loose match like
+// Spaghetti → Massage or Mango → Mang Inasal never offers the wrong prices. "You paid" keeps the looser itemFor.
+const plainWord = (w) => (w.length > 4 && w.endsWith('es') ? w.slice(0, -2) : w.length > 3 && w.endsWith('s') ? w.slice(0, -1) : w);
+function wholeWords(text, name) {
+  const t = norm(text).split(' ').filter(Boolean).map(plainWord),
+    n = norm(name).split(' ').filter(Boolean).map(plainWord);
+  if (!n.length || n.length > t.length) return false;
+  for (let i = 0; i + n.length <= t.length; i++) if (n.every((w, j) => t[i + j] === w)) return true;
+  return false;
+}
+// the item whose name or English name appears whole in the text; the longest name wins ("Laundry detergent" over "Laundry")
+const strictCache = {};
+function strictItemFor(text) {
+  const k = norm(text);
+  if (k in strictCache) return strictCache[k];
+  let best = null,
+    bestLen = 0;
+  CATALOG.forEach((it) =>
+    [it.name, it.english].forEach((n) => {
+      const len = norm(n).length;
+      if (len > bestLen && wholeWords(k, n)) {
+        best = it.id;
+        bestLen = len;
+      }
+    })
+  );
+  return (strictCache[k] = best);
+}
+
 /* ===== Fuzzy search =====
    Exact names and spellings score highest, then names containing what you typed, then word-by-word likeness,
    so misspellings ("sinigan"), mixed languages and phrases like "1 kilo bigas" still find the right item. */

@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.12 · 1 Nov 2026
+*No dead ends: every place named is a door to it (Q08)*
+
+**Home**
+- The summary card is two doors: tap the total for all your spending, or Today for today's.
+- With nothing logged, it says "Nothing spent yet" instead of two zeros.
+
+**Logging from anywhere**
+- Spending has a + in its top bar that opens the same Log sheet as Quick Till's "Log this bill".
+- In the calendar, a day you've picked (today or earlier) has "Log a purchase on 28 Oct", with that date filled in. Saving takes you back to the calendar.
+- Search with no match offers "Log … as a purchase", with the name filled in and the cursor in the amount.
+- With nothing logged, Spending shows one card and a Log a purchase button, not an empty chart.
+
+**From a purchase to its prices**
+- A purchase that names a catalogue item, like "Jeepney to Cubao", shows "Jeepney prices · Usually ₱14–17 · first 4 km". It opens the item over the purchase.
+- It only shows when the item's name appears as whole words, so a spaghetti purchase never offers massage prices.
+
+**Words that are doors**
+- "Refresh it on Convert" (under Search when the rate is old) opens Convert and refreshes.
+- Price notes link to Search when they're empty, and in their footer.
+- In Settings, Last backed up opens Export a backup, Saved exchange rate opens Convert, and Add to your Home Screen opens the steps.
+
 ## 2.11 · 1 Nov 2026
 *Getting started, without a tour (Q07)*
 

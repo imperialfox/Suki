@@ -453,6 +453,35 @@ const ACT = {
     U.shown = SHOW_STEP;
     spendingChanged(step);
   },
+  // Q08 · doors: Home's two figures, one Log sheet from many places, and words that name a place
+  toSpend: (el) => {
+    Object.assign(U, { range: el.dataset.v === 'day' ? 'day' : 'all', roff: 0, bar: null, cat: 'all', filter: '', shown: SHOW_STEP });
+    go('spending');
+  },
+  // the same Log sheet as Quick Till's "Log this bill": data-v sets the date (a calendar day), data-item the name
+  newPurchase: (el) => {
+    const item = el.dataset.item || '',
+      date = isoDate(el.dataset.v) || localISO();
+    F.edit = { item, price: '', category: 'Food & drink', date, payment: 'Cash' };
+    openSheet('edit', {}, !!U.sheet);
+    if (item)
+      setTimeout(() => {
+        const p = $('edit-price');
+        if (p) p.focus({ preventScroll: true });
+      }, 80);
+  },
+  goRefresh: () => {
+    go('convert');
+    refreshRate(true);
+  },
+  goConvert: () => go('convert'),
+  goSearch: () => {
+    U.stack = [];
+    U.sheet = null;
+    U.sd = {};
+    U.obsFor = null;
+    go('search');
+  },
   calendar: () => {
     const t = localISO();
     U.calM = t.slice(0, 8) + '01';

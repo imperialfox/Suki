@@ -117,6 +117,17 @@ Following Apple's onboarding guidance: no tour, one welcome card, tips next to w
 - **Help** is its own screen (`U.tab = 'help'`), pushed from Settings.
 - The tests' harness marks onboarding as seen (tips off) unless `test:fresh` is set, so it never gets in the way of other tests.
 
+## Doors (Q08)
+
+The rule: one place per thing, with several doors to it, and every door opens the same sheet or page. Any text that names a place is a door to that place. Add a door, not a new choice.
+
+- **One Log sheet:** `ACT.newPurchase` opens the `edit` sheet for a new purchase. `data-v` sets the date (a calendar day) and `data-item` the name (Search with no match, with the cursor put in the amount). It's pushed over any open sheet, so saving goes back to it (the calendar). Its doors: Spending's + (`renderBar`, only with purchases), a picked calendar day up to today, Search with no match, and empty Spending's button. Quick Till's "Log this bill" and an item's "Log what you paid" open the same sheet with their own actions.
+- **Home's card** is a `div.sumcard.doors` holding two buttons (`ACT.toSpend`, `data-v` `all` or `day`). They reset the range, category, filter and picked bar. With nothing logged it's `.sumcard.static.none`.
+- **A purchase's prices row** (`pricesRow()` in `screens.js`) uses `strictItemFor()` in `catalog.js`, not `itemFor()`. The item's name or English name has to appear in the purchase as whole words (plurals allowed, the longest name wins). Aliases don't count, so "Water" or "San Miguel" get no row; that keeps loose matches (Spaghetti → Massage) from offering the wrong prices. "You paid" on an item still uses the looser `itemFor()`.
+- **Words as doors** are `.tlink` buttons inside the text: `goRefresh` (the old-rate note), `goSearch` (Price notes, which closes every sheet first) and `goConvert`. Settings rows become doors by passing an action to `row()`; Storage used and Works offline stay plain, because there's nothing to open.
+- Spending with nothing logged returns early from `scrSpending()`: no chart, range switch, chips or filter.
+- Left out on purpose (navigation audit): links on every detail row, a Settings tab, a Notes tab, a door from a calendar day to the Spending list.
+
 ## Backups
 
 A backup is a JSON file: a plain-English `README`, `app: 'Suki'`, `schemaVersion: 1`, `appVersion`, `exportedAt`, `device`, `purchases`, `observations` and `rate`. Backups from 2.0 (without `README`, `appVersion` or `device`) still restore. Files are named `Suki backup · YYYY-MM · Device.json`.
@@ -148,6 +159,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 |---|---|
 | `test_release.py` | The version agrees in the app, README and CHANGELOG, and every file `index.html` loads exists |
 | `test_flows.py` | Logging (with errors and the draft), Spending (chips, filter, days, details, edit, delete, swipe, CSV), Quick Till, Convert, Search and price notes, Settings, empty states |
+| `test_doors.py` | Q08's doors: Home's two figures, Spending's +, logging on a calendar day, a purchase's prices row (whole words only, and on iPad), the old-rate link, Price notes' links to Search, Search's Log row and Settings rows that open things |
 | `test_data.py` | Older and damaged data, the backup reminder, export, erase, restore (good, damaged, other and 2.0 files), the rate failing, and updating from the real Suki 2.0 |
 | `test_offline.py` | Opening and working offline, and pull to refresh finding an update that then works offline too |
 | `test_layout.py` | Every screen and sheet on iPhone (three sizes and on its side), iPad both ways and Mac, light and dark; the details pane, the sidebar, shortcuts, the tab bar clearing the end of every page, pull to refresh, and motion on and Reduce Motion |
@@ -169,7 +181,8 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 
 - On a small machine (two processors), running the whole suite side by side can occasionally make one file time out waiting for the page; it passes when run again or with `--one-at-a-time`. GitHub's runner hasn't shown this.
 - Checks on animations read the computed `animation-name`, not running animations: a short fade can finish before a busy machine looks.
-- On 31 Oct 2026 the suite was run locally against a newer Chromium (the pinned Playwright 1.56.0 pointed at it), because 1.56's own browser couldn't be downloaded there. GitHub's run uses the pinned one.
+- On 31 Oct and 1 Nov 2026 the suite was run locally against a newer Chromium (the pinned Playwright 1.56.0 pointed at it), because 1.56's own browser couldn't be downloaded there. GitHub's run uses the pinned one.
+- Don't name a class `gap`: it's the 16px spacer in the restore sheet, so `.grp.gap` collapses to 16px. Use `.grp.spaced` for a group with space above it.
 
 ## Style
 

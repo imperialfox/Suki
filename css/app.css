@@ -707,6 +707,72 @@ h1 {
 .sumcard.static {
   padding-right: 18px;
 }
+/* Home's card as two doors (Q08): the total opens all your spending, Today opens today's */
+.sumcard.doors {
+  align-items: stretch;
+  padding-right: 18px;
+}
+.sumcard .door {
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.5s cubic-bezier(0.3, 1.7, 0.45, 1), opacity 0.2s;
+}
+.sumcard .door:active {
+  transform: scale(0.96);
+  opacity: 0.7;
+  transition-duration: 0.12s;
+}
+.sumcard .cv {
+  color: var(--fg3);
+}
+@media (hover: hover) and (pointer: fine) {
+  .sumcard .door:hover .cv {
+    color: var(--accent);
+  }
+}
+.sumcard.none .mid {
+  font-size: 20px;
+}
+.sumcard.none .cap {
+  line-height: 1.35;
+}
+/* Spending with nothing logged: one calm card and the way in (Q08) */
+.card.nospend {
+  max-width: 430px;
+  margin-top: 10px;
+  padding: 30px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.nospend .ic svg {
+  width: 44px;
+  height: 44px;
+  color: var(--fg3);
+}
+.nospend b {
+  font-size: 20px;
+  margin-top: 10px;
+}
+.nospend p {
+  margin: 6px 0 18px;
+  color: var(--fg2);
+  font-size: 15px;
+  line-height: 1.4;
+}
+.nospend .cta {
+  width: 100%;
+}
+/* words that name a place are doors to it (Q08) */
+.tlink {
+  display: inline;
+  color: var(--accent);
+  font: inherit;
+}
+.grp.spaced {
+  margin-top: 12px;
+}
 /* Spending with nothing logged (or nothing matching): no chips sit between the total and the message, so keep a gap */
 .sumcard.static + #spendList > .grp:first-child,
 #spendBrk:empty + #spendList > .grp:first-child {

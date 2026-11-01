@@ -293,9 +293,16 @@ def run(b, t):
     # an empty app: friendly empty states
     pg = t.page(b, data=None)
     ok('No purchases yet' in pg.inner_text('#app'), 'Home has an empty state')
-    tab(pg, 'spending'); ok('appear here' in pg.inner_text('#app') and pg.locator('[data-a=csv]').count() == 0, 'Spending has an empty state and no export')
-    gap = pg.evaluate("document.querySelector('#spendList .grp').getBoundingClientRect().top-document.getElementById('spendSum').getBoundingClientRect().bottom")
-    ok(gap >= 10, f'the empty state keeps a gap under the total ({gap:.0f}px)')
+    ok('Nothing spent yet' in pg.inner_text('.sumcard') and pg.locator('.sumcard .door').count() == 0, 'Home’s card says nothing is spent yet, instead of two zeros (Q08)')
+    tab(pg, 'spending')
+    ok('No spending yet' in pg.inner_text('#app') and pg.locator('[data-a=csv]').count() == 0, 'Spending has an empty state and no export')
+    ok(pg.locator('#rangeSeg, #chart, #spendSum').count() == 0 and pg.locator('#barR [data-a=newPurchase]').count() == 0,
+       'an empty Spending has no chart, no range switch and no + in the top bar (Q08)')
+    pg.click('#app .nospend [data-a=newPurchase]'); pg.wait_for_timeout(120)
+    ok(pg.evaluate("U.sheet") == 'edit' and 'Log a purchase' in pg.inner_text('.sheet h2'), 'its Log a purchase button opens the Log sheet')
+    pg.fill('#edit-item', 'Taho'); pg.fill('#edit-price', '25'); pg.click('.sheet .cta'); pg.wait_for_timeout(150)
+    ok(pg.evaluate("U.sheet") is None and pg.locator('#rangeSeg').count() == 1 and pg.locator('#barR [data-a=newPurchase]').count() == 1,
+       'after the first purchase, the chart, the range switch and the + appear')
     tab(pg, 'convert')
     ok(pg.evaluate("!!D.rate"), 'with no saved rate, one loads on opening')
     pg.context.close()

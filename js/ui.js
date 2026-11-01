@@ -23,7 +23,9 @@ function renderBar() {
         : '';
   $('barR').innerHTML =
     (navigator.onLine ? '' : '<span class="pill glass" role="status">Offline</span>') +
-    (U.tab === 'home' ? '<button class="circ glass" data-a="tab" data-v="settings" aria-label="Settings">' + ICON.gear + '</button>' : '');
+    (U.tab === 'home' ? '<button class="circ glass" data-a="tab" data-v="settings" aria-label="Settings">' + ICON.gear + '</button>' : '') +
+    // Spending's own door to the Log sheet (Q08); with nothing logged, the page's own button does it
+    (U.tab === 'spending' && D.purchases.length ? '<button class="circ glass" data-a="newPurchase" aria-label="Log a purchase">' + ICON.plus + '</button>' : '');
 }
 const tabButtons = (cls, withIcon) =>
   TABS.map(
@@ -258,7 +260,11 @@ function sheetHTML() {
           (U.calD
             ? hdr(dayHeading(U.calD), day.length ? '<span class="hint">' + cash(sum(day)) + '</span>' : '') +
               (day.length ? '<div class="grp tiled">' + day.map((p) => purchaseRow(p, { push: true, meta: p.location || p.venue || p.category })).join('') + '</div>' : '<div class="grp"><div class="empty">Nothing logged on this day.</div></div>')
-            : '<p class="foot">Tap a day to see what you bought.</p>'),
+            : '<p class="foot">Tap a day to see what you bought.</p>') +
+          // a picked day (today or earlier) can be logged on, with its date filled in; saving comes back here (Q08)
+          (U.calD && U.calD <= t
+            ? '<div class="grp tiled spaced"><button class="row more" data-a="newPurchase" data-v="' + U.calD + '"><span class="lbl">Log a purchase on ' + (U.calD === t ? 'today' : esc(shortDate(U.calD))) + '</span>' + ICON.chev + '</button></div>'
+            : ''),
         '',
         'Calendar'
       );
@@ -291,8 +297,8 @@ function sheetHTML() {
                 const it = itemById(o.itemId);
                 return '<div class="row">' + tile(it ? it.group : '') + '<button class="lbl plain" data-a="openItem" data-k="' + esc(o.itemId) + '" data-v="push"><b>' + esc(o.itemName) + ' · ' + cash(o.price) + '</b><small>' + esc([relDay(o.date), o.location, o.venue, o.note].filter(Boolean).join(' · ')) + '</small></button>' +
                   '<button class="ibtn" data-a="delObs" data-k="' + esc(o.id) + '" aria-label="Delete this price note">' + ICON.bin + '</button></div>';
-              }).join('') + '</div><p class="foot">Add notes from any item in Search.</p>'
-          : '<div class="grp"><div class="empty">No price notes yet. Open an item in Search and tap Add when you see a price.</div></div>'
+              }).join('') + '</div><p class="foot">Add notes from any item in <button class="tlink" data-a="goSearch">Search</button>.</p>'
+          : '<div class="grp"><div class="empty">No price notes yet. <button class="tlink" data-a="goSearch">Open Search</button>, pick an item and tap Add when you see a price.</div></div>'
       );
     }
   }

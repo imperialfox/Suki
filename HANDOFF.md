@@ -185,3 +185,40 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: 2.11 live on `m
 **Risks:** the purchase log and quick add work (other chats) may replace Home's three fields with one box. *Default if unanswered:* if that lands first, the town default goes wherever that form shows the place, and the arrow stays in the Log sheet's Location. GeoNames may be blocked from the workspace: use a GitHub copy, or ask Ivan to attach the file.
 **Done when:** tests for the defaults (today, that day, none), the arrow with a mocked position (allowed, denied, nothing near), typing stopping the fill, and no prompt at launch; full suite passes. **Checks:** full suite; screenshots at 375 px, light and dark.
 **For your iPhone (after the build):** whether iPhone remembers Allow between launches.
+
+## Q17 · Home: exchange rate card
+**Render:** 1 Nov 2026, 09:33, scope as below · **Build:** awaiting · Needs: Q16 (built first; Q08 changes the summary card under it).
+For: Ivan, and family he shows Suki to · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Smart add prototype](https://claude.ai/artifact/KmqSWPKWGBSEWDjMQEgCkF), switch "Rate above".
+
+**Goal:** anyone glancing at Home sees today's rate first.
+**Agreed:**
+1. **A card above the total spent card:** "Exchange rate" (Footnote), **£1 = ₱76.12** (Title 2, bold, two decimals), then "Updated 2h ago" (relative times, then the date). The whole card is one button.
+2. **Suki's icon colours, as a one-off:** the icon's navy gradient (`#173874` → `#06102b`) with its blue glow (`#4b84ff`, soft, top left), white text, radius 20, springy press. They go in as named tokens (`--suki-top`, `--suki-bottom`, `--suki-glow`), used here only. The style rules don't change.
+3. **Tapping opens Convert.** *Default if unanswered:* no refresh on the tap; Convert's own refresh stays as it is.
+4. **No saved rate yet:** the card reads "Exchange rate · Get today's rate on Convert". An old rate keeps its white text ("Updated 3 days ago"), never red.
+5. iPhone on its side and iPad: the card heads the dashboard's left column, above the summary card.
+**Out of scope:** the rate the other way round (₱100 = £…), a rate chart, alerts.
+**Where to look:** `screens.js` (scrHome), `css/app.css` (tokens), `rate.js` (the saved rate and its time).
+**Done when:** tests for the rate and its age, the door to Convert, and the no-rate card; white on both navy ends passes 4.5:1; full suite passes. **Checks:** full suite; screenshots at 375 and 402 px, light and dark.
+**For your iPhone:** white on navy in bright sun.
+
+## Q14 · Logging: Smart add
+**Render:** 1 Nov 2026, 09:33, scope as below · **Build:** awaiting · Needs: Q17 (built first; Q11's "Saved" button and settle, and Q16's town, are reused).
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Smart add prototype](https://claude.ai/artifact/KmqSWPKWGBSEWDjMQEgCkF) (the reader is inlined; its sample purchases are made up). Recon: project doc `suki_quick_add_recon_2026-11-01.md` (findings 1, 4, 5).
+
+**Goal:** type, say or paste a purchase in one line, see what Suki understood, save in one tap. The form stays.
+**Agreed:**
+1. **Two sides of Home's Log card:** the form, as now, and Smart add. A pill on the "Log a purchase" heading switches them ("Smart add" ↔ "Full form"). Suki remembers the last side on this device (not in backups).
+2. **Switching is a fade after iPhone Duo's fold:** the card stays put; the typing box is the hinge and slides between its two spots; everything else dissolves through a blur that grows with distance from it (cubic), rows 28 ms apart, and the new side resolves from blur and slight dimness, rows 45 ms apart. Reduce Motion: a plain crossfade. Interruptible.
+3. **The reader** (new `js/reader.js`), word rules only, offline: amounts (₱, P, PHP, pesos, k; English and Tagalog number words; "one twenty"; "1:20 pesos"; £ at the saved rate, flagged), days (today, *kahapon*, *kanina*, weekdays, dates, nearest year), places (from X to Y, in, at, to), where bought, paid with, category (learned words → price list → clue words → shop → a tinted guess). Several at once: a new line, "also", or between two amounts; a day, place or "both by card" said once applies to the whole line.
+4. **The preview** asks only what's missing (How much? · What was it?), an either/or for a tie, flags a future date and pounds. Save purchase / Save N purchases (with Undo). "Edit in the form" fills the form side. Batch rows open the usual Log sheet to check.
+5. **It learns:** changing a category remembers the word. Settings › Your data › Words Suki has learned lists them, each removable. Kept in backups.
+6. **Smart from the start:** *your usual* price (the middle of the last three of the same thing, same place first), editable; suggestions from his own purchases while typing words, before any number (three, tapping fills the line); a plain note "Within / More than / Less than the typical ₱x–y" on whole-word price-list matches only.
+7. **His words are kept** with each purchase (`said`, shown as "You typed: …" in its details). A new field; older data and backups are unaffected.
+8. **From the Recon:** P50, "50 pesos" and 2k also work in the form's amount box; logged purchases use the whole-word matcher Q08 adds (Search keeps its looser one). Q16's town fills Location when the line names no place.
+**Out of scope:** the Siri inbox and multi-line paste detection (suggested Q15), any AI, a bottom sheet (turned down), the flip.
+**Where to look:** `screens.js` (scrHome, purchaseForm, purchaseDetail), `events.js`, `catalog.js` (matching), `storage.js` and `backup.js` (`said`, learned words), `motion.js` (the fade), new `js/reader.js`.
+**Risks:** the Recon's 136 test phrases weren't kept: write a synthetic phrase file (about 120, including every case named in the Recon) before the reader. Blur on a moving card can stutter on iPhone: blur only the card's rows, and fall back to the crossfade if frames drop at 4× slow motion.
+**Done when:** the phrase tests pass; tests for the sides and the remembered side, each ask, the either/or and learning, batch save with Undo, Edit in the form, usual price, suggestions, the typical note, "You typed", and learned words through a backup round trip; a motion-on test that rapid switching leaves no stray copy; full suite passes. **Checks:** full suite; screenshots at 375 and 402 px, light and dark; frames at 4×.
+**For your iPhone:** whether the keyboard hides the preview; whether Siri dictation reads well; whether the fade stays smooth.
+

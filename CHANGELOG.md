@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.15 · 1 Nov 2026
+*Things arrive and leave: sheets slide away, purchases settle in (Q11)*
+
+**Sheets**
+- Closing a sheet now slides it down off the screen while the page behind grows back, as one movement, a little quicker than it rose. Before, it vanished in one frame. This works however it's closed: ✕, Cancel, tapping the dim, Escape, dragging it down (it carries on from where your finger let go), and after saving or deleting.
+- Going back to a sheet underneath (closing Edit over a purchase, or saving a purchase logged from the calendar) finds that sheet simply there, scrolled where it was, while the top one slides off over it.
+- On iPad and Mac a closing sheet shrinks a little and fades. With Reduce Motion it fades.
+- A sheet on its way out never gets in the way: you can tap whatever is behind it straight away.
+
+**Purchases**
+- A saved purchase settles into its list with a small drop, wherever it lands (Home's Recent, Spending, a calendar day), and the rows below move down to make room.
+- A deleted purchase shrinks away where it was and the rows below close the gap. Undo brings it back the same way a new one arrives.
+- On Home, the Save button itself confirms: it shows "✓ Saved" for a moment, then goes back.
+- "Purchase saved" now has **Undo**, which removes it again.
+
+**Slow motion**
+- Settings › Accessibility › Slow motion also slows the page shrinking behind a sheet.
+
+Tabs still switch instantly, figures never animate, and Settings, Help and Convert stay still.
+
 ## 2.14 · 1 Nov 2026
 *Spending: the date opens the calendar, and a picked bar narrows the list (Q10)*
 

@@ -179,7 +179,7 @@ Tests: `test_timedoors.py` (37 checks): the label door for All, W, an earlier we
 **Left for later:** nothing new.
 
 ## Q11 · Motion: sheets and rows
-**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q10 (built first). Prototype as Q08. Recon: visual audit findings 1–3 and 9.
+**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** 1 Nov 2026, 12:17 · shipped as 2.15 · Needs: Q10 (built first). Prototype as Q08. Recon: visual audit findings 1–3 and 9.
 
 **Goal:** things arrive and leave, so he never has to re-read a screen to see what changed.
 **Agreed:**
@@ -192,6 +192,16 @@ Tests: `test_timedoors.py` (37 checks): the label door for All, W, an earlier we
 **Out of scope:** the Home week strip, the price range strip and calendar tints (visual audit Milestone B, not rendered).
 **Risks:** redraws use innerHTML, so measure before and after the redraw (FLIP); the prototype wraps `render()`, but the build should do it where the change happens. Never block taps mid-animation, and a second close mid-way must still work.
 **Done when:** motion-on tests: a closing sheet is still on screen mid-way and gone after, no stray copies left, a new row has a running animation, rows below move, Reduce Motion only fades; full suite passes. **Checks:** full suite; frames at 4× slow motion, light and dark.
+**Debrief:** Built from the handoff and the prototype's Q11 layer, but where the change happens rather than by wrapping `render()`. Decided within scope:
+- **Sheets:** `renderSheet()` spots a close (fewer sheets than before) and moves the old sheet into a new `#leaving` layer that can't be tapped, so every close path gets the exit with nothing extra, and the app has already moved on (tab bar back, the next tap works) while it slides. Ids are stripped from the copy.
+- **Dragging down** now closes at once and the exit carries on from the finger's position (it used to slide to 110% and close 0.2 s later).
+- **Back to the sheet underneath:** it also comes back scrolled where it was (the stack keeps its scroll), so "simply there" is literal.
+- **Rows** use `rowsBefore()` / `rowsAfter()` around each change (save, delete, both Undos). Only a purchase that's new to the list settles, so a calendar coming back into view after logging on a day keeps its other rows still. Rows off screen don't move.
+- **The tick** shows with motion off and with Reduce Motion too (it's feedback, not movement); only the tick's small pop is motion. Undo after a save says "Purchase removed".
+- **Out of the agreed list:** editing a purchase ("Save changes") doesn't glide rows yet, and the chart bars keep their ripple (the audit's idea to switch them to settle wasn't in the handoff).
+Tests: `test_motion.py` (63 checks): the exit mid-way and gone after for ✕, Escape, the dim, Cancel and dragging down (a short drag still springs back); the page behind on the quicker curve and slowed by Slow motion (1.8 s and 1.32 s at 4×, 0 s with motion off); back to the sheet underneath with no rise and its scroll kept; two quick closes and a tap mid-exit; settle on Spending, Recent and a calendar day, rows below moving, the row pushed out of Recent and a deleted row shrinking away, Undo settling it back; Saved and Undo on Home (and gone from storage); iPad's .94 shrink in 220 ms; Reduce Motion fades only (200 ms); tabs, Settings and Convert still; frames at 4× in light and dark. Full suite: 483 checks, all passing (pinned Playwright 1.56 pointed at a newer Chromium, as before).
+**For your iPhone:** (1) Open a purchase and close it with ✕, then by dragging it down: it should slide away with the page growing back as one movement. (2) Log a purchase on Home: the button says "✓ Saved" and the row drops into Recent. (3) Delete a purchase on Spending, then Undo: it shrinks away, then drops back in. (4) Settings › Accessibility › Slow motion on, and watch a sheet close: does the drop feel like a coin landing? (5) Edit a purchase and close Edit: the purchase is just there, not rising again.
+**Left for later:** rows gliding when an edit moves a purchase to another day; the chart bars switching from ripple to settle (visual audit finding 9).
 
 ## Q13 · Quick Till: bigger buttons and change as cash
 **Render:** 1 Nov 2026, 09:45, scope as below · **Build:** awaiting · Needs: Q11 (built first: reuse its "settle" from `motion.js`).

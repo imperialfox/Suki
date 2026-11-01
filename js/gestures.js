@@ -235,10 +235,9 @@ function sheetDragEnd() {
   sh.classList.add('back');
   if (dy > 90) {
     tipDone('sheet');
-    sh.style.transform = 'translateY(110%)';
-    setTimeout(() => {
-      if (U.sheet) closeSheet();
-    }, 200);
+    // it carries on down from where the finger let go (Q11: the close slides it the rest of the way)
+    sh.classList.remove('back');
+    if (U.sheet) closeSheet();
   } else {
     sh.style.transform = '';
     setTimeout(() => sh.classList.remove('back'), 340);

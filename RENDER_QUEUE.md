@@ -16,7 +16,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q08 | Navigation: missing doors | Shipped · 2.12 | [Q08–Q11 prototype](https://claude.ai/artifact/FeN6KP83zyBJrWmh2465Dt) | Light to medium. From the navigation audit (A) and visual audit finding 8 |
 | Q09 | Search: your records in results | Shipped · 2.13 | same | Medium. Navigation audit (B). After Q08 |
 | Q10 | Spending: calendar and bar doors | Shipped · 2.14 | same | Light. Navigation audit (C). After Q09 |
-| Q11 | Motion: sheets and rows | Approved — awaiting Build | same | Medium. Visual audit (A). After Q10 |
+| Q11 | Motion: sheets and rows | Shipped · 2.15 | same | Medium. Visual audit (A). After Q10 |
 | Q13 | Quick Till: bigger buttons and change as cash | Approved — awaiting Build | [Quick Till prototype](https://claude.ai/artifact/1HLP63FZ3DXfqo7vTdEg8g) | Light to medium. Visual audit (C); spec in the project doc `q13_till_change-as-cash_spec.md`. After Q11 |
 | Q16 | Logging: location | Approved — awaiting Build | same as Q08 (item 12) | Light to medium. Prototyped as "Q14"; Q12–Q15 are suggested by other Recon. After Q13 |
 | Q17 | Home: exchange rate card | Approved — awaiting Build | [Smart add prototype](https://claude.ai/artifact/KmqSWPKWGBSEWDjMQEgCkF) ("Rate above") | Light. After Q16 |
@@ -28,7 +28,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 
 **Render:** 31 Oct 2026, 23:20 · Ivan: "render" · scope: Q07 exactly as written in HANDOFF.md, built after Q06 (2.11). **Build:** 1 Nov 2026, Ivan: "build q07 - onboarding" · shipped as 2.11.
 
-**Render:** 1 Nov 2026, 08:26 · Ivan: "render" · scope: Q08, Q09, Q10, Q11 and Q16 exactly as written in HANDOFF.md and as prototyped, built in that order (each takes the next version when it lands). Q12–Q15 are not rendered. **Build (Q08):** 1 Nov 2026, 10:04, Ivan: "Build Q08" · shipped as 2.12. **Build (Q09):** 1 Nov 2026, 10:48, Ivan: "Q09 (Search shows your own purchases and notes) build" · shipped as 2.13. **Build (Q10):** 1 Nov 2026, 11:43, Ivan: "Q10 (calendar and bar doors on Spending) build" · shipped as 2.14.
+**Render:** 1 Nov 2026, 08:26 · Ivan: "render" · scope: Q08, Q09, Q10, Q11 and Q16 exactly as written in HANDOFF.md and as prototyped, built in that order (each takes the next version when it lands). Q12–Q15 are not rendered. **Build (Q08):** 1 Nov 2026, 10:04, Ivan: "Build Q08" · shipped as 2.12. **Build (Q09):** 1 Nov 2026, 10:48, Ivan: "Q09 (Search shows your own purchases and notes) build" · shipped as 2.13. **Build (Q10):** 1 Nov 2026, 11:43, Ivan: "Q10 (calendar and bar doors on Spending) build" · shipped as 2.14. **Build (Q11):** 1 Nov 2026, 12:17, Ivan: "Q11 build" · shipped as 2.15.
 
 **Render:** 1 Nov 2026, 09:33 · Ivan: "im happy to render but queue the[m] as two seperate items" · scope: Q17 and Q14 exactly as written in HANDOFF.md and as prototyped, built after Q16, Q17 first (*default*: the light one first, so it can land before the 7 Nov trip). Q12, Q13 and Q15 are not rendered.
 
@@ -60,3 +60,5 @@ Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `s
 - Prices by region, using the town from Q16.
 - Smart add: a receipt already works through iPhone's Live Text (copy the text from a photo, paste it in). Help could say so.
 - Smart add: the flip (the card turning over on its middle) was prototyped beside the fade; the fade was kept.
+- Rows glide when editing moves a purchase (Q11 covers saving, deleting and Undo only).
+- Chart bars: switch their entrance from the borrowed ripple to Suki's settle (visual audit finding 9).

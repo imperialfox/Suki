@@ -205,7 +205,7 @@ function scrHome() {
   const log =
     hdr('Log a purchase') +
     '<form class="card form" data-form="home" novalidate>' + purchaseForm('home', F.home, U.more) +
-    '<p class="err" id="home-err" role="alert"></p><button type="submit" class="cta ink">Save purchase</button></form>';
+    '<p class="err" id="home-err" role="alert"></p>' + saveBtn() + '</form>';
   const rec =
     hdr('Recent', D.purchases.length ? '<button class="tbtn" data-a="tab" data-v="spending">Show all</button>' : '') +
     (recent.length
@@ -221,6 +221,12 @@ function scrHome() {
       : dash + log + rec)
   );
 }
+// Home's Save button confirms where he tapped: "✓ Saved" for about 1.4 s (Q11). A redraw in that time keeps it
+let savedUntil = 0;
+const saveBtn = () =>
+  Date.now() < savedUntil
+    ? '<button type="submit" class="cta ink saved" id="homeSave"><span class="tk">' + ICON.tick + '</span>Saved</button>'
+    : '<button type="submit" class="cta ink" id="homeSave">Save purchase</button>';
 const byNewest = (a, b) => b.date.localeCompare(a.date) || D.purchases.indexOf(a) - D.purchases.indexOf(b);
 
 /* ===== Quick Till ===== */

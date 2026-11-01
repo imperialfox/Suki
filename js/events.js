@@ -239,17 +239,23 @@ async function submitForm(form, el) {
       await save('purchases');
       return;
     }
-    const r = D.rate ? D.rate.value : null;
-    D.purchases.unshift(Object.assign({ id: newId() }, p, { gbpAtPurchase: r ? Math.round((p.price / r) * 100) / 100 : null, rateAtPurchase: r }));
+    const r = D.rate ? D.rate.value : null,
+      before = rowsBefore(),
+      added = Object.assign({ id: newId() }, p, { gbpAtPurchase: r ? Math.round((p.price / r) * 100) / 100 : null, rateAtPurchase: r });
+    D.purchases.unshift(added);
     if (form === 'home') {
       F.home = { category: p.category, payment: p.payment };
       saveDraft({});
+      savedTick();
       rerender();
+      savedPop();
     } else {
       if (U.sd.fromTill) U.till = { bill: '', cash: '' };
       closeSheet();
     }
-    toast('Purchase saved');
+    // the new row settles into whatever list it lands in (Q11)
+    rowsAfter(before);
+    toast('Purchase saved', () => undoSave(added.id));
     await save('purchases');
     return;
   }
@@ -275,6 +281,35 @@ async function submitForm(form, el) {
     toast('Price note saved');
     await save('observations');
   }
+}
+// Undo on "Purchase saved": it goes again, shrinking out of its list (Q11)
+async function undoSave(id) {
+  if (!D.purchases.some((p) => p.id === id)) return;
+  const before = rowsBefore();
+  D.purchases = D.purchases.filter((p) => p.id !== id);
+  if (U.sel === id) U.sel = null;
+  rerender();
+  rowsAfter(before);
+  toast('Purchase removed');
+  await save('purchases');
+}
+// Home's Save button shows "✓ Saved" for about 1.4 s (longer in Slow motion), then goes back in place
+let savedT = null;
+function savedTick() {
+  savedUntil = Date.now() + 1400 * Math.max(1, MOTION.speed());
+  clearTimeout(savedT);
+  savedT = setTimeout(() => {
+    savedUntil = 0;
+    const b = $('homeSave');
+    if (b && b.classList.contains('saved')) {
+      b.classList.remove('saved');
+      b.textContent = 'Save purchase';
+    }
+  }, savedUntil - Date.now());
+}
+function savedPop() {
+  const t = document.querySelector('#homeSave.saved .tk');
+  if (t) MOTION.animate(t, [{ transform: 'scale(.4)', opacity: 0 }, { transform: 'none', opacity: 1 }], { spring: 'ripple', fade: true });
 }
 document.addEventListener('submit', (e) => {
   const f = e.target.closest('form[data-form]');
@@ -368,17 +403,22 @@ const ACT = {
   delPurchaseYes: async (el) => {
     const id = el.dataset.k,
       at = D.purchases.findIndex((p) => p.id === id),
-      gone = D.purchases[at];
+      gone = D.purchases[at],
+      before = rowsBefore();
     D.purchases = D.purchases.filter((p) => p.id !== id);
     if (U.sel === id) U.sel = null;
     U.stack = [];
     U.sheet = null;
     U.sd = {};
     rerender();
+    // the row shrinks away and the rows below close the gap; Undo plays the arrival again (Q11)
+    rowsAfter(before);
     toast('Purchase deleted', gone && (async () => {
       if (D.purchases.some((p) => p.id === gone.id)) return;
+      const b = rowsBefore();
       D.purchases.splice(Math.min(at, D.purchases.length), 0, gone);
       rerender();
+      rowsAfter(b);
       toast('Purchase restored');
       await save('purchases');
     }));

@@ -183,9 +183,15 @@ svg.i {
   max-width: 430px;
   margin: 0 auto;
   position: relative;
+  /* --mspeed follows Slow motion (4) and is 0 with motion off (Q11) */
   transition:
-    transform 0.45s cubic-bezier(0.3, 1.3, 0.5, 1),
-    border-radius 0.45s;
+    transform calc(0.45s * var(--mspeed, 1)) cubic-bezier(0.3, 1.3, 0.5, 1),
+    border-radius calc(0.45s * var(--mspeed, 1));
+}
+/* a sheet closing: the page grows back with it, quicker than it shrank (Q11) */
+body.unsheet .wrap {
+  transition-duration: calc(0.33s * var(--mspeed, 1));
+  transition-timing-function: cubic-bezier(0.3, 0, 0.25, 1);
 }
 body.sheet-open .wrap {
   transform: scale(0.94);
@@ -1451,7 +1457,8 @@ main {
   background: var(--fill);
 }
 /* ===== Sheets ===== */
-#layer .scrim {
+#layer .scrim,
+#leaving .scrim {
   position: fixed;
   inset: 0;
   z-index: 40;
@@ -1477,6 +1484,15 @@ main {
 }
 .sheet.still,
 #layer .scrim.still {
+  animation: none;
+}
+/* a sheet on its way out (Q11): above the one underneath, and never in the way of a tap */
+#leaving,
+#leaving * {
+  pointer-events: none !important;
+}
+#leaving .scrim {
+  z-index: 41;
   animation: none;
 }
 .sheet.drag {
@@ -1776,7 +1792,8 @@ body.reg .dash {
   stroke-width: 1.5;
   color: var(--fg3);
 }
-body.reg #layer .scrim {
+body.reg #layer .scrim,
+body.reg #leaving .scrim {
   align-items: center;
 }
 body.reg .sheet {
@@ -2502,4 +2519,25 @@ html.motion-reduced #splash.out img {
 html.motion-reduced .btn.busy svg.i,
 html.motion-reduced #ptr.go .spin {
   animation-duration: 2s;
+}
+
+/* a row that went, fading and shrinking where it was (Q11) */
+.rowghost {
+  position: fixed;
+  margin: 0;
+  overflow: hidden;
+  background: var(--surface);
+  transform-origin: 50% 50%;
+}
+
+/* Home's Save button confirming in place: "✓ Saved" (Q11) */
+.cta.saved .tk {
+  display: inline-block;
+  vertical-align: -4px;
+  margin-right: 6px;
+}
+.cta.saved .tk svg.i {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.6;
 }

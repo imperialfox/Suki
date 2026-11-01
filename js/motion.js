@@ -5,6 +5,7 @@
      Each is a damping ratio and a frequency in Hz, turned into a CSS linear() easing and a duration.
      CSS reads them as --ease-gentle / --dur-gentle and so on; JS uses MOTION.animate().
    - Stagger: words 30 ms apart, rows 45 ms, chart bars 30 ms.
+   - Settle and leave (Q11): how a row arrives in a list and how it goes (MOTION.settle, MOTION.leave).
    - Reduce Motion (the iOS setting): no movement or blur, just short fades or nothing.
    - Speed: 1 normally, 4 for slow motion while tuning, 0 for motion off (the tests use 0).
      Set on this device with MOTION.setSpeed(n); kept in localStorage 'suki:motion', never in backups.
@@ -72,6 +73,8 @@ const MOTION = (() => {
       r.setProperty('--ease-' + k, C[k].ease);
       r.setProperty('--dur-' + k, (on() ? dur(k) : 0) + 'ms');
     });
+    // for CSS transitions that aren't springs (the page behind a sheet): calc(0.45s * var(--mspeed)), 0 with motion off
+    r.setProperty('--mspeed', String(on() ? speed : 0));
     document.documentElement.classList.toggle('motion-off', !on());
     document.documentElement.classList.toggle('motion-reduced', reduced());
   }
@@ -100,6 +103,20 @@ const MOTION = (() => {
       easing: o.ms ? o.easing || 'cubic-bezier(.2,.8,.2,1)' : ease(name),
       fill: o.fill || 'none',
     });
+  }
+
+  // "Settle" (Q11): Suki's own movement, a small drop into place like a coin set down on a counter. Kept for things
+  // that land: a saved purchase arriving in its list, and (later) the Till's notes and coins. i staggers rows 45 ms apart.
+  // Reduce Motion: a fade. Motion off: nothing.
+  function settle(el, i) {
+    return animate(el, [{ transform: 'translateY(-12px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { spring: 'ripple', delay: stagger(i || 0, 'row'), fill: 'backwards', fade: true });
+  }
+  // something going away where it was: it fades and shrinks to .94 (220 ms), or only fades with Reduce Motion.
+  // Returns the animation (null with motion off), ending on its last frame so the caller can remove the element.
+  function leave(el, ms) {
+    if (!el || !el.animate || speed === 0) return null;
+    if (reduced()) return el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200 * speed, easing: 'ease-out', fill: 'forwards' });
+    return el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.94)' }], { duration: (ms || 220) * speed, easing: 'ease-in', fill: 'forwards' });
   }
 
   // a spring that starts moving: from and to are {x, y, …} in px, v is the finger's speed in px/s (3.12, the floating
@@ -165,6 +182,8 @@ const MOTION = (() => {
     ease,
     stagger,
     animate,
+    settle,
+    leave,
     spring,
     setSpeed,
     setReduce,

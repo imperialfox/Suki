@@ -37,7 +37,7 @@ Suki shares its foundations with Vocal Sessions (`imperialfox/Vocal-Sessions`): 
 
 | File | Holds |
 |---|---|
-| `js/motion.js` | **The shared springs** (`MOTION`), copied from Vocal Sessions: gentle, nav and ripple springs as CSS `linear()` easings and `--ease-*`/`--dur-*` variables, Reduce Motion, and the speed setting (`suki:motion`; 0 = off, used by the tests) |
+| `js/motion.js` | **The shared springs** (`MOTION`), copied from Vocal Sessions: gentle, nav and ripple springs as CSS `linear()` easings and `--ease-*`/`--dur-*` variables, Reduce Motion, the speed setting (`suki:motion`; 0 = off, used by the tests), and Suki's own `settle` and `leave` (Q11) |
 | `js/catalog.js` | The catalogue (`CATALOG`), official price lookups (`refsFor`, `refFrom`) and the fuzzy search (`searchItems`) |
 | `js/prices.js` | The official DA-AMAS price snapshot (`window.sukiPriceReferences`) |
 | `js/typical.js` | Typical prices with their sources (`window.sukiTypical`, Q02): fares, DTI suggested retail prices, shop and menu prices, rough guides |
@@ -146,6 +146,17 @@ The rule: one place per thing, with several doors to it, and every door opens th
 - Help › Hidden gestures lists "Tap Home's title" (`scrHelp()` in `onboard.js`).
 - Left out: a calendar tab, changing what the chart shows.
 
+## Things arrive and leave (Q11)
+
+- **Sheets leaving:** `renderSheet()` knows how deep the sheet on screen is (`shownDepth`). When a redraw has fewer sheets than before, the old `.scrim` is moved into `#leaving` (in `index.html`, `inert`, nothing in it takes a tap) and `sheetAway()` in `ui.js` plays its exit: iPhone slides it to `translateY(115%)` in 330 ms on `cubic-bezier(.3,0,.25,1)` from wherever it is (half-risen, or dragged); iPad and Mac shrink to .94 and fade in 220 ms; Reduce Motion fades in 200 ms. Times are × the slow-motion speed. Because every close path redraws, they all get it for free; a new way of closing needs nothing extra. Its ids are removed, so tests and `$()` never find a sheet twice.
+- **Back to the sheet underneath:** `openSheet(…, push)` keeps the sheet's scroll in the stack (`top`), and the sheet underneath comes back with `.still` (no second rise) at that scroll. The leaving one has a clear background, so the dim isn't doubled, and sits at z-index 41.
+- **The page behind** uses `--mspeed` (published by `motion.js`: the slow-motion speed, or 0 with motion off or Reduce Motion) in its transition, so Slow motion slows it too. While a sheet closes, `body.unsheet` switches it to the quicker 0.33 s curve.
+- **Dragging a sheet down** past 90 px closes it at once; the exit carries on from the finger's position.
+- **Rows:** `rowsBefore()` / `rowsAfter(before)` in `ui.js` wrap a change that redraws a list (FLIP, since lists are innerHTML). They're called where purchases change: `submitForm` (a new purchase), `delPurchaseYes`, its Undo, and `undoSave`. A purchase new to the list (`D.purchases` before and after) settles in with `MOTION.settle()`; purchase rows, "Show all" rows, `.hdr` and the `.grp` under each glide from where they were on `gentle`; a purchase row that went is copied into `#leaving` (`.rowghost`) and `MOTION.leave()` fades and shrinks it. Rows off screen don't move, and rows in a sheet that is itself closing go with the sheet. Editing a purchase doesn't use it yet.
+- **Settle** is `MOTION.settle(el, i)` in `motion.js`: a 12 px drop with opacity 0 → 1 on the `ripple` spring, rows 45 ms apart, a fade with Reduce Motion. Reuse it for anything that lands (Q13's notes and coins). Keep it out of tabs, Settings, Convert and figures.
+- **Home's Save button** shows "✓ Saved" (`#homeSave.saved`, `savedTick()` / `savedPop()` in `events.js`) for 1.4 s (× slow motion), with or without motion; `saveBtn()` in `screens.js` keeps it through a redraw.
+- **Undo on "Purchase saved"** is `undoSave(id)`: it removes that purchase, saves and says "Purchase removed".
+
 ## Backups
 
 A backup is a JSON file: a plain-English `README`, `app: 'Suki'`, `schemaVersion: 1`, `appVersion`, `exportedAt`, `device`, `purchases`, `observations` and `rate`. Backups from 2.0 (without `README`, `appVersion` or `device`) still restore. Files are named `Suki backup · YYYY-MM · Device.json`.
@@ -179,6 +190,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 | `test_flows.py` | Logging (with errors and the draft), Spending (chips, filter, days, details, edit, delete, swipe, CSV), Quick Till, Convert, Search and price notes, Settings, empty states |
 | `test_doors.py` | Q08's doors: Home's two figures, Spending's +, logging on a calendar day, a purchase's prices row (whole words only, and on iPad), the old-rate link, Price notes' links to Search, Search's Log row and Settings rows that open things |
 | `test_search.py` | Q09: Prices, In your purchases (three rows, Show all with the same count in Spending), In your price notes, every word in any order (Search and Spending's filter), no match only when nothing of his matches, the notes row on All, the placeholder, screenshots at 375 px light and dark |
+| `test_motion.py` | Q11, with motion on: a closing sheet is still on screen mid-way and gone after, by ✕, Escape, the dim, Cancel and dragging down; back to the sheet underneath with no second rise; two quick closes; taps go through a leaving sheet; new rows settle in and the rows below move; a deleted row shrinks away and Undo settles it back; Home's Saved and Undo; iPad's shrink and Reduce Motion's fades; tabs, Settings and Convert stay still; frames at 4× slow motion, light and dark |
 | `test_timedoors.py` | Q10: the period label opening the calendar for each range (and a picked day or week), the picked bar narrowing the list with its line and way back, the pick kept when opening a purchase (✕, tapping outside, and the iPad pane), the filter's ✕ and Export as CSV working first time with a day picked, the Help row, screenshots at 375 px light and dark |
 | `test_data.py` | Older and damaged data, the backup reminder, export, erase, restore (good, damaged, other and 2.0 files), the rate failing, and updating from the real Suki 2.0 |
 | `test_offline.py` | Opening and working offline, and pull to refresh finding an update that then works offline too |
@@ -202,6 +214,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 - On a small machine (two processors), running the whole suite side by side can occasionally make one file time out waiting for the page; it passes when run again or with `--one-at-a-time`. GitHub's runner hasn't shown this.
 - Checks on animations read the computed `animation-name`, not running animations: a short fade can finish before a busy machine looks.
 - On 31 Oct and 1 Nov 2026 the suite was run locally against a newer Chromium (the pinned Playwright 1.56.0 pointed at it), because 1.56's own browser couldn't be downloaded there. GitHub's run uses the pinned one.
+- Rows and headers only move when they're on screen, so a motion test must scroll the list into view first (Spending's list starts below the chart at 844 px tall), and keep clear of the tab bar.
 - Don't name a class `gap`: it's the 16px spacer in the restore sheet, so `.grp.gap` collapses to 16px. Use `.grp.spaced` for a group with space above it.
 
 ## Style

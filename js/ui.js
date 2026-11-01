@@ -125,10 +125,14 @@ document.addEventListener('scroll', (e) => e.target.classList && e.target.classL
 /* ===== Sheets =====
    A sheet rises from the bottom on iPhone and opens in the middle on iPad and Mac. One opened from another
    (editing from a purchase's details) goes back to the first when it closes. */
-let shownSheet = null;
+let shownSheet = null,
+  shownDepth = 0, // how many sheets deep the one on screen is (0 = none), so a close can be told from an open
+  backTop = 0; // where the sheet underneath was scrolled to, for going back to it
 function openSheet(name, sd, push) {
-  if (push && U.sheet) U.stack.push({ sheet: U.sheet, sd: U.sd });
-  else if (!push) U.stack = [];
+  if (push && U.sheet) {
+    const s = document.querySelector('#layer .sheet');
+    U.stack.push({ sheet: U.sheet, sd: U.sd, top: s ? s.scrollTop : 0 });
+  } else if (!push) U.stack = [];
   U.sheet = name;
   U.sd = sd || {};
   rerender();
@@ -138,6 +142,7 @@ function closeSheet() {
   if (prev) {
     U.sheet = prev.sheet;
     U.sd = prev.sd;
+    backTop = prev.top || 0;
   } else {
     U.sheet = null;
     U.sd = {};
@@ -316,22 +321,29 @@ function renderSheet() {
     if (!html) U.sheet = null;
     renderDock();
   }
-  const key = U.sheet ? U.sheet + ':' + (U.sd.id || '') : null;
+  const key = U.sheet ? U.sheet + ':' + (U.sd.id || '') : null,
+    depth = html ? U.stack.length + 1 : 0,
+    was = layer.querySelector('.scrim'),
+    // fewer sheets than before: the top one is closing, to the page or to the sheet underneath (Q11)
+    closing = !!(was && shownSheet && depth < shownDepth),
+    old = layer.querySelector('.sheet'),
+    top = old ? old.scrollTop : 0;
+  if (closing) sheetAway(was, depth > 0);
+  shownDepth = depth;
   if (!html) {
     layer.innerHTML = '';
     shownSheet = null;
     document.body.classList.remove('sheet-open');
     return;
   }
-  const old = layer.querySelector('.sheet'),
-    top = old ? old.scrollTop : 0;
   layer.innerHTML = html;
   const sh = layer.querySelector('.sheet');
-  // redrawing the same sheet keeps its place and doesn't rise again
-  if (key === shownSheet) {
+  // redrawing the same sheet keeps its place and doesn't rise again; going back to the sheet underneath finds it
+  // simply there, where it was scrolled to, while the closing one slides off over it
+  if (key === shownSheet || closing) {
     sh.classList.add('still');
     layer.querySelector('.scrim').classList.add('still');
-    sh.scrollTop = top;
+    sh.scrollTop = key === shownSheet ? top : backTop;
   } else {
     const f = sh.querySelector('input:not([type=date]),textarea');
     if (U.sheet === 'edit' && !U.sd.id && f) setTimeout(() => f.focus({ preventScroll: true }), 60);
@@ -339,6 +351,148 @@ function renderSheet() {
   }
   shownSheet = key;
   document.body.classList.add('sheet-open');
+}
+
+/* ===== A sheet leaving (Q11) =====
+   The closing sheet moves to #leaving (which nothing can tap) and slides down off the screen while the page behind
+   grows back, as one movement and quicker than it arrived. Going back to a sheet underneath, the dim stays and only
+   the top sheet slides off. iPad and Mac: it shrinks to .94 and fades. Reduce Motion: a 200 ms fade. Motion off: it
+   simply goes. Every close path ends here, because they all redraw: ✕, Cancel, the dim, Escape, dragging it down,
+   and closing after a save or a delete. A second close mid-way just starts another one. */
+function sheetAway(sc, toPrev) {
+  const sh = sc.querySelector('.sheet'),
+    sp = MOTION.speed(),
+    out = $('leaving');
+  if (!sh || !out || sp === 0 || !sh.animate) return;
+  const cs = getComputedStyle(sh),
+    tr = cs.transform === 'none' ? 'translateY(0px)' : cs.transform,
+    op = cs.opacity,
+    top = sh.scrollTop,
+    dimFrom = getComputedStyle(sc).backgroundColor,
+    red = MOTION.reduced(),
+    reg = MQ.reg.matches,
+    ms = (red ? 200 : reg ? 220 : 330) * sp;
+  // hold it exactly where it is (half-risen, or where a finger dragged it), then let it go from there
+  sc.classList.add('still');
+  sh.classList.add('still');
+  sh.classList.remove('drag', 'back');
+  sh.style.transform = tr;
+  sh.style.opacity = op;
+  sc.removeAttribute('data-a');
+  sc.querySelectorAll('[id]').forEach((e) => e.removeAttribute('id'));
+  if (toPrev) sc.style.background = 'transparent';
+  out.appendChild(sc);
+  sh.scrollTop = top;
+  let a;
+  if (red) a = sc.animate([{ opacity: 1 }, { opacity: 0 }], { duration: ms, easing: 'ease-out', fill: 'forwards' });
+  else {
+    a = sh.animate(
+      reg ? [{ transform: tr, opacity: op }, { transform: 'scale(.94)', opacity: 0 }] : [{ transform: tr }, { transform: 'translateY(115%)' }],
+      { duration: ms, easing: reg ? 'ease-in' : 'cubic-bezier(.3,0,.25,1)', fill: 'forwards' }
+    );
+    if (!toPrev) sc.animate([{ backgroundColor: dimFrom }, { backgroundColor: 'rgba(0,0,0,0)' }], { duration: ms, easing: 'ease-out', fill: 'forwards' });
+  }
+  // the page behind grows back on the same quicker curve (CSS: body.unsheet)
+  if (!toPrev) {
+    document.body.classList.add('unsheet');
+    clearTimeout(sheetAway.t);
+    sheetAway.t = setTimeout(() => document.body.classList.remove('unsheet'), ms + 60);
+  }
+  const done = () => sc.remove();
+  a.onfinish = done;
+  a.oncancel = done;
+  setTimeout(done, ms + 400);
+}
+
+/* ===== Rows arriving and leaving (Q11) =====
+   Lists are drawn with innerHTML, so a change is measured before the redraw and played after it (FLIP), right where
+   the change happens (saving, deleting, Undo):
+     const before = rowsBefore();  …change D and redraw…  rowsAfter(before);
+   A purchase that's new to the list settles in (MOTION.settle, rows 45 ms apart); rows, "Show all" rows, headers and
+   the group under each glide from where they were on the gentle spring; a row that went (deleted, or pushed out of
+   Recent) fades and shrinks where it was. Rows in a sheet that is itself closing go with the sheet. Nothing here blocks
+   a tap: the copies that fade sit in #leaving. Motion off: nothing is measured. */
+const ROW_SEL = '.row[data-a=openPurchase][data-k], .row.more[data-a]';
+function rowsBefore() {
+  if (!MOTION.speed()) return null;
+  const m = { rows: new Map(), heads: new Map(), ids: new Set(D.purchases.map((p) => p.id)), sheet: shownSheet };
+  ['app', 'layer'].forEach((where) => {
+    const root = $(where);
+    if (!root) return;
+    const seen = {};
+    root.querySelectorAll(ROW_SEL).forEach((r) => {
+      const host = r.closest('.sw') || r,
+        id = r.dataset.a === 'openPurchase' ? r.dataset.k : null,
+        k = where[0] + (id ? 'p' + id : 'm' + r.dataset.a + (r.dataset.v || ''));
+      if (seen[k]) return;
+      seen[k] = 1;
+      m.rows.set(k, { host, id, rect: host.getBoundingClientRect() });
+    });
+    root.querySelectorAll('.hdr').forEach((h) => {
+      const k = where[0] + (h.querySelector('h2') || h).textContent;
+      if (!m.heads.has(k)) m.heads.set(k, h.getBoundingClientRect().top);
+    });
+  });
+  return m;
+}
+function rowsAfter(b) {
+  if (!b) return;
+  const now = rowsBefore(),
+    added = new Set(D.purchases.filter((p) => !b.ids.has(p.id)).map((p) => p.id)),
+    sameSheet = shownSheet === b.sheet,
+    seen = (r) => r.bottom > 0 && r.top < innerHeight,
+    shift = new Map();
+  if (!now) return;
+  // headers, and the group right under each, glide to where they are now
+  ['app', 'layer'].forEach((where) =>
+    $(where).querySelectorAll('.hdr').forEach((h) => {
+      const k = where[0] + (h.querySelector('h2') || h).textContent;
+      if (!b.heads.has(k) || !now.heads.has(k)) return;
+      const dy = b.heads.get(k) - now.heads.get(k);
+      if (Math.abs(dy) < 1) return;
+      const g = h.nextElementSibling && h.nextElementSibling.classList.contains('grp') ? h.nextElementSibling : null;
+      [h, g].forEach((e) => e && MOTION.animate(e, [{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { spring: 'gentle' }));
+      if (g) shift.set(g, dy);
+    })
+  );
+  let n = 0;
+  now.rows.forEach((v, k) => {
+    const w = b.rows.get(k);
+    if (!w) {
+      // only what's new settles in: a sheet coming back into view keeps its rows still
+      if (v.id && added.has(v.id) && seen(v.rect)) MOTION.settle(v.host, n++);
+      return;
+    }
+    const dy = w.rect.top - v.rect.top - (shift.get(v.host.closest('.grp')) || 0);
+    if (Math.abs(dy) > 1) MOTION.animate(v.host, [{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { spring: 'gentle' });
+  });
+  b.rows.forEach((w, k) => {
+    if (now.rows.has(k) || !w.id || !seen(w.rect) || (k[0] === 'l' && !sameSheet)) return;
+    rowGoes(w, k[0] === 'l');
+  });
+}
+// a copy of the row that went fades and shrinks where the row was
+function rowGoes(w, inSheet) {
+  const out = $('leaving'),
+    c = w.host.cloneNode(true),
+    g = w.host.parentElement,
+    r = w.rect;
+  if (!out) return;
+  c.querySelectorAll('[id]').forEach((e) => e.removeAttribute('id'));
+  c.classList.add('rowghost');
+  Object.assign(c.style, {
+    left: r.left + 'px',
+    top: r.top + 'px',
+    width: r.width + 'px',
+    height: r.height + 'px',
+    zIndex: inSheet ? 42 : 14,
+    borderRadius: (g && g.firstElementChild === w.host ? '20px 20px ' : '0 0 ') + (g && g.lastElementChild === w.host ? '20px 20px' : '0 0'),
+  });
+  out.appendChild(c);
+  const a = MOTION.leave(c);
+  if (!a) return c.remove();
+  a.onfinish = a.oncancel = () => c.remove();
+  setTimeout(() => c.remove(), 220 * MOTION.speed() + 400);
 }
 
 /* ===== Toasts ===== */

@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.11 · 31 Oct 2026
+## 2.11 · 1 Nov 2026
 *Getting started, without a tour (Q07)*
 
 **For someone new**

@@ -23,6 +23,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q14 | Logging: Smart add | Approved — awaiting Build | same | Medium to heavy. Folds in the quick add Recon's suggested Q14. After Q17 |
 | Q15 | Logging: the Siri inbox | Approved — awaiting Build | none (slim follow-on to Q14) | Light. Quick add Recon (B), cut down. After Q14 |
 | Q12 | Look: calendar tints and price range strip | Shipped · 2.16 | [Q12 prototype](https://claude.ai/artifact/NFwAtWyj5ERxgyGifutbeS) | Light to medium. Visual audit (B), without the week strip. Built before Q13 at Ivan's word |
+| Q18 | Quick Till: the till drawer and note press | Awaiting Render | [Note press prototype](https://claude.ai/artifact/EsJMmBNf71Sm48FDttcpLS) ("iOS way" feel) | Heavy. Fully worked out; spec in the project doc `idea_till_note-press_notes.md`. After Q13 (it restyles Q13's notes and coins). May be split into three at Render: note press, drawer, haul and maker's mark |
 
 **Render:** 31 Oct 2026, 22:56 · Ivan: "render all, then build" · scope: Q01–Q06 exactly as written in HANDOFF.md, built in the order listed above (2.5 to 2.10).
 
@@ -51,6 +52,7 @@ Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `s
 - 1 Nov 2026: Spending's filter matches every word in any order, like Search (asked during Q09's build). Then "Show all N in Spending" always opens the same N.
 - 1 Nov 2026: the calendar tints are stronger than the Q12 prototype's, because the prototype's failed the palette check (the lightest step was too close to white, and the top two looked alike). Light goes darker, dark goes brighter.
 - 1 Nov 2026: the rate card uses Suki's own icon colours as a one-off. The app style rules (no branding in the app) stay as they are; no other screen uses these colours.
+- 1 Nov 2026: the till drawer and note press is its own item (Q18), not folded into Q13. Ivan: "i can imagine that its a heavy build". Number claimed only; nothing approved.
 
 ## Ideas, not yet queued
 

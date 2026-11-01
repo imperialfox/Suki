@@ -141,7 +141,7 @@ Tests: `test_doors.py` (42 checks) covers each door, the whole-word rule (Spaghe
 **Left for later:** "You paid" still uses the loose match (quick add Recon finding 5, fixed with Q14). Safe aliases (water, beer brand names) could join the whole-word rule.
 
 ## Q09 · Search: your records in results
-**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q08 (built first). Prototype and Recon as Q08 (navigation audit findings 5 and 7).
+**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** 1 Nov 2026, 10:48 · shipped as 2.13 · Needs: Q08 (built first). Prototype and Recon as Q08 (navigation audit findings 5 and 7).
 
 **Goal:** Search finds anything he's logged, not only the price list.
 **Agreed:**
@@ -151,6 +151,12 @@ Tests: `test_doors.py` (42 checks) covers each door, the whole-word rule (Spaghe
 4. The placeholder reads "Prices, your purchases, your notes".
 **Out of scope:** the search circle beside the tab bar (still an idea), changes to Spending's filter.
 **Done when:** tests for each group, Show all, and the notes row; full suite passes. **Checks:** full suite; screenshots at 375 px, light and dark.
+**Debrief:** Built from the handoff and the prototype's Q09 layer. One question came up during the build:
+- **Spending's filter now matches each word too** (Ivan, 1 Nov 2026, asked during the build, so it widens "Out of scope: changes to Spending's filter" by that one change). Before, it only found the words side by side, so "Show all" for "cubao jeepney" would have opened Spending showing nothing. Both now use one matcher (`matcher()`), with Spending's fields (how paid included), so the count always agrees. One-word filtering works as before.
+Decided within scope: the category chips narrow the prices only, not his records (as the prototype). Each group's header shows its count. Price notes are newest first.
+Tests: `test_search.py` (35 checks): each group, Show all landing on the same six in Spending, words in any order in both places, the no-match rules, the notes row (and not on a single category), hostile text, an empty app, and no sideways scroll. Full suite: 383 checks, all passing. Screenshots at 375 px, light and dark.
+**For your iPhone:** (1) Search "jeepney" after a few rides: your rides show under the prices. (2) "Show all … in Spending" lands on the same purchases. (3) Search's All view starts with Your price notes.
+**Left for later:** the search circle beside the tab bar (still an idea).
 
 ## Q10 · Spending: calendar and bar doors
 **Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q09 (built first). Prototype and Recon as Q08 (navigation audit findings 6 and 8).

@@ -128,6 +128,15 @@ The rule: one place per thing, with several doors to it, and every door opens th
 - Spending with nothing logged returns early from `scrSpending()`: no chart, range switch, chips or filter.
 - Left out on purpose (navigation audit): links on every detail row, a Settings tab, a Notes tab, a door from a calendar day to the Spending list.
 
+## Search finds your records (Q09)
+
+- **One matcher:** `matcher(q)` in `screens.js` splits what was typed into words; a record matches when every word appears somewhere in it, in any order. Purchases look at item, place, where bought, category, how paid and notes; price notes at the item name, place, where bought and note. **Spending's filter uses the same matcher** (Ivan, 1 Nov 2026), so "Show all N in Spending" always opens the same N. Change one and you change both.
+- **With text,** `searchResults()` shows Prices (catalogue matches, as before), then `recordResults()`: **In your purchases** (`#mine`, newest first, `MINE_SHOWN` = 3 rows, then `ACT.searchToSpend`, which opens Spending on All with the filter set to the same words) and **In your price notes** (`#mynotes`, rows open the item). The category chips narrow the prices only, not his records.
+- **No match:** "No clear match" shows only when nothing of his matches either. Q08's Log row shows whenever there's no price match.
+- **All view** starts with `notesDoor()` (`#notesDoor`), opening the same Price notes sheet as Settings.
+- Rows reuse `purchaseRow()` and open the same purchase and item sheets as everywhere else.
+- Left out: the search circle beside the tab bar (still an idea).
+
 ## Backups
 
 A backup is a JSON file: a plain-English `README`, `app: 'Suki'`, `schemaVersion: 1`, `appVersion`, `exportedAt`, `device`, `purchases`, `observations` and `rate`. Backups from 2.0 (without `README`, `appVersion` or `device`) still restore. Files are named `Suki backup · YYYY-MM · Device.json`.
@@ -160,6 +169,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 | `test_release.py` | The version agrees in the app, README and CHANGELOG, and every file `index.html` loads exists |
 | `test_flows.py` | Logging (with errors and the draft), Spending (chips, filter, days, details, edit, delete, swipe, CSV), Quick Till, Convert, Search and price notes, Settings, empty states |
 | `test_doors.py` | Q08's doors: Home's two figures, Spending's +, logging on a calendar day, a purchase's prices row (whole words only, and on iPad), the old-rate link, Price notes' links to Search, Search's Log row and Settings rows that open things |
+| `test_search.py` | Q09: Prices, In your purchases (three rows, Show all with the same count in Spending), In your price notes, every word in any order (Search and Spending's filter), no match only when nothing of his matches, the notes row on All, the placeholder, screenshots at 375 px light and dark |
 | `test_data.py` | Older and damaged data, the backup reminder, export, erase, restore (good, damaged, other and 2.0 files), the rate failing, and updating from the real Suki 2.0 |
 | `test_offline.py` | Opening and working offline, and pull to refresh finding an update that then works offline too |
 | `test_layout.py` | Every screen and sheet on iPhone (three sizes and on its side), iPad both ways and Mac, light and dark; the details pane, the sidebar, shortcuts, the tab bar clearing the end of every page, pull to refresh, and motion on and Reduce Motion |

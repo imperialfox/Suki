@@ -14,7 +14,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q06 | Tidy-ups: amounts, backup values, rate timeout, long totals | Shipped · 2.10 | none (wireframe skipped by Ivan) | Light. From the stress test, A3 |
 | Q07 | Onboarding: welcome card, tips and Help | Shipped · 2.11 | [Onboarding prototype](https://claude.ai/artifact/FHaHJmMntjWM9eeDrrDkN9) | Medium. Builds after Q06, as 2.11 |
 | Q08 | Navigation: missing doors | Shipped · 2.12 | [Q08–Q11 prototype](https://claude.ai/artifact/FeN6KP83zyBJrWmh2465Dt) | Light to medium. From the navigation audit (A) and visual audit finding 8 |
-| Q09 | Search: your records in results | Approved — awaiting Build | same | Medium. Navigation audit (B). After Q08 |
+| Q09 | Search: your records in results | Shipped · 2.13 | same | Medium. Navigation audit (B). After Q08 |
 | Q10 | Spending: calendar and bar doors | Approved — awaiting Build | same | Light. Navigation audit (C). After Q09 |
 | Q11 | Motion: sheets and rows | Approved — awaiting Build | same | Medium. Visual audit (A). After Q10 |
 | Q13 | Quick Till: bigger buttons and change as cash | Approved — awaiting Build | [Quick Till prototype](https://claude.ai/artifact/1HLP63FZ3DXfqo7vTdEg8g) | Light to medium. Visual audit (C); spec in the project doc `q13_till_change-as-cash_spec.md`. After Q11 |
@@ -28,7 +28,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 
 **Render:** 31 Oct 2026, 23:20 · Ivan: "render" · scope: Q07 exactly as written in HANDOFF.md, built after Q06 (2.11). **Build:** 1 Nov 2026, Ivan: "build q07 - onboarding" · shipped as 2.11.
 
-**Render:** 1 Nov 2026, 08:26 · Ivan: "render" · scope: Q08, Q09, Q10, Q11 and Q16 exactly as written in HANDOFF.md and as prototyped, built in that order (each takes the next version when it lands). Q12–Q15 are not rendered. **Build (Q08):** 1 Nov 2026, 10:04, Ivan: "Build Q08" · shipped as 2.12.
+**Render:** 1 Nov 2026, 08:26 · Ivan: "render" · scope: Q08, Q09, Q10, Q11 and Q16 exactly as written in HANDOFF.md and as prototyped, built in that order (each takes the next version when it lands). Q12–Q15 are not rendered. **Build (Q08):** 1 Nov 2026, 10:04, Ivan: "Build Q08" · shipped as 2.12. **Build (Q09):** 1 Nov 2026, 10:48, Ivan: "Q09 (Search shows your own purchases and notes) build" · shipped as 2.13.
 
 **Render:** 1 Nov 2026, 09:33 · Ivan: "im happy to render but queue the[m] as two seperate items" · scope: Q17 and Q14 exactly as written in HANDOFF.md and as prototyped, built after Q16, Q17 first (*default*: the light one first, so it can land before the 7 Nov trip). Q12, Q13 and Q15 are not rendered.
 
@@ -48,6 +48,7 @@ Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `s
 - 1 Nov 2026: turned down: Smart add as a sheet rising from the bottom. Ivan: "not a fan of it popping up from the bottom".
 - 1 Nov 2026: it's called Smart add now, to build on later (usual price, suggestions and the typical note are in from the start).
 - 1 Nov 2026: left out of Q12: the Home week strip. Spending's week chart already shows the same bars, and Home now has the rate card.
+- 1 Nov 2026: Spending's filter matches every word in any order, like Search (asked during Q09's build). Then "Show all N in Spending" always opens the same N.
 - 1 Nov 2026: the rate card uses Suki's own icon colours as a one-off. The app style rules (no branding in the app) stay as they are; no other screen uses these colours.
 
 ## Ideas, not yet queued

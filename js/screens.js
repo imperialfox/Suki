@@ -275,6 +275,45 @@ function staleRate() {
   const n = dayDiff(localISO(at));
   return '<p class="foot stale" id="staleRate">Pound values use a rate from ' + (n < 7 ? n + ' days ago' : shortDate(localISO(at))) + '. <button class="tlink" data-a="goRefresh">Refresh it on Convert</button></p>';
 }
+/* Finding his own records (Q09). One matcher for Search and Spending's filter, so "Show all N in Spending" opens
+   exactly the N that Search counted: every word typed has to appear somewhere in the record, in any order. */
+function matcher(q) {
+  const words = norm(q).split(' ').filter(Boolean),
+    has = (parts) => {
+      const t = norm(parts.join(' '));
+      return words.every((w) => t.includes(w));
+    };
+  return {
+    any: words.length > 0,
+    purchase: (p) => !words.length || has([p.item, p.location, p.venue, p.category, p.payment, p.notes]),
+    note: (o) => !words.length || has([o.itemName, o.location, o.venue, o.note]),
+  };
+}
+const noteRow = (o) => {
+  const it = itemById(o.itemId);
+  return (
+    '<button class="row" data-a="openItem" data-k="' + esc(o.itemId) + '">' + tile(it ? it.group : '', false, o.itemId) +
+    '<span class="lbl"><b>' + esc(o.itemName) + ' · ' + cash(o.price) + '</b><small>' + esc([relDay(o.date), o.location, o.venue, o.note].filter(Boolean).join(' · ')) + '</small></span>' + ICON.chev + '</button>'
+  );
+};
+const MINE_SHOWN = 3;
+function recordResults(q) {
+  const m = matcher(q),
+    mine = D.purchases.filter(m.purchase).sort(byNewest),
+    notes = D.observations.filter(m.note).sort((a, b) => b.date.localeCompare(a.date));
+  let h = '';
+  if (mine.length)
+    h +=
+      hdr('In your purchases', '<span class="hint">' + plural(mine.length, 'purchase') + '</span>') +
+      '<div class="grp tiled" id="mine">' + mine.slice(0, MINE_SHOWN).map((p) => purchaseRow(p)).join('') +
+      (mine.length > MINE_SHOWN ? '<button class="row more" data-a="searchToSpend"><span class="lbl">Show all ' + mine.length + ' in Spending</span>' + ICON.chev + '</button>' : '') + '</div>';
+  if (notes.length) h += hdr('In your price notes', '<span class="hint">' + plural(notes.length, 'note') + '</span>') + '<div class="grp tiled" id="mynotes">' + notes.map(noteRow).join('') + '</div>';
+  return { html: h, found: mine.length + notes.length };
+}
+// Search's All view starts with a door to every price note (the Settings row is the second door)
+const notesDoor = () =>
+  '<div class="grp tiled" id="notesDoor"><button class="row" data-a="openNotes">' + stile('tag', 'orange') +
+  '<span class="lbl"><b>Your price notes</b><small>' + (D.observations.length ? plural(D.observations.length, 'note') + ' from the trip' : 'Prices you’ve seen, saved from any item') + '</small></span>' + ICON.chev + '</button></div>';
 // items with a price come first, then the rest in catalogue order
 const byPriced = (a, b) => (priceOf(a.id) ? 0 : 1) - (priceOf(b.id) ? 0 : 1);
 const inBrowse = (it) => U.scat === 'all' || browseOf(it) === U.scat;
@@ -283,15 +322,17 @@ function searchResults() {
     R = REFS(),
     daNote = '<p class="foot">Market prices are weekly averages from ' + esc(R.source || 'the Department of Agriculture') + ', ' + esc(R.area || '') + ', ' + esc(R.period || '') + '.</p>';
   if (q) {
-    const hits = searchItems(q).filter(inBrowse);
+    // prices first, then his own purchases and price notes (Q09)
+    const hits = searchItems(q).filter(inBrowse),
+      mine = recordResults(q);
     return (
-      hdr('Matches', '<span class="hint">' + plural(hits.length, 'result') + '</span>') +
+      (hits.length ? hdr('Prices', '<span class="hint">' + plural(hits.length, 'result') + '</span>') + '<div class="grp tiled">' + hits.map(itemRow).join('') + '</div>' : '') +
+      mine.html +
       (hits.length
-        ? '<div class="grp tiled">' + hits.map(itemRow).join('') + '</div>'
-        : '<div class="grp"><div class="empty"><b>No clear match</b><br>Try fewer words, another spelling or the English name' + (U.scat !== 'all' ? ', or search All' : '') + '.</div></div>' +
-          // nothing in the price list: log it instead, with the name filled in (Q08)
-          '<div class="grp tiled spaced"><button class="row more" data-a="newPurchase" data-item="' + esc(q) + '"><span class="lbl">Log “' + esc(q) + '” as a purchase</span>' + ICON.chev + '</button></div>') +
-      (hits.length ? staleRate() : '')
+        ? staleRate()
+        : // nothing in the price list: say so only if nothing of his matched either, and offer to log it (Q08)
+          (mine.found ? '' : hdr('Matches', '<span class="hint">0 results</span>') + '<div class="grp"><div class="empty"><b>No clear match</b><br>Try fewer words, another spelling or the English name' + (U.scat !== 'all' ? ', or search All' : '') + '.</div></div>') +
+          '<div class="grp tiled spaced"><button class="row more" data-a="newPurchase" data-item="' + esc(q) + '"><span class="lbl">Log “' + esc(q) + '” as a purchase</span>' + ICON.chev + '</button></div>')
     );
   }
   // one category: everything in it
@@ -299,8 +340,9 @@ function searchResults() {
     const list = CATALOG.filter(inBrowse).slice().sort(byPriced);
     return hdr(BROWSE.find((b) => b[0] === U.scat)[1], '<span class="hint">' + plural(list.length, 'item') + '</span>') + '<div class="grp tiled">' + list.map(itemRow).join('') + '</div>' + (U.scat === 'market' ? daNote : '') + staleRate();
   }
-  // All: a few from each category, each with a door to the rest
+  // All: the price notes door, then a few from each category, each with a door to the rest
   return (
+    notesDoor() +
     BROWSE.slice(1)
       .map((b) => {
         const list = CATALOG.filter((it) => browseOf(it) === b[0]).slice().sort(byPriced),
@@ -320,7 +362,7 @@ const browseChips = () =>
 function scrSearch() {
   const list =
     '<label class="searchbox">' + ICON.search +
-    '<input id="q" type="search" placeholder="Try “jeepney” or “1 kilo bigas”" aria-label="Search prices" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" value="' + esc(U.q) + '">' +
+    '<input id="q" type="search" placeholder="Prices, your purchases, your notes" aria-label="Search prices, your purchases and your notes" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" value="' + esc(U.q) + '">' +
     '<button type="button" class="clr" data-a="clearQ" aria-label="Clear search"' + (U.q ? '' : ' hidden') + '>' + ICON.x + '</button>' + '</label>' +
     browseChips() +
     '<div id="results">' + searchResults() + '</div>';
@@ -372,12 +414,12 @@ function period() {
 }
 const inPeriod = (p, per) => p.date >= per.from && p.date <= per.to;
 function spendingList(ignoreCat) {
-  const q = norm(U.filter),
+  const m = matcher(U.filter),
     per = period();
   return D.purchases
     .filter((p) => inPeriod(p, per))
     .filter((p) => ignoreCat || U.cat === 'all' || p.category === U.cat)
-    .filter((p) => !q || norm([p.item, p.location, p.venue, p.category, p.payment, p.notes].join(' ')).includes(q))
+    .filter(m.purchase)
     .sort(byNewest);
 }
 // a round number just above the tallest bar, for the axis

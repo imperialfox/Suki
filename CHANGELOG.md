@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.13 · 1 Nov 2026
+*Search finds what you've logged, not only prices (Q09)*
+
+**Search**
+- Typing in Search now shows your own records under the prices: **In your purchases** (the newest three, then "Show all … in Spending") and **In your price notes**.
+- A purchase is found when every word you type appears in its name, place, where bought, category, how you paid or its notes, in any order. So "cubao jeepney" finds a jeepney ride in Cubao.
+- When only your own records match, there's no "No clear match". "Log … as a purchase" is still there.
+- Search's All view starts with **Your price notes**, which opens every note. The row in Settings still works too.
+- The search box reads "Prices, your purchases, your notes".
+
+**Spending**
+- The filter finds every word in any order too, so "Show all" from Search always opens the same purchases it counted. Typing one word works as before.
+
 ## 2.12 · 1 Nov 2026
 *No dead ends: every place named is a door to it (Q08)*
 

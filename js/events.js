@@ -453,6 +453,11 @@ const ACT = {
     U.shown = SHOW_STEP;
     spendingChanged(step);
   },
+  // Search's "Show all N in Spending" (Q09): All time, filtered by the same words, so it shows the same N
+  searchToSpend: () => {
+    Object.assign(U, { range: 'all', roff: 0, bar: null, cat: 'all', filter: U.q.trim(), shown: SHOW_STEP });
+    go('spending');
+  },
   // Q08 · doors: Home's two figures, one Log sheet from many places, and words that name a place
   toSpend: (el) => {
     Object.assign(U, { range: el.dataset.v === 'day' ? 'day' : 'all', roff: 0, bar: null, cat: 'all', filter: '', shown: SHOW_STEP });

@@ -1,0 +1,153 @@
+"""Search finds his own records (Q09): prices, then In your purchases (three rows and "Show all N in Spending"), then
+In your price notes; the no-match message only when nothing at all matches; the price notes door on All; the
+placeholder; and Spending's filter matching the same words, so both doors agree. Light and dark screenshots at 375 px."""
+from harness import sample, day
+
+
+def data():
+    d = sample()
+    # five more jeepney rides, one of them in Cubao with a note, so "jeepney" has more than three
+    for i, (n, place, note) in enumerate([(2, 'Quiapo', ''), (3, 'Cubao', 'Back from the mall'), (4, 'Cubao', ''), (5, 'Makati', ''), (6, 'Pasay', '')]):
+        d['purchases'].append({'id': f'j{i}', 'item': 'Jeepney', 'price': 14, 'date': day(n), 'category': 'Transport', 'location': place,
+                               'venue': '', 'payment': 'Cash', 'notes': note, 'gbpAtPurchase': None, 'rateAtPurchase': None})
+    return d
+
+
+def tab(pg, name):
+    pg.evaluate("window.scrollTo(0,0)")
+    pg.click(f'#dock [data-v={name}]')
+    pg.wait_for_function(f"U.tab==='{name}'")
+
+
+def search(pg, q):
+    pg.fill('#q', q)
+    pg.wait_for_function("q=>U.q===q", arg=q)
+
+
+def heads(pg):
+    return [h.upper() for h in pg.locator('#results .hdr h2').all_inner_texts()]
+
+
+def run(b, t):
+    ok = t.ok
+    pg = t.page(b, w=375, h=812, data=data())
+    tab(pg, 'search')
+
+    # ── The box says what it searches ────────────────────────────
+    ok(pg.get_attribute('#q', 'placeholder') == 'Prices, your purchases, your notes', 'the placeholder reads “Prices, your purchases, your notes”')
+
+    # ── All view: the price notes door comes first ───────────────
+    door = pg.locator('#results #notesDoor [data-a=openNotes]')
+    ok(door.count() == 1 and pg.locator('#results > *').first.get_attribute('id') == 'notesDoor', 'Search’s All view starts with a Your price notes row')
+    ok('Your price notes' in door.inner_text() and '2 notes from the trip' in door.inner_text(), f'it counts the notes ({door.inner_text()!r})')
+    t.shot(pg, 'all-light')
+    door.click()
+    pg.wait_for_function("U.sheet==='notes'")
+    ok(pg.inner_text('.sheet h2') == 'Price notes', 'it opens the same Price notes sheet as Settings')
+    pg.click('.sheet [data-a=close]')
+    pg.wait_for_function("U.sheet===null")
+    pg.click('#browse [data-v=transport]')
+    pg.wait_for_function("U.scat==='transport'")
+    ok(pg.locator('#notesDoor').count() == 0, 'a single category doesn’t repeat the notes row')
+    pg.click('#browse [data-v=all]')
+    pg.wait_for_function("U.scat==='all'")
+    pg.evaluate("go('settings')")
+    ok(pg.locator('#app [data-a=openNotes]').count() == 1, 'the Settings row stays as a second door')
+    tab(pg, 'search')
+
+    # ── Prices, then In your purchases ───────────────────────────
+    search(pg, 'jeepney')
+    ok(heads(pg)[:2] == ['PRICES', 'IN YOUR PURCHASES'], f'“jeepney” shows Prices, then In your purchases ({heads(pg)})')
+    rows = pg.locator('#mine [data-a=openPurchase]')
+    ok(rows.count() == 3, f'three of his purchases are shown (got {rows.count()})')
+    ok(rows.first.get_attribute('data-k') == 'a2', 'newest first: yesterday’s ride leads')
+    ok('6 purchases' in pg.inner_text('#results .hdr:has(h2:text("In your purchases")) .hint'), 'the header counts all six')
+    more = pg.locator('#mine [data-a=searchToSpend]')
+    ok(more.count() == 1 and more.locator('.lbl').inner_text() == 'Show all 6 in Spending', 'then “Show all 6 in Spending”')
+    t.shot(pg, 'jeepney-light')
+    rows.first.click()
+    pg.wait_for_function("U.sheet==='purchase'")
+    ok(pg.evaluate("U.sd.id") == 'a2' and 'Cubao' in pg.inner_text('.sheet'), 'a purchase row opens the same purchase sheet')
+    pg.click('.sheet [data-a=close]')
+    pg.wait_for_function("U.sheet===null")
+
+    # ── Show all opens Spending with the same N ──────────────────
+    pg.evaluate("U.range='week';U.roff=1;U.cat='Groceries'")
+    more.click()
+    pg.wait_for_function("U.tab==='spending'")
+    ok(pg.evaluate("U.range==='all'&&U.roff===0&&U.cat==='all'") and pg.input_value('#filter') == 'jeepney', 'Show all opens Spending on All, filtered by the same words')
+    ok(pg.locator('#spendList [data-a=openPurchase]').count() == 6, 'and Spending shows the same six')
+    tab(pg, 'search')
+
+    # ── Every word counts, in any order ──────────────────────────
+    search(pg, 'cubao jeepney')
+    ok(pg.locator('#mine [data-a=openPurchase]').count() == 3 and pg.locator('#mine [data-a=searchToSpend]').count() == 0,
+       '“cubao jeepney” finds the three Cubao rides, words in any order, with no Show all for three')
+    search(pg, 'back from')
+    ok(pg.locator('#mine [data-a=openPurchase]').count() == 1 and pg.locator('#mine [data-k=j1]').count() == 1, 'notes are searched too (“back from”)')
+    search(pg, 'megamall')
+    ok(pg.locator('#mine [data-k=a1]').count() == 1, 'and places (“megamall”)')
+    search(pg, 'jeepney quiapo makati')
+    ok(pg.locator('#mine').count() == 0, 'a word that appears in no purchase rules it out')
+    # Spending's filter now matches the same way (Ivan, 1 Nov 2026), so both doors agree
+    tab(pg, 'spending')
+    pg.fill('#filter', 'cubao jeepney')
+    pg.wait_for_function("U.filter==='cubao jeepney'")
+    ok(pg.locator('#spendList [data-a=openPurchase]').count() == 3, 'Spending’s filter finds every word in any order too')
+    pg.fill('#filter', 'cubao')
+    pg.wait_for_function("U.filter==='cubao'")
+    ok(pg.locator('#spendList [data-a=openPurchase]').count() == 3, 'one word filters as before')
+    pg.click('[data-a=clearFilter]')
+    tab(pg, 'search')
+
+    # ── Only his records match: no “No clear match”, but the Log row stays ─
+    search(pg, 'island hopping tour')
+    txt = pg.inner_text('#results')
+    ok('IN YOUR PURCHASES' in heads(pg) and pg.locator('#mine [data-k=a4]').count() == 1, '“island hopping tour” finds his purchase')
+    ok('No clear match' not in txt, 'with his own records matching, there’s no “No clear match”')
+    ok(pg.locator('#results [data-a=newPurchase]').count() == 1, 'the Log row still shows')
+    t.shot(pg, 'island-light')
+
+    # ── In your price notes ──────────────────────────────────────
+    search(pg, 'quiapo')
+    ok(heads(pg)[-1:] == ['IN YOUR PRICE NOTES'] and pg.locator('#mynotes [data-a=openItem]').count() == 1, f'“quiapo” finds his rice note ({heads(pg)})')
+    ok('Bigas · ₱52.00' in pg.inner_text('#mynotes'), 'the note row shows the item and what he saw')
+    ok(pg.locator('#mine [data-k=j0]').count() == 1, 'and his Quiapo jeepney ride above it')
+    pg.click('#mynotes [data-a=openItem]')
+    pg.wait_for_function("U.sheet==='item'")
+    ok(pg.evaluate("U.sd.id") == 'bigas', 'a note row opens its item')
+    pg.click('.sheet [data-a=close]')
+    pg.wait_for_function("U.sheet===null")
+    search(pg, 'bigas')
+    ok(heads(pg) == ['PRICES', 'IN YOUR PRICE NOTES'], f'“bigas” shows its prices, then the note ({heads(pg)})')
+
+    # ── Nothing at all ───────────────────────────────────────────
+    search(pg, 'xqzv')
+    ok('No clear match' in pg.inner_text('#results') and pg.locator('#results [data-a=newPurchase]').count() == 1, 'nothing matching says “No clear match”, with the Log row')
+    ok(pg.locator('#mine, #mynotes').count() == 0, 'and no empty groups')
+
+    # ── Hostile text stays text ──────────────────────────────────
+    pg.evaluate("""D.purchases.push({id:'h1',item:'<img src=x onerror="window.__x=1">tour',price:5,date:localISO(),category:'Other',location:'',venue:'',payment:'Cash',notes:''})""")
+    search(pg, 'tour')
+    ok(pg.evaluate("!window.__x") and '<img' in pg.inner_text('#mine'), 'a purchase name with markup shows as plain text')
+    pg.evaluate("D.purchases=D.purchases.filter(p=>p.id!=='h1')")
+
+    # ── Empty app: the notes row still has somewhere to go ───────
+    pg2 = t.page(b, w=375, h=812, data=None)
+    tab(pg2, 'search')
+    ok('Prices you’ve seen, saved from any item' in pg2.inner_text('#notesDoor'), 'with no notes, the row says what notes are')
+    pg2.fill('#q', 'jeepney')
+    pg2.wait_for_function("U.q==='jeepney'")
+    ok(pg2.locator('#mine, #mynotes').count() == 0 and heads(pg2) == ['PRICES'], 'with nothing logged, Search shows prices only')
+    pg2.close()
+
+    # ── Dark ─────────────────────────────────────────────────────
+    pd = t.page(b, w=375, h=812, sc='dark', data=data())
+    tab(pd, 'search')
+    t.shot(pd, 'all-dark')
+    pd.fill('#q', 'jeepney')
+    pd.wait_for_function("U.q==='jeepney'")
+    t.shot(pd, 'jeepney-dark')
+    ok(pd.evaluate("document.documentElement.scrollWidth<=innerWidth"), 'no sideways scroll at 375 px in dark')
+    pd.close()
+    ok(pg.evaluate("document.documentElement.scrollWidth<=innerWidth"), 'no sideways scroll at 375 px in light')

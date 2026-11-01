@@ -307,3 +307,72 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Q12 prototyp
 Tests: `test_compare.py` (44 checks). Full suite: 527 checks, all passing (pinned Playwright 1.56 pointed at a newer Chromium, as before). Also checked by eye: the iPad pane.
 **For your iPhone:** (1) Open the calendar on a busy month: can you tell the three blues apart in daylight, and in dark mode at night? (2) Pick a big day: it turns black (white in dark), not blue. (3) Open Jeepney or Tricycle after logging one: does the strip make sense without reading the key? (4) Tap a dot, then its row, then somewhere else: the light follows and clears. (5) Tap a You paid row, close the purchase: its dot is lit.
 **Left for later:** nothing new.
+
+## Q18 · Quick Till: note press
+**Render:** 1 Nov 2026, 13:09, scope as below (with Q19–Q21) · **Build:** awaiting · Needs: Q13 live (its buttons, change row and breakdown).
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Suki note press prototype](https://claude.ai/artifact/EsJMmBNf71Sm48FDttcpLS). Spec: project doc `idea_till_note-press_notes.md`; phases: `q18_till_drawer-and-note-press_blueprint.md`. Phase 1 of 4.
+
+**Goal:** tapping a note feels like handing over cash.
+**Agreed:**
+1. **Finger tilt:** the six buttons tip towards the thumb while held and spring back on release.
+2. **Fly** (the starting setting): the note arcs into the cash box; the ₱20 spins like a tossed coin.
+3. **Slot:** the note slides up into a slot line under the cash box; the line fades in for the slot, out about a second later, and is hidden at rest.
+4. **Setting:** Settings › Accessibility › "Note animation: Fly · Slot". Device-only, not in backups (like `suki:motion`).
+5. **The amount updates when the note lands;** the change row settles in straight after. No counting up.
+6. **New materials** for Q13's notes and coins (flying and in the change row): notes a block of paper, coins a hint of metal. Tokens only (`--dr-*`, `--coin-*`, `--ring-edge`), mixed from Suki's own; no hex in rules.
+7. **Reduce Motion:** no tilt, no flight; the amount updates at once.
+**Out of scope:** the drawer and the slot line as a handle (Q19); sounds; haptics (parked).
+**Where to look:** `screens.js` (scrTill, the change block, Accessibility), `events.js` (till keys), `motion.js` (`settle`), `css/app.css`, `storage.js` (list the new device-only key). Keep `.denoms` and `.tillout`'s minimum height.
+**Done when:** tests: each tap adds the right amount once, also when tapped fast; no stray flying notes after rapid taps or a redraw; the setting switches and survives a reload, and isn't in backups; Reduce Motion gives no flight; Q13's tests still pass; full suite passes. **Checks:** screenshots at 375 and 402 px, light and dark.
+**For your iPhone:** the tilt under your thumb; Fly and Slot at full speed; the notes' new look in daylight.
+
+## Q19 · Quick Till: till drawer
+**Render:** 1 Nov 2026, 13:09, scope as below (with Q18, Q20, Q21) · **Build:** awaiting · Needs: Q18 live (the slot line and materials).
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q18 ("iOS way" feel; the Now/iOS toggle and slow-motion controls are prototype only). Phase 2 of 4.
+
+**Goal:** a hidden drawer under the cash box that opens and shuts like a real one.
+**Agreed:**
+1. **The drawer:** a rigid tray 300 pt deep, tilted 26° in 3D, concentric corners (12 and 5 pt); opens from under the still cash box; the six buttons ride on its front; the cash box's shadow (`::after`, opacity follows `--open`) deepens as it opens; layout 3 + 8 compact (four note slots, five coin cups), empty here; open height 106 pt.
+2. **Opening the iOS way:** follows the finger; on release it settles at whichever end it would coast to (`project(v)` with deceleration 0.99, past halfway); speed read over the last ~100 ms up to release; springs as length and bounce (open 0.45 s, a tap opens with no bounce, a flick gets up to 0.15; shut 0.35 s, no bounce, cut off at 0); past open it stretches with iOS's rubber band.
+3. **Shutting as a chain:** a swipe up shuts it, then the rest of the same swipe scrolls the page; let go mid-flick and the page glides on (rAF, any new touch stops it). **The knock:** a hard shut nudges only the cash box up 1–2.2 pt at the instant it hits.
+4. **Easter egg:** the line is hidden at rest (shows on touch, while open, and on keyboard or VoiceOver focus); no tip, not in Help. The line is a real button: "Open till drawer" / "Close till drawer".
+5. **Starts closed every time;** closes on a new bill or when typing starts. A tap still types; only a drag past 6 pt is the drawer's.
+6. **Devices:** iPhone upright only (on its side, only Q20's overload peek shows). iPad and Mac: the card's width; click, Space or Enter, or a mouse drag.
+7. **Reduce Motion:** a 0.2 s fade; no spring, jiggle or knock.
+**Out of scope:** contents and fullness (Q20); the haul and mark (Q21); haptics.
+**Where to look:** `screens.js` (scrTill), the drawer's gesture code (in `gestures.js`, beside the other drags), `motion.js` (`spring(duration, bounce)`, `project`), `css/app.css`.
+**Risks:** `render()` redraws must leave it shut with no stray listeners or frames; must not fight sheets, swipe to delete or Q11's motion; 3D smoothness on the phone.
+**Done when:** motion-on tests: a 45 pt held pull shuts, 55 pt opens; a tiny flick shuts, a flick with a stalled last frame opens; a swipe up shuts then scrolls; the knock only on a hard shut; caught mid-movement; typing and a redraw leave it shut; Reduce Motion fades only; the button's labels; no sideways overflow; the fuzzer passes; full suite passes. **Checks:** screenshots open and shut, 375 and 402 px, light and dark, iPad and Mac.
+**For your iPhone:** finding it with no hint; the open and shut feel; the scroll hand-off; the knock's timing; smoothness.
+
+## Q20 · Quick Till: drawer contents and fullness
+**Render:** 1 Nov 2026, 13:09, scope as below (with Q18, Q19, Q21) · **Build:** awaiting · Needs: Q19 live.
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q18. Phase 3 of 4.
+
+**Goal:** the open drawer shows roughly how much cash is in it.
+**Agreed:**
+1. **Notes land in their compartment** when the drawer is open; the ₱20 goes into its cup.
+2. **A fullness gauge, not a count:** only the cash handed over decides how full it looks; full at ₱20,000.
+3. **Contents:** notes stand on edge in each slot as a paper block, labels on each slot's front lip; coins lie in loose heaps in scooped cups that slope into a basin.
+4. **Physics:** on open and close, coin heaps lag a frame and settle; notes sway about 1.6° and right themselves.
+5. **Overloaded from ₱50,000:** notes tip out, coins spill; with the drawer shut, notes peek out from under the cash box; VoiceOver: "Till overloaded. Check the amount."
+6. **Calm changes:** pieces fade over about 0.2 s; ✕ clears with a calm fade.
+**Out of scope:** the haul and mark (Q21); the spec's "Apple-detail ideas not yet built".
+**Where to look:** `screens.js` (tray contents, the fill), `css/app.css`, the landing target from Q18.
+**Done when:** tests: fullness follows the amount; the peek at ₱50,000 and not below; the VoiceOver text; ✕ empties it; notes land in the right compartment; nothing overflows at ₱999,999; full suite passes. **Checks:** screenshots empty, half, full and overloaded, light and dark.
+**For your iPhone:** whether fullness reads at a glance; the overload peek; smoothness with 40-odd notes.
+
+## Q21 · Quick Till: the haul and maker's mark
+**Render:** 1 Nov 2026, 13:09, scope as below (with Q18–Q20) · **Build:** awaiting · Needs: Q20 live.
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q18. Phase 4 of 4.
+
+**Goal:** the Easter egg inside the Easter egg.
+**Agreed:**
+1. **Hand over hand:** with the drawer fully open, hold it with one finger and swipe down with another, swapping fingers while one stays down. One finger never starts it.
+2. **Heavy and steady:** 0.035 pt per pt of finger travel, linear, hard stop at 120 pt past open (about ten long swipes). Downward movement from any finger adds; upward counts only once one finger is left.
+3. **It stays where it's left.** A one-finger give springs back to that spot; a swipe up still shuts it from any depth.
+4. **"Designed by Ivan"** at the very back: plain, Caption 2 (11 pt), regular, `--fg3`, 224 pt from the tray's front; peeks on the ninth swipe, whole on the tenth. `aria-hidden`.
+**Out of scope:** anything else at the back of the drawer.
+**Where to look:** the drawer's gesture code, `css/app.css`, `screens.js` (the mark). Zoom blocking in `events.js` must not swallow the second pointer.
+**Done when:** tests with synthetic two-finger pointers: ten 350 pt swipes reach 120 pt; it stays when let go; one finger can't start it; the mark only at the end; a swipe up shuts it; full suite passes.
+**For your iPhone:** whether ten swipes feels earned or a chore; whether the mark is readable but quiet, especially in dark mode.

@@ -338,6 +338,8 @@ function onField(e) {
   const t = e.target;
   if (t.dataset.form && t.dataset.f) {
     F[t.dataset.form][t.dataset.f] = t.value;
+    // typing in (or clearing) Location is his: Suki stops filling it in for this purchase (Q16)
+    if (t.dataset.f === 'location' && (t.dataset.form === 'home' || t.dataset.form === 'edit')) F[t.dataset.form].locFrom = 'typed';
     t.removeAttribute('aria-invalid');
     const err = $(t.dataset.form + '-err');
     if (err) err.textContent = '';

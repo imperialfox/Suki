@@ -19,12 +19,18 @@ const money$ = (form, f, v, ph) =>
 
 // the purchase form: Home's quick log and the add/edit sheet
 function purchaseForm(form, v, showMore) {
+  // a new purchase starts from that day's town (Q16); editing an old one never changes its place
+  if (form === 'home' || (form === 'edit' && !U.sd.id)) dayTown(v);
+  const src = locSource(v);
   const more =
     field(form + '-date', 'Date', inp(form, 'date', v.date || localISO(), 'type="date" max="' + localISO(new Date(Date.now() + 864e5 * 366)) + '"')) +
-    '<div class="two">' +
-    field(form + '-location', 'Location', inp(form, 'location', v.location, 'placeholder="e.g. Cebu City" autocomplete="off"')) +
+    field(
+      form + '-location',
+      'Location' + (src ? ' <small class="locsrc">· ' + src + '</small>' : ''),
+      '<div class="locbox">' + inp(form, 'location', v.location, 'placeholder="e.g. Cebu City" autocomplete="off"') +
+        '<button type="button" class="locbtn" data-a="locate" data-k="' + form + '" aria-label="Fill in the town you’re in">' + ICON.locate + '</button></div>'
+    ) +
     field(form + '-venue', 'Where bought', sel(form, 'venue', VENUES, v.venue, 'Not specified')) +
-    '</div>' +
     field(form + '-payment', 'Paid with', sel(form, 'payment', PAYMENTS, v.payment || 'Cash')) +
     field(
       form + '-notes',
@@ -39,7 +45,9 @@ function purchaseForm(form, v, showMore) {
     '</div>' +
     (showMore === undefined
       ? more
-      : '<button type="button" class="disclose" data-a="more" aria-expanded="' + !!showMore + '">' + (showMore ? 'Fewer details' : 'More details') + '<span aria-hidden="true">' + (showMore ? '−' : '+') + '</span></button>' +
+      : '<button type="button" class="disclose" data-a="more" aria-expanded="' + !!showMore + '">' +
+        (showMore || !String(v.location || '').trim() ? (showMore ? 'Fewer details' : 'More details') : '<em class="dlplace">More details<small> · ' + esc(v.location) + '</small></em>') +
+        '<span aria-hidden="true">' + (showMore ? '−' : '+') + '</span></button>' +
         (showMore ? '<div class="more">' + more + '</div>' : ''))
   );
 }
@@ -950,6 +958,7 @@ function scrSettings() {
     row('peso', 'indigo', 'Saved exchange rate', D.rate ? '£1 = ' + cash(D.rate.value) + ' · ' + shortDate(D.rate.date) + '<br>From ' + esc(D.rate.source) : 'Not loaded yet', 'goConvert') +
     (RATE_CHECK ? row('refresh', RATE_CHECK.ok ? 'green' : 'orange', 'Last rate check', rateCheckText()) : '') +
     row('book', 'green', 'Official prices', esc((R.source || '') + ' · ' + (R.area || '') + ' · ' + (R.period || ''))) +
+    row('locate', 'blue', 'Towns for Location', 'Outlines from NAMRIA and PSA, through OCHA (CC BY-IGO)' + (window.sukiTowns && window.sukiTowns.psgc ? ' · PSGC ' + esc(window.sukiTowns.psgc.replace(/^(\d{4})-(\d)q$/i, 'Q$2 $1')) : '') + '<br>Found on your phone, never sent anywhere') +
     row('phone', 'blue', 'Add to your Home Screen', 'The steps, for a new phone', 'openAhs') +
     '<a class="row" href="https://github.com/imperialfox/Suki" target="_blank" rel="noopener">' + stile('code', 'ink') + '<span class="lbl"><b>View on GitHub</b></span>' + ICON.out + '</a>' +
     '</div>' +

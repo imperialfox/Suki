@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.18 · 1 Nov 2026
+*Location fills itself in, privately and offline (Q16)*
+
+**From earlier that day**
+- A new purchase's Location starts as the place of your newest purchase that day that has one: today's on Home and Spending's +, that day's when you log on a calendar day. The label says "Location · from earlier today" or "· from that day".
+- On Home, with More details closed, the place shows beside it ("More details · Quezon City"), so you can see where it'll be saved.
+- Typing in Location, or clearing it, is yours: Suki stops filling it in for that purchase. The next purchase starts from the day's town again.
+- Editing an old purchase never changes its place.
+
+**The town you're in**
+- An arrow inside Location fills the town you're in, labelled "· near you", and the box tints briefly.
+- iPhone asks for permission the first time you tap the arrow, never when Suki opens. If it's off: "Location is off for Suki. Type the town, or allow it in Settings." Away from any town: "No town found near you. Type it in instead."
+- The outlines of all 1,642 Philippine cities and municipalities are kept inside the app, so it works with no signal, and your position never leaves your phone. Settings › About credits them (NAMRIA and PSA, through OCHA, CC BY-IGO).
+
+**Layout**
+- Location now has the full width, with Where bought underneath.
+
 ## 2.17 · 1 Nov 2026
 *Quick Till: bigger buttons, and your change shown as the notes and coins to expect (Q13)*
 

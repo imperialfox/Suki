@@ -97,6 +97,7 @@ const ICON = {
   refresh: GL('<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/>'),
   out: GL('<path d="M14 4.5h5.5V10M19.5 4.5 11 13M17 14v4.5a1 1 0 0 1-1 1H5.5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1H10"/>'),
   swap: GL('<path d="M8 4v16l-3.5-3.5M16 20V4l3.5 3.5"/>'),
+  locate: GL('<path d="M20 4 4 11l7 2 2 7z"/>'),
   // Settings tiles
   upload: GL('<path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 14v4.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V14"/>'),
   download: GL('<path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 14v4.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V14"/>'),

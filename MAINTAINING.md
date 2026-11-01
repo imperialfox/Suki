@@ -30,6 +30,7 @@ Suki shares its foundations with Vocal Sessions (`imperialfox/Vocal-Sessions`): 
 | `splash/` | iOS launch images, light and dark, made by `tools/splash.py` |
 | `tools/release.py` | Sets the version number everywhere at once, or checks it |
 | `tools/splash.py` | Makes the launch images from `icon-512.png` |
+| `tools/towns.py` | Makes `js/towns.js`, the town outlines for Location (Q16) |
 | `tests/` | The test suite (see below) |
 | `.github/workflows/tests.yml` | Runs the tests on GitHub after every push |
 
@@ -48,6 +49,8 @@ Suki shares its foundations with Vocal Sessions (`imperialfox/Vocal-Sessions`): 
 | `js/rate.js` | The exchange rate (`refreshRate`, `autoRate`) and the linked converter boxes. The rate comes from the first source in `RATE_SOURCES` that answers with a rate inside `RATE_RANGE`; `RATE_CHECK` keeps why the last check failed, for Settings |
 | `js/backup.js` | Saving files (share sheet or download), backups, restoring, erasing and the CSV export |
 | `js/events.js` | Every button action (`ACT`), the forms, typing, swipe to delete, blocking zoom and keyboard shortcuts |
+| `js/towns.js` | The outline of every Philippine city and municipality (`window.sukiTowns`), made by `tools/towns.py`. Don't edit by hand |
+| `js/locate.js` | Location when logging (Q16): that day's town (`dayTown`), the town you're in (`townAt`) and the arrow (`ACT.locate`) |
 | `js/gestures.js` | Pull to refresh and the update check, scrolling (the top bar turning to glass), rotating, online/offline, sheet scrolling and dragging sheets down |
 | `js/onboard.js` | Onboarding (Q07): the Home Screen steps in Safari, the welcome card, tips and the Help screen |
 | `js/boot.js` | Starts the app. Always last |
@@ -178,6 +181,16 @@ The rule: a number next to something to compare it with. No good or bad words or
 - `.tillout` has a 148 px minimum height, so Log this bill only moves when coins wrap onto a second line.
 - **Next:** Q18 (the till drawer and note press) restyles these notes and coins; reuse `asCash` and the keys.
 
+## Location when logging (Q16)
+
+- **That day's town:** `purchaseForm()` calls `dayTown(v)` for a new purchase (Home, or the Log sheet with no `U.sd.id`). It fills `v.location` from `townOn(day)`, the newest purchase that day with a place (`D.purchases` is newest first), and sets `v.locFrom = 'auto'`. An auto place is worked out again on every draw, so it follows the data (a deleted purchase, a new day, a half-typed draft reloaded tomorrow). `locSource(v)` gives the label: "from earlier today", "from that day" or "near you".
+- **`v.locFrom`** lives in the form state `F` (and so in Home's draft), never in a saved purchase: `'auto'`, `'near'` (the arrow) or `'typed'`. `onField` sets `'typed'` on any typing in Location, including clearing it, and then nothing fills it. A new form state (after saving, or any Log sheet opener) starts again.
+- **The arrow** (`.locbtn`, `ACT.locate`) calls `navigator.geolocation.getCurrentPosition` once, on the tap only: never at launch, no watching. Code 1 is "Location is off…"; any other error "Couldn't find where you are…". If the form changed meanwhile (saved, sheet closed, or he typed a place), the answer is dropped.
+- **`townAt(lat, lng)`:** the town whose outline holds the point (the smallest wins, for a town inside another); else the town whose outline is nearest, within `NEAR_KM` (40 km), for beaches and boats; else null. The outlines are decoded on the first tap. Low-resolution outlines are about 110 m off at borders.
+- **Updating the towns:** download `geojson-lowres.zip` from the latest release of [faeldon/philippines-json-maps](https://github.com/faeldon/philippines-json-maps/releases) and run `python tools/towns.py geojson-lowres.zip 2026-3q` (the PSGC quarter its `latest/manifest.json` names). Names are tidied as people say them ("City of Makati" is Makati, "City of Cebu" is Cebu City, because Cebu is also a province). Keep the credit in Settings › About: NAMRIA and PSA, through OCHA's COD-AB (CC BY-IGO).
+- **Why not GeoNames** (the handoff's default): its download site is blocked from the build workspace, and the GitHub copy of its city list (`all-the-cities`, from cities1000) has no San Jose City (Nueva Ecija) and only 1,190 of the 1,642 towns. The PSA outlines are complete and current, and an outline beats a single point near borders (Cubao is in Quezon City, not San Juan).
+- **Next:** prices by region (an idea in the queue) can use `townAt` or the saved place.
+
 ## Backups
 
 A backup is a JSON file: a plain-English `README`, `app: 'Suki'`, `schemaVersion: 1`, `appVersion`, `exportedAt`, `device`, `purchases`, `observations` and `rate`. Backups from 2.0 (without `README`, `appVersion` or `device`) still restore. Files are named `Suki backup · YYYY-MM · Device.json`.
@@ -212,6 +225,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 | `test_doors.py` | Q08's doors: Home's two figures, Spending's +, logging on a calendar day, a purchase's prices row (whole words only, and on iPad), the old-rate link, Price notes' links to Search, Search's Log row and Settings rows that open things |
 | `test_search.py` | Q09: Prices, In your purchases (three rows, Show all with the same count in Spending), In your price notes, every word in any order (Search and Spending's filter), no match only when nothing of his matches, the notes row on All, the placeholder, screenshots at 375 px light and dark |
 | `test_compare.py` | Q12: the calendar's three tints (thirds, under three days, equal days), the key and footnote, the picked day in solid ink, today's outline; the price range strip's bands, dots, rings, stacking, axis and key, the dot–row link both ways (and back from a purchase), clearing, the label inside at both ends at 375 px, nothing animating, no strip with nothing to compare; screenshots at 375 and 402 px, light and dark |
+| `test_location.py` | Q16, with a stand-in for the phone's position: nothing asked at launch; today's town on Home (beside More details, kept in a reloaded draft, the newest wins) and Spending's +; that day's town from a calendar day, and none; the arrow (allowed, nothing within 40 km, denied, no answer, typing or closing while it looks); 11 real places in the right town; typing and clearing stop the filling; editing never changes a place; the About credit; screenshots at 375 px, light and dark |
 | `test_till.py` | Q13: the six 44 pt buttons on one row at 375 and 402 px with their VoiceOver labels, the ✕ in the cash box, 20,000 random amounts breaking down exactly, fans, bundles (₱34,750 and ₱999,999 inside the card), the ₱20 and ₱5 coins, colours the same in dark mode, Log this bill staying put; with motion on, settle, shrink and glide, the figure and a bundle's count still, rapid taps leaving no strays, Reduce Motion fading only; screenshots at 375 and 402 px, light and dark |
 | `test_motion.py` | Q11, with motion on: a closing sheet is still on screen mid-way and gone after, by ✕, Escape, the dim, Cancel and dragging down; back to the sheet underneath with no second rise; two quick closes; taps go through a leaving sheet; new rows settle in and the rows below move; a deleted row shrinks away and Undo settles it back; Home's Saved and Undo; iPad's shrink and Reduce Motion's fades; tabs, Settings and Convert stay still; frames at 4× slow motion, light and dark |
 | `test_timedoors.py` | Q10: the period label opening the calendar for each range (and a picked day or week), the picked bar narrowing the list with its line and way back, the pick kept when opening a purchase (✕, tapping outside, and the iPad pane), the filter's ✕ and Export as CSV working first time with a day picked, the Help row, screenshots at 375 px light and dark |
@@ -235,6 +249,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 ### Known test issues
 
 - On a small machine (two processors), running the whole suite side by side can occasionally make one file time out waiting for the page; it passes when run again or with `--one-at-a-time`. GitHub's runner hasn't shown this. On 1 Nov 2026 (Q13) it showed as three Q11 checks in `test_motion.py` (saving from the Log sheet) finding no animation; the file passed 63 of 63 on its own.
+- On 1 Nov 2026 (Q16) the whole suite side by side failed one check in `test_data.py` ("Export shows Preparing first"); the file passed 67 of 67 on its own, with and without the change. Same small-machine timing.
 - Checks on animations read the computed `animation-name`, not running animations: a short fade can finish before a busy machine looks.
 - On 31 Oct and 1 Nov 2026 the suite was run locally against a newer Chromium (the pinned Playwright 1.56.0 pointed at it), because 1.56's own browser couldn't be downloaded there. GitHub's run uses the pinned one.
 - Rows and headers only move when they're on screen, so a motion test must scroll the list into view first (Spending's list starts below the chart at 844 px tall), and keep clear of the tab bar.

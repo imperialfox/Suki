@@ -229,7 +229,7 @@ Tests: `test_till.py` (73 checks). Full suite: 597 of 600 side by side; the 3 we
 **Left for later:** nothing new. Q18 restyles these notes and coins.
 
 ## Q16 · Logging: location
-**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q13 (built first; Q13 was slotted in after Q11 on 1 Nov, 09:45). Prototyped as "Q14" in the Q08–Q11 prototype (item 12); renumbered because the quick add Recon (`suki_quick_add_recon_2026-11-01.md`) suggests Q14 and Q15.
+**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** 1 Nov 2026, 14:43, Ivan: "Q16 Build" · shipped as 2.18 · Needs: Q13 (built first; Q13 was slotted in after Q11 on 1 Nov, 09:45). Prototyped as "Q14" in the Q08–Q11 prototype (item 12); renumbered because the quick add Recon (`suki_quick_add_recon_2026-11-01.md`) suggests Q14 and Q15.
 
 **Goal:** the place fills itself in, privately and offline.
 **Agreed:**
@@ -242,6 +242,16 @@ Tests: `test_till.py` (73 checks). Full suite: 597 of 600 side by side; the 3 we
 **Risks:** the purchase log and quick add work (other chats) may replace Home's three fields with one box. *Default if unanswered:* if that lands first, the town default goes wherever that form shows the place, and the arrow stays in the Log sheet's Location. GeoNames may be blocked from the workspace: use a GitHub copy, or ask Ivan to attach the file.
 **Done when:** tests for the defaults (today, that day, none), the arrow with a mocked position (allowed, denied, nothing near), typing stopping the fill, and no prompt at launch; full suite passes. **Checks:** full suite; screenshots at 375 px, light and dark.
 **For your iPhone (after the build):** whether iPhone remembers Allow between launches.
+**Debrief:** Built as prototyped, in `js/locate.js` (new), with the outlines in `js/towns.js` (made by `tools/towns.py`). Decisions within scope:
+- **Town data:** not GeoNames (agreed 3's default). Its site is blocked from the workspace, and the GitHub copy of its city list misses San Jose City and a quarter of all towns. Used the outlines of all 1,642 cities and municipalities from PSA (NAMRIA and PSA, through OCHA's COD-AB, CC BY-IGO; PSGC Q3 2026, via faeldon/philippines-json-maps), credited in Settings › About. 133 KB, loaded with the app, read on the first tap.
+- **Finding the town:** the outline the point is in; else the nearest outline within 40 km (beaches, boats). Better than the nearest centre point near borders: Cubao is Quezon City, Cebu IT Park is Cebu City. Names as people say them ("Makati", "Cebu City").
+- **An auto-filled place is worked out again on every draw,** so it follows the data (a deleted purchase, a draft reloaded the next day). Where it came from is kept in the form state only (`locFrom`), never saved with the purchase.
+- **One message the handoff didn't word:** when the phone gives no answer, "Couldn't find where you are. Type the town in instead."
+- **The arrow is on every purchase form,** editing included: tapping it is his choice. Only the automatic fill is limited to new purchases.
+- The risk didn't arise: Smart add (Q14) hasn't landed, so the town default sits in Home's form and the Log sheet.
+Tests: `test_location.py` (46 checks, listed in `MAINTAINING.md`). Full suite: 645 of 646 side by side; the one was `test_data.py`'s "Export shows Preparing first", which passed 67 of 67 on its own, with and without this change (the known small-machine timing). Pinned Playwright 1.56 pointed at a newer Chromium, as before. Screenshots at 375 px, light and dark, checked by eye.
+**For your iPhone:** (1) On the trip, tap the arrow: does iPhone ask once, and does it fill the right town? (2) Close and reopen Suki, tap again: does it remember Allow? (3) Try it with no signal. (4) After logging one purchase with a place, does the next one start there, with "from earlier today"? (5) On a beach or a boat, does it still find the nearest town?
+**Left for later:** nothing new. Prices by region (already an idea) can use `townAt`.
 
 ## Q17 · Home: exchange rate card
 **Render:** 1 Nov 2026, 09:33, scope as below · **Build:** awaiting · Needs: Q16 (built first; Q08 changes the summary card under it).

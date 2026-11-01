@@ -1,14 +1,14 @@
 # Suki
 
-![Version 2.17](https://img.shields.io/badge/version-2.17-blue)
+![Version 2.18](https://img.shields.io/badge/version-2.18-blue)
 
-**Current version: 2.17 · 1 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
+**Current version: 2.18 · 1 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
 
 Suki is a personal travel companion for the Philippines. It checks your change, converts pounds and pesos, looks up prices and keeps track of what you spend. It's a Home Screen web app for iPhone, iPad and Mac, and works offline.
 
 ## What it does
 
-- **Log what you spend** in a few taps, with categories, places and notes, and see it by day and by category.
+- **Log what you spend** in a few taps, with categories, places and notes, and see it by day and by category. The place starts as the town you were in earlier that day, and an arrow fills the town you're in, worked out on your phone.
 - **Check your change** before you walk away from the till.
 - **Convert pounds and pesos** with a reference rate, even offline.
 - **Look up prices**: official weekly averages from the Department of Agriculture (DA-AMAS) for selected groceries in Metro Manila (NCR) markets, plus your own price notes. Search understands Tagalog, English, misspellings and phrases like "1 kilo bigas".
@@ -63,6 +63,7 @@ The launch images in `splash/` are made from `icon-512.png` by `python tools/spl
 - Everything you enter stays on your device, in the browser's storage. There's no account, server or cloud sync.
 - iOS can clear a website's storage if it isn't opened for a few weeks, so export a backup now and then. Suki reminds you after two weeks.
 - Backups are JSON files named by month and device (for example "Suki backup · 2026-10 · iPhone.json"), so backing up again in the same month replaces that month's file in Files.
+- Location's arrow reads your position once, when you tap it (iPhone asks first). It's matched against the town outlines kept inside the app, so it works offline and is never sent anywhere. Suki doesn't track you in the background, and never asks when it opens.
 - Refreshing the exchange rate contacts Frankfurter for the European Central Bank's rate (`api.frankfurter.dev`, then `api.frankfurter.app`). If neither answers, it falls back to the Currency API (`cdn.jsdelivr.net`, then `currency-api.pages.dev`). Only the currencies are sent, never your records.
 - This repository and its website are public. Don't add private or licensed content.
 
@@ -70,6 +71,7 @@ The launch images in `splash/` are made from `icon-512.png` by `python tools/spl
 
 - The catalogue (names, English names, other spellings) is in `js/catalog.js`.
 - The official price snapshot is in `js/prices.js`. Item ids must match the catalogue.
+- The town outlines for Location are in `js/towns.js`, made by `tools/towns.py` (see MAINTAINING.md).
 - Categories, places and payment methods are at the top of `js/storage.js`.
 - See [MAINTAINING.md](MAINTAINING.md) for how the code fits together, the tests and releasing.
 

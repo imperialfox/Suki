@@ -921,6 +921,58 @@ textarea.inp {
 .more {
   padding-bottom: 4px;
 }
+/* Q16: Location fills itself in. The arrow sits inside the box; the label says where the place came from */
+.locbox {
+  position: relative;
+}
+.locbox .inp {
+  padding-right: 48px;
+}
+.locbtn {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  border-radius: 12px;
+}
+.locbtn svg.i {
+  width: 20px;
+  height: 20px;
+}
+.locbtn.busy svg.i {
+  animation: locpulse 0.8s ease-in-out infinite;
+}
+html.motion-reduced .locbtn.busy svg.i {
+  animation: none;
+  opacity: 0.4;
+}
+@keyframes locpulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+.locsrc {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--fg2);
+}
+.dlplace {
+  font-style: normal;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dlplace small {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--fg2);
+}
 .err {
   font-size: 13px;
   color: var(--danger);

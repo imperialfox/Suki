@@ -49,6 +49,7 @@ Suki shares its foundations with Vocal Sessions (`imperialfox/Vocal-Sessions`): 
 | `js/backup.js` | Saving files (share sheet or download), backups, restoring, erasing and the CSV export |
 | `js/events.js` | Every button action (`ACT`), the forms, typing, swipe to delete, blocking zoom and keyboard shortcuts |
 | `js/gestures.js` | Pull to refresh and the update check, scrolling (the top bar turning to glass), rotating, online/offline, sheet scrolling and dragging sheets down |
+| `js/onboard.js` | Onboarding (Q07): the Home Screen steps in Safari, the welcome card, tips and the Help screen |
 | `js/boot.js` | Starts the app. Always last |
 
 They're plain scripts, not modules: they share one global scope, and the tests reach into the app through its globals (`D`, `U`, `go`, `openSheet`…).
@@ -80,6 +81,7 @@ Everything stays on the device. There is no server.
 | localStorage | `suki:lastBackup` | When a backup was last saved (not backed up) |
 | localStorage | `suki:draft` | A half-typed purchase on Home (not backed up) |
 | localStorage | `suki:motion` | Motion speed on this device (not backed up) |
+| localStorage | `suki:onboard` | Onboarding on this device: welcome seen, tips on, which tips are done (Q07). Not backed up |
 | localStorage | `suki:reduceMotion` | Reduce Motion: `on`, `off`, or missing to match the iPhone (not backed up) |
 
 **These names have been the same since Suki 2.0. Never change them**; the tests load data saved by the real 2.0 app (`tests/fixtures/app-2.0.0`) to prove updating keeps everything.
@@ -103,6 +105,17 @@ A price note: `{id, itemId, itemName, price, date, location, venue, note}`. `ite
 - Saved or restored prices must be ₱0.01 to ₱10,000,000 (`money()`); others count as damaged and go to Recovered data. Dates must be real (`isoDate()` turns 30 Feb into today, like any bad date).
 - The rate refresh stops after two sources time out, and doesn't start when the phone says it's offline.
 - Home's summary card takes the `long` class for totals over 11 characters: a size smaller, with Today under the total.
+
+## Onboarding (Q07)
+
+Following Apple's onboarding guidance: no tour, one welcome card, tips next to what they explain.
+
+- `onboardStart()` runs once the launch screen has gone. The first time, it sets `suki:onboard`: a fresh install gets the welcome and tips; an install that already has data gets neither (Ivan never sees them unless he asks in Settings › Help).
+- **In a Safari tab on iPhone or iPad** (`navigator.standalone === false`): the Home Screen steps sheet, locked, with Got it and Not now, on every open. Never in the Home Screen app.
+- **The welcome card** is a locked, tall sheet (`sheetWrap(…, {lock, tall})`): no ✕, no tapping outside, no dragging, no Escape. Continue closes it for good.
+- **Tips** (`TIPS`, one at a time): Till's amount chips, pull to refresh on Home, swiping a purchase, dragging the first details sheet down. Each goes for good when you do the gesture (`tipDone()`, called from the gesture code) or tap ✕. A tip sits below its target unless that would cover a main button or the tab bar, waits while a sheet is open, and shows once its target scrolls into view. Touch-only tips don't show without a touch screen.
+- **Help** is its own screen (`U.tab = 'help'`), pushed from Settings.
+- The tests' harness marks onboarding as seen (tips off) unless `test:fresh` is set, so it never gets in the way of other tests.
 
 ## Backups
 
@@ -138,6 +151,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 | `test_data.py` | Older and damaged data, the backup reminder, export, erase, restore (good, damaged, other and 2.0 files), the rate failing, and updating from the real Suki 2.0 |
 | `test_offline.py` | Opening and working offline, and pull to refresh finding an update that then works offline too |
 | `test_layout.py` | Every screen and sheet on iPhone (three sizes and on its side), iPad both ways and Mac, light and dark; the details pane, the sidebar, shortcuts, the tab bar clearing the end of every page, pull to refresh, and motion on and Reduce Motion |
+| `test_onboard.py` | The Home Screen steps in Safari, the welcome card on a fresh install (and never on an existing one), each tip, Settings › Help, and backups leaving onboarding alone |
 | `test_fuzz.py` | Hundreds of random taps, typing, resizing and reloads, checking nothing breaks after each one |
 
 ---

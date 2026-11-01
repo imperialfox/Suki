@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.11 · 31 Oct 2026
+*Getting started, without a tour (Q07)*
+
+**For someone new**
+- Opened in Safari on an iPhone or iPad, Suki shows the three steps to add it to the Home Screen (with Open as Web App left on), so it works with no signal. It shows each time it's opened in Safari, never from the Home Screen.
+- The first time it's opened from the Home Screen with nothing saved, one welcome card says what Suki does. Continue, and it doesn't come back.
+- Tips, one at a time, next to the things you can't see: Quick Till's amount buttons, pulling down to refresh, swiping a purchase to delete it, and dragging a card down to close it. Each goes for good once you've done it or tapped ✕.
+
+**For you**
+- Nothing pops up, because Suki already has your data.
+- Settings › Help plays the welcome again, has a Show tips switch (on shows every tip again), lists the hidden gestures, and has the Home Screen steps for a new phone.
+- What's been seen stays on this device and isn't saved in backups.
+
 ## 2.10 · 31 Oct 2026
 *Tidy-ups (Q06)*
 

@@ -16,7 +16,11 @@ function renderBar() {
   T.classList.toggle('tabs', tabsMode);
   T.innerHTML = tabsMode ? topTabs() : esc(TAB_TITLE[U.tab]);
   $('barL').innerHTML =
-    U.tab === 'settings' ? '<button class="circ glass" data-a="tab" data-v="home" aria-label="Back to Home">' + ICON.back + '</button>' : '';
+    U.tab === 'settings'
+      ? '<button class="circ glass" data-a="tab" data-v="home" aria-label="Back to Home">' + ICON.back + '</button>'
+      : U.tab === 'help'
+        ? '<button class="circ glass" data-a="tab" data-v="settings" aria-label="Back to Settings">' + ICON.back + '</button>'
+        : '';
   $('barR').innerHTML =
     (navigator.onLine ? '' : '<span class="pill glass" role="status">Offline</span>') +
     (U.tab === 'home' ? '<button class="circ glass" data-a="tab" data-v="settings" aria-label="Settings">' + ICON.gear + '</button>' : '');
@@ -38,7 +42,7 @@ function renderSide() {
   el.hidden = false;
   el.innerHTML =
     '<div class="sbt">Suki</div>' + tabButtons('sbi', true) +
-    '<div class="sbgap"></div><button class="sbi' + (U.tab === 'settings' ? ' on' : '') + '" data-a="tab" data-v="settings" aria-current="' + (U.tab === 'settings' ? 'page' : 'false') + '">' + ICON.gear + '<span>Settings</span></button>';
+    '<div class="sbgap"></div><button class="sbi' + (U.tab === 'settings' || U.tab === 'help' ? ' on' : '') + '" data-a="tab" data-v="settings" aria-current="' + (U.tab === 'settings' ? 'page' : 'false') + '">' + ICON.gear + '<span>Settings</span></button>';
 }
 function renderDock() {
   if (MQ.reg.matches || U.sheet) {
@@ -66,6 +70,7 @@ function render(keepScroll) {
   if (keepScroll) window.scrollTo(0, y);
   fadeScrollers();
   drawnDay = localISO();
+  if (typeof tipsAfterRender === 'function') tipsAfterRender();
   // put the cursor back where it was, so a redraw while typing doesn't interrupt
   if (focusId && $(focusId) && !U.sheet) {
     const el = $(focusId);
@@ -78,7 +83,8 @@ function render(keepScroll) {
 const rerender = () => render(true);
 function go(tab) {
   if (!SCREENS[tab]) return;
-  const same = U.tab === tab;
+  const same = U.tab === tab,
+    from = U.tab;
   U.tab = tab;
   if (!same) {
     window.scrollTo(0, 0);
@@ -86,6 +92,9 @@ function go(tab) {
   }
   // every tab, Settings included, swaps instantly; the launch into Home has its own fade in boot.js
   render(same);
+  // Help is pushed from Settings: it slides in from the right, and back slides Settings in from the left (Q07)
+  if (from === 'settings' && tab === 'help') MOTION.animate($('app'), [{ transform: 'translateX(100%)' }, { transform: 'none' }], { spring: 'nav', fade: true });
+  if (from === 'help' && tab === 'settings') MOTION.animate($('app'), [{ transform: 'translateX(-30%)', opacity: 0.4 }, { transform: 'none', opacity: 1 }], { spring: 'nav', fade: true });
 }
 
 /* ===== A new day: when the date moves on (coming back to the app, or a check each minute), redraw in place so
@@ -134,11 +143,16 @@ function closeSheet() {
   if (!U.sheet) U.obsFor = null;
   rerender();
 }
-function sheetWrap(title, body, tools, label) {
+// o.lock: a sheet that can only be left with its own buttons (no ✕, no tapping outside, no dragging down); o.tall, o.cls
+function sheetWrap(title, body, tools, label, o) {
+  o = o || {};
   return (
-    '<div class="scrim" data-a="close"><div class="sheet glass" role="dialog" aria-modal="true" aria-label="' + esc(label || title) + '">' +
-    '<div class="shead"><div class="grab"></div><div class="shrow"><h2>' + title + '</h2>' + (tools || '') +
-    '<button class="circ glass sm" data-a="close" aria-label="Close">' + ICON.x + '</button></div></div>' + body + '</div></div>'
+    '<div class="scrim"' + (o.lock ? '' : ' data-a="close"') + '><div class="sheet glass' + (o.lock ? ' locked' : '') + (o.tall ? ' tall' : '') + (o.cls ? ' ' + o.cls : '') + '" role="dialog" aria-modal="true" aria-label="' + esc(label || title) + '">' +
+    (title === null
+      ? ''
+      : '<div class="shead">' + (o.lock ? '' : '<div class="grab"></div>') + '<div class="shrow"><h2>' + title + '</h2>' + (tools || '') +
+        (o.lock ? '' : '<button class="circ glass sm" data-a="close" aria-label="Close">' + ICON.x + '</button>') + '</div></div>') +
+    body + '</div></div>'
   );
 }
 const confirmBody = (text, btn, action, k, extra) =>
@@ -263,6 +277,10 @@ function sheetHTML() {
           '<p class="foot">Plays every movement four times slower, for checking how things move. Both settings stay on this device and aren’t saved in backups.</p>'
       );
     }
+    case 'welcome':
+      return sheetWrap(null, welcomeBody(), '', 'Welcome to Suki', { lock: true, tall: true, cls: 'welsheet' });
+    case 'ahs':
+      return sheetWrap('Add to Home Screen', ahsBody(sd.safari), '', 'Add Suki to your Home Screen', { lock: !!sd.safari, cls: 'ahs' });
     case 'notes': {
       const list = D.observations.slice().sort((a, b) => b.date.localeCompare(a.date));
       return sheetWrap(
@@ -311,6 +329,7 @@ function renderSheet() {
   } else {
     const f = sh.querySelector('input:not([type=date]),textarea');
     if (U.sheet === 'edit' && !U.sd.id && f) setTimeout(() => f.focus({ preventScroll: true }), 60);
+    if (U.sheet === 'welcome') welcomeArrive();
   }
   shownSheet = key;
   document.body.classList.add('sheet-open');

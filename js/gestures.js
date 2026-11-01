@@ -82,6 +82,7 @@ function ptrEnd() {
     return;
   }
   PTR.busy = true;
+  tipDone('pull');
   $('ptr').classList.add('go');
   ptrPaint(PT_HOLD, true);
   refreshApp().then((r) => {
@@ -209,7 +210,7 @@ document.addEventListener(
   (e) => {
     const h = e.target.closest('.shead');
     SD = null;
-    if (!h || e.touches.length !== 1 || e.target.closest('button')) return;
+    if (!h || e.touches.length !== 1 || e.target.closest('button') || h.closest('.sheet.locked')) return;
     SD = { sh: h.closest('.sheet'), y: e.touches[0].clientY, dy: 0 };
   },
   { passive: true }
@@ -233,6 +234,7 @@ function sheetDragEnd() {
   if (!dy) return;
   sh.classList.add('back');
   if (dy > 90) {
+    tipDone('sheet');
     sh.style.transform = 'translateY(110%)';
     setTimeout(() => {
       if (U.sheet) closeSheet();

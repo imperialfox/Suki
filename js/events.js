@@ -56,6 +56,7 @@ function swEnd() {
     s.classList.toggle('open', open);
     s.querySelector('.fg').style.transform = open ? 'translateX(-88px)' : '';
     swOpen = open ? s : null;
+    if (open) tipDone('swipe');
   }
   swT = null;
 }
@@ -268,12 +269,14 @@ function onField(e) {
   } else if (t.dataset.till) {
     U.till[t.dataset.till] = t.value;
     updateTill();
+    if (t.dataset.till === 'cash' && t.value) tipDone('till');
   } else if (t.dataset.conv) convInput(t.dataset.conv, t.value);
 }
 document.addEventListener('input', onField);
 document.addEventListener('change', (e) => {
   if (e.target.matches('select,input[type=date]')) onField(e);
   if (e.target.dataset.a === 'slowMotion') MOTION.setSpeed(e.target.checked ? 4 : 1);
+  if (e.target.dataset.a === 'tipsToggle') setTips(e.target.checked);
 });
 $('importIn').addEventListener('change', (e) => {
   const f = e.target.files && e.target.files[0];
@@ -287,7 +290,22 @@ const ACT = {
     if (U.tab === el.dataset.v && el.closest('.tabbar,.toptabs,.side-nav')) return window.scrollTo({ top: 0, behavior: MOTION.on() ? 'smooth' : 'auto' });
     go(el.dataset.v);
   },
-  close: () => closeSheet(),
+  close: () => !document.querySelector('#layer .sheet.locked') && closeSheet(),
+  // onboarding (Q07)
+  welcomeGo: () => {
+    OB.welcome = true;
+    obSave();
+    closeSheet();
+  },
+  ahsGot: () => closeSheet(),
+  ahsLater: () => {
+    closeSheet();
+    toast('It’ll show again next time you open Suki in Safari');
+  },
+  tipX: () => TIPCUR && tipDone(TIPCUR),
+  showWelcome: () => openSheet('welcome'),
+  openAhs: () => openSheet('ahs', {}),
+  openHelp: () => go('help'),
   more: () => {
     U.more = !U.more;
     rerender();
@@ -477,8 +495,14 @@ const ACT = {
     rerender();
   },
   csv: () => exportCSV(),
-  cashExact: () => setTillCash(U.till.bill),
-  cashAdd: (el) => setTillCash(fmtAmt((amount(U.till.cash) || 0) + +el.dataset.v)),
+  cashExact: () => {
+    setTillCash(U.till.bill);
+    tipDone('till');
+  },
+  cashAdd: (el) => {
+    setTillCash(fmtAmt((amount(U.till.cash) || 0) + +el.dataset.v));
+    tipDone('till');
+  },
   cashClear: () => setTillCash(''),
   tillLog: () => {
     const t = tillState();
@@ -558,7 +582,7 @@ document.addEventListener('click', (e) => {
 /* ===== Keyboard (iPad keyboards and Mac) ===== */
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    if (U.sheet) {
+    if (U.sheet && !document.querySelector('#layer .sheet.locked')) {
       e.preventDefault();
       closeSheet();
     } else if (swOpen) closeSwipes();

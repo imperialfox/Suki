@@ -107,6 +107,10 @@ const ICON = {
   phone: GL('<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>'),
   code: GL('<path d="m8.5 8-4 4 4 4M15.5 8l4 4-4 4M13.5 5l-3 14"/>'),
   erase: GL('<path d="M4.5 7h15M10 11v6M14 11v6M6.5 7l1 12.5h9l1-12.5M9.5 7V4.5h5V7"/>'),
+  chevdown: GL('<path d="M6 9l6 6 6-6"/>'),
+  star: GL('<path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>'),
+  bulb: GL('<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/>'),
+  help: GL('<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2-2.4 3.6M12 17h.01"/>'),
   access: GL('<circle cx="12" cy="4.8" r="1.6"/><path d="M5 8.5c2.4.8 4.7 1.2 7 1.2s4.6-.4 7-1.2M12 9.7v4.3M12 14l-3 6.5M12 14l3 6.5"/>'),
   tag: GL('<path d="M3.5 12V4.5a1 1 0 0 1 1-1H12l8.5 8.5-8.5 8.5z"/><circle cx="8" cy="8" r="1.4"/>'),
 };
@@ -248,7 +252,7 @@ const TABS = [
 ];
 const TAB_TITLE = { home: 'Home', till: 'Quick Till', search: 'Search', spending: 'Spending', convert: 'Convert', settings: 'Settings' };
 // Settings opens from the gear on Home, so it belongs to Home
-const tabOf = (t) => (t === 'settings' ? 'home' : t);
+const tabOf = (t) => (t === 'settings' || t === 'help' ? 'home' : t);
 
 /* ===== On-screen state (not saved, except where noted) ===== */
 const freshU = () => ({

@@ -15,10 +15,15 @@ async function boot() {
   const wait = MOTION.speed() === 0 ? 0 : Math.max(0, BOOT.MIN - (performance.now() - BOOT.t0));
   setTimeout(() => {
     const s = $('splash');
-    if (!s) return;
-    if (MOTION.speed() === 0) return s.remove();
+    if (!s) return onboardStart();
+    if (MOTION.speed() === 0) {
+      s.remove();
+      return onboardStart();
+    }
     s.classList.add('out');
     setTimeout(() => s.remove(), MOTION.reduced() ? 220 : 420);
+    // the welcome sheet rises as the launch screen fades (Q07)
+    setTimeout(onboardStart, MOTION.reduced() ? 200 : 300);
   }, wait);
   autoRate();
   checkStorage();

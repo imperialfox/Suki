@@ -611,6 +611,7 @@ function scrSettings() {
     '<div class="grp tiled set">' +
     row('access', 'blue', 'Accessibility', { t: 'Reduce motion: ' + { auto: 'Match iPhone', on: 'On', off: 'Off' }[MOTION.reducePref()] + (MOTION.speed() > 1 ? ' · Slow motion on' : '') }, 'openAccess') +
     '</div>' +
+    '<div class="grp tiled set">' + row('help', 'blue', 'Help', 'Welcome, tips and hidden gestures', 'openHelp') + '</div>' +
     hdr('About') +
     '<div class="grp tiled set">' +
     row('wifi', 'teal', 'Works offline', '<span id="swStatus">' + esc(SW_STATE) + '</span>') +

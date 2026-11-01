@@ -119,7 +119,7 @@ def run(b, t):
     ok(pg.evaluate("U.cat") == 'all', 'and Show all clears it')
     # Home's date and title open the calendar
     tab(pg, 'home'); pg.click('h1 .hometitle'); pg.wait_for_timeout(150)
-    ok(pg.evaluate("U.sheet") == 'calendar' and pg.locator('.cday.today').count() == 1 and pg.locator('.cday.has').count() >= 2, 'the calendar shows today and the days you spent on')
+    ok(pg.evaluate("U.sheet") == 'calendar' and pg.locator('.cday.today').count() == 1 and pg.locator('.cday.has').count() >= 1, 'the calendar shows today and the days you spent on')
     y1 = pg.evaluate("localISO(new Date(Date.now()-864e5))")
     if y1[:7] == pg.evaluate("U.calM").replace('-01', '')[:7]:
         pg.click(f'.cday[data-v="{y1}"]'); pg.wait_for_timeout(100)

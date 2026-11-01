@@ -97,7 +97,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.4 · Needs: 2.4 l
 **Debrief:** Built as agreed. Decided within scope: a long total also moves Today under it, because shrinking the font alone wasn't enough on a 320-point screen. Also made one test steadier: it now reads the sheet's animation name rather than catching the fade mid-play. Tests: two dots, ₱0.00 on the form and in Quick Till, "1 000", out-of-range prices and 30 Feb in saved data, two timeouts stopping the refresh, and a ₱30,000,000 total on one line at 320 points.
 
 ## Q07 · Onboarding: welcome card, tips and Help
-**Render:** 31 Oct 2026, 23:20, scope as below · **Build:** awaiting.
+**Render:** 31 Oct 2026, 23:20, scope as below · **Build:** 31 Oct 2026 · shipped as 2.11.
 For: Ivan, and anyone he shares Suki with on the trip · Builder: Claude · Repo: imperialfox/Suki · Needs: 2.10 (Q06) live on `main`. Prototype: [Onboarding prototype](https://claude.ai/artifact/FHaHJmMntjWM9eeDrrDkN9). Recon: Apple's [Onboarding guidance](https://developer.apple.com/design/human-interface-guidelines/onboarding).
 
 **Goal:** someone new gets going without a tour; Ivan never sees it unless he asks.
@@ -112,3 +112,5 @@ For: Ivan, and anyone he shares Suki with on the trip · Builder: Claude · Repo
 **Risks:** a tip must never cover a primary button or the tab bar; tips wait while a sheet is open.
 **Done when:** tests cover each item, including an existing install never seeing the welcome card and a backup round trip leaving seen-states alone; full suite passes.
 **Checks:** full suite; screenshots at 375 and 402 px, light and dark.
+**Debrief:** Built from the prototype and the handoff. Checked within scope against iOS 26: Add to Home Screen sits under ⋯ → Share, and the new Open as Web App switch has to stay on for Suki to open on its own, so step 2 says so. The sheet's title is shortened to Add to Home Screen so it fits a 375-point screen. Help is pushed from Settings with a slide (a fade with Reduce Motion); it has no swipe-back, like Settings. A tip whose target is below the fold waits until it's scrolled into view. Tests: test_onboard.py (37 checks) covers the Safari sheet, the welcome card (fresh, locked, shown once, never on an existing install), each tip, tips waiting for sheets and staying clear of buttons and the tab bar, Help, and a backup round trip leaving onboarding alone. Every other fuzz run has tips on, and the layout check includes Help, the welcome and the Home Screen steps.
+

@@ -28,7 +28,7 @@ VIS = r"""(()=>{const L=document.getElementById('layer');const root=L.querySelec
  return els.map((e,i)=>{e.setAttribute('data-fz',i);return {i,a:e.dataset.a||e.tagName.toLowerCase(),v:e.dataset.v||'',k:e.dataset.k||'',id:e.id||'',type:e.type||'',opts:e.tagName==='SELECT'?[...e.options].map(o=>o.value):[]};});})()"""
 SKIP = {'importPick'}
 HEAVY = ('openPurchase', 'editPurchase', 'delPurchase', 'delPurchaseYes', 'openItem', 'obsForm', 'delObs', 'delObsYes', 'cat', 'more', 'tillLog',
-         'cashAdd', 'cashExact', 'quickConv', 'swapConv', 'scat', 'logItem', 'calendar', 'range', 'moreRows', 'input', 'textarea', 'select', 'erase', 'openNotes', 'exportBackup', 'saveBackup')
+         'cashAdd', 'cashExact', 'quickConv', 'swapConv', 'scat', 'logItem', 'calendar', 'range', 'moreRows', 'tipX', 'showWelcome', 'welcomeGo', 'openAhs', 'openHelp', 'ahsLater', 'input', 'textarea', 'select', 'erase', 'openNotes', 'exportBackup', 'saveBackup')
 
 
 def run(b, t):
@@ -48,7 +48,10 @@ def run(b, t):
         pg.goto(url()); ready(pg)
         data = sample()
         data['purchases'] += [{'id': f'f{i}', 'item': f'Item {i}', 'price': 10 + i, 'date': day(i % 12), 'category': ['Other', 'Shopping', 'Transport'][i % 3]} for i in range(14)]
-        pg.evaluate(SEED, data); pg.reload(); ready(pg)
+        pg.evaluate(SEED, data)
+        # every other run has tips on, so they're tapped around too (Q07)
+        if seed % 2: pg.evaluate("localStorage.setItem('suki:onboard',JSON.stringify({welcome:true,tips:true,seen:{}}))")
+        pg.reload(); ready(pg)
         trace = collections.deque(maxlen=24); trace.append(f'seed {seed}, {w}x{h}')
         for step in range(STEPS):
             r = R.random()

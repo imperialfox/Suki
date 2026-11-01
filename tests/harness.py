@@ -118,6 +118,9 @@ class T:
         rate_route(ctx, fail=rate_fail, **(rate_opts or {}))
         # motion off by default, so nothing waits on springs; a test can turn it back on with its own init
         ctx.add_init_script("try{if(localStorage.getItem('suki:motion')===null)localStorage.setItem('suki:motion','0')}catch(e){}")
+        # onboarding already seen and tips off by default, so no welcome card or tip gets in the way;
+        # test_onboard.py sets 'test:fresh' to see Suki as someone new would (Q07)
+        ctx.add_init_script("try{if(!localStorage.getItem('test:fresh')&&localStorage.getItem('suki:onboard')===null)localStorage.setItem('suki:onboard',JSON.stringify({welcome:true,tips:false,seen:{}}))}catch(e){}")
         if init: ctx.add_init_script(init)
         pg = ctx.new_page()
         tag = f'{self.name} {w}x{h}'

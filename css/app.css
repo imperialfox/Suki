@@ -75,6 +75,15 @@
   --coin: #dcdce1;
   --coin-ink: #3a3a3c;
   --coin-ring: #c9a063;
+  /* Home's exchange rate card (Q17): Suki's icon colours, as a one-off used by that card only. The same in light and
+     dark. White passes 4.5:1 on both navy ends and under the glow; the softer white is at least 4.5:1 too */
+  --suki-top: #173874;
+  --suki-bottom: #06102b;
+  --suki-glow: rgba(75, 132, 255, 0.35); /* #4b84ff, soft, top left */
+  --suki-fg: #ffffff;
+  --suki-fg2: rgba(255, 255, 255, 0.8);
+  --suki-rim: rgba(255, 255, 255, 0.14);
+  --suki-shadow: rgba(6, 16, 43, 0.22);
   /* safe areas, so tests can stand in for an iPhone's; the dock sits where Apple's tab bar does */
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
@@ -771,6 +780,58 @@ h1 {
 .sumcard.none .cap {
   line-height: 1.35;
 }
+/* Home's exchange rate card (Q17), above the summary card. Suki's own colours here only; the whole card opens Convert */
+.ratecard {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  margin-top: 10px;
+  padding: 12px 14px 12px 18px;
+  border-radius: 20px;
+  color: var(--suki-fg);
+  text-align: left;
+  overflow: hidden;
+  background:
+    radial-gradient(90% 140% at 20% 0%, var(--suki-glow), transparent 60%),
+    linear-gradient(135deg, var(--suki-top), var(--suki-bottom));
+  box-shadow:
+    inset 0 0 0 0.5px var(--suki-rim),
+    0 8px 24px var(--suki-shadow);
+  transition: transform 0.5s cubic-bezier(0.3, 1.7, 0.45, 1);
+}
+.ratecard:active {
+  transform: scale(0.98);
+  transition-duration: 0.12s;
+}
+.ratecard .rc {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ratecard .rk,
+.ratecard .ra {
+  font-size: 13px;
+  color: var(--suki-fg2);
+}
+.ratecard .rv {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+.ratecard .rget {
+  font-size: 17px;
+  font-weight: 600;
+}
+.ratecard .chev {
+  color: var(--suki-fg2);
+}
+
 /* Spending with nothing logged: one calm card and the way in (Q08) */
 .card.nospend {
   max-width: 430px;

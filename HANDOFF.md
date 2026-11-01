@@ -254,7 +254,7 @@ Tests: `test_location.py` (46 checks, listed in `MAINTAINING.md`). Full suite: 6
 **Left for later:** nothing new. Prices by region (already an idea) can use `townAt`.
 
 ## Q17 · Home: exchange rate card
-**Render:** 1 Nov 2026, 09:33, scope as below · **Build:** awaiting · Needs: Q16 (built first; Q08 changes the summary card under it).
+**Render:** 1 Nov 2026, 09:33, scope as below · **Build:** 1 Nov 2026, 20:01, Ivan: "Suki Q17 Build" · shipped as 2.19 · Needs: Q16 (built first; Q08 changes the summary card under it).
 For: Ivan, and family he shows Suki to · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Smart add prototype](https://claude.ai/artifact/KmqSWPKWGBSEWDjMQEgCkF), switch "Rate above".
 
 **Goal:** anyone glancing at Home sees today's rate first.
@@ -268,6 +268,12 @@ For: Ivan, and family he shows Suki to · Builder: Claude · Repo: imperialfox/S
 **Where to look:** `screens.js` (scrHome), `css/app.css` (tokens), `rate.js` (the saved rate and its time).
 **Done when:** tests for the rate and its age, the door to Convert, and the no-rate card; white on both navy ends passes 4.5:1; full suite passes. **Checks:** full suite; screenshots at 375 and 402 px, light and dark.
 **For your iPhone:** white on navy in bright sun.
+**Debrief:** Built from the prototype's "Rate above" card. The default applied: tapping opens Convert with no refresh.
+- **Decisions within scope:** the age reads "Updated just now", "5 min ago", "2h ago", then "yesterday", "3 days ago" and the date, and moves on in place every 30 s (no redraw). The label and age are white at 80%, not full white, as in the prototype; they still pass 4.5:1 (lowest 5.4:1 under the glow). The shadow, rim and softer white went in as tokens beside the three named ones, all used by this card only. With no rate the line is Headline weight. Convert's own rate line is unchanged.
+- **Contrast:** white is 11.3:1 on the top navy, 18.8:1 on the bottom and 7.3:1 at the brightest spot of the glow.
+Tests: `test_ratecard.py` (47 checks, listed in `MAINTAINING.md`). Full suite: 693 of 693 side by side, pinned Playwright 1.56 pointed at a newer Chromium, as before. Screenshots at 375 and 402 px, light and dark, plus on its side and iPad, checked by eye.
+**For your iPhone:** (1) Pull down on Home to update: is the rate card at the top? (2) Is the white readable in bright sun? (3) Tap it: does Convert open? (4) Leave Home open a few minutes: does "Updated … ago" move on?
+**Left for later:** nothing new.
 
 ## Q14 · Logging: Smart add
 **Render:** 1 Nov 2026, 09:33, scope as below · **Build:** awaiting · Needs: Q17 (built first; Q11's "Saved" button and settle, and Q16's town, are reused).

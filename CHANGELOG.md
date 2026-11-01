@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.19 · 1 Nov 2026
+*Today's exchange rate at the top of Home (Q17)*
+
+**The rate card**
+- Home now opens with the rate: "Exchange rate", then **£1 = ₱76.12** in large type, then how old it is ("Updated 2h ago", "Updated yesterday", "Updated 3 days ago", then the date). Anyone glancing at Home sees it first.
+- The age moves on by itself while Home is open.
+- An old rate keeps its white text. It's never shown in red.
+- With no rate saved yet, the card reads "Exchange rate · Get today's rate on Convert".
+
+**One door**
+- The whole card opens Convert. Tapping it doesn't refresh the rate; Convert's own Refresh, and pulling down on Home, still do.
+
+**Look**
+- It uses Suki's own icon colours, as a one-off: the icon's navy with its soft blue glow and white text, the same in light and dark. No other screen uses them.
+- On iPhone on its side, iPad and Mac it heads Home's left column, above the summary card.
+
 ## 2.18 · 1 Nov 2026
 *Location fills itself in, privately and offline (Q16)*
 

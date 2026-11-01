@@ -255,6 +255,7 @@ function scrHome() {
     recent = D.purchases.slice().sort(byNewest).slice(0, 4);
   // two doors in one card: the total opens all your spending, Today opens today's (Q08)
   const dash =
+    rateCard() +
     (D.purchases.length
       ? '<div class="card sumcard doors' + (cash(total).length > 11 || cash(today).length > 11 ? ' long' : '') + '">' +
         '<button class="stat door" data-a="toSpend" data-v="all" aria-label="Total spent ' + cash(total) + '. Open all spending"><span class="big">' + cash(total) + '</span><span class="cap">Total spent' + (D.rate && total ? ' · ≈ ' + gbp(total / D.rate.value) : '') + '<span class="cv" aria-hidden="true"> ›</span></span></button>' +
@@ -289,6 +290,37 @@ function scrHome() {
       : dash + log + rec)
   );
 }
+// Home's exchange rate card (Q17): today's rate first, for anyone glancing at Home. The whole card is one door to
+// Convert; tapping it doesn't refresh (Convert's own Refresh does). An old rate stays white, never red.
+function rateAge(r) {
+  const at = new Date(r.cachedAt);
+  if (isNaN(at)) return 'Rate from ' + shortDate(r.date);
+  const mins = Math.floor((Date.now() - at) / 6e4);
+  if (mins < 1) return 'Updated just now';
+  if (mins < 60) return 'Updated ' + mins + ' min ago';
+  if (mins < 1440) return 'Updated ' + Math.floor(mins / 60) + 'h ago';
+  return 'Updated ' + relDay(localISO(at)).replace(/^Yesterday$/, 'yesterday');
+}
+const rateLabel = (r) => 'Exchange rate £1 = ' + cash(r.value) + ', ' + rateAge(r).replace(/^U/, 'u') + '. Open Convert';
+function rateCard() {
+  const r = D.rate;
+  if (!r)
+    return '<button class="ratecard none" data-a="goConvert" aria-label="Exchange rate. Get today’s rate on Convert"><span class="rc"><span class="rk">Exchange rate</span><b class="rget">Get today’s rate on Convert</b></span>' + ICON.chev + '</button>';
+  return (
+    '<button class="ratecard" id="rateCard" data-a="goConvert" aria-label="' + esc(rateLabel(r)) + '"><span class="rc"><span class="rk">Exchange rate</span>' +
+    '<b class="rv">£1 = ' + cash(r.value) + '</b><span class="ra" id="rateAge">' + esc(rateAge(r)) + '</span></span>' + ICON.chev + '</button>'
+  );
+}
+// the age moves on while Home is open ("2 min ago" → "3 min ago"), in place, with no redraw
+function tickRateAge() {
+  const c = $('rateCard'),
+    a = $('rateAge');
+  if (!c || !a || !D.rate) return;
+  a.textContent = rateAge(D.rate);
+  c.setAttribute('aria-label', rateLabel(D.rate));
+}
+setInterval(tickRateAge, 30000);
+document.addEventListener('visibilitychange', tickRateAge);
 // Home's Save button confirms where he tapped: "✓ Saved" for about 1.4 s (Q11). A redraw in that time keeps it
 let savedUntil = 0;
 const saveBtn = () =>

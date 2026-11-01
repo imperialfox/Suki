@@ -251,3 +251,18 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Smart add pr
 **Where to look:** `js/reader.js` (from Q14), the Smart add preview, `storage.js` and `backup.js` (`saidAt`), the Help screen from Q07.
 **Done when:** tests: a stamped inbox saves once, pasting it again marks every line "Already saved", a mix saves only the new lines, unstamped duplicates still save, `saidAt` survives a backup round trip, the Help section lists the steps; full suite passes. **Checks:** full suite; screenshots at 375 px.
 **For your iPhone:** the Shortcut runs from Siri and the Action Button; dictation works with no signal; pasting the note keeps its line breaks.
+
+## Q12 · Look: calendar tints and price range strip
+**Render:** 1 Nov 2026, 09:56, scope as below · **Build:** awaiting · Needs: Q15 (built first; Q08's prices row and Q10's calendar door are in by then).
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Q12 prototype](https://claude.ai/artifact/NFwAtWyj5ERxgyGifutbeS) (sample spending; typical prices from Suki's list). Recon: visual audit findings 4 and 5 (Milestone B), without the week strip.
+
+**Goal:** a number next to something to compare it with, at a glance.
+**Agreed:**
+1. **Calendar tints:** a day with spending is tinted in three steps (`--tint-1`, `--tint-2`, `--tint-3` from the accent), by thirds of that month's spending days; fewer than three days get the middle step. A "Less ● ● ● More" key sits under the grid. Today keeps its outline; a picked day is solid ink (black, white in dark) so it never reads as a big day. Day labels for VoiceOver keep the amount. Tapping is unchanged.
+2. **Price range strip** on the item sheet, at the foot of the typical-prices card: one band per typical price (two ranges never merge into one), a solid dot for each time he paid, a ring for each price note; same prices stack upwards; the axis shows a rounded low and high; a key (Typical · You paid · Price notes). Shown when the item has a typical price and at least one paid price or note.
+3. **Dots and rows are linked:** tapping a dot lights its row in You paid or Your price notes, and tapping a row lights its dot, with a label ("₱50 · Yesterday · Bulakan to Barrio") kept inside the strip's edges. Tapping elsewhere clears it.
+4. **No grading:** no good or bad words or colours. Nothing animates on the strip or the tints (kept still); the tints change with the month as the days do.
+**Out of scope:** the Home week strip (left out), a strip on Search rows, budgets.
+**Where to look:** `ui.js` (the calendar sheet), `screens.js` (itemDetail, typicalCard, paidFor), `css/app.css` (tint tokens, run through the dataviz palette check in light and dark).
+**Done when:** tests for the three steps (and the under-three-days case), the key, the picked-day look, separate bands, stacked dots, the dot–row link both ways, the label staying inside at both ends; full suite passes. **Checks:** full suite; screenshots at 375 and 402 px, light and dark.
+**For your iPhone:** whether the three tints are easy to tell apart in bright light; whether the strip reads without the key.

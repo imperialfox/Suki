@@ -114,3 +114,74 @@ For: Ivan, and anyone he shares Suki with on the trip · Builder: Claude · Repo
 **Checks:** full suite; screenshots at 375 and 402 px, light and dark.
 **Debrief:** Built from the prototype and the handoff. Checked within scope against iOS 26: Add to Home Screen sits under ⋯ → Share, and the new Open as Web App switch has to stay on for Suki to open on its own, so step 2 says so. The sheet's title is shortened to Add to Home Screen so it fits a 375-point screen. Help is pushed from Settings with a slide (a fade with Reduce Motion); it has no swipe-back, like Settings. A tip whose target is below the fold waits until it's scrolled into view. Tests: test_onboard.py (37 checks) covers the Safari sheet, the welcome card (fresh, locked, shown once, never on an existing install), each tip, tips waiting for sheets and staying clear of buttons and the tab bar, Help, and a backup round trip leaving onboarding alone. Every other fuzz run has tips on, and the layout check includes Help, the welcome and the Home Screen steps.
 
+
+## Q08 · Navigation: missing doors
+**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: 2.11 live on `main`. Prototype: [Suki prototype · Q08–Q11](https://claude.ai/artifact/FeN6KP83zyBJrWmh2465Dt) (its last script before `boot.js` is the prototype layer). Recon: project doc `suki_navigation_audit_2026-11-01.md` (findings 1–4, 9) and `suki_visual_motion_audit_2026-11-01.md` (finding 8).
+
+**Goal:** no dead ends. Every word that names a place is a door to it.
+**Agreed:**
+1. **Home's summary card is two doors.** Total spent opens Spending on All; Today opens Spending on D (today). Each caption ends in a small ›. With nothing logged, the card reads "Nothing spent yet" with one line under it.
+2. **Spending's top bar gets a + circle** (only when there are purchases). It opens the same Log sheet as Quick Till's "Log this bill" and an item's "Log what you paid".
+3. **Calendar:** a picked day (today or earlier) gets a row "Log a purchase on 28 Oct" ("on today" for today). It opens the Log sheet over the calendar with that date, and saving returns to the calendar.
+4. **A purchase leads to its prices:** a row "Jeepney prices · Usually ₱14–17 · first 4 km ›" in its details, opening the item sheet over the purchase. *Default if unanswered:* the row shows only on a whole-word match (the item's name or English name, plurals allowed), so a loose match (quick-add Recon finding 5: Spaghetti → Massage) never offers the wrong prices.
+5. **Words become doors:** Search's old-rate note "Refresh it on Convert" goes to Convert and refreshes; the empty Price notes sheet and its footer link to Search; Search with no match offers "Log "…" as a purchase", which opens the Log sheet with the name filled in and the cursor in the amount.
+6. **Settings rows open things:** Last backed up → Export a backup; Saved exchange rate → Convert; About's Add to your Home Screen → the same steps sheet as Help (subtitle "The steps, for a new phone").
+7. **Empty Spending:** no chart or range switch. One card: "No spending yet", one line, and a Log a purchase button.
+**Out of scope:** links on every detail row, a Settings tab, a Notes tab, category names.
+**Where to look:** `screens.js` (scrHome, scrSpending, purchaseDetail, staleRate, searchResults, scrSettings), `ui.js` (renderBar, sheetHTML calendar and notes), `events.js` (ACT).
+**Risks:** each new sheet opened from a sheet must return to it (push). Q07's tips still find their targets.
+**Done when:** a test per door, including the whole-word rule; full suite passes. **Checks:** full suite; screenshots at 375 and 402 px, light and dark.
+
+## Q09 · Search: your records in results
+**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q08 (built first). Prototype and Recon as Q08 (navigation audit findings 5 and 7).
+
+**Goal:** Search finds anything he's logged, not only the price list.
+**Agreed:**
+1. **With text:** Prices (catalogue matches, as now), then **In your purchases** (every word must appear in the item, place, where bought, category or notes; newest first; three rows, then "Show all N in Spending", which opens Spending on All filtered by the same words), then **In your price notes** (rows open the item).
+2. **Nothing matches:** "No clear match…" and Q08's "Log "…" as a purchase". If only his own records match, the no-match message doesn't show; the Log row still does.
+3. **Search's All view** starts with a "Your price notes · 2 notes from the trip ›" row opening the Price notes sheet. The Settings row stays as a second door.
+4. The placeholder reads "Prices, your purchases, your notes".
+**Out of scope:** the search circle beside the tab bar (still an idea), changes to Spending's filter.
+**Done when:** tests for each group, Show all, and the notes row; full suite passes. **Checks:** full suite; screenshots at 375 px, light and dark.
+
+## Q10 · Spending: calendar and bar doors
+**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q09 (built first). Prototype and Recon as Q08 (navigation audit findings 6 and 8).
+
+**Goal:** time is easy to move through, and the screen says one thing at a time.
+**Agreed:**
+1. **Spending's period label** ("Today", "This week", "October", "Since 23 Oct") becomes an accent button with a small calendar glyph. It opens the calendar on that period's month (All opens this month; D opens with that day picked).
+2. **A picked bar narrows the list** to that day (or week), under a line "Showing Yesterday only · Show this week". Tapping a purchase in that list keeps the pick; tapping anywhere else clears it, as now.
+3. **Help › Hidden gestures** adds "Tap Home's title · To open the calendar (Spending's date does too)".
+**Out of scope:** a calendar tab, changing what the chart shows.
+**Done when:** tests for the label door per range, the narrowed list, the kept pick and the Help row; full suite passes. **Checks:** full suite.
+
+## Q11 · Motion: sheets and rows
+**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q10 (built first). Prototype as Q08. Recon: visual audit findings 1–3 and 9.
+
+**Goal:** things arrive and leave, so he never has to re-read a screen to see what changed.
+**Agreed:**
+1. **Closing a sheet** slides it down off the screen while the page behind grows back, as one movement, quicker than the arrival (about 330 ms, `cubic-bezier(.3,0,.25,1)`); the dim fades. Going back to a sheet underneath: that sheet is simply there (no second rise) and the closing one slides off over it. iPad and Mac: shrink to .94 and fade (220 ms). Reduce Motion: a 200 ms fade. Every close path: ✕, Cancel, the dim, Escape, dragging down, and after a save or delete.
+2. **"Settle"** is defined once in `motion.js`: a 12 px drop to place with opacity 0 → 1 on the `ripple` spring, rows 45 ms apart. Q13 (Quick Till) reuses it if it builds later.
+3. **Rows:** a saved purchase settles into whatever list it lands in (Home's Recent, Spending, a calendar day); rows and headers below glide to their new place on `gentle`; a row that goes (deleted, or pushed out of Recent) fades and shrinks to .94 where it was (220 ms); Undo plays the arrival again.
+4. **Saving on Home:** the button shows "✓ Saved" for about 1.4 s, then returns. "Purchase saved" gets **Undo**, which removes it again.
+5. Slow motion also slows the page-behind scale (today it's a fixed 0.45 s in CSS).
+6. **Kept still:** tabs switch instantly; figures never animate; Settings, Help and Convert don't move.
+**Out of scope:** the Home week strip, the price range strip and calendar tints (visual audit Milestone B, not rendered).
+**Risks:** redraws use innerHTML, so measure before and after the redraw (FLIP); the prototype wraps `render()`, but the build should do it where the change happens. Never block taps mid-animation, and a second close mid-way must still work.
+**Done when:** motion-on tests: a closing sheet is still on screen mid-way and gone after, no stray copies left, a new row has a running animation, rows below move, Reduce Motion only fades; full suite passes. **Checks:** full suite; frames at 4× slow motion, light and dark.
+
+## Q16 · Logging: location
+**Render:** 1 Nov 2026, 08:26, scope as below · **Build:** awaiting · Needs: Q11 (built first). Prototyped as "Q14" in the Q08–Q11 prototype (item 12); renumbered because the quick add Recon (`suki_quick_add_recon_2026-11-01.md`) suggests Q14 and Q15.
+
+**Goal:** the place fills itself in, privately and offline.
+**Agreed:**
+1. **Default town:** a new purchase's Location starts as the place of the newest purchase that day that has one (today from Home or Spending's +; that day from the calendar). The label says "Location · from earlier today" or "· from that day". On Home it also shows beside "More details · Quezon City".
+2. **An arrow inside Location** fills the nearest town, labelled "· near you", and the box tints briefly. iPhone's permission prompt comes on the first tap only, never at launch. Denied: "Location is off for Suki. Type the town, or allow it in Settings." No town within 40 km: "No town found near you. Type it in instead."
+3. **The town list lives inside the app:** offline, and the position never leaves the phone. *Default if unanswered:* Philippine cities and municipalities with positions from GeoNames (CC BY 4.0), credited in Settings › About.
+4. Typing in or clearing Location stops the filling for that purchase; the next purchase starts again. Editing an old purchase never changes its place.
+5. Location gets the full width; Where bought goes underneath.
+**Out of scope:** shop names, tracking in the background, prices by region (an idea).
+**Risks:** the purchase log and quick add work (other chats) may replace Home's three fields with one box. *Default if unanswered:* if that lands first, the town default goes wherever that form shows the place, and the arrow stays in the Log sheet's Location. GeoNames may be blocked from the workspace: use a GitHub copy, or ask Ivan to attach the file.
+**Done when:** tests for the defaults (today, that day, none), the arrow with a mocked position (allowed, denied, nothing near), typing stopping the fill, and no prompt at launch; full suite passes. **Checks:** full suite; screenshots at 375 px, light and dark.
+**For your iPhone (after the build):** whether iPhone remembers Allow between launches.

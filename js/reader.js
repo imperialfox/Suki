@@ -1,11 +1,12 @@
 /* Suki · reader.js
    Smart add's sentence reader (Q14): word rules only, offline, the same answer every time. No AI reads anything.
    READER.read(text, now, learned, rate) turns one line, or several, into purchases for the preview:
-     {said, item, price, category, catFrom, date, future, location, venue, payment, notes, flags, match, learnKey, tie?}
+     {said, saidAt?, item, price, category, catFrom, date, future, location, venue, payment, notes, flags, match, learnKey, tie?}
    - catFrom: 'learned' (a word Suki learned), 'list' (the price list), 'words' (clue words), 'shop', 'tie' (two fit:
      the preview asks which), 'guess' (no clue at all: the preview tints it)
    - flags: 'amount' (no amount), 'item' (no name), 'future', 'pounds' (changed at the saved rate), 'numbers' (more
      than one number, so the last sure one was taken)
+   - saidAt (Q15): the Siri Shortcut's stamp at the start of the line ("2026-11-21 13:05"), only when it had one
    Needs catalog.js (wordMatch, catOf, priceOf) loaded first. Plain script, not a module. */
 const READER = (() => {
   const low = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -325,9 +326,14 @@ const READER = (() => {
         let base = now ? new Date(now) : new Date();
         // a line from the Siri Shortcut starts with when it was said: "yesterday" means the day before that
         const st = line.match(/^\[(\d{4})-(\d\d)-(\d\d)(?:[ T](\d\d):(\d\d))?\]\s*/);
+        let saidAt = '';
         if (st) {
           const b = new Date(+st[1], +st[2] - 1, +st[3]);
-          if (!isNaN(b) && b.getMonth() === +st[2] - 1) base = b;
+          if (!isNaN(b) && b.getMonth() === +st[2] - 1) {
+            base = b;
+            // Q15: the stamp is kept with each purchase (saidAt), so pasting the inbox again saves nothing twice
+            saidAt = stampOf(st[1] + '-' + st[2] + '-' + st[3] + (st[4] ? ' ' + st[4] + ':' + st[5] : ''));
+          }
           line = line.slice(st[0].length);
         }
         const said = line.slice(0, 500);
@@ -372,14 +378,27 @@ const READER = (() => {
         });
         // every purchase keeps the words he said for it: the whole line when it's the only one, else its own part
         const mine = out.slice(first);
-        mine.forEach((p, i) => (p.said = mine.length === 1 ? said : segSaid(line, mine.length, i)));
+        mine.forEach((p, i) => {
+          p.said = mine.length === 1 ? said : segSaid(line, mine.length, i);
+          if (saidAt) p.saidAt = saidAt;
+        });
       });
     return out;
   }
+  // a Shortcut stamp as kept with a purchase: "2026-11-21 13:05" (or just the day), else ''
+  function stampOf(x) {
+    const m = String(x == null ? '' : x).trim().match(/^(\d{4})-(\d\d)-(\d\d)(?: (\d\d):(\d\d))?$/);
+    if (!m) return '';
+    const d = new Date(+m[1], +m[2] - 1, +m[3]);
+    if (isNaN(d) || d.getMonth() !== +m[2] - 1 || (m[4] && (+m[4] > 23 || +m[5] > 59))) return '';
+    return m[0];
+  }
+  // what makes a Shortcut line the same as a saved purchase: its stamp and its words (case and spacing aside)
+  const sameKey = (p) => (p && p.saidAt && p.said ? p.saidAt + '|' + low(p.said).replace(/\s+/g, ' ').trim() : '');
   // his own words for each purchase of a line that held several: split where the reader split, in his spelling
   function segSaid(line, n, i) {
     const parts = line.split(/\s*(?:\balso\b|;)\s*/i).flatMap((c) => c.split(/\s*,(?!\d{3}(?!\d))\s*|\s+(?:and|then|plus)\s+(?=\S*\d|.*\d)/i));
     return (parts.length === n ? parts[i] : line).trim().slice(0, 500);
   }
-  return { read, matchInfo, toks, low };
+  return { read, matchInfo, toks, low, stampOf, sameKey };
 })();

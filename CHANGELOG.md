@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.21 · 2 Nov 2026
+*Log by voice with Siri, and nothing saved twice (Q15)*
+
+**Already saved**
+- Paste your Siri note into Smart add as often as you like. A line that starts with the Shortcut's time, like "[2026-11-21 13:05] tricycle 50 pesos", and matches a purchase you've already saved shows greyed as "Already saved" and is left out of Save.
+- The heading says how many are new: "3 new · 2 already saved", and Save counts only the new ones. Undo takes back just those.
+- When everything pasted is already saved, there's nothing to save, and "Clear the box" empties it in one tap.
+- Lines without a time are never skipped, so typing "jeep 14" twice in a day still saves twice. The same words said at a different time count as new.
+- Each purchase from a Siri line keeps its time with it, through editing, checking it in the Log sheet, Edit in the form and backups. Older purchases and backups are unaffected.
+
+**Help › Log by voice with Siri**
+- The six Shortcut steps to build on your phone (Dictate Text, Format Date, Text, Append to Note "Suki inbox", Copy to Clipboard, Show Notification), how to run it (Hey Siri, the Action Button or a Lock Screen control), and that clearing the note is optional.
+- "Smart add" in the steps opens Home on Smart add, ready to paste.
+
 ## 2.20 · 2 Nov 2026
 *Smart add: type, say or paste a purchase in one line (Q14)*
 

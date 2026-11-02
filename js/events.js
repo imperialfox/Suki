@@ -240,6 +240,8 @@ function readPurchase(form) {
     notes: String(v.notes || '').trim(),
     // the words he typed in Smart add stay with the purchase, through "Edit in the form" and later edits (Q14)
     ...(v.said ? { said: String(v.said).slice(0, 500) } : {}),
+    // and the Siri Shortcut's stamp with them, so the inbox line still counts as saved (Q15)
+    ...(v.saidAt ? { saidAt: v.saidAt } : {}),
   };
 }
 async function submitForm(form, el) {
@@ -394,6 +396,23 @@ const ACT = {
   tipX: () => TIPCUR && tipDone(TIPCUR),
   showWelcome: () => openSheet('welcome'),
   openAhs: () => openSheet('ahs', {}),
+  openSiri: () => openSheet('siri', {}),
+  // Help's Siri steps name Smart add, so they're a door to it (Q15)
+  goSmart: () => {
+    U.stack = [];
+    U.sheet = null;
+    U.sd = {};
+    LOGSIDE = 'smart';
+    try {
+      localStorage.setItem('suki:logSide', 'smart');
+    } catch (e) {}
+    go('home');
+    const t = $('smartText');
+    if (t) {
+      t.scrollIntoView({ block: 'center' });
+      t.focus({ preventScroll: true });
+    }
+  },
   openHelp: () => go('help'),
   more: () => {
     U.more = !U.more;
@@ -409,7 +428,7 @@ const ACT = {
   editPurchase: (el) => {
     const p = D.purchases.find((x) => x.id === el.dataset.k);
     if (!p) return;
-    F.edit = { item: p.item, price: fmtAmt(p.price), category: p.category, date: p.date, location: p.location, venue: p.venue, payment: p.payment, notes: p.notes, said: p.said };
+    F.edit = { item: p.item, price: fmtAmt(p.price), category: p.category, date: p.date, location: p.location, venue: p.venue, payment: p.payment, notes: p.notes, said: p.said, saidAt: p.saidAt };
     openSheet('edit', { id: p.id }, U.sheet === 'purchase');
   },
   delPurchase: (el) => {

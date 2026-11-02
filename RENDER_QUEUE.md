@@ -21,7 +21,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q16 | Logging: location | Shipped · 2.18 | same as Q08 (item 12) | Light to medium. Prototyped as "Q14"; Q12–Q15 are suggested by other Recon. After Q13 |
 | Q17 | Home: exchange rate card | Shipped · 2.19 | [Smart add prototype](https://claude.ai/artifact/KmqSWPKWGBSEWDjMQEgCkF) ("Rate above") | Light. After Q16 |
 | Q14 | Logging: Smart add | Shipped · 2.20 | same | Medium to heavy. Folds in the quick add Recon's suggested Q14. After Q17 |
-| Q15 | Logging: the Siri inbox | Approved — awaiting Build | none (slim follow-on to Q14) | Light. Quick add Recon (B), cut down. After Q14 |
+| Q15 | Logging: the Siri inbox | Shipped · 2.21 | none (slim follow-on to Q14) | Light. Quick add Recon (B), cut down. After Q14 |
 | Q12 | Look: calendar tints and price range strip | Shipped · 2.16 | [Q12 prototype](https://claude.ai/artifact/NFwAtWyj5ERxgyGifutbeS) | Light to medium. Visual audit (B), without the week strip. Built before Q13 at Ivan's word |
 | Q18 | Quick Till: note press | Approved — awaiting Build | [Note press prototype](https://claude.ai/artifact/EsJMmBNf71Sm48FDttcpLS) ("iOS way" feel) | Light to medium. Phase 1 of 4 of the till drawer idea; spec in the project doc `idea_till_note-press_notes.md`, plan in the project doc `q18_till_drawer-and-note-press_blueprint.md`. Finger tilt, Fly and Slot with a setting, and the new note and coin materials. After Q13 |
 | Q19 | Quick Till: till drawer | Approved — awaiting Build | same | Heavy. Phase 2 of 4: the hidden drawer, opening and shutting the iOS way, the scroll chain and the knock. Empty inside. After Q18 |
@@ -36,7 +36,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 
 **Render:** 1 Nov 2026, 09:33 · Ivan: "im happy to render but queue the[m] as two seperate items" · scope: Q17 and Q14 exactly as written in HANDOFF.md and as prototyped, built after Q16, Q17 first (*default*: the light one first, so it can land before the 7 Nov trip). Q12, Q13 and Q15 are not rendered. **Build (Q17):** 1 Nov 2026, 20:01, Ivan: "Suki Q17 Build" · shipped as 2.19. **Build (Q14):** 2 Nov 2026, 00:04, Ivan: "Suki Q14 Build" · shipped as 2.20.
 
-**Render:** 1 Nov 2026, 09:45 · Ivan, answering which suggested items to approve: Q13 "Right after Q11", Q15 "Render the slim version now" · scope: Q13 exactly as the locked prototype and its spec (built after Q11, before Q16); Q15 exactly as written in HANDOFF.md (built after Q14). Q12 is not rendered: Ivan wants to go through it as a wireframe and prototype first. **Build (Q13):** 1 Nov 2026, 13:07, Ivan: "Q13 build" · shipped as 2.17.
+**Render:** 1 Nov 2026, 09:45 · Ivan, answering which suggested items to approve: Q13 "Right after Q11", Q15 "Render the slim version now" · scope: Q13 exactly as the locked prototype and its spec (built after Q11, before Q16); Q15 exactly as written in HANDOFF.md (built after Q14). Q12 is not rendered: Ivan wants to go through it as a wireframe and prototype first. **Build (Q13):** 1 Nov 2026, 13:07, Ivan: "Q13 build" · shipped as 2.17. **Build (Q15):** 2 Nov 2026, 07:14, Ivan: "Suki Q15 Build" · shipped as 2.21.
 
 **Render:** 1 Nov 2026, 09:56 · Ivan: "render" · scope: Q12 exactly as written in HANDOFF.md and as prototyped (calendar tints and the price range strip), built after Q15. **Build:** 1 Nov 2026, 12:46, Ivan: "Q12 Build" (ahead of Q13–Q15, which keep their order) · shipped as 2.16.
 

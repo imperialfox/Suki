@@ -308,6 +308,8 @@ function sheetHTML() {
     }
     case 'welcome':
       return sheetWrap(null, welcomeBody(), '', 'Welcome to Suki', { lock: true, tall: true, cls: 'welsheet' });
+    case 'siri':
+      return sheetWrap('Log by voice with Siri', siriBody(), '', 'Log by voice with Siri', { cls: 'siri' });
     case 'ahs':
       return sheetWrap('Add to Home Screen', ahsBody(sd.safari), '', 'Add Suki to your Home Screen', { lock: !!sd.safari, cls: 'ahs' });
     case 'notes': {

@@ -1128,6 +1128,21 @@ textarea.inp {
   display: inline-block;
   margin-right: 2px;
 }
+/* Q15: a pasted line that's already saved: greyed, and not a button */
+.badge.plain {
+  color: var(--fg2);
+  background: var(--fill);
+  padding: 2px 7px;
+}
+.smart .row.done .lbl b,
+.smart .row.done .amt {
+  color: var(--fg2);
+  font-weight: 400;
+}
+.smart .row.done .stile,
+.smart .row.done .tile {
+  opacity: 0.45;
+}
 .either {
   padding: 10px 16px 12px;
   background: var(--hl);
@@ -2700,6 +2715,21 @@ body.wide .side-nav {
 }
 .ahs .cta {
   margin-top: 16px;
+}
+/* Help › Log by voice with Siri (Q15) */
+.foot.top {
+  margin: 0 16px 8px;
+}
+.siri code {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 13px;
+  background: var(--fill);
+  border-radius: 5px;
+  padding: 1px 4px;
+  white-space: nowrap;
+}
+.siri .steps .row .lbl small code {
+  font-size: 12px;
 }
 #tip {
   position: fixed;

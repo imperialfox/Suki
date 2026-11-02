@@ -133,6 +133,12 @@ function smartRead() {
       if ('item' in o) p.match = READER.matchInfo(p.item);
     }
   });
+  // Q15: a line from the Siri Shortcut whose stamp and words match a saved purchase is already saved
+  const kept = new Set(D.purchases.map(READER.sameKey).filter(Boolean));
+  list.forEach((p) => {
+    const k = READER.sameKey(p);
+    if (k && kept.has(k)) p.already = true;
+  });
   SMART_LAST = list;
   return list;
 }
@@ -172,13 +178,23 @@ function smartOut() {
     if (Date.now() < savedUntil) return '<button type="button" class="cta ink saved" id="homeSave" data-side="smart"><span class="tk">' + ICON.tick + '</span>Saved</button>' + learnedLink();
     return '<p class="small sh">Suki picks out the amount, item, category, day, place and how you paid, and shows you before anything is saved.</p>' + learnedLink();
   }
-  const ready = list.every(smartReady),
-    many = list.length > 1;
+  // Q15: lines already saved (from the Siri inbox, pasted again) are shown greyed and left out of Save
+  const fresh = list.filter((p) => !p.already),
+    done = list.length - fresh.length,
+    ready = fresh.length > 0 && fresh.every(smartReady),
+    many = list.length > 1 || done > 0,
+    head = done
+      ? fresh.length
+        ? fresh.length + ' new · ' + done + ' already saved'
+        : list.length > 1 ? 'All ' + list.length + ' already saved' : 'Already saved'
+      : many ? list.length + ' purchases found' : 'Suki read';
   return (
-    '<div class="sec">' + (many ? list.length + ' purchases found' : 'Suki read') + '</div>' +
+    '<div class="sec" id="smartHead">' + head + '</div>' +
     (many ? previewMany(list) : previewOne(list[0])) +
-    '<p class="err" id="smartErr" role="alert"></p>' +
-    '<button type="button" class="cta ink' + (ready ? '' : ' dim') + '" id="smartSave" data-a="smartSave">' + (many ? 'Save ' + list.length + ' purchases' : 'Save purchase') + '</button>' +
+    (fresh.length
+      ? '<p class="err" id="smartErr" role="alert"></p>' +
+        '<button type="button" class="cta ink' + (ready ? '' : ' dim') + '" id="smartSave" data-a="smartSave">' + (fresh.length > 1 ? 'Save ' + fresh.length + ' purchases' : 'Save purchase') + '</button>'
+      : '<p class="small sh" id="smartNone">' + (list.length > 1 ? 'These are' : 'This is') + ' already in your purchases, so there’s nothing new to save. <button class="tlink" data-a="smartClear">Clear the box</button></p>') +
     (many ? '' : '<button class="textlink" data-a="smartToForm">Edit in the form</button>') +
     '<p class="said">Your words are kept with each purchase.</p>' + learnedLink()
   );
@@ -224,10 +240,12 @@ function previewMany(list) {
   return (
     '<div class="grp tiled">' +
     list.map((p, i) => {
+      if (p.already)
+        return '<div class="row done" aria-label="' + esc((p.item || 'Purchase') + ', ' + (p.price != null ? peso(p.price) : '') + ', already saved') + '">' + tile(p.category) + '<span class="lbl"><b>' + esc(p.item || p.said) + '</b><small><span class="badge plain">Already saved</span> ' + esc([relDay(p.date), p.location].filter(Boolean).join(' · ')) + '</small></span><span class="amt">' + (p.price != null ? esc(peso(p.price)) : '—') + '</span></div>';
       const f = flagOf(p);
       return '<button class="row" data-a="smartCheck" data-v="' + i + '">' + tile(p.category) + '<span class="lbl"><b>' + esc(p.item || 'What was it?') + '</b><small>' + (f ? '<span class="badge warn">' + esc(f) + '</span> ' : '') + esc([p.category, relDay(p.date), p.location].filter(Boolean).join(' · ')) + '</small></span><span class="amt">' + (p.price != null ? esc(peso(p.price)) : '—') + '</span>' + ICON.chev + '</button>';
     }).join('') +
-    '</div><p class="small sh">Tap a purchase to check or change it.</p>'
+    '</div>' + (list.some((p) => !p.already) ? '<p class="small sh">Tap a purchase to check or change it.</p>' : '')
   );
 }
 // typing redraws only the suggestions and the preview, so the box keeps the cursor and the keyboard stays up
@@ -257,12 +275,12 @@ function smartLearn(i, cat) {
 
 /* ===== Saving ===== */
 async function smartSave() {
-  const list = SMART_LAST,
+  const list = SMART_LAST.filter((p) => !p.already), // Q15: lines already saved are left out
     err = $('smartErr');
   if (!list.length) return;
   const bad = list.findIndex((p) => !smartReady(p));
   if (bad >= 0) {
-    if (err) err.textContent = list.length > 1 ? 'Check the purchases marked “How much?” or “What was it?”.' : list[bad].item ? 'Add how much it was.' : 'Say what it was.';
+    if (err) err.textContent = SMART_LAST.length > 1 ? 'Check the purchases marked “How much?” or “What was it?”.' : list[bad].item ? 'Add how much it was.' : 'Say what it was.';
     const f = $(list[bad].item ? 'smartPrice' : 'smartItem');
     if (f) f.focus();
     return;
@@ -287,6 +305,7 @@ async function smartSave() {
         payment: PAYMENTS.includes(p.payment) ? p.payment : 'Cash',
         notes: String(p.notes || '').trim(),
         said: String(p.said || '').slice(0, 500),
+        ...(p.saidAt ? { saidAt: p.saidAt } : {}),
         gbpAtPurchase: r ? Math.round((price / r) * 100) / 100 : null,
         rateAtPurchase: r,
       };
@@ -318,6 +337,17 @@ Object.assign(ACT, {
   logSide: () => switchSide(LOGSIDE === 'smart' ? 'form' : 'smart', true),
   smartSave: () => smartSave(),
   smartPick: (el) => smartLearn(+el.dataset.v, el.dataset.k),
+  // everything pasted was already saved: empty the box in one tap (Q15)
+  smartClear: () => {
+    F.smart = { text: '', over: {} };
+    saveSmart();
+    const t = $('smartText');
+    if (t) {
+      t.value = '';
+      growSmart();
+    }
+    updateSmart();
+  },
   // tapping a suggestion fills the line with what he said then (or its name, place and price)
   smartSugg: (el) => {
     const h = SUGG[+el.dataset.k];
@@ -348,6 +378,7 @@ Object.assign(ACT, {
       payment: p.payment || 'Cash',
       notes: p.notes || '',
       said: p.said,
+      saidAt: p.saidAt,
     };
     if (p.location) F.home.locFrom = p.locAuto ? 'auto' : 'typed';
     U.more = !!(p.location || p.venue || (p.payment && p.payment !== 'Cash') || p.notes || p.date !== localISO());
@@ -361,7 +392,7 @@ Object.assign(ACT, {
     const i = +el.dataset.v,
       p = SMART_LAST[i];
     if (!p) return;
-    F.edit = { item: p.item, price: p.price != null ? fmtAmt(p.price) : '', category: p.category, date: p.date, location: p.location || '', venue: p.venue || '', payment: p.payment || 'Cash', notes: p.notes || '', said: p.said };
+    F.edit = { item: p.item, price: p.price != null ? fmtAmt(p.price) : '', category: p.category, date: p.date, location: p.location || '', venue: p.venue || '', payment: p.payment || 'Cash', notes: p.notes || '', said: p.said, saidAt: p.saidAt };
     if (p.location) F.edit.locFrom = p.locAuto ? 'auto' : 'typed';
     openSheet('edit', { smart: i });
   },
@@ -382,7 +413,7 @@ function smartChecked() {
     p = readPurchase('edit');
   if (!p || !was) return;
   if (p.category !== was.category) learnWord(was, p.category);
-  F.smart.over[i] = Object.assign({}, p, { said: was.said, flags: [], catFrom: p.category !== was.category ? 'learned' : was.catFrom === 'tie' || was.catFrom === 'guess' ? 'words' : was.catFrom, future: p.date > localISO(), priceFrom: null, locAuto: F.edit.locFrom === 'auto' });
+  F.smart.over[i] = Object.assign({}, p, { said: was.said, saidAt: was.saidAt, flags: [], catFrom: p.category !== was.category ? 'learned' : was.catFrom === 'tie' || was.catFrom === 'guess' ? 'words' : was.catFrom, future: p.date > localISO(), priceFrom: null, locAuto: F.edit.locFrom === 'auto' });
   closeSheet();
 }
 

@@ -46,7 +46,7 @@ function cleanPurchase(p) {
     price = money(p.price);
   if (!item || price === null) return null;
   const num = (x) => (Number.isFinite(+x) && +x > 0 && x !== null && x !== '' ? +x : null);
-  return Object.assign({}, p, {
+  const out = Object.assign({}, p, {
     id: str(p.id) || newId(),
     item: item.slice(0, 200),
     price,
@@ -59,6 +59,13 @@ function cleanPurchase(p) {
     gbpAtPurchase: num(p.gbpAtPurchase),
     rateAtPurchase: num(p.rateAtPurchase),
   }, 'said' in p ? { said: str(p.said).slice(0, 500) } : {});
+  // saidAt (Q15): when he said it to the Siri Shortcut, "2026-11-21 13:05". Anything else is dropped, not kept as junk
+  if ('saidAt' in p) {
+    const at = READER.stampOf(p.saidAt);
+    if (at) out.saidAt = at;
+    else delete out.saidAt;
+  }
+  return out;
 }
 function cleanObservation(o) {
   if (!o || typeof o !== 'object' || Array.isArray(o)) return null;

@@ -63,6 +63,38 @@ function ahsBody(safari) {
     (safari ? '<button class="cta" data-a="ahsGot">Got it</button><button class="ghost" data-a="ahsLater">Not now</button>' : '')
   );
 }
+// Settings › Help › Log by voice with Siri (Q15): the Shortcut he builds on his phone, how to run it, and pasting
+// the note into Smart add. The stamp at the start of each line is what lets Suki tell a line is already saved.
+const SIRI_STEPS = [
+  ['mic', 'purple', 'Dictate Text', 'Language: English (UK). Stop Listening: After Pause'],
+  ['clock', 'gray', 'Format Date', 'Current Date, Custom format <code>yyyy-MM-dd HH:mm</code>'],
+  ['pencil', 'gray', 'Text', 'Type <code>[</code>, add Formatted Date, type <code>]</code> and a space, then add Dictated Text'],
+  ['book', 'yellow', 'Append to Note', 'The Text, to a note called Suki inbox. Make the note in Notes first'],
+  ['copy', 'blue', 'Copy to Clipboard', 'The note from step 4, so the clipboard always holds the whole inbox'],
+  ['tick', 'green', 'Show Notification', 'Type <code>Saved for Suki:</code> and add Dictated Text, so you can see what Siri heard'],
+];
+function siriBody() {
+  return (
+    '<p class="note center">Say a purchase to Siri wherever you are. A Shortcut writes it in a note with the time, and copies the note. Later, paste it into Smart add.</p>' +
+    hdr('Make the Shortcut') +
+    '<p class="foot top">In Shortcuts, tap +, name it Log to Suki, and add these six actions in order.</p>' +
+    '<div class="grp tiled steps" id="siriSteps">' +
+    SIRI_STEPS.map((s, i) => '<div class="row">' + stile(s[0], s[1]) + '<span class="lbl"><b>' + (i + 1) + '. ' + s[2] + '</b><small>' + s[3] + '</small></span></div>').join('') +
+    '</div><p class="foot">Each line in the note then starts with the time, like <code>[2026-11-21 13:05] tricycle 50 pesos</code>.</p>' +
+    hdr('Run it') +
+    '<div class="grp tiled steps">' +
+    '<div class="row">' + stile('mic', 'purple') + '<span class="lbl"><b>Say “Hey Siri, Log to Suki”</b></span></div>' +
+    '<div class="row">' + stile('phone', 'gray') + '<span class="lbl"><b>Or press the Action Button</b><small>Settings › Action Button › Shortcut › Log to Suki</small></span></div>' +
+    '<div class="row">' + stile('star', 'blue') + '<span class="lbl"><b>Or add it to your Lock Screen</b><small>Hold the Lock Screen, tap Customise, then a control at the bottom, and choose Shortcut</small></span></div>' +
+    '</div>' +
+    hdr('In Suki') +
+    '<div class="grp tiled steps">' +
+    '<div class="row">' + stile('download', 'green') + '<span class="lbl"><b>Open <button class="tlink" data-a="goSmart">Smart add</button> on Home and paste</b><small>Suki shows each purchase before anything is saved</small></span></div>' +
+    '<div class="row">' + stile('tick', 'gray') + '<span class="lbl"><b>Paste the whole note every time</b><small>Lines you’ve saved show as Already saved and aren’t saved again</small></span></div>' +
+    '</div>' +
+    '<p class="foot">Clearing the note is optional. Keep the time at the start of each line: without it Suki still reads the line, but can’t tell it’s already saved.</p>'
+  );
+}
 // the welcome's rows arrive 45 ms apart after the sheet rises; Reduce Motion gives fades only
 function welcomeArrive() {
   document.querySelectorAll('#layer .wrow').forEach((r, i) =>
@@ -211,6 +243,8 @@ function scrHelp() {
     '</div><p class="foot">Tips appear once each, next to what they explain. Turning this on shows them all again.</p>' +
     hdr('Hidden gestures') +
     '<div class="grp tiled set">' + gest.map((g) => '<div class="row">' + stile(g[0], 'gray') + '<span class="lbl"><b>' + g[1] + '</b><small>' + g[2] + '</small></span></div>').join('') + '</div>' +
+    hdr('Logging') +
+    '<div class="grp tiled set"><button class="row" data-a="openSiri">' + stile('mic', 'purple') + '<span class="lbl"><b>Log by voice with Siri</b><small>Say a purchase anywhere, paste it in later</small></span>' + ICON.chev + '</button></div>' +
     hdr('On a new phone') +
     '<div class="grp tiled set"><button class="row" data-a="openAhs">' + stile('phone', 'blue') + '<span class="lbl"><b>Add Suki to your Home Screen</b></span>' + ICON.chev + '</button></div>'
   );

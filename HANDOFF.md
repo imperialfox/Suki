@@ -307,7 +307,7 @@ Tests: `test_smart.py` (100 checks, listed in `MAINTAINING.md`). Full suite: 796
 **Left for later:** Q15 (the Siri inbox) is next and builds on the time stamps the reader already reads. The "Try" chips idea is in the queue's ideas.
 
 ## Q15 · Logging: the Siri inbox
-**Render:** 1 Nov 2026, 09:45, scope as below · **Build:** awaiting · Needs: Q14 (built first). Recon: project doc `suki_quick_add_recon_2026-11-01.md` (findings 2 and 3, the Shortcut steps), cut down because Smart add's box already keeps line breaks and reads the Shortcut's time stamps.
+**Render:** 1 Nov 2026, 09:45, scope as below · **Build:** 2 Nov 2026, 07:14, Ivan: "Suki Q15 Build" · shipped as 2.21 · Needs: Q14 (built first; live as 2.20, checked). Recon: project doc `suki_quick_add_recon_2026-11-01.md` (findings 2 and 3, the Shortcut steps), cut down because Smart add's box already keeps line breaks and reads the Shortcut's time stamps.
 
 **Goal:** say a purchase to Siri anywhere, paste the whole inbox into Smart add later, and nothing is saved twice.
 **Agreed:**
@@ -318,6 +318,16 @@ Tests: `test_smart.py` (100 checks, listed in `MAINTAINING.md`). Full suite: 796
 **Where to look:** `js/reader.js` (from Q14), the Smart add preview, `storage.js` and `backup.js` (`saidAt`), the Help screen from Q07.
 **Done when:** tests: a stamped inbox saves once, pasting it again marks every line "Already saved", a mix saves only the new lines, unstamped duplicates still save, `saidAt` survives a backup round trip, the Help section lists the steps; full suite passes. **Checks:** full suite; screenshots at 375 px.
 **For your iPhone:** the Shortcut runs from Siri and the Action Button; dictation works with no signal; pasting the note keeps its line breaks.
+**Debrief:** Built as agreed. The default applied: lines without a stamp are never skipped. Decisions within scope:
+- **The match** is the stamp plus his words for that purchase (`saidAt|said`, case and spacing aside), so a line holding two purchases matches each on its own part. The same words at another time are new; two identical stamped lines in one paste both save.
+- **The preview:** already-saved rows are greyed `div`s, not buttons, with a plain grey "Already saved" badge (never the warning colour). The header reads "3 new · 2 already saved", "All 5 already saved" or "Already saved", and one already-saved line shows in the list style, with no Edit in the form.
+- **Nothing new to save:** no Save button; a line says so, with "Clear the box" (added so the box isn't left full with nothing to do).
+- **The stamp is checked:** an impossible one (30 Feb, 25:61) is ignored by the reader and dropped from saved data and backups; the rest of the purchase is kept.
+- **Help:** a "Logging" group with "Log by voice with Siri", opening its own sheet (like the Home Screen steps). "Smart add" in it is a door to Home's Smart add, with the cursor in the box.
+- **One gap:** a stamped line saved by 2.20 (before `saidAt` existed) has no stamp, so it can save once more. Noted in `MAINTAINING.md`.
+Tests: `test_inbox.py` (56 checks, listed in `MAINTAINING.md`). Full suite: 852 of 852 side by side, pinned Playwright 1.56 pointed at a newer Chromium, as before. Screenshots at 375 px, light and dark, checked by eye.
+**For your iPhone:** (1) Build the Shortcut from Settings › Help › Log by voice with Siri, then say "Hey Siri, Log to Suki": does the note get a line starting with the time? (2) Try it from the Action Button, and once with no signal. (3) Paste the note into Smart add: are the line breaks kept, and does it find each purchase? (4) Save, then paste the same note again: does every line show "Already saved"? (5) Check that Siri writes the time as `[2026-11-21 13:05]`, with the square brackets.
+**Left for later:** nothing new.
 
 ## Q12 · Look: calendar tints and price range strip
 **Render:** 1 Nov 2026, 09:56, scope as below · **Build:** 1 Nov 2026, 12:46, Ivan: "Q12 Build" · shipped as 2.16 · Needs: Q08's prices row and Q10's calendar door (both live). Queued after Q15, but built first at Ivan's word: it doesn't touch the parts Q13–Q17 change (the Till, the form, Home), and they keep their order.

@@ -161,6 +161,80 @@ const MOTION = (() => {
     return () => (stop = true);
   }
 
+  /* Home's Log card switching sides (Q14), after iPhone Duo's fold. The card stays put and only its contents change.
+     One thing is the hinge, the box you type in: it slides from its old spot to its new one. Everything else dissolves
+     through a blur that grows with distance from the hinge (cubic), rows 28 ms apart, and the new side resolves out of
+     blur and slight dimness, rows 45 ms apart. Only rows are blurred, never the card. Reduce Motion: a plain
+     crossfade. Motion off: nothing. A switch mid-way removes the copy at once (smart.js), so nothing is left behind.
+     If frames drop badly during a fold (over 120 ms between two, twice), later folds use the crossfade. */
+  let foldLite = false;
+  function foldRows(face) {
+    const out = [];
+    [...face.children].forEach((c) => {
+      if (c.id === 'smartOut' || c.id === 'smartSugg' || c.classList.contains('more')) out.push(...c.children);
+      else out.push(c);
+    });
+    return out.filter((el) => el.getBoundingClientRect().height > 0);
+  }
+  function fold(wrap, ghost, neu) {
+    if (!ghost || !neu || !neu.animate || speed === 0) return;
+    const k = speed,
+      gone = () => ghost.isConnected && ghost.remove();
+    wrap.appendChild(ghost);
+    if (reduced() || foldLite) {
+      ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150 * k, easing: 'ease-out', fill: 'forwards' }).onfinish = gone;
+      neu.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 * k, easing: 'ease-out', fill: 'backwards' });
+      setTimeout(gone, 150 * k + 300);
+      return;
+    }
+    const hingeOf = (face) => face.querySelector('textarea, input'),
+      oldH = hingeOf(ghost),
+      newH = hingeOf(neu),
+      span = Math.max(1, wrap.offsetHeight),
+      blurAt = (el, h) => {
+        const d = Math.min(1, Math.abs(el.getBoundingClientRect().top - h.getBoundingClientRect().top) / span);
+        return 1 + 9 * d * d * d + 3 * d;
+      };
+    if (oldH && newH) {
+      const a = oldH.getBoundingClientRect(),
+        b = newH.getBoundingClientRect();
+      newH.animate([{ transform: 'translateY(' + (a.top - b.top) + 'px)' }, { transform: 'none' }], { duration: 420 * k, easing: 'cubic-bezier(.3,1.25,.5,1)' });
+      oldH.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120 * k, delay: 60 * k, fill: 'forwards' });
+    }
+    const hOld = oldH && oldH.closest('.fld');
+    const rowsOld = foldRows(ghost);
+    rowsOld.forEach((el, i) => {
+      if (el === oldH || el === hOld) {
+        [...el.children].forEach((c) => c !== oldH && c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140 * k, fill: 'forwards' }));
+        return;
+      }
+      const bl = oldH ? blurAt(el, oldH) : 4;
+      el.animate([{ opacity: 1, filter: 'blur(0px)', transform: 'none' }, { opacity: 0, filter: 'blur(' + bl.toFixed(1) + 'px)', transform: 'translateY(-3px) scale(.985)' }], { duration: 240 * k, delay: i * 28 * k, easing: 'ease-in', fill: 'forwards' });
+    });
+    const ms = (rowsOld.length * 28 + 300) * k;
+    setTimeout(gone, ms);
+    const hNew = newH && newH.closest('.fld');
+    foldRows(neu).forEach((el, i) => {
+      if (el === newH || el === hNew) {
+        if (el !== newH) [...el.children].forEach((c) => c !== newH && c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260 * k, delay: 140 * k, fill: 'backwards' }));
+        return;
+      }
+      const bl = newH ? blurAt(el, newH) : 4;
+      el.animate([{ opacity: 0, filter: 'blur(' + bl.toFixed(1) + 'px) brightness(.82)', transform: 'translateY(5px)' }, { opacity: 1, filter: 'blur(0px) brightness(1)', transform: 'none' }], { duration: 440 * k, delay: (110 + i * 45) * k, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+    });
+    // watch the frames while it plays; two long gaps and the next fold is a crossfade
+    let last = performance.now(),
+      slow = 0;
+    const end = last + ms;
+    const tick = (now) => {
+      if (now - last > 120) slow++;
+      last = now;
+      if (slow >= 2) foldLite = true;
+      else if (now < end && ghost.isConnected) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
   // distance blur: d is how many lines away from the focus (0 = in focus)
   const blur = (d) => (d <= 0 || reduced() ? 0 : +((BLUR_MAX * Math.min(d, 5)) / 5).toFixed(2));
   const dim = (d) => (d <= 0 ? 1 : +Math.max(0.3, 0.55 - 0.05 * d).toFixed(2));
@@ -185,6 +259,7 @@ const MOTION = (() => {
     animate,
     settle,
     leave,
+    fold,
     spring,
     setSpeed,
     setReduce,

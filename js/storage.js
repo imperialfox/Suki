@@ -1,17 +1,18 @@
 /* Suki · storage.js
    Saved data: loading, checking and saving it.
    Everything stays on this device, in the same places Suki has always used, so nothing is lost on updating:
-   - IndexedDB database 'suki-db', store 'kv', keys 'purchases', 'observations' and 'rate'
+   - IndexedDB database 'suki-db', store 'kv', keys 'purchases', 'observations', 'rate' and 'learned' (Q14)
    - localStorage 'suki:<key>' as the fallback when IndexedDB isn't available
    - localStorage 'suki:lastBackup' (when a backup was last saved), 'suki:draft' (a half-typed purchase),
-     'suki:motion' (motion speed, see motion.js). None of these three go into backups.
+     'suki:motion' (motion speed, see motion.js), 'suki:logSide' (which side of Home's Log card shows) and
+     'suki:smart' (a half-typed Smart add line). None of these go into backups.
    Plain script (not a module): files share one global scope and load in the order listed in index.html. */
 
 /* ===== Data ===== */
 const CATS = ['Food & drink', 'Transport', 'Groceries', 'Shopping', 'Accommodation', 'Activities', 'Other'];
 const VENUES = ['Palengke', 'Street vendor', 'Carinderia', 'Restaurant', 'Convenience store', 'Supermarket', 'Transport', 'Other'];
 const PAYMENTS = ['Cash', 'Revolut', 'Other card', 'Other'];
-let D = { purchases: [], observations: [], rate: null };
+let D = { purchases: [], observations: [], rate: null, learned: [] };
 
 /* ===== Checking =====
    Anything loaded or restored passes through these, so damaged data can't stop the app starting.
@@ -57,7 +58,7 @@ function cleanPurchase(p) {
     notes: str(p.notes),
     gbpAtPurchase: num(p.gbpAtPurchase),
     rateAtPurchase: num(p.rateAtPurchase),
-  });
+  }, 'said' in p ? { said: str(p.said).slice(0, 500) } : {});
 }
 function cleanObservation(o) {
   if (!o || typeof o !== 'object' || Array.isArray(o)) return null;
@@ -76,6 +77,23 @@ function cleanObservation(o) {
     note: str(o.note),
   });
 }
+// a word Smart add learned (Q14): {id, word, category, label}. The word is its id, so each word is kept once
+function cleanWord(w) {
+  if (!w || typeof w !== 'object' || Array.isArray(w)) return null;
+  const word = str(w.word).toLowerCase().slice(0, 60);
+  if (!word || !CATS.includes(w.category)) return null;
+  return Object.assign({}, w, { id: word, word, label: str(w.label).slice(0, 200) || word });
+}
+function cleanLearned(list) {
+  const by = new Map();
+  (Array.isArray(list) ? list : []).map(cleanWord).filter(Boolean).forEach((w) => by.set(w.word, w));
+  return [...by.values()];
+}
+const learnedMap = () => {
+  const o = {};
+  D.learned.forEach((w) => (o[w.word] = w.category));
+  return o;
+};
 function cleanRate(r) {
   if (!r || typeof r !== 'object') return null;
   const value = +r.value;
@@ -106,6 +124,7 @@ function cleanData(d) {
     purchases: cleanList(d.purchases, cleanPurchase),
     observations: cleanList(d.observations, cleanObservation),
     rate: cleanRate(d.rate),
+    learned: cleanLearned(d.learned),
   };
 }
 
@@ -189,13 +208,13 @@ function putKey(k, v) {
 let STORE_WARN = false,
   RESCUE = [],
   SAFETY = null;
-const KEYS = ['purchases', 'observations', 'rate'];
+const KEYS = ['purchases', 'observations', 'rate', 'learned'];
 // what in a key's raw value couldn't be read: the whole value, or the records that had to be dropped
 function unreadable(k, raw) {
   if (raw === undefined || raw === null) return [];
   if (k === 'rate') return cleanRate(raw) ? [] : [raw];
   if (!Array.isArray(raw)) return [raw];
-  const fn = k === 'purchases' ? cleanPurchase : cleanObservation;
+  const fn = k === 'purchases' ? cleanPurchase : k === 'learned' ? cleanWord : cleanObservation;
   return raw.filter((r) => !fn(r));
 }
 // records from the fallback spot that IndexedDB doesn't have (saved while it wouldn't open), merged in by id
@@ -258,7 +277,7 @@ const rescueCount = () => RESCUE.reduce((n, r) => n + ((r && r.items && r.items.
 const rescueDue = () => RESCUE.some((r) => r && !r.saved);
 // keep what's on the phone before a restore or Erase; false if it couldn't be kept (then nothing should change)
 async function keepSafetyCopy(why) {
-  const s = { at: new Date().toISOString(), why, data: { purchases: D.purchases, observations: D.observations, rate: D.rate } };
+  const s = { at: new Date().toISOString(), why, data: { purchases: D.purchases, observations: D.observations, rate: D.rate, learned: D.learned } };
   const ok = await putKey('safety', s);
   if (ok) SAFETY = s;
   return ok;
@@ -266,7 +285,7 @@ async function keepSafetyCopy(why) {
 // save one part (or every part) of D; tells you if saving failed, e.g. when storage is full.
 // The warning stays until it's tapped, so a purchase that wasn't saved never looks saved (Q05)
 async function save(...keys) {
-  if (!keys.length) keys = ['purchases', 'observations', 'rate'];
+  if (!keys.length) keys = KEYS;
   const ok = await Promise.all(keys.map((k) => putKey(k, D[k])));
   if (ok.includes(false)) toast('Couldn’t save. Your device may be out of space, so back up soon.', null, true);
   return !ok.includes(false);

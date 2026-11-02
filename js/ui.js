@@ -5,7 +5,7 @@
 /* ===== Form state =====
    What's typed in each form lives here, so a redraw (a rate arriving, rotating the phone) never loses it.
    Home's form is also kept in localStorage 'suki:draft', so a half-typed purchase survives closing the app. */
-const F = { home: {}, edit: {}, obs: {} };
+const F = { home: {}, edit: {}, obs: {}, smart: { text: '', over: {} } };
 
 /* ===== Chrome ===== */
 function renderBar() {
@@ -64,6 +64,7 @@ function render(keepScroll) {
     caret = focusId && ae.selectionStart != null ? [ae.selectionStart, ae.selectionEnd] : null;
   closeSwipes();
   $('app').innerHTML = SCREENS[U.tab]();
+  if (U.tab === 'home') growSmart();
   $('app').className = 'tab-' + U.tab + (NARROW[U.tab] ? ' narrow' : '');
   renderBar();
   renderSide();
@@ -175,14 +176,27 @@ function sheetHTML() {
       return sheetWrap('Purchase', purchaseDetail(p), '<button class="circ glass sm" data-a="editPurchase" data-k="' + esc(p.id) + '" aria-label="Edit purchase">' + ICON.pencil + '</button>');
     }
     case 'edit': {
-      const isNew = !sd.id;
+      const isNew = !sd.id,
+        check = sd.smart != null; // a purchase from Smart add's list, being checked: Done puts it back, unsaved (Q14)
       if (!isNew && !D.purchases.some((x) => x.id === sd.id)) return null;
       return sheetWrap(
-        isNew ? 'Log a purchase' : 'Edit purchase',
+        check ? 'Check purchase' : isNew ? 'Log a purchase' : 'Edit purchase',
         '<form class="card form" data-form="edit" novalidate>' + purchaseForm('edit', F.edit) +
-          '<p class="err" id="edit-err" role="alert"></p><button type="submit" class="cta">' + (isNew ? 'Save purchase' : 'Save changes') + '</button></form>'
+          '<p class="err" id="edit-err" role="alert"></p><button type="submit" class="cta">' + (check ? 'Done' : isNew ? 'Save purchase' : 'Save changes') + '</button></form>' +
+          (F.edit.said ? '<p class="said">You typed: “' + esc(F.edit.said) + '”</p>' : '')
       );
     }
+    case 'learned':
+      // Settings › Your data, and a door from Smart add (Q14). Each word can be forgotten; they're kept in backups
+      return sheetWrap(
+        'Words Suki has learned',
+        (D.learned.length
+          ? '<div class="grp tiled">' +
+            D.learned.slice().reverse().map((w) => '<div class="row">' + tile(w.category) + '<span class="lbl"><b>' + esc(w.label) + '</b><small>' + esc(w.category) + (w.label.toLowerCase() !== w.word ? ' · “' + esc(w.word) + '”' : '') + '</small></span><button class="ibtn" data-a="forgetWord" data-k="' + esc(w.word) + '" aria-label="Forget ' + esc(w.label) + '">' + ICON.x + '</button></div>').join('') +
+            '</div>'
+          : '<div class="grp"><div class="empty">Nothing yet. Change a category in Smart add and Suki remembers the word for next time.</div></div>') +
+          '<p class="foot">Smart add uses these first when it picks a category. They’re kept in backups.</p>'
+      );
     case 'item': {
       const it = itemById(sd.id);
       if (!it) return null;
@@ -194,7 +208,7 @@ function sheetHTML() {
       return sheetWrap(
         'Erase all data?',
         confirmBody(
-          'This removes ' + plural(D.purchases.length, 'purchase') + ', ' + plural(D.observations.length, 'price note') + ' and the saved rate from this device. It can’t be undone.',
+          'This removes ' + plural(D.purchases.length, 'purchase') + ', ' + plural(D.observations.length, 'price note') + (D.learned.length ? ', ' + plural(D.learned.length, 'learned word') + ',' : '') + ' and the saved rate from this device. It can’t be undone.',
           'Erase everything',
           'eraseYes',
           '',
@@ -236,7 +250,8 @@ function sheetHTML() {
         '<p class="note">Made ' + (sd.when ? esc(sd.when) : 'on an unknown date') + (sd.skipped ? '. ' + plural(sd.skipped, 'damaged record') + ' will be left out' : '') + '. Restoring replaces what’s on this device.</p>' +
           '<div class="grp"><div class="row cmp head"><span class="lbl"></span><span class="v">This device</span><span class="v b">Backup</span></div>' +
           row('Purchases', D.purchases.length, n.purchases.length) + row('Price notes', D.observations.length, n.observations.length) +
-          row('Saved rate', D.rate ? D.rate.value.toFixed(2) : 'None', n.rate ? n.rate.value.toFixed(2) : 'None') + '</div>' +
+          row('Saved rate', D.rate ? D.rate.value.toFixed(2) : 'None', n.rate ? n.rate.value.toFixed(2) : 'None') +
+          (D.learned.length || n.learned.length ? row('Learned words', D.learned.length, n.learned.length) : '') + '</div>' +
           '<div class="gap"></div><button class="cta red" data-a="restoreYes">Replace with this backup</button><button class="ghost" data-a="close">Cancel</button>'
       );
     }

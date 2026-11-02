@@ -982,6 +982,194 @@ textarea.inp {
 .more {
   padding-bottom: 4px;
 }
+/* ===== Smart add (Q14): the second side of Home's Log card =====
+   The pill on the heading switches sides; the card stays put and only its contents change (MOTION.fold). The preview
+   sits inside the card as a filled group, like the form's boxes. Nothing here is a warning colour except a date in the
+   future and an amount changed from pounds, which use the same soft amber as Home's nudges. */
+.sidepill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  margin: -8px -4px -6px 0;
+  padding: 0 14px 0 11px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--hl);
+  white-space: nowrap;
+}
+.sidepill svg.i {
+  width: 18px;
+  height: 18px;
+}
+.logwrap {
+  position: relative;
+}
+.lghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.smart {
+  padding-top: 16px;
+}
+.smart textarea.inp {
+  resize: none;
+  min-height: 48px;
+  overflow-y: auto;
+}
+.smart .sh {
+  margin: 6px 2px 0;
+}
+.smart .sec {
+  font-size: 13px;
+  color: var(--fg2);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 18px 2px 8px;
+}
+.smart .grp {
+  background: var(--fill);
+}
+.smart .row {
+  background: transparent;
+}
+.smart .grp.spaced {
+  margin-top: 12px;
+}
+.sprev .row.kv {
+  align-items: center;
+  min-height: 46px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.sprev .row.kv .v {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.faint {
+  color: var(--fg3);
+}
+.sprev .row.kv.ask,
+.sprev .row.kv.guess {
+  background: var(--hl);
+}
+.sprev .ask .k {
+  color: var(--accent);
+  font-weight: 600;
+}
+.sprev .k small {
+  display: block;
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--fg2);
+}
+.kvin {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 120px;
+  min-width: 0;
+  min-height: 36px;
+  margin-left: auto;
+  border: 0;
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 7px 10px;
+  font-size: 17px;
+  text-align: right;
+  outline: none;
+}
+.kvin.wide {
+  width: 150px;
+}
+.kvsel {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-left: auto;
+  min-width: 0;
+  max-width: 60%;
+  min-height: 36px;
+  border: 0;
+  background-color: transparent;
+  color: var(--fg);
+  font-size: 17px;
+  text-align: right;
+  text-align-last: right;
+  padding: 6px 18px 6px 0;
+  background-image: linear-gradient(45deg, transparent 50%, var(--fg2) 50%), linear-gradient(135deg, var(--fg2) 50%, transparent 50%);
+  background-position:
+    calc(100% - 7px) 55%,
+    calc(100% - 2px) 55%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  text-overflow: ellipsis;
+}
+.sprev .row.kv.warn {
+  background: var(--warnbg);
+}
+.sprev .row.kv.warn .k,
+.sprev .row.kv.warn .v {
+  color: var(--warnfg);
+}
+.badge.warn {
+  color: var(--warnfg);
+  background: var(--warnbg);
+  padding: 2px 7px;
+}
+.lbl small .badge {
+  display: inline-block;
+  margin-right: 2px;
+}
+.either {
+  padding: 10px 16px 12px;
+  background: var(--hl);
+  position: relative;
+}
+.either p {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.either .chip {
+  margin-right: 6px;
+}
+.textlink {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  text-align: center;
+  color: var(--accent);
+  font-size: 17px;
+  padding: 10px 0 0;
+}
+.said {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--fg2);
+  margin: 8px 16px 0;
+  overflow-wrap: anywhere;
+}
+.smart .said {
+  margin: 10px 2px 0;
+  text-align: center;
+}
+.smart .cta {
+  margin-top: 14px;
+}
+.cta.dim {
+  opacity: 0.45;
+  box-shadow: none;
+}
+
 /* Q16: Location fills itself in. The arrow sits inside the box; the label says where the place came from */
 .locbox {
   position: relative;

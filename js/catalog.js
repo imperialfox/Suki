@@ -144,7 +144,7 @@ function itemFor(text) {
 
 // the stricter match behind a purchase's "… prices" row (Q08): the item's name or English name must appear in what
 // you typed as whole words, plurals allowed ("Jeepney to Cubao", "Fish balls"), so a loose match like
-// Spaghetti → Massage or Mango → Mang Inasal never offers the wrong prices. "You paid" keeps the looser itemFor.
+// Spaghetti → Massage or Mango → Mang Inasal never offers the wrong prices. "You paid" uses wordMatch (Q14), below.
 const plainWord = (w) => (w.length > 4 && w.endsWith('es') ? w.slice(0, -2) : w.length > 3 && w.endsWith('s') ? w.slice(0, -1) : w);
 function wholeWords(text, name) {
   const t = norm(text).split(' ').filter(Boolean).map(plainWord),
@@ -171,6 +171,45 @@ function strictItemFor(text) {
   );
   return (strictCache[k] = best);
 }
+
+// the purchase category for a catalogue item, the same mapping as an item's "Log what you paid"
+const catOf = (it) => ({ transport: 'Transport', market: 'Groceries', essentials: 'Shopping', services: 'Other' })[browseOf(it)] || 'Food & drink';
+
+/* ===== Matching a logged purchase to an item (Q14) =====
+   Whole words only: an item's name, its English name (up to three words) or one of its other spellings has to appear
+   in full. Plurals count ("fish balls"), and a one-letter slip counts in words of six letters or more ("tricyle").
+   A word that merely starts like a name (mango, spaghetti) or sits inside a longer word (tourist) never counts, so
+   Mango → Mang Inasal and Spaghetti → Massage are gone. The longest name wins. `whole` says the name covers everything
+   typed ("jeep", not "jeep to Cubao"). Smart add, "Your usual" and "You paid" use this; Search keeps searchItems. */
+const W_ITEMS = () =>
+  W_ITEMS.v ||
+  (W_ITEMS.v = CATALOG.map((it) => {
+    const names = [it.name, ...it.aliases];
+    if (it.english.split(' ').length <= 3) names.push(it.english);
+    return { it, variants: [...new Set(names.map(norm).filter(Boolean))].map((v) => v.split(' ')) };
+  }));
+const sameWord = (t, v) => t === v || t === v + 's' || t === v + 'es' || (v.length >= 6 && t.length >= 6 && editDist(t, v) <= 1);
+const wordCache = {};
+function wordMatch(text) {
+  const k = norm(text);
+  if (k in wordCache) return wordCache[k];
+  const t = k.split(' ').filter(Boolean);
+  let best = null;
+  W_ITEMS().forEach(({ it, variants }) =>
+    variants.forEach((v) => {
+      for (let i = 0; i + v.length <= t.length; i++)
+        if (v.every((w, j) => sameWord(t[i + j], w))) {
+          const s = v.length * 100 + v.join('').length;
+          if (!best || s > best.s) best = { id: it.id, s, whole: v.length === t.length };
+        }
+    })
+  );
+  return (wordCache[k] = best && { id: best.id, whole: best.whole });
+}
+const wordItemFor = (text) => {
+  const m = wordMatch(text);
+  return m ? m.id : null;
+};
 
 /* ===== Fuzzy search =====
    Exact names and spellings score highest, then names containing what you typed, then word-by-word likeness,

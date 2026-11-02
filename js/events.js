@@ -224,7 +224,7 @@ function formError(form, msg, f) {
 function readPurchase(form) {
   const v = F[form],
     item = String(v.item || '').trim(),
-    price = amount(v.price);
+    price = formAmount(v.price);
   if (!item) return formError(form, 'Add what you bought.', 'item');
   if (price === null && String(v.price || '').trim()) return formError(form, 'Check the amount. Use numbers and one dot, like 1,250.50.', 'price');
   if (!(cents(price) > 0)) return formError(form, 'Add an amount above ₱0.', 'price');
@@ -238,9 +238,12 @@ function readPurchase(form) {
     venue: VENUES.includes(v.venue) ? v.venue : '',
     payment: PAYMENTS.includes(v.payment) ? v.payment : 'Cash',
     notes: String(v.notes || '').trim(),
+    // the words he typed in Smart add stay with the purchase, through "Edit in the form" and later edits (Q14)
+    ...(v.said ? { said: String(v.said).slice(0, 500) } : {}),
   };
 }
 async function submitForm(form, el) {
+  if (form === 'edit' && U.sd.smart != null) return smartChecked();
   if (form === 'home' || form === 'edit') {
     const p = readPurchase(form);
     if (!p) return;
@@ -316,6 +319,8 @@ function savedTick() {
   savedT = setTimeout(() => {
     savedUntil = 0;
     const b = $('homeSave');
+    // on Smart add's side the Saved button gives way to the empty line's hint
+    if (b && b.dataset.side === 'smart') return updateSmart();
     if (b && b.classList.contains('saved')) {
       b.classList.remove('saved');
       b.textContent = 'Save purchase';
@@ -404,7 +409,7 @@ const ACT = {
   editPurchase: (el) => {
     const p = D.purchases.find((x) => x.id === el.dataset.k);
     if (!p) return;
-    F.edit = { item: p.item, price: fmtAmt(p.price), category: p.category, date: p.date, location: p.location, venue: p.venue, payment: p.payment, notes: p.notes };
+    F.edit = { item: p.item, price: fmtAmt(p.price), category: p.category, date: p.date, location: p.location, venue: p.venue, payment: p.payment, notes: p.notes, said: p.said };
     openSheet('edit', { id: p.id }, U.sheet === 'purchase');
   },
   delPurchase: (el) => {

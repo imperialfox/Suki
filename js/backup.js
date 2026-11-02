@@ -44,7 +44,7 @@ function backupJSON(now) {
   return JSON.stringify(
     {
       README: [
-        'This is a backup of the Suki app: your purchases, price notes and the saved exchange rate.',
+        'This is a backup of the Suki app: your purchases, price notes, the saved exchange rate and the words Smart add has learned.',
         'To restore it, open Suki › Settings › Restore a backup and choose this file.',
       ],
       app: 'Suki',
@@ -55,6 +55,7 @@ function backupJSON(now) {
       purchases: D.purchases,
       observations: D.observations,
       rate: D.rate,
+      learned: D.learned,
     },
     null,
     2
@@ -97,8 +98,10 @@ async function readBackupFile(file) {
     toast('That file isn’t a Suki backup');
     return;
   }
-  const data = cleanData(raw),
-    skipped =
+  const data = cleanData(raw);
+  // a backup from before Smart add (Q14) has no learned words: the ones on this device stay
+  if (!Array.isArray(raw.learned)) data.learned = D.learned.slice();
+  const skipped =
       raw.purchases.length - data.purchases.length + (Array.isArray(raw.observations) ? raw.observations.length - data.observations.length : 0);
   // a backup with nothing usable in it would only empty the phone, so it's turned away (Q05)
   if (!data.purchases.length && !data.observations.length) {
@@ -126,9 +129,11 @@ async function restoreYes() {
 /* ===== Erase everything ===== */
 async function eraseYes() {
   if (!(await keepSafetyCopy('erase'))) return toast('Couldn’t keep a safety copy of what’s here, so nothing has changed.', null, true);
-  D = { purchases: [], observations: [], rate: null };
+  D = { purchases: [], observations: [], rate: null, learned: [] };
   F.home = {};
+  F.smart = { text: '', over: {} };
   saveDraft({});
+  saveSmart();
   U.sel = U.item = null;
   U.stack = [];
   U.sheet = null;
@@ -144,7 +149,10 @@ async function putBack() {
   if (!SAFETY) return;
   const before = SAFETY;
   if (!(await keepSafetyCopy(before.why))) return toast('Couldn’t keep a safety copy of what’s here, so nothing has changed.', null, true);
+  const keep = D.learned;
   D = cleanData(before.data);
+  // a safety copy from before Smart add (Q14) has no learned words: the ones here stay
+  if (!Array.isArray(before.data.learned)) D.learned = keep;
   U.sel = U.item = null;
   U.stack = [];
   U.sheet = null;

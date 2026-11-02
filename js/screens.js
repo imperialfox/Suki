@@ -79,6 +79,8 @@ function purchaseDetail(p, inPane) {
   return (
     '<div class="dhead">' + tile(p.category, true) + '<div class="dmain"><div class="dprice">' + cash(p.price) + '</div><h3>' + esc(p.item) + '</h3></div></div>' +
     '<div class="grp">' + rows.map((r) => '<div class="row kv"><span class="k">' + r[0] + '</span><span class="v">' + esc(r[1]) + '</span></div>').join('') + '</div>' +
+    // the words he typed in Smart add (Q14)
+    (p.said ? '<p class="said">You typed: “' + esc(p.said) + '”</p>' : '') +
     pricesRow(p) +
     (p.notes ? hdr('Notes') + '<div class="card prose">' + esc(p.notes) + '</div>' : '') +
     (inPane
@@ -146,7 +148,8 @@ function typicalCard(id, strip) {
   );
 }
 // what you paid for this item, from your own log
-const paidFor = (id) => D.purchases.filter((p) => itemFor(p.item) === id).sort(byNewest);
+// "You paid" uses the whole-word match for logged purchases (Q14), so Mango never counts as Mang Inasal
+const paidFor = (id) => D.purchases.filter((p) => wordItemFor(p.item) === id).sort(byNewest);
 
 /* ===== The price range strip (Q12) =====
    At the foot of the typical-prices card: one band per typical price (two ranges never merge), a solid dot for each
@@ -271,10 +274,8 @@ function scrHome() {
     (backupDue()
       ? '<button class="nudge" data-a="exportBackup">' + ICON.upload + '<span>' + (lastBackup() ? 'Your last backup was ' + relDay(localISO(lastBackup())).toLowerCase() + '. Save a fresh copy.' : 'Back up your records so they’re safe if your browser data is cleared.') + '</span></button>'
       : '');
-  const log =
-    hdr('Log a purchase') +
-    '<form class="card form" data-form="home" novalidate>' + purchaseForm('home', F.home, U.more) +
-    '<p class="err" id="home-err" role="alert"></p>' + saveBtn() + '</form>';
+  // two sides: the form, and Smart add (Q14, smart.js), switched by the pill on the heading
+  const log = logCard();
   const rec =
     hdr('Recent', D.purchases.length ? '<button class="tbtn" data-a="tab" data-v="spending">Show all</button>' : '') +
     (recent.length
@@ -974,6 +975,7 @@ function scrSettings() {
     hdr('Your data') +
     '<div class="grp tiled set">' +
     row('tag', 'orange', 'Price notes', plural(D.observations.length, 'note'), 'openNotes') +
+    row('bulb', 'indigo', 'Words Suki has learned', D.learned.length ? plural(D.learned.length, 'word') : 'Change a category in Smart add and Suki remembers the word', 'openLearned') +
     (SAFETY ? row('refresh', 'indigo', 'Before your last ' + (SAFETY.why === 'erase' ? 'erase' : 'restore'), plural((SAFETY.data.purchases || []).length, 'purchase') + ' · ' + whenAgo(new Date(SAFETY.at)), 'putBack') : '') +
     (RESCUE.length ? row('download', 'orange', 'Recovered data', plural(rescueCount(), 'record') + ' Suki couldn’t read, kept safe', 'openRescue') : '') +
     row('disk', 'gray', 'Storage used', '<span id="storageUsed">' + esc(STORAGE_USED) + '</span>') +

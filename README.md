@@ -1,14 +1,14 @@
 # Suki
 
-![Version 2.19](https://img.shields.io/badge/version-2.19-blue)
+![Version 2.20](https://img.shields.io/badge/version-2.20-blue)
 
-**Current version: 2.19 · 1 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
+**Current version: 2.20 · 2 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
 
 Suki is a personal travel companion for the Philippines. It checks your change, converts pounds and pesos, looks up prices and keeps track of what you spend. It's a Home Screen web app for iPhone, iPad and Mac, and works offline.
 
 ## What it does
 
-- **Log what you spend** in a few taps, with categories, places and notes, and see it by day and by category. The place starts as the town you were in earlier that day, and an arrow fills the town you're in, worked out on your phone.
+- **Log what you spend** in a few taps, or in one line with Smart add ("jeep to cubao 14"), with categories, places and notes, and see it by day and by category. The place starts as the town you were in earlier that day, and an arrow fills the town you're in, worked out on your phone.
 - **Check your change** before you walk away from the till.
 - **Convert pounds and pesos** with a reference rate, even offline.
 - **Look up prices**: official weekly averages from the Department of Agriculture (DA-AMAS) for selected groceries in Metro Manila (NCR) markets, plus your own price notes. Search understands Tagalog, English, misspellings and phrases like "1 kilo bigas".
@@ -17,12 +17,12 @@ The official prices are a snapshot for 5–11 October 2026, bundled with the app
 
 ## Tabs
 
-- **Home**: today's exchange rate (tap it to open Convert), your total and today's spending (tap either to open it in Spending), a quick form to log a purchase, and your recent purchases. The gear opens Settings.
+- **Home**: today's exchange rate (tap it to open Convert), your total and today's spending (tap either to open it in Spending), a card to log a purchase (the form, or Smart add: type, say or paste a purchase in one line and check what Suki understood before saving), and your recent purchases. The gear opens Settings.
 - **Till** (Quick Till): enter the bill, then type or tap the notes and ₱20 coins you hand over, to see the change due (shown as the notes and coins to expect) or what's still to pay. "Log this bill" saves it as a purchase.
 - **Search**: the official prices and the catalogue, plus your own purchases and price notes. Open an item for its official price, a link to the DA report and your price notes. Where there's a typical price, a strip under it shows it as a band, with a dot for each time you paid and a ring for each price note. All starts with a door to every price note.
 - **Spending**: every purchase grouped by day, with category chips, a filter, details, editing, deleting (swipe left or from the details) and CSV export. The + logs a purchase. A purchase that names a catalogue item links to that item's prices. The period's name opens the calendar, where days are tinted in three steps by how much you spent, and tapping a bar shows just that day.
 - **Convert**: linked pound and peso boxes, handy amounts, and Refresh for the latest reference rate.
-- **Settings**: backup and restore, price notes, storage, Erase all data, and information about the app.
+- **Settings**: backup and restore, price notes, the words Smart add has learned, storage, Erase all data, and information about the app.
 
 ## Layouts
 
@@ -63,6 +63,7 @@ The launch images in `splash/` are made from `icon-512.png` by `python tools/spl
 - Everything you enter stays on your device, in the browser's storage. There's no account, server or cloud sync.
 - iOS can clear a website's storage if it isn't opened for a few weeks, so export a backup now and then. Suki reminds you after two weeks.
 - Backups are JSON files named by month and device (for example "Suki backup · 2026-10 · iPhone.json"), so backing up again in the same month replaces that month's file in Files.
+- Smart add reads what you type on your phone, with word rules. Nothing you type is sent anywhere, and no AI is involved.
 - Location's arrow reads your position once, when you tap it (iPhone asks first). It's matched against the town outlines kept inside the app, so it works offline and is never sent anywhere. Suki doesn't track you in the background, and never asks when it opens.
 - Refreshing the exchange rate contacts Frankfurter for the European Central Bank's rate (`api.frankfurter.dev`, then `api.frankfurter.app`). If neither answers, it falls back to the Currency API (`cdn.jsdelivr.net`, then `currency-api.pages.dev`). Only the currencies are sent, never your records.
 - This repository and its website are public. Don't add private or licensed content.

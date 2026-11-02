@@ -1,5 +1,39 @@
 # Changelog
 
+## 2.20 · 2 Nov 2026
+*Smart add: type, say or paste a purchase in one line (Q14)*
+
+**Two sides of the Log card**
+- Home's Log card now has two sides: the form, as before, and Smart add. A pill on the "Log a purchase" heading switches them ("Smart add" ↔ "Full form"), and Suki remembers the side you used last on this device.
+- Switching is a soft fade: the card stays put, the box you type in slides to its new spot, and everything else blurs out and the other side comes into focus. With Reduce Motion it's a plain crossfade.
+
+**Smart add reads what you type**
+- Type a line like "jeep to cubao 14", "tricycle fifty pesos from Bulakan to Barrio" or "lunch carinderia kahapon", or use the keyboard's microphone, and Suki shows what it understood before anything is saved: the item, amount, category, day, place, where you bought it and how you paid.
+- Amounts can be ₱50, P50, PHP 50, "50 pesos", 2k, words ("a hundred and twenty", "one twenty") and Tagalog (bente, singkwenta, isang daan). An amount in pounds is changed at your saved rate, with a note.
+- Days can be today, yesterday, kahapon, kanina, last night, "on Friday", "2 days ago" or a date like "21 November". A date in the future is flagged.
+- Several purchases at once: one per line, or "also", or two amounts in one line ("jeepney 14, halo-halo 120 and water 25"). A day, a place or "both by card" said once applies to the whole line.
+- It reads everything on your phone with word rules. No AI or server sees what you type.
+
+**It asks only what's missing**
+- No amount: "How much?". No name: "What was it?". When two categories fit, it asks which, and a category it had no clue for is tinted so you check it.
+- One purchase: Save purchase, or Edit in the form to finish it there. Several: Save 5 purchases, with Undo for all of them. Tap one in the list to check it in the usual Log sheet first.
+- When the line names no place, Location starts as the town you were in earlier that day.
+
+**Smart from the start**
+- Your usual: say "jeep" with no amount and it fills the middle of your last three, at the same place first. You can change it.
+- While you type a name, up to three of your own purchases show underneath. Tap one to fill the line.
+- A purchase that's a whole price-list item gets a plain note: "Within the typical ₱14–17", "More than…" or "Less than…", with the item's prices one tap away. Never a warning colour.
+
+**It learns**
+- Change a category and Suki remembers the word for next time. Settings › Your data › Words Suki has learned lists them, and you can forget any. They're kept in backups. An older backup without them leaves yours as they are.
+
+**Your words are kept**
+- Each purchase saved from Smart add keeps the line you typed. A purchase's details show it as "You typed: …".
+
+**Also**
+- The form's amount box now takes P50, "50 pesos" and 2k too.
+- "You paid" on an item now matches whole words only, so a mango purchase never shows under Mang Inasal, or spaghetti under Massage.
+
 ## 2.19 · 1 Nov 2026
 *Today's exchange rate at the top of Home (Q17)*
 

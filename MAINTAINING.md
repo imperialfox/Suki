@@ -39,9 +39,10 @@ Suki shares its foundations with Vocal Sessions (`imperialfox/Vocal-Sessions`): 
 | File | Holds |
 |---|---|
 | `js/motion.js` | **The shared springs** (`MOTION`), copied from Vocal Sessions: gentle, nav and ripple springs as CSS `linear()` easings and `--ease-*`/`--dur-*` variables, Reduce Motion, the speed setting (`suki:motion`; 0 = off, used by the tests), and Suki's own `settle` and `leave` (Q11) |
-| `js/catalog.js` | The catalogue (`CATALOG`), official price lookups (`refsFor`, `refFrom`) and the fuzzy search (`searchItems`) |
+| `js/catalog.js` | The catalogue (`CATALOG`), official price lookups (`refsFor`, `refFrom`), the fuzzy search (`searchItems`) and the whole-word match for logged purchases (`wordMatch`, Q14) |
 | `js/prices.js` | The official DA-AMAS price snapshot (`window.sukiPriceReferences`) |
 | `js/typical.js` | Typical prices with their sources (`window.sukiTypical`, Q02): fares, DTI suggested retail prices, shop and menu prices, rough guides |
+| `js/reader.js` | Smart add's sentence reader (`READER`, Q14): word rules only, no screen code |
 | `js/storage.js` | Categories, places and payment methods; checking (`cleanData`) and loading/saving data; the draft and last-backup date |
 | `js/helpers.js` | Money and dates, icons, category tiles, layout (`MQ`, `layout()`), tabs and the on-screen state `U` |
 | `js/screens.js` | Home, Till (with the change as cash, Q13), Search, Spending, Convert and Settings, plus the shared purchase form, purchase details and item details |
@@ -51,6 +52,7 @@ Suki shares its foundations with Vocal Sessions (`imperialfox/Vocal-Sessions`): 
 | `js/events.js` | Every button action (`ACT`), the forms, typing, swipe to delete, blocking zoom and keyboard shortcuts |
 | `js/towns.js` | The outline of every Philippine city and municipality (`window.sukiTowns`), made by `tools/towns.py`. Don't edit by hand |
 | `js/locate.js` | Location when logging (Q16): that day's town (`dayTown`), the town you're in (`townAt`) and the arrow (`ACT.locate`) |
+| `js/smart.js` | Smart add (Q14): Home's Log card's two sides, the preview, learning words, saving, and the "Words Suki has learned" taps |
 | `js/gestures.js` | Pull to refresh and the update check, scrolling (the top bar turning to glass), rotating, online/offline, sheet scrolling and dragging sheets down |
 | `js/onboard.js` | Onboarding (Q07): the Home Screen steps in Safari, the welcome card, tips and the Help screen |
 | `js/boot.js` | Starts the app. Always last |
@@ -77,12 +79,14 @@ Everything stays on the device. There is no server.
 
 | Where | Key | Holds |
 |---|---|---|
-| IndexedDB `suki-db` (version 1), store `kv` | `purchases`, `observations`, `rate` | All saved data (`D`) |
-| localStorage | `suki:purchases`, `suki:observations`, `suki:rate` | The same, only when IndexedDB isn't available |
+| IndexedDB `suki-db` (version 1), store `kv` | `purchases`, `observations`, `rate`, `learned` (Q14) | All saved data (`D`) |
+| localStorage | `suki:purchases`, `suki:observations`, `suki:rate`, `suki:learned` | The same, only when IndexedDB isn't available |
 | IndexedDB `kv` (or localStorage `suki:`) | `rescue` | Records Suki couldn't read, kept before anything saves over them (Q05). Not backed up; Settings › Recovered data saves them as a file |
 | IndexedDB `kv` (or localStorage `suki:`) | `safety` | What was on the phone before the last restore or Erase, so it can be put back (Q05). Not backed up |
 | localStorage | `suki:lastBackup` | When a backup was last saved (not backed up) |
 | localStorage | `suki:draft` | A half-typed purchase on Home (not backed up) |
+| localStorage | `suki:smart` | A half-typed Smart add line (Q14, not backed up) |
+| localStorage | `suki:logSide` | Which side of Home's Log card shows: `smart`, or missing for the form (Q14, not backed up) |
 | localStorage | `suki:motion` | Motion speed on this device (not backed up) |
 | localStorage | `suki:onboard` | Onboarding on this device: welcome seen, tips on, which tips are done (Q07). Not backed up |
 | localStorage | `suki:reduceMotion` | Reduce Motion: `on`, `off`, or missing to match the iPhone (not backed up) |
@@ -91,7 +95,8 @@ Everything stays on the device. There is no server.
 
 `cleanData()` checks anything loaded or restored: records without a name or an amount are dropped, ids are made unique, bad dates become today, unknown categories become Other, and fields it doesn't know are kept. Data changes should be additive: add fields with a default; don't rename or repurpose existing ones.
 
-A purchase: `{id, item, price, date (YYYY-MM-DD), category, location, venue, payment, notes, gbpAtPurchase, rateAtPurchase, edited?}`.
+A purchase: `{id, item, price, date (YYYY-MM-DD), category, location, venue, payment, notes, gbpAtPurchase, rateAtPurchase, edited?, said?}`. `said` (Q14) is the line typed in Smart add; only purchases saved from it have one.
+A learned word (Q14): `{id, word, category, label}`; `id` is the word, so each word is kept once.
 A price note: `{id, itemId, itemName, price, date, location, venue, note}`. `itemId` points at a catalogue id, so **never rename a catalogue id**.
 
 ## Keeping data safe (Q05)
@@ -126,7 +131,7 @@ The rule: one place per thing, with several doors to it, and every door opens th
 
 - **One Log sheet:** `ACT.newPurchase` opens the `edit` sheet for a new purchase. `data-v` sets the date (a calendar day) and `data-item` the name (Search with no match, with the cursor put in the amount). It's pushed over any open sheet, so saving goes back to it (the calendar). Its doors: Spending's + (`renderBar`, only with purchases), a picked calendar day up to today, Search with no match, and empty Spending's button. Quick Till's "Log this bill" and an item's "Log what you paid" open the same sheet with their own actions.
 - **Home's card** is a `div.sumcard.doors` holding two buttons (`ACT.toSpend`, `data-v` `all` or `day`). They reset the range, category, filter and picked bar. With nothing logged it's `.sumcard.static.none`.
-- **A purchase's prices row** (`pricesRow()` in `screens.js`) uses `strictItemFor()` in `catalog.js`, not `itemFor()`. The item's name or English name has to appear in the purchase as whole words (plurals allowed, the longest name wins). Aliases don't count, so "Water" or "San Miguel" get no row; that keeps loose matches (Spaghetti → Massage) from offering the wrong prices. "You paid" on an item still uses the looser `itemFor()`.
+- **A purchase's prices row** (`pricesRow()` in `screens.js`) uses `strictItemFor()` in `catalog.js`, not `itemFor()`. The item's name or English name has to appear in the purchase as whole words (plurals allowed, the longest name wins). Aliases don't count, so "Water" or "San Miguel" get no row; that keeps loose matches (Spaghetti → Massage) from offering the wrong prices. "You paid" on an item uses `wordMatch()` since Q14 (below).
 - **Words as doors** are `.tlink` buttons inside the text: `goRefresh` (the old-rate note), `goSearch` (Price notes, which closes every sheet first) and `goConvert`. Settings rows become doors by passing an action to `row()`; Storage used and Works offline stay plain, because there's nothing to open.
 - Spending with nothing logged returns early from `scrSpending()`: no chart, range switch, chips or filter.
 - Left out on purpose (navigation audit): links on every detail row, a Settings tab, a Notes tab, a door from a calendar day to the Spending list.
@@ -198,9 +203,24 @@ The rule: a number next to something to compare it with. No good or bad words or
 - With no rate it's `.ratecard.none`: "Exchange rate · Get today's rate on Convert". An old rate is never red.
 - Colours: `--suki-top`, `--suki-bottom`, `--suki-glow`, `--suki-fg`, `--suki-fg2`, `--suki-rim` and `--suki-shadow`, the same in light and dark. They're Suki's icon colours, a one-off for this card only (`test_ratecard.py` checks no other rule uses them). White is at least 11:1 on the navy and 7:1 under the glow; the softer white (label and age) at least 5:1.
 
+## Smart add (Q14)
+
+- **The two sides:** `logCard()` in `smart.js` draws the "Log a purchase" heading with its pill (`#sidePill`, `ACT.logSide`) and `#logwrap` holding one `.face`: the form (`formFace()`, the same `form[data-form=home]` as before) or Smart add (`smartFace()`, `#smartCard`). `LOGSIDE` is `'form'` or `'smart'`, kept in `suki:logSide`. `switchSide(to)` swaps the face in place (no page redraw) and calls `MOTION.fold()`.
+- **The fade** (`MOTION.fold` in `motion.js`): the old face is copied (`.lghost`, ids and actions removed, `inert`) over the new one. The typing box is the hinge and slides between its spots; the other rows blur by distance from it (cubic) and fade, 28 ms apart, and the new rows resolve from blur and dimness, 45 ms apart. Only rows blur, never the card. Reduce Motion is a crossfade; motion off does nothing. A switch mid-way removes the copy first, and a full redraw replaces `#logwrap`, so nothing is ever left behind. If two frames take over 120 ms during a fold, later folds that session are crossfades. Don't name a class `ghost`: it's a button style.
+- **Typing** (`#smartText`) writes `F.smart.text`, saves `suki:smart`, and calls `updateSmart()`, which redraws only `#smartSugg` and `#smartOut`. Never call `rerender()` from typing: the box would lose the keyboard.
+- **The reader** (`READER.read(text, now, learned, rate)` in `reader.js`): lines first; within a line, a day, `both|all|each by …` and an opening `At SHOP in TOWN,` are shared; then sure splits (`also`, `;`) and soft splits (commas, and, then, plus) only between two amounts. A comma inside 1,250 is never a split. Each purchase: day, how paid, the amount (the last sure one: ₱ P PHP pesos £, else the last plain number; quantities like `2 kilos`, `for 2 nights` and names like `Terminal 3` aren't prices), places (`from X to Y`, `in`, `sa`, `at`, `to`), the shop (`SHOPS`: where bought and a category hint), the item (what's left), then the category: learned word → price list (`wordMatch` + `catOf`) → clue words (`CLUES`) → shop → a guess. A Shortcut stamp `[yyyy-mm-dd hh:mm]` at the start of a line sets the day words count from (Q15 builds on it).
+- **What `smart.js` adds:** the town from earlier that day when no place was said (`townOn`, `locAuto`), Your usual when no amount was said (`usualFor`: the middle of the last three of the same thing, by `thingOf`, at the same place first), and changes made in the preview (`F.smart.over[i]`, cleared when the line changes). `SMART_LAST` is the list shown.
+- **The preview** asks only what's missing (`#smartPrice`, `#smartItem`, typed in place), offers an either/or for a tie (`ACT.smartPick`), tints a guessed category, flags a future day and pounds in `--warnbg`. The typical note (`versus()`) shows only for a whole-word match with a typical price. A list's rows (`ACT.smartCheck`) open the `edit` sheet with `U.sd.smart = i`: titled "Check purchase", its Done (`smartChecked()`) writes back into `F.smart.over` and saves nothing.
+- **Saving** (`smartSave()`) adds each with `said`, the rate and its own id, keeps Home's "✓ Saved" (`#homeSave[data-side=smart]`, which `savedTick()` hands back to `updateSmart()`), settles the rows (`rowsBefore`/`rowsAfter`) and offers one Undo for all (`undoSaves`). Edit in the form (`ACT.smartToForm`) moves the one purchase into `F.home` (with `said`) and switches sides; the form keeps `said` through `readPurchase`.
+- **Learning:** a category changed in the preview or the check sheet calls `learnWord()`, saving `{word: learnKey, category, label}` in `D.learned` (`learnKey`: the name up to two words, else its first word). `learnedMap()` feeds the reader. The `learned` sheet (Settings › Your data, and a link under Smart add) lists and forgets them. They're in backups, the safety copy, Erase and the restore sheet; a backup or safety copy without `learned` leaves the phone's words alone.
+- **Matching:** `wordMatch(text)` in `catalog.js` is the whole-word match for logged purchases: name, English name (up to three words) and other spellings, whole words only, plurals, one-letter slips in words of six letters or more, the longest wins, and `whole` when it covers everything typed. The reader, Your usual and "You paid" (`paidFor`) use it; Search keeps `searchItems`, and the prices row keeps `strictItemFor`.
+- **The form's amount box** reads P50, "50 pesos" and 2k through `formAmount()` in `helpers.js`, falling back to `amount()`.
+- **Tests:** `tests/fixtures/smart_phrases.json` holds 123 made-up phrases and what each should read as (read on Sunday 1 Nov 2026 at noon, £1 = ₱76.12). Add a phrase there for any reader change. Everything in it is invented: no real purchases.
+- Left out: the Siri inbox (Q15), any AI, a bottom sheet (turned down), the flip, the prototype's "Try" example chips (they'd put made-up purchases a tap away from his real log).
+
 ## Backups
 
-A backup is a JSON file: a plain-English `README`, `app: 'Suki'`, `schemaVersion: 1`, `appVersion`, `exportedAt`, `device`, `purchases`, `observations` and `rate`. Backups from 2.0 (without `README`, `appVersion` or `device`) still restore. Files are named `Suki backup · YYYY-MM · Device.json`.
+A backup is a JSON file: a plain-English `README`, `app: 'Suki'`, `schemaVersion: 1`, `appVersion`, `exportedAt`, `device`, `purchases`, `observations`, `rate` and `learned` (Q14; older backups without it still restore, keeping the phone's learned words). Backups from 2.0 (without `README`, `appVersion` or `device`) still restore. Files are named `Suki backup · YYYY-MM · Device.json`.
 
 ## Updating the typical prices (Q02)
 
@@ -234,6 +254,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 | `test_compare.py` | Q12: the calendar's three tints (thirds, under three days, equal days), the key and footnote, the picked day in solid ink, today's outline; the price range strip's bands, dots, rings, stacking, axis and key, the dot–row link both ways (and back from a purchase), clearing, the label inside at both ends at 375 px, nothing animating, no strip with nothing to compare; screenshots at 375 and 402 px, light and dark |
 | `test_location.py` | Q16, with a stand-in for the phone's position: nothing asked at launch; today's town on Home (beside More details, kept in a reloaded draft, the newest wins) and Spending's +; that day's town from a calendar day, and none; the arrow (allowed, nothing within 40 km, denied, no answer, typing or closing while it looks); 11 real places in the right town; typing and clearing stop the filling; editing never changes a place; the About credit; screenshots at 375 px, light and dark |
 | `test_ratecard.py` | Q17: the card above the summary card, its ages (just now, minutes, hours, yesterday, days, the date) and in-place tick, two decimals, the VoiceOver label, the door to Convert with no refresh, a refresh showing on it, no rate yet and a fresh install, white staying white, the tokens, contrast and the card only using them, the same look in dark mode, the left column on its side and iPad; screenshots at 375 and 402 px, light and dark |
+| `test_smart.py` | Q14: the reader on the 123 made-up phrases, a long line and 300 lines; the two sides and the remembered side; typing in place; each ask, the either/or and learning; the typical note; saving one (Saved, Undo, his words, You typed, editing keeps them); Your usual and suggestions; the day's town; a list of five, checking one in the Log sheet, saving and Undo; Edit in the form; the form's amount box; Words Suki has learned (Settings, forgetting, Erase, a backup round trip, an older backup); "You paid" by whole words; with motion on, the fade mid-way at 4×, rapid switching and a redraw leaving no copy, Reduce Motion's crossfade, rows settling; screenshots at 375 and 402 px, light and dark |
 | `test_till.py` | Q13: the six 44 pt buttons on one row at 375 and 402 px with their VoiceOver labels, the ✕ in the cash box, 20,000 random amounts breaking down exactly, fans, bundles (₱34,750 and ₱999,999 inside the card), the ₱20 and ₱5 coins, colours the same in dark mode, Log this bill staying put; with motion on, settle, shrink and glide, the figure and a bundle's count still, rapid taps leaving no strays, Reduce Motion fading only; screenshots at 375 and 402 px, light and dark |
 | `test_motion.py` | Q11, with motion on: a closing sheet is still on screen mid-way and gone after, by ✕, Escape, the dim, Cancel and dragging down; back to the sheet underneath with no second rise; two quick closes; taps go through a leaving sheet; new rows settle in and the rows below move; a deleted row shrinks away and Undo settles it back; Home's Saved and Undo; iPad's shrink and Reduce Motion's fades; tabs, Settings and Convert stay still; frames at 4× slow motion, light and dark |
 | `test_timedoors.py` | Q10: the period label opening the calendar for each range (and a picked day or week), the picked bar narrowing the list with its line and way back, the pick kept when opening a purchase (✕, tapping outside, and the iPad pane), the filter's ✕ and Export as CSV working first time with a day picked, the Help row, screenshots at 375 px light and dark |

@@ -1,0 +1,1290 @@
+[
+ {
+  "text": "jeep to sm 14",
+  "expect": [
+   {
+    "item": "Jeepney",
+    "price": 14,
+    "category": "Transport",
+    "location": "SM",
+    "d": 0
+   }
+  ]
+ },
+ {
+  "text": "P50 isaw",
+  "expect": [
+   {
+    "item": "Isaw",
+    "price": 50,
+    "category": "Food & drink"
+   }
+  ]
+ },
+ {
+  "text": "p 35 kwek kwek",
+  "expect": [
+   {
+    "item": "Kwek kwek",
+    "price": 35,
+    "category": "Food & drink"
+   }
+  ]
+ },
+ {
+  "text": "₱27.50 pandesal",
+  "expect": [
+   {
+    "item": "Pandesal",
+    "price": 27.5,
+    "category": "Food & drink"
+   }
+  ]
+ },
+ {
+  "text": "souvenir shirt ₱ 350",
+  "expect": [
+   {
+    "item": "Souvenir shirt",
+    "price": 350,
+    "category": "Shopping"
+   }
+  ]
+ },
+ {
+  "text": "PHP 1,250 hotel",
+  "expect": [
+   {
+    "item": "Hotel",
+    "price": 1250,
+    "category": "Accommodation"
+   }
+  ]
+ },
+ {
+  "text": "php 80 halo halo",
+  "expect": [
+   {
+    "price": 80,
+    "category": "Food & drink"
+   }
+  ]
+ },
+ {
+  "text": "isaw 50 pesos",
+  "expect": [
+   {
+    "item": "Isaw",
+    "price": 50
+   }
+  ]
+ },
+ {
+  "text": "fishball 20 peso",
+  "expect": [
+   {
+    "price": 20,
+    "category": "Food & drink"
+   }
+  ]
+ },
+ {
+  "text": "2k souvenirs",
+  "expect": [
+   {
+    "item": "Souvenirs",
+    "price": 2000,
+    "category": "Shopping"
+   }
+  ]
+ },
+ {
+  "text": "souvenirs 1.5k",
+  "expect": [
+   {
+    "price": 1500
+   }
+  ]
+ },
+ {
+  "text": "₱2k pasalubong",
+  "expect": [
+   {
+    "price": 2000,
+    "category": "Shopping"
+   }
+  ]
+ },
+ {
+  "text": "tricycle fifty pesos from bulakan to barrio",
+  "expect": [
+   {
+    "item": "Tricycle",
+    "price": 50,
+    "category": "Transport",
+    "location": "Bulakan to Barrio"
+   }
+  ]
+ },
+ {
+  "text": "tricycle fifty 50 pesos from bulakan to barrio on 21 november",
+  "expect": [
+   {
+    "item": "Tricycle",
+    "price": 50,
+    "location": "Bulakan to Barrio",
+    "date": "2026-11-21",
+    "flags": [
+     "future"
+    ]
+   }
+  ],
+  "note": "said and written counts once"
+ },
+ {
+  "text": "fifty 50 pesos taho",
+  "expect": [
+   {
+    "item": "Taho",
+    "price": 50
+   }
+  ]
+ },
+ {
+  "text": "a hundred and twenty pesos merienda",
+  "expect": [
+   {
+    "item": "Merienda",
+    "price": 120,
+    "category": "Food & drink"
+   }
+  ]
+ },
+ {
+  "text": "coffee one twenty",
+  "expect": [
+   {
+    "item": "Coffee",
+    "price": 120,
+    "category": "Food & drink"
+   }
+  ]
+ },
+ {
+  "text": "two fifty fishball",
+  "expect": [
+   {
+    "item": "Fishball",
+    "price": 250
+   }
+  ]
+ },
+ {
+  "text": "taxi 1:20 pesos",
+  "expect": [
+   {
+    "item": "Taxi",
+    "price": 120,
+    "category": "Transport"
+   }
+  ],
+  "note": "Siri writing a price as a time"
+ },
+ {
+  "text": "bente pesos kwek kwek",
+  "expect": [
+   {
+    "item": "Kwek kwek",
+    "price": 20
+   }
+  ]
+ },
+ {
+  "text": "tubig bente",
+  "expect": [
+   {
+    "item": "Tubig",
+    "price": 20,
+    "category": "Food & drink"
+   }
+  ]
+ },
+ {
+  "text": "buko juice kahapon singkwenta pesos",
+  "expect": [
+   {
+    "item": "Buko juice",
+    "price": 50,
+    "d": 1
+   }
+  ]
+ },
+ {
+  "text": "isang daan pesos pandesal",
+  "expect": [
+   {
+    "item": "Pandesal",
+    "price": 100
+   }
+  ]
+ },
+ {
+  "text": "limang daan hotel deposit",
+  "expect": [
+   {
+    "item": "Hotel deposit",
+    "price": 500,
+    "category": "Accommodation"
+   }
+  ]
+ },
+ {
+  "text": "dalawang daan pesos tricycle",
+  "expect": [
+   {
+    "price": 200,
+    "category": "Transport"
+   }
+  ]
+ },
+ {
+  "text": "three hundred pesos massage",
+  "expect": [
+   {
+    "item": "Massage",
+    "price": 300,
+    "category": "Other"
+   }
+  ]
+ },
+ {
+  "text": "hotel 45 pounds",
+  "expect": [
+   {
+    "item": "Hotel",
+    "price": 3425.4,
+    "category": "Accommodation",
+    "flags": [
+     "pounds"
+    ]
+   }
+  ]
+ },
+ {
+  "text": "£12 dinner",
+  "expect": [
+   {
+    "item": "Dinner",
+    "price": 913.44,
+    "flags": [
+     "pounds"
+    ]
+   }
+  ]
+ },
+ {
+  "text": "rice 2 kilos 110",
+  "expect": [
+   {
+    "item": "Rice 2 kilos",
+    "price": 110,
+    "category": "Groceries"
+   }
+  ],
+  "note": "a quantity is not a price"
+ },
+ {
+  "text": "3 cans of beer 180",
+  "expect": [
+   {
+    "price": 180,
+    "category": "Food & drink"
+   }
+  ]
+ },
+ {
+  "text": "hotel for 2 nights 3000",
+  "expect": [
+   {
+    "price": 3000,
+    "category": "Accommodation"
+   }
+  ]
+ },
+ {
+  "text": "bus to NAIA Terminal 3 200",
+  "expect": [
+   {
+    "item": "Bus",
+    "price": 200,
+    "category": "Transport",
+    "location": "NAIA Terminal 3"
+   }
+  ]
+ },
+ {
+  "text": "lrt 1 20",
+  "expect": [
+   {
+    "price": 20,
+    "category": "Transport"
+   }
+  ]
+ },
+ {
+  "text": "555 sardines 30",
+  "expect": [
+   {
+    "price": 30,
+    "category": "Groceries",
+    "flags": [
+     "numbers"
+    ]
+   }
+  ]
+ },
+ {
+  "text": "one way ferry 600",
+  "expect": [
+   {
+    "item": "One way ferry",
+    "price": 600,
+    "category": "Transport"
+   }
+  ],
+  "note": "a lone \"one\" in a name stays a word"
+ },
+ {
+  "text": "five guys burger 450",
+  "expect": [
+   {
+    "item": "Five guys burger",
+    "price": 450
+   }
+  ]
+ },
+ {
+  "text": "groceries",
+  "expect": [
+   {
+    "item": "Groceries",
+    "price": null,
+    "category": "Groceries",
+    "flags": [
+     "amount"
+    ]
+   }
+  ]
+ },
+ {
+  "text": "150",
+  "expect": [
+   {
+    "item": "",
+    "price": 150,
+    "flags": [
+     "item"
+    ]
+   }
+  ]
+ },
+ {
+  "text": "lunch carinderia kahapon",
+  "expect": [
+   {
+    "item": "Lunch",
+    "price": null,
+    "category": "Food & drink",
+    "venue": "Carinderia",
+    "d": 1,
+    "flags": [
+     "amount"
+    ]
+   }
+  ]
+ },
+ {
+  "text": "kape kanina 10",
+  "expect": [
+   {
+    "item": "Kape",
+    "price": 10,
+    "d": 0
+   }
+  ]
+ },
+ {
+  "text": "water 25 this morning",
+  "expect": [
+   {
+    "item": "Water",
+    "price": 25,
+    "d": 0
+   }
+  ]
+ },
+ {
+  "text": "beer 60 last night",
+  "expect": [
+   {
+    "item": "Beer",
+    "price": 60,
+    "d": 1
+   }
+  ]
+ },
+ {
+  "text": "yesterday jeep 13",
+  "expect": [
+   {
+    "item": "Jeepney",
+    "d": 1
+   }
+  ]
+ },
+ {
+  "text": "laundry 2 days ago 90",
+  "expect": [
+   {
+    "item": "Laundry",
+    "price": 90,
+    "d": 2,
+    "category": "Other"
+   }
+  ]
+ },
+ {
+  "text": "pandesal 2 days ago ₱27.50",
+  "expect": [
+   {
+    "price": 27.5,
+    "d": 2
+   }
+  ]
+ },
+ {
+  "text": "dinner 450 on Friday",
+  "expect": [
+   {
+    "item": "Dinner",
+    "price": 450,
+    "d": 2
+   }
+  ]
+ },
+ {
+  "text": "grab 210 last saturday",
+  "expect": [
+   {
+    "item": "Grab",
+    "price": 210,
+    "d": 1
+   }
+  ]
+ },
+ {
+  "text": "taho 20 on sunday",
+  "expect": [
+   {
+    "d": 0
+   }
+  ]
+ },
+ {
+  "text": "jeep 14 last sunday",
+  "expect": [
+   {
+    "d": 7
+   }
+  ]
+ },
+ {
+  "text": "ferry 600 on the 21st of november",
+  "expect": [
+   {
+    "item": "Ferry",
+    "price": 600,
+    "date": "2026-11-21",
+    "flags": [
+     "future"
+    ]
+   }
+  ]
+ },
+ {
+  "text": "jeep 14 november 21st",
+  "expect": [
+   {
+    "item": "Jeepney",
+    "price": 14,
+    "date": "2026-11-21"
+   }
+  ]
+ },
+ {
+  "text": "jeep 14 pesos on 21st november",
+  "expect": [
+   {
+    "price": 14,
+    "date": "2026-11-21"
+   }
+  ]
+ },
+ {
+  "text": "taho 20 on the 30th",
+  "expect": [
+   {
+    "date": "2026-11-30",
+    "flags": [
+     "future"
+    ]
+   }
+  ]
+ },
+ {
+  "text": "bus 300 20/11",
+  "expect": [
+   {
+    "price": 300,
+    "date": "2026-11-20"
+   }
+  ]
+ },
+ {
+  "text": "dinner 600 on 28 october",
+  "expect": [
+   {
+    "price": 600,
+    "date": "2026-10-28"
+   }
+  ]
+ },
+ {
+  "text": "hotel 3000 on december 30",
+  "expect": [
+   {
+    "price": 3000,
+    "date": "2026-12-30",
+    "flags": [
+     "future"
+    ]
+   }
+  ],
+  "note": "nearest such date"
+ },
+ {
+  "text": "dinner 900 on 3 july",
+  "expect": [
+   {
+    "price": 900,
+    "date": "2026-07-03"
+   }
+  ],
+  "note": "nearest such date, earlier this year"
+ },
+ {
+  "text": "[2026-11-21 13:05] yesterday jeep 14",
+  "expect": [
+   {
+    "item": "Jeepney",
+    "price": 14,
+    "date": "2026-11-20"
+   }
+  ],
+  "note": "a Shortcut stamp: yesterday from when it was said"
+ },
+ {
+  "text": "[2026-11-21 13:05] tricycle 50 pesos from bulakan to barrio",
+  "expect": [
+   {
+    "date": "2026-11-21",
+    "location": "Bulakan to Barrio",
+    "price": 50
+   }
+  ]
+ },
+ {
+  "text": "tricycle to alona beach 40",
+  "expect": [
+   {
+    "item": "Tricycle",
+    "location": "Alona Beach",
+    "price": 40
+   }
+  ]
+ },
+ {
+  "text": "grab from makati to bgc ₱245.50",
+  "expect": [
+   {
+    "item": "Grab",
+    "price": 245.5,
+    "location": "Makati to BGC"
+   }
+  ]
+ },
+ {
+  "text": "taxi from NAIA terminal 3 to makati 450",
+  "expect": [
+   {
+    "item": "Taxi",
+    "price": 450,
+    "location": "NAIA Terminal 3 to Makati"
+   }
+  ]
+ },
+ {
+  "text": "bus from cubao to san jose city 290",
+  "expect": [
+   {
+    "item": "Bus",
+    "price": 290,
+    "location": "Cubao to San Jose City"
+   }
+  ]
+ },
+ {
+  "text": "island hopping tour 1500 in el nido",
+  "expect": [
+   {
+    "item": "Island hopping tour",
+    "price": 1500,
+    "category": "Activities",
+    "location": "El Nido"
+   }
+  ]
+ },
+ {
+  "text": "entrance fee 100 in intramuros",
+  "expect": [
+   {
+    "location": "Intramuros",
+    "price": 100,
+    "tie": [
+     "Activities",
+     "Other"
+    ]
+   }
+  ]
+ },
+ {
+  "text": "sisig at the airport 280",
+  "expect": [
+   {
+    "item": "Sisig",
+    "location": "Airport",
+    "price": 280
+   }
+  ]
+ },
+ {
+  "text": "jollibee chickenjoy 99 in san jose city",
+  "expect": [
+   {
+    "item": "Chickenjoy",
+    "price": 99,
+    "location": "Jollibee, San Jose City",
+    "venue": "Restaurant",
+    "category": "Food & drink"
+   }
+  ]
+ },
+ {
+  "text": "dinner at jollibee in quezon city 320",
+  "expect": [
+   {
+    "item": "Dinner",
+    "price": 320,
+    "location": "Jollibee, Quezon City",
+    "venue": "Restaurant"
+   }
+  ]
+ },
+ {
+  "text": "puregold groceries 1240 in san jose city",
+  "expect": [
+   {
+    "item": "Groceries",
+    "price": 1240,
+    "location": "Puregold, San Jose City",
+    "venue": "Supermarket",
+    "category": "Groceries"
+   }
+  ]
+ },
+ {
+  "text": "palengke bangus 180",
+  "expect": [
+   {
+    "item": "Bangus",
+    "price": 180,
+    "venue": "Palengke",
+    "category": "Groceries"
+   }
+  ]
+ },
+ {
+  "text": "bananas 60 at the palengke",
+  "expect": [
+   {
+    "item": "Bananas",
+    "venue": "Palengke",
+    "category": "Groceries"
+   }
+  ]
+ },
+ {
+  "text": "fish 250 palengke",
+  "expect": [
+   {
+    "item": "Fish",
+    "venue": "Palengke",
+    "category": "Groceries"
+   }
+  ]
+ },
+ {
+  "text": "street vendor fishball 20",
+  "expect": [
+   {
+    "item": "Fishball",
+    "venue": "Street vendor"
+   }
+  ]
+ },
+ {
+  "text": "carinderia ulam 70 cash",
+  "expect": [
+   {
+    "item": "Ulam",
+    "venue": "Carinderia",
+    "payment": "Cash",
+    "price": 70
+   }
+  ]
+ },
+ {
+  "text": "7-eleven 85 revolut",
+  "expect": [
+   {
+    "item": "7-Eleven",
+    "price": 85,
+    "venue": "Convenience store",
+    "payment": "Revolut",
+    "tie": [
+     "Food & drink",
+     "Groceries"
+    ]
+   }
+  ]
+ },
+ {
+  "text": "7 eleven sandwich 65",
+  "expect": [
+   {
+    "item": "Sandwich",
+    "venue": "Convenience store",
+    "price": 65
+   }
+  ]
+ },
+ {
+  "text": "sari sari store softdrinks 25",
+  "expect": [
+   {
+    "item": "Softdrinks",
+    "venue": "Convenience store",
+    "price": 25
+   }
+  ]
+ },
+ {
+  "text": "coffee at starbucks 190",
+  "expect": [
+   {
+    "venue": "Restaurant",
+    "price": 190,
+    "category": "Food & drink"
+   }
+  ]
+ },
+ {
+  "text": "haircut 150 with monzo",
+  "expect": [
+   {
+    "item": "Haircut",
+    "payment": "Other card",
+    "category": "Other"
+   }
+  ]
+ },
+ {
+  "text": "massage 500 by card",
+  "expect": [
+   {
+    "payment": "Other card"
+   }
+  ]
+ },
+ {
+  "text": "milktea 120 apple pay",
+  "expect": [
+   {
+    "payment": "Other card",
+    "category": "Food & drink"
+   }
+  ]
+ },
+ {
+  "text": "dinner 800 with revolute",
+  "expect": [
+   {
+    "payment": "Revolut"
+   }
+  ],
+  "note": "Siri's spelling of Revolut"
+ },
+ {
+  "text": "jeepney fare 13 pesos via gcash",
+  "expect": [
+   {
+    "payment": "Other",
+    "notes": "Paid with GCash",
+    "price": 13,
+    "category": "Transport"
+   }
+  ]
+ },
+ {
+  "text": "hotel 3 nights 4500 via g cash",
+  "expect": [
+   {
+    "payment": "Other",
+    "notes": "Paid with GCash",
+    "price": 4500,
+    "category": "Accommodation"
+   }
+  ]
+ },
+ {
+  "text": "load 99 via maya",
+  "expect": [
+   {
+    "payment": "Other",
+    "notes": "Paid with Maya",
+    "price": 99
+   }
+  ]
+ },
+ {
+  "text": "sim card 1000",
+  "expect": [
+   {
+    "item": "Sim card",
+    "price": 1000,
+    "payment": null
+   }
+  ],
+  "note": "\"sim card\" is not paying by card"
+ },
+ {
+  "text": "beer 60 cash",
+  "expect": [
+   {
+    "payment": "Cash"
+   }
+  ]
+ },
+ {
+  "text": "mangoes 120",
+  "expect": [
+   {
+    "item": "Mangoes",
+    "category": "Groceries",
+    "match": null
+   }
+  ],
+  "note": "never Mang Inasal"
+ },
+ {
+  "text": "spaghetti 85",
+  "expect": [
+   {
+    "item": "Spaghetti",
+    "category": "Food & drink",
+    "match": null
+   }
+  ],
+  "note": "never Massage"
+ },
+ {
+  "text": "gin 150",
+  "expect": [
+   {
+    "item": "Gin",
+    "category": "Food & drink",
+    "match": null
+   }
+  ],
+  "note": "never Ginisang giniling"
+ },
+ {
+  "text": "tour 1500",
+  "expect": [
+   {
+    "item": "Tour",
+    "category": "Activities",
+    "match": null
+   }
+  ],
+  "note": "never SIM card"
+ },
+ {
+  "text": "flight 2500",
+  "expect": [
+   {
+    "item": "Flight",
+    "category": "Transport",
+    "match": null
+   }
+  ],
+  "note": "never LRT"
+ },
+ {
+  "text": "ube 60",
+  "expect": [
+   {
+    "item": "Ube",
+    "match": null
+   }
+  ],
+  "note": "never the UBE Express bus"
+ },
+ {
+  "text": "coconut 40",
+  "expect": [
+   {
+    "match": null
+   }
+  ],
+  "note": "never Laing"
+ },
+ {
+  "text": "banana 20",
+  "expect": [
+   {
+    "match": null
+   }
+  ],
+  "note": "never Turon"
+ },
+ {
+  "text": "UBE express 200",
+  "expect": [
+   {
+    "match": "bus-naia",
+    "category": "Transport"
+   }
+  ]
+ },
+ {
+  "text": "light rail 15",
+  "expect": [
+   {
+    "match": "lrt1",
+    "category": "Transport"
+   }
+  ]
+ },
+ {
+  "text": "tricyle 40",
+  "expect": [
+   {
+    "match": "tricycle",
+    "category": "Transport"
+   }
+  ],
+  "note": "a one-letter slip in a long word"
+ },
+ {
+  "text": "fish balls 30",
+  "expect": [
+   {
+    "match": "fishball"
+   }
+  ],
+  "note": "plurals count"
+ },
+ {
+  "text": "uber 300",
+  "expect": [
+   {
+    "item": "Uber",
+    "category": "Transport"
+   }
+  ]
+ },
+ {
+  "text": "hotel 2500",
+  "expect": [
+   {
+    "category": "Accommodation"
+   }
+  ]
+ },
+ {
+  "text": "surf lesson 1000",
+  "expect": [
+   {
+    "category": "Activities"
+   }
+  ]
+ },
+ {
+  "text": "power bank 899",
+  "expect": [
+   {
+    "category": "Shopping"
+   }
+  ]
+ },
+ {
+  "text": "tip 50",
+  "expect": [
+   {
+    "category": "Other"
+   }
+  ]
+ },
+ {
+  "text": "chips 45",
+  "expect": [
+   {
+    "category": "Food & drink"
+   }
+  ]
+ },
+ {
+  "text": "mystery thing 99",
+  "expect": [
+   {
+    "item": "Mystery thing",
+    "category": "Food & drink",
+    "catFrom": "guess"
+   }
+  ]
+ },
+ {
+  "text": "taho 20\ngrab to airport 380\nsim load 99 also water 25",
+  "expect": [
+   {
+    "item": "Taho",
+    "price": 20
+   },
+   {
+    "item": "Grab",
+    "price": 380,
+    "location": "Airport"
+   },
+   {
+    "price": 99,
+    "category": "Other"
+   },
+   {
+    "item": "Water",
+    "price": 25
+   }
+  ]
+ },
+ {
+  "text": "jeepney 14, halo-halo 120 and water 25",
+  "expect": [
+   {
+    "item": "Jeepney",
+    "price": 14
+   },
+   {
+    "item": "Halo-halo",
+    "price": 120
+   },
+   {
+    "item": "Water",
+    "price": 25
+   }
+  ]
+ },
+ {
+  "text": "coke 30, sprite 30",
+  "expect": [
+   {
+    "item": "Coke",
+    "price": 30
+   },
+   {
+    "item": "Sprite",
+    "price": 30
+   }
+  ]
+ },
+ {
+  "text": "taho 20 also jeep 14 also tricycle 30",
+  "expect": [
+   {
+    "price": 20
+   },
+   {
+    "price": 14
+   },
+   {
+    "price": 30
+   }
+  ]
+ },
+ {
+  "text": "rice and eggs 150 pesos",
+  "expect": [
+   {
+    "item": "Rice and eggs",
+    "price": 150
+   }
+  ],
+  "note": "one amount, one purchase"
+ },
+ {
+  "text": "Yesterday foot massage 350 pesos and a 50 peso tip",
+  "expect": [
+   {
+    "item": "Foot massage",
+    "price": 350,
+    "d": 1
+   },
+   {
+    "item": "Tip",
+    "price": 50,
+    "d": 1
+   }
+  ]
+ },
+ {
+  "text": "At Puregold in San Jose, shampoo 120 and rice 2 kilos 110, both by card",
+  "expect": [
+   {
+    "item": "Shampoo",
+    "price": 120,
+    "location": "Puregold, San Jose",
+    "venue": "Supermarket",
+    "payment": "Other card"
+   },
+   {
+    "item": "Rice 2 kilos",
+    "price": 110,
+    "location": "Puregold, San Jose",
+    "venue": "Supermarket",
+    "payment": "Other card"
+   }
+  ]
+ },
+ {
+  "text": "On Tuesday at SM Megamall, flip flops 299 pesos and a power bank 899, both by card",
+  "expect": [
+   {
+    "item": "Flip flops",
+    "price": 299,
+    "d": 5,
+    "location": "SM Megamall",
+    "payment": "Other card"
+   },
+   {
+    "item": "Power bank",
+    "price": 899,
+    "d": 5,
+    "location": "SM Megamall",
+    "payment": "Other card"
+   }
+  ]
+ },
+ {
+  "text": "tip 50 also dinner 800 by card",
+  "expect": [
+   {
+    "item": "Tip",
+    "payment": null
+   },
+   {
+    "item": "Dinner",
+    "payment": "Other card"
+   }
+  ]
+ },
+ {
+  "text": "seven eleven water 20 also chips 45",
+  "expect": [
+   {
+    "item": "Water",
+    "price": 20,
+    "venue": "Convenience store"
+   },
+   {
+    "item": "Chips",
+    "price": 45
+   }
+  ]
+ },
+ {
+  "text": "jeep 14\n\n\ntaho 20",
+  "expect": [
+   {
+    "price": 14
+   },
+   {
+    "price": 20
+   }
+  ],
+  "note": "blank lines are skipped"
+ },
+ {
+  "text": "",
+  "expect": [],
+  "note": "nothing typed"
+ },
+ {
+  "text": "   \n  ",
+  "expect": [],
+  "note": "only spaces"
+ },
+ {
+  "text": "<script>alert(1)</script> 50",
+  "expect": [
+   {
+    "price": 50
+   }
+  ]
+ },
+ {
+  "text": "🍜 ramen 250 🙂",
+  "expect": [
+   {
+    "item": "Ramen",
+    "price": 250
+   }
+  ]
+ },
+ {
+  "text": "JEEP 14",
+  "expect": [
+   {
+    "item": "Jeepney",
+    "price": 14
+   }
+  ]
+ },
+ {
+  "text": "Jeep   14   pesos",
+  "expect": [
+   {
+    "item": "Jeepney",
+    "price": 14
+   }
+  ]
+ }
+]

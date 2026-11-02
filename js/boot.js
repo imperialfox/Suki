@@ -7,6 +7,7 @@ const BOOT = { t0: performance.now(), MIN: 600, CAP: 2500 };
 async function boot() {
   layout();
   F.home = loadDraft();
+  loadSmart();
   if (F.home.item || F.home.price || F.home.notes || F.home.location) U.more = !!(F.home.location || F.home.notes || F.home.venue);
   // load, but never keep the launch screen up longer than about 2.5 s
   await Promise.race([loadData().catch(() => {}), new Promise((r) => setTimeout(r, BOOT.CAP))]);

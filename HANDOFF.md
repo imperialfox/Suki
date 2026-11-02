@@ -276,7 +276,7 @@ Tests: `test_ratecard.py` (47 checks, listed in `MAINTAINING.md`). Full suite: 6
 **Left for later:** nothing new.
 
 ## Q14 · Logging: Smart add
-**Render:** 1 Nov 2026, 09:33, scope as below · **Build:** awaiting · Needs: Q17 (built first; Q11's "Saved" button and settle, and Q16's town, are reused).
+**Render:** 1 Nov 2026, 09:33, scope as below · **Build:** 2 Nov 2026, 00:04, Ivan: "Suki Q14 Build" · shipped as 2.20 · Needs: Q17 (built first; Q11's "Saved" button and settle, and Q16's town, are reused).
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Smart add prototype](https://claude.ai/artifact/KmqSWPKWGBSEWDjMQEgCkF) (the reader is inlined; its sample purchases are made up). Recon: project doc `suki_quick_add_recon_2026-11-01.md` (findings 1, 4, 5).
 
 **Goal:** type, say or paste a purchase in one line, see what Suki understood, save in one tap. The form stays.
@@ -294,6 +294,17 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Smart add pr
 **Risks:** the Recon's 136 test phrases weren't kept: write a synthetic phrase file (about 120, including every case named in the Recon) before the reader. Blur on a moving card can stutter on iPhone: blur only the card's rows, and fall back to the crossfade if frames drop at 4× slow motion.
 **Done when:** the phrase tests pass; tests for the sides and the remembered side, each ask, the either/or and learning, batch save with Undo, Edit in the form, usual price, suggestions, the typical note, "You typed", and learned words through a backup round trip; a motion-on test that rapid switching leaves no stray copy; full suite passes. **Checks:** full suite; screenshots at 375 and 402 px, light and dark; frames at 4×.
 **For your iPhone:** whether the keyboard hides the preview; whether Siri dictation reads well; whether the fade stays smooth.
+**Debrief:** Built from the prototype, with the reader ported into `js/reader.js` and the side, preview and learning in `js/smart.js` (new); the fade is `MOTION.fold`. Decisions within scope:
+- **Phrases:** the Recon's were lost, as warned. Wrote 123 made-up ones (135 purchases) in `tests/fixtures/smart_phrases.json`, covering every case the Recon names. Writing them found and fixed six reader slips the prototype had: "PHP 1,250" split at the comma, "sim card" read as paying by card, "jeep 14 november 21st" read as 14 Nov, "at the airport" kept "The", "limang daan hotel" ran into the next word, and an opening "On Tuesday at SM Megamall," didn't share the place.
+- **Whole-word matching** (agreed 8): `wordMatch()` in `catalog.js` (the prototype's rule: names and other spellings as whole words, plurals, one-letter slips in long words). The reader, Your usual and **"You paid"** use it, since "You paid" was the one place logged purchases used the loose match (Recon finding 5). The prices row keeps Q08's `strictItemFor`, and Search its own.
+- **Learned words** live in `D.learned` (IndexedDB key `learned`), in backups, the safety copy, Erase and the restore sheet. A backup or safety copy from before 2.20 leaves the phone's words as they are, rather than emptying them.
+- **His words:** a line holding several purchases gives each its own part where the split is clear (`jeepney 14`, `water 25`), else the whole line. Editing a purchase, or saving it through Edit in the form, keeps them.
+- **Usual price, town, check sheet:** as prototyped. A batch row opens the usual Log sheet titled "Check purchase" with Done, which puts the changes back in the list unsaved; a category changed there is learned too.
+- **Left out:** the prototype's "Try" example chips (they'd put made-up purchases a tap from his real log; noted as an idea). The Shortcut time stamp is read for the day (`[2026-11-21 13:05] yesterday` is the 20th), but `saidAt` and "Already saved" are Q15's.
+- **Blur:** only the rows blur, never the card. If two frames take over 120 ms in a fold, later folds that session are a crossfade.
+Tests: `test_smart.py` (100 checks, listed in `MAINTAINING.md`). Full suite: 796 of 796 side by side, pinned Playwright 1.56 pointed at a newer Chromium, as before. Screenshots at 375 and 402 px, light and dark, and fade frames at 4×, checked by eye.
+**For your iPhone:** (1) Tap "Smart add" on Home and type "jeep to cubao 14": does the keyboard leave the preview and Save in view? (2) Use the keyboard's mic and say a purchase the way you would at a counter: does it read right? (3) Switch sides a few times: is the fade smooth, or does it stutter? (4) Say "jeep" with no amount after logging one: does Your usual fill it? (5) Paste two or three lines from Notes: does it find each purchase?
+**Left for later:** Q15 (the Siri inbox) is next and builds on the time stamps the reader already reads. The "Try" chips idea is in the queue's ideas.
 
 ## Q15 · Logging: the Siri inbox
 **Render:** 1 Nov 2026, 09:45, scope as below · **Build:** awaiting · Needs: Q14 (built first). Recon: project doc `suki_quick_add_recon_2026-11-01.md` (findings 2 and 3, the Shortcut steps), cut down because Smart add's box already keeps line breaks and reads the Shortcut's time stamps.

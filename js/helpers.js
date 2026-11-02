@@ -31,6 +31,15 @@ const amount = (v) => {
   const n = parseFloat(s);
   return Number.isFinite(n) ? n : null;
 };
+// the purchase form's amount box (Q14) also takes amounts as they're written on menus and said aloud:
+// "P50", "PHP 50", "50 pesos", "2k", "₱1.5k". Anything else goes through amount()
+function formAmount(v) {
+  const m = String(v == null ? '' : v)
+    .trim()
+    .match(/^(?:p|₱|php)?\s*(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?|\.\d+)\s*(k)?\s*(?:pesos?|piso|php)?$/i);
+  if (m) return parseFloat(m[1].replace(/,/g, '')) * (m[2] ? 1000 : 1);
+  return amount(v);
+}
 // pesos to the centavo: anything that rounds to ₱0.00 doesn't count as an amount
 const cents = (n) => (n === null ? null : Math.round(n * 100) / 100);
 

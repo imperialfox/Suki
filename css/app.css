@@ -579,6 +579,24 @@ h1 {
   min-width: 0;
   overflow-wrap: anywhere;
 }
+/* the rate behind "In pounds then" (Q22), under the pounds */
+.row.kv .ratewhy {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--fg2);
+  font-variant-numeric: tabular-nums;
+}
+/* "2 at today's rate" under a total in pounds (Q22) */
+.sumcard .cap.rn {
+  margin-top: -2px;
+  font-size: 12px;
+}
+.stats .gb.rn {
+  flex-basis: 100%;
+  margin-left: 0;
+  font-size: 13px;
+}
 .row.danger b {
   color: var(--danger);
 }

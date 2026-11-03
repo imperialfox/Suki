@@ -23,6 +23,46 @@ function inGbp(n) {
   const g = Number(n) / r.value;
   return '≈ ' + (g > 0 && g < 0.01 ? '<£0.01' : gbp(g));
 }
+// one purchase in pounds at its own rate, or today's when it has none (Q22)
+const gbpThen = (p) => (p.rateAtPurchase > 0 ? '≈ ' + gbp(p.price / p.rateAtPurchase) : inGbp(p.price));
+// the rate behind a purchase's pounds: "£1 = ₱83.11 · Thu 1 Oct · ECB", "· estimated" while it is (Q22)
+function rateBehind(p) {
+  if (!(p.rateAtPurchase > 0)) return '';
+  const d = isoDate(p.rateDate) === p.rateDate ? atNoon(p.rateDate) : null,
+    src = p.rateSource ? (/ECB|Frankfurter/i.test(p.rateSource) ? 'ECB' : p.rateSource) : '';
+  return [
+    '£1 = ' + cash(p.rateAtPurchase),
+    d && d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: d.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' }),
+    src,
+    p.rateEstimated && 'estimated',
+  ]
+    .filter(Boolean)
+    .map((s) => s.replace(/ /g, '\u00a0')) // a long line breaks between the parts, never inside one
+    .join(' · ');
+}
+// purchases in pounds, each at the rate it was saved with, so a total doesn't drift as the rate moves (Q22).
+// One with no rate counts at today's saved rate (today), and one whose day's rate is still to come is
+// counted at the rate it has (est); the total says how many of each. null when there's no way to say
+function poundsOf(list) {
+  const r = D.rate && D.rate.value > 0 ? D.rate.value : 0;
+  let g = 0,
+    today = 0,
+    est = 0;
+  for (const p of list) {
+    const pr = +p.price || 0;
+    if (p.rateAtPurchase > 0) {
+      g += pr / p.rateAtPurchase;
+      if (p.rateEstimated) est++;
+    } else if (r) {
+      g += pr / r;
+      today++;
+    } else return null;
+  }
+  return { g: Math.round(g * 100) / 100, today, est };
+}
+// "2 at today's rate · 1 estimated", or '' when every purchase has its own day's rate
+const poundsNote = (t) =>
+  t ? [t.today && t.today + ' at today’s rate', t.est && t.est + ' estimated'].filter(Boolean).join(' · ') : '';
 const sum = (list) => Math.round(list.reduce((s, p) => s + (+p.price || 0), 0) * 100) / 100;
 // a typed amount: "1,000", "1 000", "₱12.50" and " 12.5 " all work; "12.50.5" or "abc" is null (Q06)
 const amount = (v) => {

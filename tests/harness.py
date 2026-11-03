@@ -78,15 +78,35 @@ READ = """async k=>{const db=await new Promise(res=>{const r=indexedDB.open('suk
 # every address the app asks for the rate, in the order it tries them
 RATE_HOSTS = ['api.frankfurter.dev', 'api.frankfurter.app', 'cdn.jsdelivr.net', 'currency-api.pages.dev']
 
-def rate_route(ctx, value=RATE, fail=False, down=(), values=None):
+def ecb_day(iso):
+    """The ECB rate's day for a request on iso: weekends answer with the Friday before, like Frankfurter."""
+    d = dt.date.fromisoformat(iso)
+    while d.weekday() > 4: d -= dt.timedelta(days=1)
+    return d.isoformat()
+
+def asked_day(u):
+    """The day a dated request asks for (Q22), or None for today's rate."""
+    import re
+    m = re.search(r'date=(\d{4}-\d{2}-\d{2})|/v1/(\d{4}-\d{2}-\d{2})\?|currency-api@(\d{4}-\d{2}-\d{2})/|//(\d{4}-\d{2}-\d{2})\.currency-api', u)
+    return next((g for g in m.groups() if g), None) if m else None
+
+def rate_route(ctx, value=RATE, fail=False, down=(), values=None, days=None, log=None):
     """Answer the exchange-rate requests ourselves, so tests never need the internet.
-    fail: every source is down. down: hosts that answer 503. values: {host: rate} to answer a host with another rate."""
+    fail: every source is down. down: hosts that answer 503. values: {host: rate} to answer a host with another rate.
+    days: {'YYYY-MM-DD': rate} for dated requests (Q22): Frankfurter answers the weekday before a weekend, Currency
+    API the day itself; a day not listed gets value. log: a list that collects every address asked for."""
     def handle(route):
-        host = route.request.url.split('/')[2]
+        u = route.request.url
+        host = u.split('/')[2]
+        if log is not None: log.append(u)
         if fail or any(host.endswith(h) for h in down): return route.fulfill(status=503, body='down', headers={'Access-Control-Allow-Origin': '*'})
         v = next((x for h, x in (values or {}).items() if host.endswith(h)), value)
-        d = today.isoformat()
-        if host == 'api.frankfurter.dev': body = {'date': d, 'base': 'GBP', 'quote': 'PHP', 'rate': v}
+        d, asked = today.isoformat(), asked_day(u)
+        if asked:
+            d = asked if 'currency-api' in u else ecb_day(asked)
+            v = (days or {}).get(d, v)
+        if host == 'api.frankfurter.dev' and '/v1/' in u: body = {'amount': 1.0, 'base': 'GBP', 'date': d, 'rates': {'PHP': v}}
+        elif host == 'api.frankfurter.dev': body = {'date': d, 'base': 'GBP', 'quote': 'PHP', 'rate': v}
         elif host == 'api.frankfurter.app': body = {'amount': 1.0, 'base': 'GBP', 'date': d, 'rates': {'PHP': v}}
         else: body = {'date': d, 'gbp': {'php': v, 'eur': 1.15}}
         route.fulfill(status=200, content_type='application/json', headers={'Access-Control-Allow-Origin': '*'}, body=json.dumps(body))

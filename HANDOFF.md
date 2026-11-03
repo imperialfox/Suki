@@ -423,7 +423,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q1
 **For your iPhone:** whether ten swipes feels earned or a chore; whether the mark is readable but quiet, especially in dark mode.
 
 ## Q22 · Spending: pounds at the rate you paid
-**Render:** 2 Nov 2026, 18:22, scope as below (with Q23) · **Build:** awaiting · Needs: 2.21 live.
+**Render:** 2 Nov 2026, 18:22, scope as below (with Q23) · **Build:** 3 Nov 2026, 17:28, Ivan: "Suki Q22 Build" · shipped as 2.22 · Needs: 2.21 live.
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: none (skipped at Ivan's word, like Q05 and Q06). Recon: project doc `idea_rate_history_notes.md` (Milestone A, and "A rate for one day").
 
 **Goal:** every pound figure in Suki uses the rate of the day the money was spent.
@@ -438,6 +438,16 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: none (skipped
 **Risks:** Save must never wait for the lookup: save first, then fill in the rate. Offline must still save at once.
 **Done when:** tests: totals add each purchase's own rate; purchases with no rate are counted and labelled; a back-dated purchase gets that day's rate (Friday for a weekend, and for a Monday-morning purchase in Manila); offline gives "estimated", corrected after signal returns with nothing else changed; a bad reply is ignored; Save never waits; backups keep the new fields; full suite passes. **Checks:** screenshots at 375 and 402 px, light and dark.
 **For your iPhone:** log something for yesterday and check "In pounds then"; in flight mode, log one, then reconnect and check it's no longer "estimated".
+**Debrief:** Built as agreed. The default didn't apply: Currency API's dated address was confirmed at build (`currency-api@YYYY-MM-DD` on jsDelivr and `YYYY-MM-DD.currency-api.pages.dev`, both answering for 31 Oct 2026; older dates, such as 1 Mar 2024, don't answer, so it's simply skipped then). Frankfurter's dated v2 address answers a weekend with Friday (checked: 31 Oct → 30 Oct, ₱85.32). Decisions within scope:
+- **Which day:** the purchase's date minus one, so the ECB answers with the last rate published before that day (Sunday and Monday both get Friday's). A reply for a later day, or more than 10 days earlier, is ignored, as is one outside `RATE_RANGE`.
+- **Save first:** every save stamps a rate at once (today's, marked `rateEstimated` when the date is before today), then looks up the day's rate without being waited for. It runs again at launch, on going online and on coming back to the app. Only purchases marked estimated are ever corrected, and only their rate fields change.
+- **The new fields:** `rateDate`, `rateSource` and `rateEstimated`. New purchases dated today also record today's rate's day and source, so their details can show the line. Older purchases show the rate without a day or source.
+- **The note:** "2 at today's rate" for purchases with no rate, and "1 estimated" for ones still waiting, under Home's total and Spending's. While a bar is picked, Spending keeps the note's line (empty if need be) so clearing the pick doesn't move the list under the finger (the full suite caught this).
+- **"You paid"** on an item's page now shows each purchase in pounds at its own rate, under the goal's "every pound figure". Catalogue prices and price notes still use today's rate, since they aren't money spent.
+- **Tests' rate stand-in** (`rate_route`) now answers dated requests, with `days={…}` and a `log`.
+Tests: `test_rates.py` (44 checks, listed in `MAINTAINING.md`). Full suite: 896 of 896 side by side, pinned Playwright 1.56 pointed at a newer Chromium, as before. Screenshots at 375 and 402 px, light and dark, checked by eye.
+**For your iPhone:** (1) Log something for yesterday: does "In pounds then" show yesterday's day before, with "ECB"? (2) In flight mode, log one for yesterday: does it say "estimated", and does Home's total say "1 estimated"? (3) Turn flight mode off and reopen Suki: is "estimated" gone? (4) Does Home's total in pounds stay the same from one day to the next with no new spending?
+**Left for later:** nothing new.
 
 ## Q23 · Convert: rate history
 **Render:** 2 Nov 2026, 18:22, scope as below (with Q22) · **Build:** awaiting · Needs: Q22 live (its one-day rate lookup is reused).

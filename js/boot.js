@@ -27,6 +27,7 @@ async function boot() {
     setTimeout(onboardStart, MOTION.reduced() ? 200 : 300);
   }, wait);
   autoRate();
+  fixRates();
   checkStorage();
   registerSW();
 }

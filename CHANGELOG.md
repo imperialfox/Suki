@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.22 · 3 Nov 2026
+*Pounds at the rate you paid (Q22)*
+
+**Totals in pounds stay put**
+- Home's total and Spending's total (a period, a day, a category or a filter) now add each purchase in pounds at its own rate, the one saved with it. Before, the whole peso total was divided by today's rate, so the pounds changed every day with no new spending.
+- A purchase with no rate of its own (one saved before a rate had ever loaded) counts at today's rate, and the total says how many: "2 at today's rate". One still waiting for its day's rate says "1 estimated".
+- "You paid" on an item's page shows each purchase in pounds at its own rate too.
+
+**A purchase for an earlier day gets that day's rate**
+- Log something for yesterday, on a calendar day, with Smart add's "yesterday" or "on Friday", or change a purchase's date, and it gets the European Central Bank rate published before that day. A weekend or holiday takes the weekday before, so a Monday-morning purchase in Manila gets Friday's (Monday's comes out at about 11 pm there).
+- Today's and future dates keep today's saved rate, as before.
+- Saving never waits: the purchase is saved at once with today's rate, and that day's rate is filled in straight after. With no signal it stays "estimated" and is corrected quietly the next time Suki has signal. Only the rate changes, never the price, date or words.
+- The rate comes from Frankfurter (the ECB), then the Currency API's file for that day. A reply that isn't a sensible rate, or is for the wrong day, is ignored.
+
+**In pounds then**
+- A purchase's details show the rate behind its pounds: "£1 = ₱83.11 · Thu 1 Oct · ECB", with "estimated" while it is.
+- The rate's day and source are kept with the purchase, through editing, backups and restoring. Older purchases keep their rates as they were.
+
 ## 2.21 · 2 Nov 2026
 *Log by voice with Siri, and nothing saved twice (Q15)*
 

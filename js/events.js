@@ -252,16 +252,20 @@ async function submitForm(form, el) {
     if (form === 'edit' && U.sd.id) {
       const old = D.purchases.find((x) => x.id === U.sd.id);
       if (!old) return closeSheet();
+      const moved = p.date !== old.date;
       Object.assign(old, p, { edited: new Date().toISOString() });
-      old.gbpAtPurchase = old.rateAtPurchase ? Math.round((old.price / old.rateAtPurchase) * 100) / 100 : null;
+      // a new date takes that day's rate (Q22); otherwise the rate stays and only the pounds follow the price
+      if (moved) stampRate(old);
+      else old.gbpAtPurchase = old.rateAtPurchase ? Math.round((old.price / old.rateAtPurchase) * 100) / 100 : null;
       closeSheet();
       toast('Changes saved');
       await save('purchases');
+      if (moved) fixRates();
       return;
     }
-    const r = D.rate ? D.rate.value : null,
-      before = rowsBefore(),
-      added = Object.assign({ id: newId() }, p, { gbpAtPurchase: r ? Math.round((p.price / r) * 100) / 100 : null, rateAtPurchase: r });
+    // saved at once with the best rate to hand; a back-dated one gets its day's rate straight after (Q22)
+    const before = rowsBefore(),
+      added = stampRate(Object.assign({ id: newId() }, p));
     D.purchases.unshift(added);
     if (form === 'home') {
       F.home = { category: p.category, payment: p.payment };
@@ -277,6 +281,7 @@ async function submitForm(form, el) {
     rowsAfter(before);
     toast('Purchase saved', () => undoSave(added.id));
     await save('purchases');
+    fixRates();
     return;
   }
   if (form === 'obs') {

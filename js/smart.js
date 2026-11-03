@@ -289,8 +289,7 @@ async function smartSave() {
     if (err) err.textContent = 'That amount looks too big. Check the number.';
     return;
   }
-  const r = D.rate ? D.rate.value : null,
-    before = rowsBefore(),
+  const before = rowsBefore(),
     ids = [];
   list.forEach((p) => {
     const price = cents(+p.price),
@@ -306,10 +305,9 @@ async function smartSave() {
         notes: String(p.notes || '').trim(),
         said: String(p.said || '').slice(0, 500),
         ...(p.saidAt ? { saidAt: p.saidAt } : {}),
-        gbpAtPurchase: r ? Math.round((price / r) * 100) / 100 : null,
-        rateAtPurchase: r,
       };
-    D.purchases.unshift(added);
+    // "yesterday" or "on Friday" takes that day's rate, filled in after saving (Q22)
+    D.purchases.unshift(stampRate(added));
     ids.push(added.id);
   });
   F.smart = { text: '', over: {} };
@@ -320,6 +318,7 @@ async function smartSave() {
   rowsAfter(before);
   toast(ids.length > 1 ? ids.length + ' purchases saved' : 'Purchase saved', () => undoSaves(ids));
   await save('purchases');
+  fixRates();
 }
 async function undoSaves(ids) {
   if (!D.purchases.some((p) => ids.includes(p.id))) return;

@@ -131,3 +131,107 @@ async function copyConv() {
     toast(s);
   }
 }
+
+/* ===== The rate for the day the money was spent (Q22) =====
+   A purchase dated before today gets the last ECB rate published before that date: the day before's,
+   or the weekday before a weekend or holiday (Frankfurter answers those with the weekday before). So a
+   Monday-morning purchase in Manila gets Friday's, because Monday's appears at about 23:00 there.
+   Today's and future dates keep today's saved rate. Saving never waits: the purchase is saved with today's
+   rate marked "estimated", then the day's rate is filled in (fixRates), now or the next time there's signal.
+   A correction only adds to a purchase (rateAtPurchase, gbpAtPurchase, rateDate, rateSource); its price,
+   date and words are never touched, and only purchases marked rateEstimated are ever corrected. */
+const DAY_SOURCES = [
+  { name: 'Frankfurter (ECB)', url: (d) => 'https://api.frankfurter.dev/v2/providers/ecb/rate/GBP/PHP?date=' + d, read: (j) => [j.rate, j.date] },
+  { name: 'Frankfurter (ECB)', url: (d) => 'https://api.frankfurter.dev/v1/' + d + '?from=GBP&to=PHP', read: (j) => [j.rates && j.rates.PHP, j.date] },
+  { name: 'Currency API', url: (d) => 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@' + d + '/v1/currencies/gbp.min.json', read: (j) => [j.gbp && j.gbp.php, j.date] },
+  { name: 'Currency API', url: (d) => 'https://' + d + '.currency-api.pages.dev/v1/currencies/gbp.min.json', read: (j) => [j.gbp && j.gbp.php, j.date] },
+];
+const DAY_BACK = 10; // a reply for a day more than this before the one asked for is the wrong day, not a holiday
+const DAY_CACHE = {}; // rates found this session, by the day asked for
+let fixBusy = false,
+  fixAgain = false;
+
+// the day to ask the ECB for: the day before the purchase, or null for today and later (today's saved rate)
+const rateDayFor = (date) => (isoDate(date) && date < localISO() ? addDays(date, -1) : null);
+
+// the rate for one day, from the first source that answers sensibly; throws if none does
+async function dayRate(day) {
+  let timeouts = 0;
+  for (const s of DAY_SOURCES) {
+    if (timeouts >= 2) break;
+    try {
+      const got = await rateFrom({ url: s.url(day), read: s.read });
+      // a reply for a later day, or one from long before, isn't that day's rate
+      if (got.date > day || got.date < addDays(day, -DAY_BACK)) throw new Error('wrong day (' + got.date + ')');
+      return { value: got.value, date: got.date, source: s.name };
+    } catch (e) {
+      if (e.message === 'timed out') timeouts++;
+    }
+  }
+  throw new Error('no rate for ' + day);
+}
+
+function setRate(p, r, estimated) {
+  p.rateAtPurchase = r ? r.value : null;
+  p.gbpAtPurchase = r ? Math.round((p.price / r.value) * 100) / 100 : null;
+  if (r && r.date) p.rateDate = r.date;
+  else delete p.rateDate;
+  if (r && r.source) p.rateSource = r.source;
+  else delete p.rateSource;
+  if (estimated) p.rateEstimated = true;
+  else delete p.rateEstimated;
+  return p;
+}
+// a new purchase, or one whose date changed: the right rate if it's known, else today's, estimated
+function stampRate(p) {
+  const ask = rateDayFor(p.date);
+  if (ask && DAY_CACHE[ask]) return setRate(p, DAY_CACHE[ask], false);
+  return setRate(p, D.rate, !!ask);
+}
+
+// fill in the day's rate on every purchase still marked estimated. Never blocks a save; quiet when it fails
+async function fixRates() {
+  if (fixBusy) return void (fixAgain = true);
+  if (!navigator.onLine || !D.purchases.some((p) => p.rateEstimated)) return;
+  fixBusy = true;
+  let changed = 0;
+  try {
+    const days = [...new Set(D.purchases.filter((p) => p.rateEstimated).map((p) => rateDayFor(p.date)))];
+    for (const day of days) {
+      if (!navigator.onLine) break;
+      let got = day && DAY_CACHE[day];
+      if (day && !got) {
+        try {
+          got = DAY_CACHE[day] = await dayRate(day);
+        } catch (e) {
+          continue;
+        }
+      }
+      // looked at again after the wait: a purchase deleted, edited or restored meanwhile is judged as it is now
+      const use = got || D.rate;
+      D.purchases.forEach((p) => {
+        if (!use || !p.rateEstimated || rateDayFor(p.date) !== day) return;
+        setRate(p, use, false);
+        changed++;
+      });
+    }
+  } finally {
+    fixBusy = false;
+  }
+  if (changed) {
+    await save('purchases');
+    showFixed();
+  }
+  if (fixAgain) {
+    fixAgain = false;
+    fixRates();
+  }
+}
+// redraw so totals and details show the corrected rate, unless he's typing (the next redraw catches up)
+function showFixed() {
+  const ae = document.activeElement;
+  if (ae && ae.matches && ae.matches('input,textarea,select')) return;
+  rerender();
+}
+// coming back to the app: an iPhone may have missed the online event while Suki was in the background
+document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && fixRates());

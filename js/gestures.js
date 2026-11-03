@@ -152,7 +152,10 @@ function netChange() {
   renderBar();
   const l = $('rateLine');
   if (l) l.textContent = rateLine();
-  if (navigator.onLine) autoRate();
+  if (!navigator.onLine) return;
+  autoRate();
+  // purchases saved offline with an estimated rate get their day's rate now (Q22)
+  fixRates();
 }
 window.addEventListener('online', netChange);
 window.addEventListener('offline', netChange);

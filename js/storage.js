@@ -59,6 +59,20 @@ function cleanPurchase(p) {
     gbpAtPurchase: num(p.gbpAtPurchase),
     rateAtPurchase: num(p.rateAtPurchase),
   }, 'said' in p ? { said: str(p.said).slice(0, 500) } : {});
+  // the rate's day and source, and "estimated" while it's today's rate standing in for that day's (Q22).
+  // Each is dropped if it isn't the right kind of thing, never kept as junk
+  if ('rateDate' in p) {
+    const d = isoDate(p.rateDate);
+    if (d && typeof p.rateDate === 'string' && d === p.rateDate) out.rateDate = d;
+    else delete out.rateDate;
+  }
+  if ('rateSource' in p) {
+    const s = str(p.rateSource).slice(0, 60);
+    if (s) out.rateSource = s;
+    else delete out.rateSource;
+  }
+  if (p.rateEstimated === true) out.rateEstimated = true;
+  else delete out.rateEstimated;
   // saidAt (Q15): when he said it to the Siri Shortcut, "2026-11-21 13:05". Anything else is dropped, not kept as junk
   if ('saidAt' in p) {
     const at = READER.stampOf(p.saidAt);

@@ -74,11 +74,11 @@ function purchaseDetail(p, inPane) {
     p.location && ['Location', p.location],
     p.venue && ['Where bought', p.venue],
     p.payment && ['Paid with', p.payment],
-    p.rateAtPurchase && ['In pounds then', '≈ ' + gbp(p.price / p.rateAtPurchase)],
+    p.rateAtPurchase && ['In pounds then', '≈ ' + gbp(p.price / p.rateAtPurchase), rateBehind(p)],
   ].filter(Boolean);
   return (
     '<div class="dhead">' + tile(p.category, true) + '<div class="dmain"><div class="dprice">' + cash(p.price) + '</div><h3>' + esc(p.item) + '</h3></div></div>' +
-    '<div class="grp">' + rows.map((r) => '<div class="row kv"><span class="k">' + r[0] + '</span><span class="v">' + esc(r[1]) + '</span></div>').join('') + '</div>' +
+    '<div class="grp">' + rows.map((r) => '<div class="row kv"><span class="k">' + r[0] + '</span><span class="v">' + esc(r[1]) + (r[2] ? '<small class="ratewhy">' + esc(r[2]) + '</small>' : '') + '</span></div>').join('') + '</div>' +
     // the words he typed in Smart add (Q14)
     (p.said ? '<p class="said">You typed: “' + esc(p.said) + '”</p>' : '') +
     pricesRow(p) +
@@ -222,7 +222,7 @@ function itemDetail(id, inPane) {
     (prices || '<div class="card quiet">No published price for this yet. Add what you see below, and it’ll show here next time.</div>') +
     (paid.length
       ? hdr('You paid', '<span class="hint">' + plural(paid.length, 'time') + '</span>') +
-        '<div class="grp">' + paid.slice(0, 5).map((p) => '<button class="row' + lit('paid:' + p.id) + '" data-a="openPurchase" data-k="' + esc(p.id) + '" data-v="push" data-dot="paid:' + esc(p.id) + '"><span class="lbl"><b>' + cash(p.price) + (inGbp(p.price) ? ' <span class="gb">' + esc(inGbp(p.price)) + '</span>' : '') + '</b><small>' + esc([relDay(p.date), p.location].filter(Boolean).join(' · ')) + '</small></span>' + ICON.chev + '</button>').join('') + '</div>'
+        '<div class="grp">' + paid.slice(0, 5).map((p) => '<button class="row' + lit('paid:' + p.id) + '" data-a="openPurchase" data-k="' + esc(p.id) + '" data-v="push" data-dot="paid:' + esc(p.id) + '"><span class="lbl"><b>' + cash(p.price) + (gbpThen(p) ? ' <span class="gb">' + esc(gbpThen(p)) + '</span>' : '') + '</b><small>' + esc([relDay(p.date), p.location].filter(Boolean).join(' · ')) + '</small></span>' + ICON.chev + '</button>').join('') + '</div>'
       : '') +
     '<button class="btn glass wide logit" data-a="logItem" data-k="' + esc(id) + '">' + ICON.plus + 'Log what you paid</button>' +
     hdr('Your price notes', open ? '' : '<button class="tbtn" data-a="obsForm" data-k="' + esc(id) + '">Add</button>') +
@@ -255,13 +255,15 @@ function itemDetail(id, inPane) {
 function scrHome() {
   const total = sum(D.purchases),
     today = sum(D.purchases.filter((p) => p.date === localISO())),
-    recent = D.purchases.slice().sort(byNewest).slice(0, 4);
+    recent = D.purchases.slice().sort(byNewest).slice(0, 4),
+    lb = total ? poundsOf(D.purchases) : null,
+    lbNote = poundsNote(lb);
   // two doors in one card: the total opens all your spending, Today opens today's (Q08)
   const dash =
     rateCard() +
     (D.purchases.length
       ? '<div class="card sumcard doors' + (cash(total).length > 11 || cash(today).length > 11 ? ' long' : '') + '">' +
-        '<button class="stat door" data-a="toSpend" data-v="all" aria-label="Total spent ' + cash(total) + '. Open all spending"><span class="big">' + cash(total) + '</span><span class="cap">Total spent' + (D.rate && total ? ' · ≈ ' + gbp(total / D.rate.value) : '') + '<span class="cv" aria-hidden="true"> ›</span></span></button>' +
+        '<button class="stat door" data-a="toSpend" data-v="all" aria-label="Total spent ' + cash(total) + '. Open all spending"><span class="big">' + cash(total) + '</span><span class="cap">Total spent' + (lb ? ' · ≈ ' + gbp(lb.g) : '') + '<span class="cv" aria-hidden="true"> ›</span></span>' + (lbNote ? '<span class="cap rn">' + lbNote + '</span>' : '') + '</button>' +
         '<button class="stat r door" data-a="toSpend" data-v="day" aria-label="Today ' + cash(today) + '. Open today’s spending"><span class="mid">' + cash(today) + '</span><span class="cap">Today<span class="cv" aria-hidden="true"> ›</span></span></button></div>'
       : '<div class="card sumcard static none"><span class="stat"><span class="mid">Nothing spent yet</span><span class="cap">Your total and today’s spending show here once you log something.</span></span></div>') +
     // data safety first: storage that wouldn't open, or records that couldn't be read (Q05)
@@ -762,6 +764,10 @@ function spendSummary(list) {
     bs = buckets(list, per),
     pick = U.bar != null && bs[U.bar] ? bs[U.bar] : null,
     total = pick ? pick.total : sum(list),
+    lb = total ? poundsOf(pick ? list.filter((p) => p.date >= pick.from && p.date <= pick.to) : list) : null,
+    lbNote = poundsNote(lb),
+    // the note's line stays while a bar is picked, empty if need be, so clearing the pick moves nothing under the finger (Q10)
+    lbLine = lbNote || (pick && poundsNote(poundsOf(list))),
     days = Math.max(1, dayDiff(per.from) - Math.max(0, dayDiff(per.to)) + 1),
     avg = U.range !== 'day' && !pick && total ? total / days : 0,
     canBack = U.range !== 'all',
@@ -769,7 +775,7 @@ function spendSummary(list) {
     filtered = U.cat !== 'all' || U.filter.trim();
   return (
     '<div class="eyebrow">' + (pick ? (U.range === 'all' && bs.weekly ? 'Week' : 'Day') : filtered ? (U.cat !== 'all' ? esc(U.cat) : 'Matching') : 'Total') + '</div>' +
-    '<div class="tot"><span class="big">' + cash(total) + '</span>' + (D.rate && total ? '<span class="gb">≈ ' + gbp(total / D.rate.value) + '</span>' : '') + '</div>' +
+    '<div class="tot"><span class="big">' + cash(total) + '</span>' + (lb ? '<span class="gb">≈ ' + gbp(lb.g) + '</span>' : '') + (lbLine ? '<span class="gb rn"' + (lbNote ? '>' + lbNote : ' aria-hidden="true">&nbsp;') + '</span>' : '') + '</div>' +
     '<div class="perline">' +
     (canBack ? '<button class="pstep" data-a="rangeStep" data-v="1" aria-label="Earlier">‹</button>' : '') +
     // the period's name is a door to the calendar on that month (Q10)

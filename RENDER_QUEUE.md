@@ -3,6 +3,7 @@
 The one live list of planned work. Nothing here is built until Ivan says **render** for the named item, and then **build**.
 States: `Awaiting Render` · `Approved — awaiting Build` · `Building` · `Shipped` · `Blocked`.
 Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the next minor version when it's built.
+**Release order** (below the table) is the order to build in. Render places the item in it (at the end unless Ivan says where), with "needs Q##" in its reason for anything that must ship first; the Build that ships an item removes it in the same push. The [Render queues](https://imperialfox.github.io/render-queue/) dashboard reads it for Up next and Next build.
 
 | ID | Item | State | Prototype | Notes |
 |---|---|---|---|---|
@@ -29,6 +30,17 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q21 | Quick Till: the haul and maker's mark | Approved — awaiting Build | same | Light. Phase 4 of 4: the ten-swipe hand-over-hand pull and "Designed by Ivan". After Q20 |
 | Q22 | Spending: pounds at the rate you paid | Approved — awaiting Build | none (skipped by Ivan, like Q05 and Q06) | Light. Rate history Recon's Milestone A, in the project doc `idea_rate_history_notes.md`: totals in pounds add each purchase at its own rate, and a back-dated purchase gets that day's ECB rate. Built before Q23 |
 | Q23 | Convert: rate history | Approved — awaiting Build | [Rate history prototype](https://claude.ai/artifact/PMTmqDCE7i2cXavLkqYekA) (version 1793642745-fdc9, on prototype kit 1.0.0) | Medium. Milestone B in the same doc: the page from Convert's rate row, why it moved, sourced news notes, and history that never depends on one service. After Q22 |
+
+## Release order
+
+Build top to bottom; each still needs its own **build**. One line per item: `N. Q## — reason`, with "needs Q##" for anything that must ship first. Names live in the table above.
+
+1. Q22 — light; makes spending totals right before the 7 Nov trip
+2. Q23 — needs Q22
+3. Q18 — phase 1 of the till drawer; fine after the trip
+4. Q19 — needs Q18
+5. Q20 — needs Q19
+6. Q21 — needs Q20
 
 **Render:** 31 Oct 2026, 22:56 · Ivan: "render all, then build" · scope: Q01–Q06 exactly as written in HANDOFF.md, built in the order listed above (2.5 to 2.10).
 

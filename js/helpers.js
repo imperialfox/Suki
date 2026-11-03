@@ -32,7 +32,8 @@ function rateBehind(p) {
     src = p.rateSource ? (/ECB|Frankfurter/i.test(p.rateSource) ? 'ECB' : p.rateSource) : '';
   return [
     '£1 = ' + cash(p.rateAtPurchase),
-    d && d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: d.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' }),
+    // written out by hand: browsers disagree on a comma after the weekday ("Fri, 30 Oct")
+    d && ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()] + ' ' + d.getDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()] + (d.getFullYear() === new Date().getFullYear() ? '' : ' ' + d.getFullYear()),
     src,
     p.rateEstimated && 'estimated',
   ]

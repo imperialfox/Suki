@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.22.1 · 3 Nov 2026
+*The rate's day reads the same on every device (Q22)*
+
+- The day under "In pounds then" is always written like "Fri 30 Oct", with no comma after the weekday, whatever the browser.
+
 ## 2.22 · 3 Nov 2026
 *Pounds at the rate you paid (Q22)*
 

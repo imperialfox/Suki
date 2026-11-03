@@ -423,7 +423,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q1
 **For your iPhone:** whether ten swipes feels earned or a chore; whether the mark is readable but quiet, especially in dark mode.
 
 ## Q22 · Spending: pounds at the rate you paid
-**Render:** 2 Nov 2026, 18:22, scope as below (with Q23) · **Build:** 3 Nov 2026, 17:28, Ivan: "Suki Q22 Build" · shipped as 2.22 · Needs: 2.21 live.
+**Render:** 2 Nov 2026, 18:22, scope as below (with Q23) · **Build:** 3 Nov 2026, 17:28, Ivan: "Suki Q22 Build" · shipped as 2.22, with 2.22.1 for the day's format · Needs: 2.21 live.
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: none (skipped at Ivan's word, like Q05 and Q06). Recon: project doc `idea_rate_history_notes.md` (Milestone A, and "A rate for one day").
 
 **Goal:** every pound figure in Suki uses the rate of the day the money was spent.
@@ -445,7 +445,8 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: none (skipped
 - **The note:** "2 at today's rate" for purchases with no rate, and "1 estimated" for ones still waiting, under Home's total and Spending's. While a bar is picked, Spending keeps the note's line (empty if need be) so clearing the pick doesn't move the list under the finger (the full suite caught this).
 - **"You paid"** on an item's page now shows each purchase in pounds at its own rate, under the goal's "every pound figure". Catalogue prices and price notes still use today's rate, since they aren't money spent.
 - **Tests' rate stand-in** (`rate_route`) now answers dated requests, with `days={…}` and a `log`.
-Tests: `test_rates.py` (44 checks, listed in `MAINTAINING.md`). Full suite: 896 of 896 side by side, pinned Playwright 1.56 pointed at a newer Chromium, as before. Screenshots at 375 and 402 px, light and dark, checked by eye.
+- **2.22.1:** GitHub's Chromium wrote the day as "Fri, 30 Oct", so its run failed one check that passed here. The day is now written out by hand ("Fri 30 Oct") so every browser shows the same.
+Tests: `test_rates.py` (44 checks, listed in `MAINTAINING.md`). Full suite: 896 of 896 side by side, pinned Playwright 1.56 pointed at a newer Chromium, as before; GitHub's run green on 2.22.1. Screenshots at 375 and 402 px, light and dark, checked by eye.
 **For your iPhone:** (1) Log something for yesterday: does "In pounds then" show yesterday's day before, with "ECB"? (2) In flight mode, log one for yesterday: does it say "estimated", and does Home's total say "1 estimated"? (3) Turn flight mode off and reopen Suki: is "estimated" gone? (4) Does Home's total in pounds stay the same from one day to the next with no new spending?
 **Left for later:** nothing new.
 

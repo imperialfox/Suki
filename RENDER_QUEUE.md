@@ -35,7 +35,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 
 Build top to bottom; each still needs its own **build**. One line per item: `N. Q## — reason`, with "needs Q##" for anything that must ship first. Names live in the table above.
 
-1. Q23 — Q22 is live (2.22)
+1. Q23 — Q22 is live (2.22.1)
 2. Q18 — phase 1 of the till drawer; fine after the trip
 3. Q19 — needs Q18
 4. Q20 — needs Q19
@@ -55,7 +55,7 @@ Build top to bottom; each still needs its own **build**. One line per item: `N. 
 
 **Render:** 1 Nov 2026, 13:09 · Ivan: "render", then chose "All four, Q18–Q21" · scope: Q18, Q19, Q20 and Q21 exactly as written in HANDOFF.md and as prototyped ("iOS way" feel), built one at a time in that order, after the items already approved; each starts only when Ivan says build for it.
 
-**Render:** 2 Nov 2026, 18:22 · Ivan: "render" (after "bring up the prototype again just to see now where we are at") · scope: Q22 and Q23 exactly as written in HANDOFF.md, Q23 as prototyped, with the defaults written there; Q22 is built first, then Q23. Each starts only when Ivan says build for it. Neither depends on Q18–Q21. Q22–Q25 were suggested as placeholders in the till game Recon; those numbers weren't claimed, so these take them. **Build (Q22):** 3 Nov 2026, 17:28, Ivan: "Suki Q22 Build" · shipped as 2.22.
+**Render:** 2 Nov 2026, 18:22 · Ivan: "render" (after "bring up the prototype again just to see now where we are at") · scope: Q22 and Q23 exactly as written in HANDOFF.md, Q23 as prototyped, with the defaults written there; Q22 is built first, then Q23. Each starts only when Ivan says build for it. Neither depends on Q18–Q21. Q22–Q25 were suggested as placeholders in the till game Recon; those numbers weren't claimed, so these take them. **Build (Q22):** 3 Nov 2026, 17:28, Ivan: "Suki Q22 Build" · shipped as 2.22, with 2.22.1 for the day's format.
 
 Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `suki_audit_2026-10-31.md`, `suki_stress_test_2026-10-31.md`, `suki_navigation_audit_2026-11-01.md` and `suki_visual_motion_audit_2026-11-01.md` and `suki_quick_add_recon_2026-11-01.md`; the till drawer's spec and phases: `idea_till_note-press_notes.md` and `q18_till_drawer-and-note-press_blueprint.md`; rate history (Q22, Q23): `idea_rate_history_notes.md`.
 

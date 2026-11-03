@@ -79,13 +79,17 @@ Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `s
 
 ## Ideas, not yet queued
 
-- iPhone SE: Save purchase and Log this bill sit under the tab bar on first view.
-- A search circle beside the tab bar (four tabs plus Search), as in iOS 26.
-- Nueva Ecija prices: no local tricycle fare or post-rise bus fare is published online yet; add them from price notes during the trip.
-- Search rows: make the peso price the only bold figure (visual audit finding 10; default keeps the pounds).
-- Prices by region, using the town from Q16.
-- Smart add: a receipt already works through iPhone's Live Text (copy the text from a photo, paste it in). Help could say so.
-- Smart add: the flip (the card turning over on its middle) was prototyped beside the fade; the fade was kept.
-- Smart add: the prototype's "Try" example chips were left out of Q14 (they'd put made-up purchases a tap from his real log). They could come back as examples that only fill the box with a clearly made-up line, or as a Help section.
-- Rows glide when editing moves a purchase (Q11 covers saving, deleting and Undo only).
-- Chart bars: switch their entrance from the borrowed ripple to Suki's settle (visual audit finding 9).
+Sorted by priority, highest first: what's broken or helps on the trip (7 Nov – 2 Dec), then groundwork, then polish. Nothing here has an ID or an approval yet; each goes through wireframe, prototype and Render before it joins the table.
+
+1. iPhone SE: Save purchase and Log this bill sit under the tab bar on first view.
+2. Nueva Ecija prices: no local tricycle fare or post-rise bus fare is published online yet; add them from price notes during the trip.
+3. Prices by region, using the town from Q16.
+4. Screen and element IDs (added 3 Nov 2026): every screen, section and element gets its own clear name (like `quickadd-sheet`), and anything that shows up in more than one place also gets a group name, so every copy can be viewed together. First step: an ID map (screens, then their parts, then the group names) to check before any code changes. Medium.
+5. Assets kit (added 3 Nov 2026): switch every element over to the tuning and assets of Ivan's assets kit (coming soon). Waits for the kit, and easier after idea 4: each group swaps once instead of copy by copy. The two can't run at the same time; both touch every screen.
+6. A search circle beside the tab bar (four tabs plus Search), as in iOS 26.
+7. Smart add: a receipt already works through iPhone's Live Text (copy the text from a photo, paste it in). Help could say so.
+8. Search rows: make the peso price the only bold figure (visual audit finding 10; default keeps the pounds).
+9. Rows glide when editing moves a purchase (Q11 covers saving, deleting and Undo only).
+10. Chart bars: switch their entrance from the borrowed ripple to Suki's settle (visual audit finding 9).
+11. Smart add: the prototype's "Try" example chips were left out of Q14 (they'd put made-up purchases a tap from his real log). They could come back as examples that only fill the box with a clearly made-up line, or as a Help section.
+12. Smart add: the flip (the card turning over on its middle) was prototyped beside the fade; the fade was kept. Kept here for the record.

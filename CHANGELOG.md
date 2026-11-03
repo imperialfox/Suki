@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.23 · 3 Nov 2026
+*Rate history: how the rate has moved, and why (Q23)*
+
+**Rate history**
+- On Convert, the rate is now a door: tap "£1 = ₱…" for Rate history. Refresh stays beside it, and Home's rate card still opens Convert.
+- Pick a month, 6 months, a year (where it opens), 5 years or everything since April 2005. The big figure is the newest ECB rate with its day, then what £100 buys against the start of the period.
+- A strip shows where today sits between the period's low and high, with their dates, and a line says which way is good: "Higher means your pound buys more pesos."
+- Drag along the chart to read any day. Near a news dot it snaps to it and shows its title; let go there to read it.
+- "Why it moved" splits the change into the peso and the pound, each against the US dollar, worked out on your phone from ECB rates. It hides if a figure is missing, rather than guess.
+- "What happened": news notes in plain words, filled dots for the peso and hollow for the pound, each with £1 that week and a link to the official record from the BSP or the Bank of England. 2026's rate decisions, plus the 2008 crisis, the 2016 referendum and the 2022 mini-budget for the longer views. "News checked 3 Nov 2026", said plainly once it's over a month old.
+- Settings › Help › What's a central bank rate?, also one tap from every news note.
+- Once you've started a trip (purchases with no gap of two weeks), a faint line marks its first day, with "Since 7 Nov: ₱0.42 more per £1".
+- Swap Convert to pesos first and the page follows: "₱100 = £…", and which way is good for pesos.
+- Every gap says why: weekends, the Manila night gap (the ECB publishes about 11 pm there), offline, no signal yet, and a saved rate from Currency API, shown as its own hollow dot.
+- Swipe back from anywhere on the page except the chart. On iPad and Mac the chart and the news sit side by side.
+- VoiceOver reads the chart as a sentence: "Up 10.4% in a year. High ₱85.35 on 26 October 2026."
+
+**History that doesn't depend on one service**
+- Rates from 2016 to 30 Oct 2026 come with the app, so 6M, Y and 5Y work with no signal and even if Frankfurter stops.
+- Newer days are asked for only when they're missing, and kept on your phone. Every reply is checked whole (dates in order, sensible rates, no day jumping more than 10%), and a bad one is refused.
+- The years before 2016 load only when you tap All.
+- Every rate Suki loads for Convert is kept with its source, and fills a gap where the ECB has no figure.
+- None of it goes in backups: it isn't your data, and it can be downloaded again. If it couldn't be loaded, Settings › Last rate check says why.
+
 ## 2.22.1 · 3 Nov 2026
 *The rate's day reads the same on every device (Q22)*
 

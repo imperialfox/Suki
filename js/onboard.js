@@ -245,6 +245,8 @@ function scrHelp() {
     '<div class="grp tiled set">' + gest.map((g) => '<div class="row">' + stile(g[0], 'gray') + '<span class="lbl"><b>' + g[1] + '</b><small>' + g[2] + '</small></span></div>').join('') + '</div>' +
     hdr('Logging') +
     '<div class="grp tiled set"><button class="row" data-a="openSiri">' + stile('mic', 'purple') + '<span class="lbl"><b>Log by voice with Siri</b><small>Say a purchase anywhere, paste it in later</small></span>' + ICON.chev + '</button></div>' +
+    hdr('Money') +
+    '<div class="grp tiled set"><button class="row" data-a="openCbRate">' + stile('peso', 'indigo') + '<span class="lbl"><b>What’s a central bank rate?</b><small>How it can move the peso and the pound</small></span>' + ICON.chev + '</button></div>' +
     hdr('On a new phone') +
     '<div class="grp tiled set"><button class="row" data-a="openAhs">' + stile('phone', 'blue') + '<span class="lbl"><b>Add Suki to your Home Screen</b></span>' + ICON.chev + '</button></div>'
   );

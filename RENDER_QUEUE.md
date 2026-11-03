@@ -29,17 +29,16 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q20 | Quick Till: drawer contents and fullness | Approved — awaiting Build | same | Medium. Phase 3 of 4: notes land in their compartments, the fullness gauge and the overloaded state. After Q19 |
 | Q21 | Quick Till: the haul and maker's mark | Approved — awaiting Build | same | Light. Phase 4 of 4: the ten-swipe hand-over-hand pull and "Designed by Ivan". After Q20 |
 | Q22 | Spending: pounds at the rate you paid | Shipped · 2.22 | none (skipped by Ivan, like Q05 and Q06) | Light. Rate history Recon's Milestone A, in the project doc `idea_rate_history_notes.md`: totals in pounds add each purchase at its own rate, and a back-dated purchase gets that day's ECB rate. Built before Q23 |
-| Q23 | Convert: rate history | Approved — awaiting Build | [Rate history prototype](https://claude.ai/artifact/PMTmqDCE7i2cXavLkqYekA) (version 1793642745-fdc9, on prototype kit 1.0.0) | Medium. Milestone B in the same doc: the page from Convert's rate row, why it moved, sourced news notes, and history that never depends on one service. After Q22 |
+| Q23 | Convert: rate history | Shipped · 2.23 | [Rate history prototype](https://claude.ai/artifact/PMTmqDCE7i2cXavLkqYekA) (version 1793642745-fdc9, on prototype kit 1.0.0) | Medium. Milestone B in the same doc: the page from Convert's rate row, why it moved, sourced news notes, and history that never depends on one service. After Q22 |
 
 ## Release order
 
 Build top to bottom; each still needs its own **build**. One line per item: `N. Q## — reason`, with "needs Q##" for anything that must ship first. Names live in the table above.
 
-1. Q23 — Q22 is live (2.22.1)
-2. Q18 — phase 1 of the till drawer; fine after the trip
-3. Q19 — needs Q18
-4. Q20 — needs Q19
-5. Q21 — needs Q20
+1. Q18 — phase 1 of the till drawer; fine after the trip
+2. Q19 — needs Q18
+3. Q20 — needs Q19
+4. Q21 — needs Q20
 
 **Render:** 31 Oct 2026, 22:56 · Ivan: "render all, then build" · scope: Q01–Q06 exactly as written in HANDOFF.md, built in the order listed above (2.5 to 2.10).
 
@@ -55,7 +54,7 @@ Build top to bottom; each still needs its own **build**. One line per item: `N. 
 
 **Render:** 1 Nov 2026, 13:09 · Ivan: "render", then chose "All four, Q18–Q21" · scope: Q18, Q19, Q20 and Q21 exactly as written in HANDOFF.md and as prototyped ("iOS way" feel), built one at a time in that order, after the items already approved; each starts only when Ivan says build for it.
 
-**Render:** 2 Nov 2026, 18:22 · Ivan: "render" (after "bring up the prototype again just to see now where we are at") · scope: Q22 and Q23 exactly as written in HANDOFF.md, Q23 as prototyped, with the defaults written there; Q22 is built first, then Q23. Each starts only when Ivan says build for it. Neither depends on Q18–Q21. Q22–Q25 were suggested as placeholders in the till game Recon; those numbers weren't claimed, so these take them. **Build (Q22):** 3 Nov 2026, 17:28, Ivan: "Suki Q22 Build" · shipped as 2.22, with 2.22.1 for the day's format.
+**Render:** 2 Nov 2026, 18:22 · Ivan: "render" (after "bring up the prototype again just to see now where we are at") · scope: Q22 and Q23 exactly as written in HANDOFF.md, Q23 as prototyped, with the defaults written there; Q22 is built first, then Q23. Each starts only when Ivan says build for it. Neither depends on Q18–Q21. Q22–Q25 were suggested as placeholders in the till game Recon; those numbers weren't claimed, so these take them. **Build (Q22):** 3 Nov 2026, 17:28, Ivan: "Suki Q22 Build" · shipped as 2.22, with 2.22.1 for the day's format. **Build (Q23):** 3 Nov 2026, 18:10, Ivan: "Suki Q23 Build" · shipped as 2.23.
 
 Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `suki_audit_2026-10-31.md`, `suki_stress_test_2026-10-31.md`, `suki_navigation_audit_2026-11-01.md` and `suki_visual_motion_audit_2026-11-01.md` and `suki_quick_add_recon_2026-11-01.md`; the till drawer's spec and phases: `idea_till_note-press_notes.md` and `q18_till_drawer-and-note-press_blueprint.md`; rate history (Q22, Q23): `idea_rate_history_notes.md`.
 
@@ -77,6 +76,9 @@ Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `s
 - 1 Nov 2026: the till drawer idea is split into four items built in order, Q18 to Q21 (note press, drawer, contents, haul and mark), each with its own Render, Build and version. Ivan chose the recommended split. Rendered together at 13:09; each still waits for its own build.
 - 1 Nov 2026: Quick Till's buttons are Exact, 20, 50, 100, 500 and 1000 (Q13). No ₱200 (no longer made) and no coin row; buttons that change with the bill were turned down because they'd move under his thumb.
 
+- 3 Nov 2026: Rate history refuses a reply with a day jumping more than 10%, not the handoff's "about 5%": the real ECB series has a 6.8% day (24 Jun 2016), which 5% would throw away (Q23's build).
+- 3 Nov 2026: Rate history's news notes link only to the BSP, the Bank of England or the PSA. The prototype's 16 Oct note ("Peso passes ₱63", put down to US inflation) was left out, as no such record says it; the 2008, 2016 and 2022 notes went in with Bank of England statements (Q23's default).
+
 ## Ideas, not yet queued
 
 Sorted by priority, highest first: what's broken or helps on the trip (7 Nov – 2 Dec), then groundwork, then polish. Nothing here has an ID or an approval yet; each goes through wireframe, prototype and Render before it joins the table.
@@ -84,12 +86,14 @@ Sorted by priority, highest first: what's broken or helps on the trip (7 Nov –
 1. iPhone SE: Save purchase and Log this bill sit under the tab bar on first view.
 2. Nueva Ecija prices: no local tricycle fare or post-rise bus fare is published online yet; add them from price notes during the trip.
 3. Prices by region, using the town from Q16.
-4. Screen and element IDs (added 3 Nov 2026): every screen, section and element gets its own clear name (like `quickadd-sheet`), and anything that shows up in more than one place also gets a group name, so every copy can be viewed together. First step: an ID map (screens, then their parts, then the group names) to check before any code changes. Medium.
-5. Assets kit (added 3 Nov 2026): switch every element over to the tuning and assets of Ivan's assets kit (coming soon). Waits for the kit, and easier after idea 4: each group swaps once instead of copy by copy. The two can't run at the same time; both touch every screen.
-6. A search circle beside the tab bar (four tabs plus Search), as in iOS 26.
-7. Smart add: a receipt already works through iPhone's Live Text (copy the text from a photo, paste it in). Help could say so.
-8. Search rows: make the peso price the only bold figure (visual audit finding 10; default keeps the pounds).
-9. Rows glide when editing moves a purchase (Q11 covers saving, deleting and Undo only).
-10. Chart bars: switch their entrance from the borrowed ripple to Suki's settle (visual audit finding 9).
-11. Smart add: the prototype's "Try" example chips were left out of Q14 (they'd put made-up purchases a tap from his real log). They could come back as examples that only fill the box with a clearly made-up line, or as a Help section.
-12. Smart add: the flip (the card turning over on its middle) was prototyped beside the fade; the fade was kept. Kept here for the record.
+4. Back-dated purchases use Rate history first (added 3 Nov 2026, Q23's build): Q22's one-day lookup could read the saved history and snapshot before asking Frankfurter, so a purchase logged for an earlier day offline gets its real rate at once instead of "estimated". Light.
+5. Screen and element IDs (added 3 Nov 2026): every screen, section and element gets its own clear name (like `quickadd-sheet`), and anything that shows up in more than one place also gets a group name, so every copy can be viewed together. First step: an ID map (screens, then their parts, then the group names) to check before any code changes. Medium.
+6. Assets kit (added 3 Nov 2026): switch every element over to the tuning and assets of Ivan's assets kit (coming soon). Waits for the kit, and easier after idea 4: each group swaps once instead of copy by copy. The two can't run at the same time; both touch every screen.
+7. A search circle beside the tab bar (four tabs plus Search), as in iOS 26.
+8. Smart add: a receipt already works through iPhone's Live Text (copy the text from a photo, paste it in). Help could say so.
+9. Search rows: make the peso price the only bold figure (visual audit finding 10; default keeps the pounds).
+10. Rows glide when editing moves a purchase (Q11 covers saving, deleting and Undo only).
+11. Chart bars: switch their entrance from the borrowed ripple to Suki's settle (visual audit finding 9).
+12. Smart add: the prototype's "Try" example chips were left out of Q14 (they'd put made-up purchases a tap from his real log). They could come back as examples that only fill the box with a clearly made-up line, or as a Help section.
+13. Smart add: the flip (the card turning over on its middle) was prototyped beside the fade; the fade was kept. Kept here for the record.
+14. Rate history, later (from its Recon, 2 Nov 2026): compare two dates with two fingers, as in Stocks (medium); your real rate against the reference, noted when changing money (medium); copy a summary for family (light).

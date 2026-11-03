@@ -20,7 +20,9 @@ function renderBar() {
       ? '<button class="circ glass" data-a="tab" data-v="home" aria-label="Back to Home">' + ICON.back + '</button>'
       : U.tab === 'help'
         ? '<button class="circ glass" data-a="tab" data-v="settings" aria-label="Back to Settings">' + ICON.back + '</button>'
-        : '';
+        : U.tab === 'history'
+          ? '<button class="circ glass" data-a="tab" data-v="convert" aria-label="Back to Convert">' + ICON.back + '</button>'
+          : '';
   $('barR').innerHTML =
     (navigator.onLine ? '' : '<span class="pill glass" role="status">Offline</span>') +
     (U.tab === 'home' ? '<button class="circ glass" data-a="tab" data-v="settings" aria-label="Settings">' + ICON.gear + '</button>' : '') +
@@ -58,6 +60,8 @@ function renderDock() {
 const SCREENS = { home: scrHome, till: scrTill, search: scrSearch, spending: scrSpending, convert: scrConvert, settings: scrSettings };
 const NARROW = { till: 1, convert: 1, settings: 1 };
 function render(keepScroll) {
+  // a redraw waits while a finger is on Rate history's chart, so the chart never snaps away (Q23)
+  if (typeof histHold === 'function' && histHold(keepScroll)) return;
   const y = window.scrollY,
     ae = document.activeElement,
     focusId = ae && ae.id && $('app').contains(ae) ? ae.id : null,
@@ -65,6 +69,7 @@ function render(keepScroll) {
   closeSwipes();
   $('app').innerHTML = SCREENS[U.tab]();
   if (U.tab === 'home') growSmart();
+  if (U.tab === 'history') histAfter();
   $('app').className = 'tab-' + U.tab + (NARROW[U.tab] ? ' narrow' : '');
   renderBar();
   renderSide();
@@ -98,6 +103,17 @@ function go(tab) {
   // Help is pushed from Settings: it slides in from the right, and back slides Settings in from the left (Q07)
   if (from === 'settings' && tab === 'help') MOTION.animate($('app'), [{ transform: 'translateX(100%)' }, { transform: 'none' }], { spring: 'nav', fade: true });
   if (from === 'help' && tab === 'settings') MOTION.animate($('app'), [{ transform: 'translateX(-30%)', opacity: 0.4 }, { transform: 'none', opacity: 1 }], { spring: 'nav', fade: true });
+  // Rate history is pushed from Convert's rate row on iPhone, and zooms from it on iPad and Mac (Q23).
+  // After a swipe back, Convert is already in place, so it doesn't slide in again
+  if (from === 'convert' && tab === 'history') {
+    if (split()) MOTION.animate($('app'), [{ transform: 'scale(.94)', opacity: 0 }, { transform: 'none', opacity: 1 }], { spring: 'nav', fade: true });
+    else MOTION.animate($('app'), [{ transform: 'translateX(100%)' }, { transform: 'none' }], { spring: 'nav', fade: true });
+  }
+  if (from === 'history' && tab === 'convert') {
+    if (SB_GONE) SB_GONE = false;
+    else if (split()) MOTION.animate($('app'), [{ transform: 'scale(1.04)', opacity: 0 }, { transform: 'none', opacity: 1 }], { spring: 'nav', fade: true });
+    else MOTION.animate($('app'), [{ transform: 'translateX(-30%)', opacity: 0.4 }, { transform: 'none', opacity: 1 }], { spring: 'nav', fade: true });
+  }
 }
 
 /* ===== A new day: when the date moves on (coming back to the app, or a check each minute), redraw in place so
@@ -310,6 +326,11 @@ function sheetHTML() {
       return sheetWrap(null, welcomeBody(), '', 'Welcome to Suki', { lock: true, tall: true, cls: 'welsheet' });
     case 'siri':
       return sheetWrap('Log by voice with Siri', siriBody(), '', 'Log by voice with Siri', { cls: 'siri' });
+    // Rate history's news notes and the plain-words help they link to (Q23, history.js)
+    case 'news':
+      return newsSheet(sd);
+    case 'cbrate':
+      return cbSheet();
     case 'ahs':
       return sheetWrap('Add to Home Screen', ahsBody(sd.safari), '', 'Add Suki to your Home Screen', { lock: !!sd.safari, cls: 'ahs' });
     case 'notes': {

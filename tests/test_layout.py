@@ -40,7 +40,7 @@ def run(b, t):
                 c = pg.evaluate(CLIPPED)
                 if c: bad.append(screen + ' cut off: ' + c)
                 t.shot(pg, f'{tag}-{screen}', full_page=not pg.evaluate("!!U.sheet"))
-            for tab in ['home', 'till', 'search', 'spending', 'convert', 'settings', 'help']:
+            for tab in ['home', 'till', 'search', 'spending', 'convert', 'history', 'settings', 'help']:
                 pg.evaluate(f"go('{tab}')"); check(tab)
             pg.evaluate("go('home');U.more=true;rerender()"); check('home-more')
             pg.evaluate("go('spending');openSheet('purchase',{id:'a1'})"); check('purchase')
@@ -49,6 +49,9 @@ def run(b, t):
             pg.click('.sheet [data-a=obsForm]'); check('item-note')
             pg.evaluate("U.sheet=null;U.obsFor=null;rerender();openSheet('erase')"); check('erase')
             pg.evaluate("U.sheet=null;rerender();go('till');U.till={bill:'789.5',cash:'500'};rerender()"); check('till-short')
+            pg.evaluate("U.sheet=null;rerender();go('history');openSheet('news',{id:'2026-10-22|peso'})"); check('news')
+            pg.evaluate("openSheet('cbrate',{},true)"); check('central-bank')
+            pg.evaluate("U.stack=[];U.sheet=null;rerender()")
             pg.evaluate("openSheet('welcome')"); check('welcome')
             pg.evaluate("U.sheet=null;rerender();openSheet('ahs',{safari:true})"); check('home-screen-steps')
             pg.evaluate("U.sheet=null;rerender()")

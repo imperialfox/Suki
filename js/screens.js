@@ -939,7 +939,8 @@ function scrConvert() {
     '<div class="swapline"><button type="button" class="circ swap" data-a="swapConv" aria-label="Swap currencies"' + (r ? '' : ' disabled') + '>' + ICON.swap + '</button></div>' +
     '<div class="cbox" data-c="' + bottom + '">' + convBox(bottom, r) + '</div>' +
     '</div>' +
-    '<div class="raterow"><div><b id="rateBadge">' + (r ? '£1 = ' + cash(r.value) : 'No rate yet') + '</b><small id="rateLine">' + esc(rateLine()) + '</small></div>' +
+    // the rate is the door to Rate history (Q23); Refresh stays beside it
+    '<div class="raterow"><button class="rdoor" data-a="openHistory" aria-label="' + esc((r ? '£1 = ' + cash(r.value) + '. ' : '') + 'Rate history') + '"><span class="rtx"><b id="rateBadge">' + (r ? '£1 = ' + cash(r.value) : 'No rate yet') + '</b><small><span id="rateLine">' + esc(rateLine()) + '</span> · <em>Rate history</em></small></span>' + ICON.chev + '</button>' +
     '<button class="btn glass" id="refreshRate" data-a="refreshRate">' + ICON.refresh + 'Refresh</button></div>' +
     (r
       ? '<button class="btn glass wide" data-a="copyConv">' + ICON.copy + 'Copy conversion</button>' +
@@ -955,10 +956,15 @@ function scrConvert() {
 // what happened the last time the rate was checked this session, so a failure can be explained
 function rateCheckText() {
   const c = RATE_CHECK,
-    when = whenAgo(new Date(c.at)),
+    lower = (s) => s.charAt(0).toLowerCase() + s.slice(1),
+    h = HIST_CHECK,
+    // Rate history's last check (Q23): only said when it failed, so the reason is one tap from the page
+    hist = h && !h.ok ? 'History: couldn’t load · ' + lower(whenAgo(new Date(h.at))) + '<br>' + esc(h.why) : '';
+  if (!c) return { t: hist, cls: 'wrap red' };
+  const when = whenAgo(new Date(c.at)),
     fails = c.fails.map((f) => esc(f.source) + ': ' + esc(f.why)).join('<br>');
-  if (c.ok) return { t: 'Loaded from ' + esc(c.source) + ' · ' + when.charAt(0).toLowerCase() + when.slice(1) + (fails ? '<br>Tried first: ' + fails : ''), cls: 'wrap' };
-  return { t: 'Couldn’t load a rate · ' + when.charAt(0).toLowerCase() + when.slice(1) + '<br>' + fails, cls: 'wrap red' };
+  if (c.ok) return { t: 'Loaded from ' + esc(c.source) + ' · ' + lower(when) + (fails ? '<br>Tried first: ' + fails : '') + (hist ? '<br>' + hist : ''), cls: hist ? 'wrap red' : 'wrap' };
+  return { t: 'Couldn’t load a rate · ' + lower(when) + '<br>' + fails + (hist ? '<br>' + hist : ''), cls: 'wrap red' };
 }
 let SW_STATE = 'Checking…',
   STORAGE_USED = 'Checking…';
@@ -996,7 +1002,7 @@ function scrSettings() {
     '<div class="grp tiled set">' +
     row('wifi', 'teal', 'Works offline', '<span id="swStatus">' + esc(SW_STATE) + '</span>') +
     row('peso', 'indigo', 'Saved exchange rate', D.rate ? '£1 = ' + cash(D.rate.value) + ' · ' + shortDate(D.rate.date) + '<br>From ' + esc(D.rate.source) : 'Not loaded yet', 'goConvert') +
-    (RATE_CHECK ? row('refresh', RATE_CHECK.ok ? 'green' : 'orange', 'Last rate check', rateCheckText()) : '') +
+    (RATE_CHECK || (HIST_CHECK && !HIST_CHECK.ok) ? row('refresh', (RATE_CHECK ? RATE_CHECK.ok : true) && (!HIST_CHECK || HIST_CHECK.ok) ? 'green' : 'orange', 'Last rate check', rateCheckText()) : '') +
     row('book', 'green', 'Official prices', esc((R.source || '') + ' · ' + (R.area || '') + ' · ' + (R.period || ''))) +
     row('locate', 'blue', 'Towns for Location', 'Outlines from NAMRIA and PSA, through OCHA (CC BY-IGO)' + (window.sukiTowns && window.sukiTowns.psgc ? ' · PSGC ' + esc(window.sukiTowns.psgc.replace(/^(\d{4})-(\d)q$/i, 'Q$2 $1')) : '') + '<br>Found on your phone, never sent anywhere') +
     row('phone', 'blue', 'Add to your Home Screen', 'The steps, for a new phone', 'openAhs') +

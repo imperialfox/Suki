@@ -112,6 +112,51 @@ def rate_route(ctx, value=RATE, fail=False, down=(), values=None, days=None, log
         route.fulfill(status=200, content_type='application/json', headers={'Access-Control-Allow-Origin': '*'}, body=json.dumps(body))
     for h in RATE_HOSTS: ctx.route(f'**/*{h}/**', handle)
 
+# Rate history (Q23): Frankfurter's ECB series, answered by the tests. The snapshot shipped in js/ratesnap.js ends on
+# SNAP_END at SNAP_PHP and SNAP_USD, so made-up days carry on from there without tripping the 10% jump check.
+SNAP_END, SNAP_PHP, SNAP_USD = '2026-10-30', 85.32, 1.3399
+
+def series(start, end, php=SNAP_PHP, usd=SNAP_USD, step=0.02):
+    """Made-up ECB weekdays from start to end (ISO dates): {date: (php, usd)}, drifting by `step` pesos a day."""
+    out, d, e, i = {}, dt.date.fromisoformat(start), dt.date.fromisoformat(end), 0
+    while d <= e:
+        if d.weekday() < 5:
+            out[d.isoformat()] = (round(php + step * i, 2), usd); i += 1
+        d += dt.timedelta(days=1)
+    return out
+
+def series_route(ctx, days=None, down=(), bad=None, log=None):
+    """Answer Rate history's series requests (Q23) from `days` ({date: (php, usd)}; usd may be None).
+    down: 'v2' and/or 'v1' answer 503. bad: {'v2' or 'v1': 'rate' | 'order' | 'jump' | 'shape'} spoils that reply.
+    log: a list collecting (version, from, to) for every series request. Anything else goes on to rate_route."""
+    import re
+    days = days or {}
+    def handle(route):
+        u = route.request.url
+        m2 = re.search(r'/v2/providers/ecb/rates\?from=(\d{4}-\d{2}-\d{2})&to=(\d{4}-\d{2}-\d{2})', u)
+        m1 = re.search(r'/v1/(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})', u)
+        if not (m2 or m1): return route.fallback()
+        v, (a, b) = ('v2', m2.groups()) if m2 else ('v1', m1.groups())
+        if log is not None: log.append((v, a, b))
+        hdr = {'Access-Control-Allow-Origin': '*'}
+        if v in down: return route.fulfill(status=503, body='down', headers=hdr)
+        got = sorted((d, x) for d, x in days.items() if a <= d <= b)
+        spoil = (bad or {}).get(v)
+        if spoil == 'rate' and got: got[-1] = (got[-1][0], (500.0, got[-1][1][1]))
+        if spoil == 'order' and len(got) > 1: got[0], got[1] = got[1], got[0]
+        if spoil == 'jump' and got: got[-1] = (got[-1][0], (round(got[-1][1][0] * 1.2, 2), got[-1][1][1]))
+        if v == 'v2':
+            body = [] if spoil != 'shape' else {'rates': 'nope'}
+            if spoil != 'shape':
+                for d, (php, usd) in got:
+                    body.append({'date': d, 'base': 'GBP', 'quote': 'PHP', 'rate': php})
+                    if usd is not None: body.append({'date': d, 'base': 'GBP', 'quote': 'USD', 'rate': usd})
+        else:
+            body = {'amount': 1.0, 'base': 'GBP', 'start_date': a, 'end_date': b,
+                    'rates': {d: dict({'PHP': php}, **({'USD': usd} if usd is not None else {})) for d, (php, usd) in got}} if spoil != 'shape' else {'rates': []}
+        route.fulfill(status=200, content_type='application/json', headers=hdr, body=json.dumps(body))
+    ctx.route('**/api.frankfurter.dev/**', handle)
+
 def rate_noise(m):
     """A rate source that's down on purpose logs a failed load; that isn't a fault in the app."""
     return 'Failed to load resource' in m.text and any(h in (m.location or {}).get('url', '') for h in RATE_HOSTS)

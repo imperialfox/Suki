@@ -27,7 +27,7 @@ VIS = r"""(()=>{const L=document.getElementById('layer');const root=L.querySelec
    const cx=Math.min(innerWidth-1,Math.max(0,r.left+r.width/2)),cy=Math.min(innerHeight-1,Math.max(0,r.top+r.height/2));const t=document.elementFromPoint(cx,cy);return t&&(t===e||e.contains(t)||t.closest('[data-a]')===e);});
  return els.map((e,i)=>{e.setAttribute('data-fz',i);return {i,a:e.dataset.a||e.tagName.toLowerCase(),v:e.dataset.v||'',k:e.dataset.k||'',id:e.id||'',type:e.type||'',opts:e.tagName==='SELECT'?[...e.options].map(o=>o.value):[]};});})()"""
 SKIP = {'importPick'}
-HEAVY = ('openPurchase', 'editPurchase', 'delPurchase', 'delPurchaseYes', 'openItem', 'obsForm', 'delObs', 'delObsYes', 'cat', 'more', 'tillLog',
+HEAVY = ('openHistory', 'hRange', 'openNews', 'openCbRate', 'openPurchase', 'editPurchase', 'delPurchase', 'delPurchaseYes', 'openItem', 'obsForm', 'delObs', 'delObsYes', 'cat', 'more', 'tillLog',
          'cashAdd', 'cashExact', 'quickConv', 'swapConv', 'scat', 'logItem', 'calendar', 'range', 'moreRows', 'tipX', 'showWelcome', 'welcomeGo', 'openAhs', 'openHelp', 'ahsLater', 'input', 'textarea', 'select', 'erase', 'openNotes', 'exportBackup', 'saveBackup')
 
 

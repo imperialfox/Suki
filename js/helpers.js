@@ -306,7 +306,8 @@ const TABS = [
 ];
 const TAB_TITLE = { home: 'Home', till: 'Quick Till', search: 'Search', spending: 'Spending', convert: 'Convert', settings: 'Settings' };
 // Settings opens from the gear on Home, so it belongs to Home
-const tabOf = (t) => (t === 'settings' || t === 'help' ? 'home' : t);
+// Rate history is pushed from Convert, so it belongs to Convert (Q23)
+const tabOf = (t) => (t === 'settings' || t === 'help' ? 'home' : t === 'history' ? 'convert' : t);
 
 /* ===== On-screen state (not saved, except where noted) ===== */
 const freshU = () => ({

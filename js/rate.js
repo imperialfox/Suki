@@ -82,6 +82,8 @@ async function refreshRate(manual) {
   if (got) {
     D.rate = cleanRate({ value: got.value, date: got.date, cachedAt: new Date().toISOString(), source: src.name });
     await save('rate');
+    // Rate history's own daily record, from whichever source answered (Q23, history.js); never waited for
+    if (typeof histKeep === 'function') histKeep(got.date, got.value, src.name);
     convFrom(U.conv.last);
   }
   rateBusy = false;

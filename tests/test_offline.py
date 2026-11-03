@@ -32,6 +32,11 @@ def run(b, t):
     ok(pg.evaluate("D.purchases[0].item") == 'Buko juice', 'and you can log a purchase offline')
     pg.evaluate("go('search')"); pg.fill('#q', 'bigas'); pg.wait_for_timeout(100)
     ok('₱48.42' in pg.inner_text('#results'), 'official prices work offline')
+    # Rate history's snapshot comes from the service worker's saved copy, like every other file (Q23)
+    pg.evaluate("go('convert')"); pg.click('[data-a=openHistory]'); pg.wait_for_function("U.tab==='history'&&!!document.querySelector('#hsvg .hline')")
+    ok(pg.locator('#hsvg .hline').count() == 1 and pg.evaluate("histSeries()[0].d") == '2016-01-04' and pg.locator('#hNews .evrow').count() >= 1,
+       'Rate history works with no connection, from the snapshot and news notes the service worker saved')
+    pg.evaluate("go('home')")
 
     # publish "a new version" and pull to refresh
     online(app)

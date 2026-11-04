@@ -420,6 +420,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q1
 - **Decided within scope:** (1) the handle is the old 14 px gap and `.denoms` lost its margin, so shut, the Till is pixel for pixel as before. (2) A drag that starts sideways, or after holding still 500 ms inside the box, is left to the text, so 2.24.1's cursor and Select keep working. (3) A tap in the cash box shuts the drawer (it types, and typing shuts it). (4) The compartments' labels wait for Q20, whose handoff lists them. (5) Not in the README either, so the Easter egg stays hidden. (6) Turning an iPhone on its side shuts it at once.
 - **Tests:** new `test_drawer.py`, 82 checks (Done when, all covered). Touched files: till 73, notepress 93, flows 125, onboard 37, all passing. Full suite: 1,157 of 1,159 side by side; the 2 were the known timing checks in `test_smart.py` and `test_motion.py`, 100 of 100 and 63 of 63 on their own.
 - **Left for later:** Q20 (contents, labels, the overload peek), Q21 (the haul).
+**Receipt:** Q19 · Heavy → Light to medium · 57 steps · 69k written · 14.8M re-read · 1 full test run
 
 ## Q20 · Quick Till: drawer contents and fullness
 **Render:** 1 Nov 2026, 13:09, scope as below (with Q18, Q19, Q21) · **Build:** awaiting · Needs: Q19 live.

@@ -4,5 +4,6 @@ What each build cost, newest first, so the effort guessed at Render can be check
 
 | Date | Item | Version | Guess | Real | Steps | Written | Re-read | Full test runs | Biggest share |
 |---|---|---|---|---|---|---|---|---|---|
+| 4 Nov 2026 | Q19 | 2.25 | Heavy | Light to medium | 57 | 69k | 14.8M | 1 | Instructions (63%) |
 | 4 Nov 2026 | Q18 fix | 2.24.1 | Light | Light | 27 | 16k | 9.5M | 1 | Instructions (65%) · same chat as Q18, counted from where Q18's receipt ended |
 | 4 Nov 2026 | Q18 | 2.24 | Light to medium | Light to medium | 63 | 47k | 16.6M | 1 | Instructions (65%) |

@@ -75,6 +75,12 @@
   --coin: #dcdce1;
   --coin-ink: #3a3a3c;
   --coin-ring: #c9a063;
+  /* the note press's materials (Q18): a hint of metal on the coins, lit from the top left, and a thin edge so a pile has
+     thickness. Mixed from the coin colours above, so they're the same in dark mode too */
+  --coin-hi: color-mix(in srgb, var(--coin) 55%, var(--white));
+  --coin-lo: color-mix(in srgb, var(--coin) 88%, var(--coin-ink));
+  --coin-edge: color-mix(in srgb, var(--coin) 70%, var(--coin-ink));
+  --ring-edge: color-mix(in srgb, var(--coin-ring) 70%, var(--coin-ink));
   /* Home's exchange rate card (Q17): Suki's icon colours, as a one-off used by that card only. The same in light and
      dark. White passes 4.5:1 on both navy ends and under the glow; the softer white is at least 4.5:1 too */
   --suki-top: #173874;
@@ -1989,6 +1995,77 @@ a.row:active {
   position: absolute;
   margin: 0;
   pointer-events: none;
+}
+/* ===== The note press (Q18) =====
+   One object, one look: wherever a note or coin appears (the change row, a bundle, a note in flight) it's made of the
+   same things. A note is a block of paper, lit from the top left; a coin has a hint of metal and a thin edge.
+   background-image only, so each piece keeps its colour underneath. */
+.cashrow .nt,
+.nfly:not(.coinf) {
+  background-image: linear-gradient(160deg, color-mix(in srgb, var(--n) 86%, var(--white)), var(--n) 55%, color-mix(in srgb, var(--n) 90%, var(--ni)));
+}
+.cashrow .nt {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ni) 35%, transparent),
+    0 1px 1.5px color-mix(in srgb, var(--coin-ink) 14%, transparent);
+}
+.cashrow .cn,
+.nfly.coinf {
+  background-image: radial-gradient(ellipse at 34% 28%, var(--coin-hi) 0, var(--coin) 50%, var(--coin-lo) 100%);
+}
+.cashrow .cn {
+  box-shadow:
+    inset 0 0 0 0.5px color-mix(in srgb, var(--coin-ink) 30%, transparent),
+    0 1.5px 0 var(--coin-edge),
+    0 0 0 1.5px var(--surface);
+}
+.cashrow .cn.c20 {
+  background-image: radial-gradient(ellipse at 34% 28%, color-mix(in srgb, var(--coin-ring) 60%, var(--white)) 0, var(--coin-ring) 55%, var(--ring-edge) 100%);
+  box-shadow:
+    0 1.5px 0 var(--ring-edge),
+    0 0 0 1.5px var(--surface);
+}
+.cashrow .cn.c20 i {
+  background-image: radial-gradient(ellipse at 34% 28%, var(--coin-hi) 0, var(--coin) 55%, var(--coin-lo) 100%);
+}
+/* a note or the ₱20 on its way into the cash box: drawn over everything, never in the way of a tap */
+.nfly {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 40;
+  width: 40px;
+  height: 17px;
+  border-radius: 4px;
+  background-color: var(--n);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ni) 35%, transparent);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.nfly.coinf {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--coin);
+  box-shadow: inset 0 0 0 3px var(--coin-ring);
+}
+/* the slot under the cash box: hidden at rest, like the Home indicator. It shows only while a note slots in, and
+   sits in the gap above the buttons, so nothing moves. (Q19 makes it the drawer's handle.) */
+.slotln {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 5px);
+  width: 44px;
+  height: 5px;
+  margin-left: -22px;
+  border-radius: 3px;
+  background: var(--fg3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.slotln.show {
+  opacity: 1;
 }
 .metric {
   font-size: 44px;

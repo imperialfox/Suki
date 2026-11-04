@@ -134,6 +134,7 @@ def run(b, t):
     pg.evaluate("go('till')")
     pg.fill('#till-bill', '789.50')
     pg.click('[data-a=cashAdd][data-v="1000"]')
+    pg.wait_for_function("document.querySelectorAll('.nfly').length===0")  # the note lands first (Q18)
     pg.wait_for_timeout(30)
     a = pg.evaluate(ANIMS, '#cashRow [data-k]')
     ok(len(a) == 5 and all(x and x[0][0][0] == 'translateY(-10px)' and x[0][0][1] == '0' for x in a), 'new pieces settle in: a 10 px drop as they fade in')
@@ -159,6 +160,7 @@ def run(b, t):
     pg.wait_for_function("!!document.querySelector('#cashRow .stk')&&!document.querySelector('#cashRow .stk').getAnimations().some(a=>a.playState==='running')")
     pg.evaluate("document.querySelector('#cashRow .stk').dataset.mark='b'")
     pg.click('[data-a=cashAdd][data-v="1000"]')
+    pg.wait_for_function("document.querySelectorAll('.nfly').length===0")  # the note lands first (Q18)
     pg.wait_for_timeout(20)
     stk = pg.evaluate("(()=>{const s=document.querySelector('#cashRow .stk');return {m:s.dataset.mark,t:s.querySelector('em').textContent,n:s.getAnimations({subtree:true}).filter(a=>a.playState==='running').length}})()")
     ok(stk == {'m': 'b', 't': '×6', 'n': 0}, f'a bundle’s count changes in place, without moving ({stk})')
@@ -167,7 +169,7 @@ def run(b, t):
     for v in ['20', '1000', '50', '100', '20', '500', '1000', '100', '20', '50', '1000', '20'] * 2:
         pg.click(f'[data-a=cashAdd][data-v="{v}"]', delay=0)
     pg.click('[data-a=cashExact]'); pg.click('[data-a=cashAdd][data-v="1000"]'); pg.click('[data-a=cashAdd][data-v="20"]')
-    pg.wait_for_function("!document.querySelector('#cashRow .cghost')&&![...document.querySelectorAll('#cashRow *')].some(e=>e.getAnimations().some(a=>a.playState==='running'))", timeout=8000)
+    pg.wait_for_function("!document.querySelector('.nfly')&&!document.querySelector('#cashRow .cghost')&&![...document.querySelectorAll('#cashRow *')].some(e=>e.getAnimations().some(a=>a.playState==='running'))", timeout=8000)
     want = pg.evaluate("cashWant(tillView().cash).map(w=>w.k)")
     ok(len(want) > 0 and pg.evaluate(PIECES) == want, f'rapid taps leave exactly the pieces for the change, with no strays ({want})')
     ok(len(set(pg.evaluate(PIECES))) == len(want) and pg.evaluate("document.querySelectorAll('#cashRow .pile').length") == len({k.split('.')[0] for k in want if k.startswith('c')}),

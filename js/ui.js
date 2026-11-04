@@ -67,6 +67,7 @@ function render(keepScroll) {
     focusId = ae && ae.id && $('app').contains(ae) ? ae.id : null,
     caret = focusId && ae.selectionStart != null ? [ae.selectionStart, ae.selectionEnd] : null;
   closeSwipes();
+  landNotes(true); // a Till note still in the air lands now, so a redraw leaves nothing behind (Q18)
   $('app').innerHTML = SCREENS[U.tab]();
   if (U.tab === 'home') growSmart();
   if (U.tab === 'history') histAfter();
@@ -317,9 +318,13 @@ function sheetHTML() {
           '<div class="segc" id="reduceSeg" role="group" aria-label="Reduce motion" style="--n:3;--i:' + i + '"><span class="knob glass" aria-hidden="true"></span>' +
           opts.map((o) => '<button data-a="setReduce" data-v="' + o[0] + '" aria-pressed="' + (MOTION.reducePref() === o[0]) + '">' + o[1] + '</button>').join('') + '</div>' +
           '<p class="foot">Things fade instead of sliding, zooming or springing. Match iPhone follows Settings › Accessibility › Motion on your iPhone.</p>' +
+          hdr('Note animation') +
+          '<div class="segc" id="noteSeg" role="group" aria-label="Note animation" style="--n:2;--i:' + (noteAnim() === 'slot' ? 1 : 0) + '"><span class="knob glass" aria-hidden="true"></span>' +
+          [['fly', 'Fly'], ['slot', 'Slot']].map((o) => '<button data-a="setNoteAnim" data-v="' + o[0] + '" aria-pressed="' + (noteAnim() === o[0]) + '">' + o[1] + '</button>').join('') + '</div>' +
+          '<p class="foot">How a note you tap on Quick Till goes into the cash box: Fly arcs it in, Slot slides it into a slot under the box. With Reduce motion on, the amount just changes.</p>' +
           hdr('Slow motion') +
           '<div class="grp"><label class="row toggle"><span class="lbl"><b>Slow motion</b></span><input type="checkbox" role="switch" data-a="slowMotion"' + (MOTION.speed() > 1 ? ' checked' : '') + '><span class="sw-ui" aria-hidden="true"></span></label></div>' +
-          '<p class="foot">Plays every movement four times slower, for checking how things move. Both settings stay on this device and aren’t saved in backups.</p>'
+          '<p class="foot">Plays every movement four times slower, for checking how things move. These settings stay on this device and aren’t saved in backups.</p>'
       );
     }
     case 'welcome':

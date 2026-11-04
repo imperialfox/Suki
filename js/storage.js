@@ -5,7 +5,8 @@
    - localStorage 'suki:<key>' as the fallback when IndexedDB isn't available
    - localStorage 'suki:lastBackup' (when a backup was last saved), 'suki:draft' (a half-typed purchase),
      'suki:motion' (motion speed, see motion.js), 'suki:logSide' (which side of Home's Log card shows) and
-     'suki:smart' (a half-typed Smart add line). None of these go into backups.
+     'suki:smart' (a half-typed Smart add line) and 'suki:noteAnim' (Quick Till's note animation, Q18).
+     None of these go into backups.
    Plain script (not a module): files share one global scope and load in the order listed in index.html. */
 
 /* ===== Data ===== */
@@ -313,6 +314,20 @@ async function save(...keys) {
 }
 
 /* ===== Device-only bits (not backed up) ===== */
+// Quick Till's note animation (Q18): 'fly' (the starting setting) or 'slot'. Kept as 'suki:noteAnim' only when it's Slot
+const noteAnim = () => {
+  try {
+    return localStorage.getItem('suki:noteAnim') === 'slot' ? 'slot' : 'fly';
+  } catch (e) {
+    return 'fly';
+  }
+};
+function setNoteAnim(v) {
+  try {
+    if (v === 'slot') localStorage.setItem('suki:noteAnim', 'slot');
+    else localStorage.removeItem('suki:noteAnim');
+  } catch (e) {}
+}
 function lastBackup() {
   const v = localStorage.getItem('suki:lastBackup'),
     d = v ? new Date(v) : null;

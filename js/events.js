@@ -102,6 +102,139 @@ function setTillCash(v) {
   if (el) el.value = v;
   updateTill();
 }
+
+/* ===== The note press (Q18): tapping a note feels like handing over cash =====
+   - Held, each Till button tips towards your thumb (and dips to .94); let go and it springs back.
+   - Tapped, the note (or the ₱20) goes into the cash box first, and the amount changes as it lands, so the change row
+     settles in straight after. It never counts up.
+     Fly (the starting setting): it arcs from the button to the end of the amount, the ₱20 spinning like a tossed coin.
+     Slot: it slides up into the slot under the cash box, which fades in for it and out about a second after.
+     Settings › Accessibility › Note animation (`suki:noteAnim`, this device only, see storage.js).
+   - Motion off or Reduce Motion: no tilt and no flight; the amount changes at once.
+   - Each tap adds once. Typing in the cash box, ✕ or Exact drop any note still in the air (what you did last wins);
+     anything else (another tap, a redraw, switching tabs) lands it straight away, so nothing is left on screen.
+   The timings are the prototype's, which Ivan approved (note press prototype, 1 Nov 2026). */
+const PRESS = { tilt: 40, dip: 0.94, down: 90, up: 520, upEase: 'cubic-bezier(.3,1.6,.5,1)' };
+const FLIGHT = { fly: 540, slot: 460, ease: 'cubic-bezier(.45,0,.25,1)', arc: 56, pulse: 240, lineFor: 1200 };
+document.addEventListener('pointerdown', (e) => {
+  const b = e.target.closest('#app .denoms .dn');
+  if (!b || !MOTION.on()) return;
+  const r = b.getBoundingClientRect(),
+    dx = (e.clientX - r.left) / r.width - 0.5,
+    dy = (e.clientY - r.top) / r.height - 0.5,
+    t = 'perspective(260px) rotateX(' + (-dy * PRESS.tilt).toFixed(1) + 'deg) rotateY(' + (dx * PRESS.tilt).toFixed(1) + 'deg) scale(' + PRESS.dip + ')';
+  b.getAnimations().forEach((a) => a.cancel());
+  MOTION.animate(b, [{ transform: 'none' }, { transform: t }], { ms: PRESS.down, easing: 'ease-out', fill: 'forwards' });
+  const up = () => {
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach((k) => b.removeEventListener(k, up));
+    b.getAnimations().forEach((a) => a.cancel());
+    MOTION.animate(b, [{ transform: t }, { transform: 'none' }], { ms: PRESS.up, easing: PRESS.upEase });
+  };
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach((k) => b.addEventListener(k, up));
+});
+const flights = new Set();
+const tillPlus = (v) => fmtAmt((amount(U.till.cash) || 0) + v);
+let slotHide = 0;
+function slotLine(ms) {
+  const s = $('tillSlot');
+  clearTimeout(slotHide);
+  if (s) s.classList.add('show');
+  if (ms) slotHide = setTimeout(() => $('tillSlot') && $('tillSlot').classList.remove('show'), ms * Math.max(1, MOTION.speed()));
+}
+// where the amount ends in the cash box, so a flying note lands on the figure it changes
+const measure = document.createElement('canvas').getContext('2d');
+function amountEnd(inp) {
+  const cs = getComputedStyle(inp),
+    r = inp.getBoundingClientRect();
+  measure.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+  const w = measure.measureText(inp.value || '0').width;
+  return { x: Math.min(r.right - 60, r.left + parseFloat(cs.paddingLeft) + w + 16), y: r.top + r.height / 2 };
+}
+function noteFly(b, v) {
+  const inp = $('till-cash'),
+    slot = $('tillSlot');
+  if (!MOTION.on() || !b || !inp || !slot) return setTillCash(tillPlus(v));
+  const mode = noteAnim(),
+    r = b.getBoundingClientRect(),
+    coin = v === 20,
+    w = coin ? 20 : 40,
+    h = coin ? 20 : 17,
+    x0 = r.left + r.width / 2,
+    y0 = r.top + r.height / 2,
+    f = [];
+  let ms;
+  if (mode === 'slot') {
+    const s = slot.getBoundingClientRect(),
+      x1 = s.left + s.width / 2 - w / 2,
+      y1 = s.top + s.height / 2;
+    slotLine();
+    ms = FLIGHT.slot;
+    f.push(
+      { transform: 'translate(' + (x0 - w / 2) + 'px,' + (y0 - h / 2) + 'px) scale(.8)' },
+      { transform: 'translate(' + x1 + 'px,' + (y1 + 14) + 'px) scale(1.05)', offset: 0.55 },
+      { transform: 'translate(' + x1 + 'px,' + y1 + 'px) scaleY(.04)' }
+    );
+  } else {
+    const t = amountEnd(inp),
+      cx = (x0 + t.x) / 2,
+      cy = Math.min(y0, t.y) - FLIGHT.arc;
+    ms = FLIGHT.fly;
+    for (let i = 0; i <= 12; i++) {
+      const k = i / 12,
+        x = (1 - k) * (1 - k) * x0 + 2 * (1 - k) * k * cx + k * k * t.x - w / 2,
+        y = (1 - k) * (1 - k) * y0 + 2 * (1 - k) * k * cy + k * k * t.y - h / 2,
+        sc = k < 0.5 ? 0.7 + 0.8 * k : 1.1 - 1.3 * (k - 0.5);
+      f.push({
+        transform: 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) scale(' + sc.toFixed(3) + ') rotate(' + (-12 * Math.sin(Math.PI * k)).toFixed(1) + 'deg)' + (coin ? ' rotateY(' + Math.round(720 * k) + 'deg)' : ''),
+        opacity: k > 0.85 ? +((1 - k) / 0.15).toFixed(3) : 1,
+      });
+    }
+  }
+  const el = document.createElement('div');
+  el.className = 'nfly ' + (coin ? 'coinf' : 'n' + v);
+  el.setAttribute('aria-hidden', 'true');
+  if (mode === 'slot') el.style.transformOrigin = '50% 0%';
+  document.body.appendChild(el);
+  const fl = { el, v, mode, a: MOTION.animate(el, f, { ms, easing: FLIGHT.ease, fill: 'forwards' }) };
+  flights.add(fl);
+  if (fl.a) fl.a.onfinish = () => noteLands(fl);
+  else noteLands(fl);
+}
+// a note arriving: the amount changes, the cash box gives a small nod, and in Slot the slot widens for it then fades
+function noteLands(fl) {
+  if (!flights.delete(fl)) return;
+  fl.el.remove();
+  setTillCash(tillPlus(fl.v));
+  MOTION.animate($('till-cash'), [{ transform: 'scale(1)' }, { transform: 'scale(1.035)' }, { transform: 'scale(1)' }], { ms: FLIGHT.pulse, easing: 'ease-out' });
+  if (fl.mode === 'slot') {
+    MOTION.animate($('tillSlot'), [{ transform: 'scaleX(1)' }, { transform: 'scaleX(1.3)' }, { transform: 'scaleX(1)' }], { ms: FLIGHT.pulse + 20, easing: 'ease-out' });
+    slotLine(FLIGHT.lineFor);
+  }
+}
+// every note still in the air lands now, with no movement. quiet: only the amount is changed (render() draws it)
+function landNotes(quiet) {
+  if (!flights.size) return;
+  let v = 0;
+  flights.forEach((fl) => {
+    if (fl.a) fl.a.cancel();
+    fl.el.remove();
+    v += fl.v;
+  });
+  flights.clear();
+  clearTimeout(slotHide);
+  if (quiet) U.till.cash = tillPlus(v);
+  else setTillCash(tillPlus(v));
+}
+// what you typed (or ✕, or Exact) wins over notes still in the air
+function dropNotes() {
+  flights.forEach((fl) => {
+    if (fl.a) fl.a.cancel();
+    fl.el.remove();
+  });
+  flights.clear();
+  const s = $('tillSlot');
+  if (s) s.classList.remove('show');
+}
 function updateSearch() {
   $('results').innerHTML = searchResults();
   const c = document.querySelector('#app .searchbox .clr');
@@ -363,6 +496,7 @@ function onField(e) {
     U.filter = t.value;
     updateSpending();
   } else if (t.dataset.till) {
+    if (t.dataset.till === 'cash') dropNotes();
     U.till[t.dataset.till] = t.value;
     updateTill();
     if (t.dataset.till === 'cash' && t.value) tipDone('till');
@@ -670,14 +804,18 @@ const ACT = {
   },
   csv: () => exportCSV(),
   cashExact: () => {
+    dropNotes();
     setTillCash(U.till.bill);
     tipDone('till');
   },
   cashAdd: (el) => {
-    setTillCash(fmtAmt((amount(U.till.cash) || 0) + +el.dataset.v));
+    noteFly(el, +el.dataset.v);
     tipDone('till');
   },
-  cashClear: () => setTillCash(''),
+  cashClear: () => {
+    dropNotes();
+    setTillCash('');
+  },
   tillLog: () => {
     const t = tillState();
     if (!(t.bill > 0)) return;
@@ -728,6 +866,15 @@ const ACT = {
     if (seg) {
       seg.style.setProperty('--i', ['auto', 'on', 'off'].indexOf(el.dataset.v));
       seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.v === el.dataset.v));
+      squish(seg.querySelector('.knob'));
+    }
+  },
+  setNoteAnim: (el) => {
+    setNoteAnim(el.dataset.v);
+    const seg = $('noteSeg');
+    if (seg) {
+      seg.style.setProperty('--i', el.dataset.v === 'slot' ? 1 : 0);
+      seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.v === noteAnim()));
       squish(seg.querySelector('.knob'));
     }
   },

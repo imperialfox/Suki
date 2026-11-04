@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.24 · 4 Nov 2026
+*Quick Till: tapping a note feels like handing over cash (Q18)*
+
+**The note press**
+- Press and hold a note, the ₱20 or Exact: the button tips towards your thumb, and springs back when you let go.
+- Tap a note and it flies in an arc into the cash box. The ₱20 spins like a tossed coin.
+- The amount changes when the note lands, and the notes and coins of your change settle in straight after. Nothing counts up.
+- Tap as fast as you like: each note adds once. Typing in the cash box, ✕ or Exact while a note is still in the air drops it, so what you did last wins. Switching tabs lands it at once.
+
+**Fly or Slot**
+- Settings › Accessibility › Note animation: Fly (the starting setting) or Slot.
+- Slot: the note slides up into a slot line under the cash box. The line fades in for it, and out about a second later. It's hidden the rest of the time.
+- The setting stays on this phone and isn't saved in backups.
+
+**Notes and coins have a look of their own**
+- In your change, and in the air, notes are a block of paper lit from the top left, and coins have a hint of metal with a thin edge, so a pile has thickness. The same in dark mode.
+
+**Reduce Motion**
+- With Reduce Motion on (on the iPhone, or in Suki), nothing tips or flies: the amount changes as soon as you tap.
+
 ## 2.23 · 3 Nov 2026
 *Rate history: how the rate has moved, and why (Q23)*
 

@@ -351,7 +351,8 @@ function scrTill() {
       'till-cash',
       'Cash handed over · ₱',
       '<div class="cashbox"><input class="inp big" id="till-cash" data-till="cash" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 1,000" value="' + esc(U.till.cash) + '">' +
-        '<button type="button" class="cx" id="cashClear" data-a="cashClear" aria-label="Clear cash"' + (U.till.cash ? '' : ' hidden') + '><span>' + ICON.x + '</span></button></div>'
+        '<button type="button" class="cx" id="cashClear" data-a="cashClear" aria-label="Clear cash"' + (U.till.cash ? '' : ' hidden') + '><span>' + ICON.x + '</span></button>' +
+        '<span class="slotln" id="tillSlot" aria-hidden="true"></span></div>'
     ) +
     '<div class="denoms" role="group" aria-label="Notes you hand over"><button type="button" class="dn ex" data-a="cashExact" aria-label="Cash is exactly the bill">Exact</button>' +
     TILL_KEYS.map((k) => '<button type="button" class="dn ' + k[1] + '" data-a="cashAdd" data-v="' + k[0] + '" aria-label="' + k[2] + '">' + k[0] + '</button>').join('') +

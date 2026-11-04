@@ -354,7 +354,7 @@ Tests: `test_compare.py` (44 checks). Full suite: 527 checks, all passing (pinne
 **Left for later:** nothing new.
 
 ## Q18 · Quick Till: note press
-**Render:** 1 Nov 2026, 13:09, scope as below (with Q19–Q21) · **Build:** awaiting · Needs: Q13 live (its buttons, change row and breakdown).
+**Render:** 1 Nov 2026, 13:09, scope as below (with Q19–Q21) · **Build:** 4 Nov 2026, 08:31, Ivan: "Suki Q18 Build" · shipped as 2.24 · Needs: Q13 live (its buttons, change row and breakdown); checked: 2.17.
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Suki note press prototype](https://claude.ai/artifact/EsJMmBNf71Sm48FDttcpLS). Spec: project doc `idea_till_note-press_notes.md`; phases: `q18_till_drawer-and-note-press_blueprint.md`. Phase 1 of 4.
 
 **Goal:** tapping a note feels like handing over cash.
@@ -370,6 +370,15 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Suki note pr
 **Where to look:** `screens.js` (scrTill, the change block, Accessibility), `events.js` (till keys), `motion.js` (`settle`), `css/app.css`, `storage.js` (list the new device-only key). Keep `.denoms` and `.tillout`'s minimum height.
 **Done when:** tests: each tap adds the right amount once, also when tapped fast; no stray flying notes after rapid taps or a redraw; the setting switches and survives a reload, and isn't in backups; Reduce Motion gives no flight; Q13's tests still pass; full suite passes. **Checks:** screenshots at 375 and 402 px, light and dark.
 **For your iPhone:** the tilt under your thumb; Fly and Slot at full speed; the notes' new look in daylight.
+**Debrief:** Built from the prototype (version 1793537229-9b73) and the spec, with the prototype's timings. Decided within scope:
+- **What you did last wins.** Typing in the cash box, ✕ or Exact drop a note still in the air (nothing added); any redraw (another sheet, switching tabs) lands it at once, so each tap adds once and nothing is left on screen. The spec didn't say; this keeps the amount honest.
+- **The slot line sits in the gap above the buttons,** absolutely placed, so Q18 moves nothing on the Till. It isn't a button yet; Q19 makes it the handle and gives it its VoiceOver label.
+- **The drawer's `--dr-*` tokens wait for Q19,** the first phase that uses them. Q18 adds `--coin-hi`, `--coin-lo`, `--coin-edge` and `--ring-edge`.
+- **The tilt covers all six buttons,** Exact included. Exact doesn't fly; it sets the amount at once, as before.
+- **Q13's motion-on checks** in `test_till.py` now wait for the note to land before reading the change row; what they check is unchanged.
+Tests: `test_notepress.py` (81 checks), `test_till.py` still 73 of 73. Full suite: 1,063 of 1,065 side by side; the 2 were fold checks in `test_smart.py`, which passed 100 of 100 on its own (Known test issues). Pinned Playwright 1.56 pointed at a newer Chromium, as before. Screenshots at 375 and 402 px, light and dark, and mid-flight, checked by eye.
+**For your iPhone:** (1) Press and hold 500 near a corner: does it tip towards your thumb, and spring back when you let go? (2) Tap 1000 for a ₱789.50 bill: does the note arc into the box, and the change settle in as it lands? (3) Tap 20 a few times fast: does the coin spin, and does the amount end right? (4) Switch to Slot in Settings › Accessibility and tap a note: does the line show for it, then fade? (5) In daylight, do the notes read as paper and the coins as metal?
+**Left for later:** nothing new. Q19 (the drawer) is next.
 
 ## Q19 · Quick Till: till drawer
 **Render:** 1 Nov 2026, 13:09, scope as below (with Q18, Q20, Q21) · **Build:** awaiting · Needs: Q18 live (the slot line and materials).

@@ -441,8 +441,9 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q1
 **Debrief:** shipped as 2.26, built in a fresh chat from this handoff. All six agreed points as written, with the prototype's numbers (its fill curve, counts, heap and spill places, and timings).
 - **How:** counts and places in `screens.js` (`drawerLevels`, `drawerCounts`, `sheetStyle`, `coinStyle`, all numbers in `TILL_FULL`), drawn still by `drawerFill()`; the fades in `fillDrawer()` in `events.js`, called from `updateTill`; the landing target in `noteFly`; `drawerJiggle` and the peek in `gestures.js`. Details in `MAINTAINING.md` › The drawer's contents (Q20).
 - **Decided within scope:** (1) a note heads for its compartment only once the drawer is fully open (as the prototype); part-open, it goes to the cash box. (2) The compartment gives the nod instead of the cash box. (3) In Slot mode, landing in the drawer skips the slot line. (4) A hard shut also makes the coins jump with the knock (the spec's knock line). (5) Reduce Motion keeps the 0.2 s fades but has no jiggle. (6) The cash box got a wrapper (`.cwell`) so the peek can sit under it; nothing depended on its parent. (7) Q19's "empty" check now checks the nine labels.
-- **Tests:** new `test_drawerfill.py`, 72 checks (Done when, all covered). Touched files: drawer 82, till 73, notepress 93, all passing.
+- **Tests:** new `test_drawerfill.py`, 72 checks (Done when, all covered). Touched files: drawer 82, till 73, notepress 93, all passing. Full suite: 1,231 of 1,231 locally. On GitHub the first run failed the known fold check in `test_smart.py`; re-run once, 1,231 of 1,231.
 - **Left for later:** Q21 (the haul and the mark). The spec's "Apple-detail ideas" stay unbuilt.
+**Receipt:** Q20 · Medium → Light to medium · 62 steps · 45k written · 15.1M re-read · 1 full test run
 
 ## Q21 · Quick Till: the haul and maker's mark
 **Render:** 1 Nov 2026, 13:09, scope as below (with Q18–Q20) · **Build:** awaiting · Needs: Q20 live.

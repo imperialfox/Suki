@@ -446,7 +446,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q1
 **Receipt:** Q20 · Medium → Light to medium · 62 steps · 45k written · 15.1M re-read · 1 full test run
 
 ## Q21 · Quick Till: the haul and maker's mark
-**Render:** 1 Nov 2026, 13:09, scope as below (with Q18–Q20) · **Build:** awaiting · Needs: Q20 live.
+**Render:** 1 Nov 2026, 13:09, scope as below (with Q18–Q20) · **Build:** 4 Nov 2026, 20:20, Ivan: "Suki Q21 Build" · shipped as 2.27 · Needs: Q20 live; checked: 2.26.
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q18. Phase 4 of 4.
 
 **Goal:** the Easter egg inside the Easter egg.
@@ -459,6 +459,13 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q1
 **Where to look:** the drawer's gesture code, `css/app.css`, `screens.js` (the mark). Zoom blocking in `events.js` must not swallow the second pointer.
 **Done when:** tests with synthetic two-finger pointers: ten 350 pt swipes reach 120 pt; it stays when let go; one finger can't start it; the mark only at the end; a swipe up shuts it; full suite passes.
 **For your iPhone:** whether ten swipes feels earned or a chore; whether the mark is readable but quiet, especially in dark mode.
+**Debrief:** shipped as 2.27, built in a fresh chat from this handoff. All four agreed points as written, with the prototype's haul code (its `haulStart`, `haulMove`, `haulEnd` and snap target).
+- **How:** `haulDown`, `haulMove`, `haulEnd` after `drawerEnd` in `gestures.js`, numbers in `DRAWER.haul` and `DRAWER.pull`; `DR.rest` holds where an open drawer sits, and `drawerSnap(open, v, at)` springs to it. The mark is `#tillMark.tmark` in `tillDrawer()`. Details in `MAINTAINING.md` › The haul and the maker's mark (Q21).
+- **Decided within scope:** (1) a tap on a hauled drawer leaves it where it is (the prototype sprang it back to plain open; that broke "it stays where it's left"). (2) A slow one-finger push up that doesn't shut it keeps where the push ended, as in the prototype. (3) Shutting forgets the haul: it reopens to plain open. (4) For 300 ms after the last finger lifts, a click on the line is ignored and a focus in either box is blurred, so the lifting fingers can't shut it or leave the cursor in the box. (5) Two fingers on a drawer still springing open count only once it's at 105 pt or more. (6) With `bottom: 224px`, the mark measures 0 of itself showing on swipe 8, about a third on swipe 9 and all on swipe 10, matching the spec with no tuning.
+- **Zoom blocking:** checked, not changed. Real two-finger touches (Chromium's touch input, through `events.js`'s pinch blocker) haul it, and nothing zooms.
+- **Tests:** new `test_haul.py`, 54 checks (Done when, all covered). Drawer 82 and drawerfill 72 still pass. Full suite: 1,272 of 1,277 side by side; the 5 were the known Log-sheet timing checks in `test_motion.py` and a launch timeout in `test_offline.py`, 63 of 63 and 9 of 9 on their own (Known test issues).
+- **For your iPhone:** (1) Open the drawer, hold it with one finger and swipe down with another, swapping fingers: does it move a little each swipe, and does ten feel earned or a chore? (2) Lift both fingers halfway: does it stay put? (3) At the back, is "Designed by Ivan" readable but quiet, in daylight and in dark mode? (4) Swipe up from the back: does it shut in one go, and does the next open go to plain open? (5) Does the second finger ever zoom the page or leave the cursor in the cash box?
+- **Left for later:** nothing new. The till drawer is complete; the spec's "Apple-detail ideas" stay unbuilt.
 
 ## Q22 · Spending: pounds at the rate you paid
 **Render:** 2 Nov 2026, 18:22, scope as below (with Q23) · **Build:** 3 Nov 2026, 17:28, Ivan: "Suki Q22 Build" · shipped as 2.22, with 2.22.1 for the day's format · Needs: 2.21 live.

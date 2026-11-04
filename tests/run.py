@@ -15,7 +15,7 @@ Exits with 1 if anything fails, so GitHub shows a red cross. Screenshots go to t
 import sys, os, time, json, importlib, traceback, subprocess, tempfile, concurrent.futures as cf
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-ORDER = ['release', 'flows', 'doors', 'search', 'timedoors', 'compare', 'till', 'notepress', 'drawer', 'drawerfill', 'location', 'ratecard', 'rates', 'history', 'smart', 'inbox', 'motion', 'data', 'onboard', 'offline', 'layout', 'fuzz']
+ORDER = ['release', 'flows', 'doors', 'search', 'timedoors', 'compare', 'till', 'notepress', 'drawer', 'drawerfill', 'haul', 'location', 'ratecard', 'rates', 'history', 'smart', 'inbox', 'motion', 'data', 'onboard', 'offline', 'layout', 'fuzz']
 QUICK = [n for n in ORDER if n not in ('layout', 'fuzz')]
 HERE = os.path.abspath(__file__)
 

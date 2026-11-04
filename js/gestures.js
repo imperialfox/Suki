@@ -263,7 +263,8 @@ document.addEventListener('touchcancel', sheetDragEnd);
    left to the text (selecting, moving the cursor: 2.24.1). It starts shut every time: a redraw shuts it (drawerReset,
    from render()), and so does typing in either box. iPhone upright, iPad and Mac only; on its side there's no drawer.
    Reduce Motion: a 0.2 s fade, no spring and no knock. The page's glide stays.
-   Q20 fills it (screens.js drawerFill, events.js fillDrawer) and makes the contents jiggle; Q21 adds the two-finger haul. */
+   Q20 fills it (screens.js drawerFill, events.js fillDrawer) and makes the contents jiggle; Q21 adds the two-finger haul
+   (below drawerEnd). */
 const DRAWER = {
   open: 106, // pt, open height
   claim: 6, // pt a drag must travel before it's the drawer's
@@ -284,8 +285,11 @@ const DRAWER = {
   lineFor: 900, // ms the line stays after shutting
   glideFrom: 120, // pt/s, the slowest flick that glides on
   glideDecel: 0.998, // per ms, like an iOS scroll
+  haul: 120, // pt the two-finger haul takes it past open, where it stops (Q21)
+  pull: 0.035, // pt of drawer per pt of finger while hauling: about ten 350 pt swipes to the back
 };
-const DR = { h: 0, open: false, drag: null, raf: 0, glide: 0, hide: 0, eat: false, fade: null };
+// rest: where an open drawer sits (open, or as far as it was hauled); haul: the two-finger pull in progress (Q21)
+const DR = { h: 0, open: false, drag: null, raf: 0, glide: 0, hide: 0, eat: false, fade: null, rest: DRAWER.open, haul: null };
 const drawerOK = () => U.tab === 'till' && !U.sheet && !(MQ.land.matches && !MQ.reg.matches) && !!$('tillDrawer');
 const drawerBox = () => document.querySelector('#app .cashbox');
 function drawerSet(v) {
@@ -345,13 +349,15 @@ function drawerKnock(k) {
   MOTION.animate(drawerBox(), [{ transform: 'none' }, { transform: 'translateY(' + (-(0.8 + k * 1.4)).toFixed(2) + 'px)', offset: 0.3 }, { transform: 'none' }], { ms: DRAWER.knockMs, easing: 'ease-out' });
   drawerJiggle(-1); // and the coins jump
 }
-// open or shut it, carrying the finger's speed (v0, pt/s) into the spring
-function drawerSnap(open, v0) {
+// open or shut it, carrying the finger's speed (v0, pt/s) into the spring. Open, it goes to where it rests: open, or as
+// far as it was hauled (Q21); `at` moves that spot (a one-finger push on a hauled drawer). Shut, the haul is forgotten
+function drawerSnap(open, v0, at) {
   drawerStop();
   DR.open = open;
+  DR.rest = open ? Math.max(DRAWER.open, Math.min(DRAWER.open + DRAWER.haul, at === undefined ? DR.rest : at)) : DRAWER.open;
   const hd = $('tillHdl'),
     tray = $('tillTray'),
-    to = open ? DRAWER.open : 0;
+    to = open ? DR.rest : 0;
   if (hd) {
     hd.setAttribute('aria-expanded', String(open));
     hd.setAttribute('aria-label', open ? 'Close till drawer' : 'Open till drawer');
@@ -413,7 +419,7 @@ function drawerReset() {
   drawerStop();
   glideStop();
   clearTimeout(DR.hide);
-  Object.assign(DR, { h: 0, open: false, drag: null, eat: false });
+  Object.assign(DR, { h: 0, open: false, drag: null, eat: false, rest: DRAWER.open, haul: null });
 }
 
 /* the chain: the rest of a swipe that shut it scrolls the page; let go mid-flick and the page glides on, slowing like
@@ -444,6 +450,7 @@ function glide(v) {
 
 document.addEventListener('pointerdown', (e) => {
   const el = e.target.closest && e.target.closest('#app .cashbox, #tillHdl, #tillDrawer');
+  if (el && haulDown(e, el)) return;
   if (!el || DR.drag || e.button > 0 || e.target.closest('#cashClear') || !drawerOK()) return;
   drawerStop(); // caught mid-movement, where the finger lands
   drawerLine();
@@ -453,6 +460,7 @@ document.addEventListener('pointerdown', (e) => {
     id: e.pointerId,
     x0: e.clientX,
     y0: e.clientY,
+    y: e.clientY,
     h0: DR.h,
     t0: now,
     box: el.classList.contains('cashbox'),
@@ -467,8 +475,10 @@ document.addEventListener('pointerdown', (e) => {
   };
 });
 document.addEventListener('pointermove', (e) => {
+  if (DR.haul) return haulMove(e);
   const d = DR.drag;
   if (!d || e.pointerId !== d.id) return;
+  d.y = e.clientY;
   const dy = e.clientY - d.y0,
     dx = e.clientX - d.x0,
     now = performance.now();
@@ -507,6 +517,7 @@ document.addEventListener('pointermove', (e) => {
   drawerSet(nh);
 });
 function drawerEnd(e) {
+  if (DR.haul) return haulEnd(e);
   const d = DR.drag;
   if (!d || e.pointerId !== d.id) return;
   DR.drag = null;
@@ -514,7 +525,7 @@ function drawerEnd(e) {
     // a tap in the box types, and typing shuts the drawer; a tap on the drawer lets it carry on from where it was
     // caught; the handle's own click opens or shuts it
     if (d.box && e.type === 'pointerup') drawerShut();
-    else if (DR.h > 0 && d.el.id !== 'tillHdl') drawerSnap(DR.open);
+    else if (DR.h > 0 && d.el.id !== 'tillHdl') drawerSnap(DR.open); // back to where it rests, hauled or not
     if (!DR.open) drawerLine(DRAWER.lineFor);
     return;
   }
@@ -527,8 +538,55 @@ function drawerEnd(e) {
     glide(-v);
     return;
   }
-  // settle at whichever end it would coast to
-  drawerSnap(DR.h + MOTION.project(v) > DRAWER.open / 2, Math.max(-DRAWER.snapV, Math.min(DRAWER.snapV, v)));
+  // settle at whichever end it would coast to. A hauled drawer stays as far out as it was left: only the give past
+  // that springs back, and a push up that doesn't shut it leaves it where the push ended (Q21)
+  const stay = DR.h + MOTION.project(v) > DRAWER.open / 2;
+  drawerSnap(stay, Math.max(-DRAWER.snapV, Math.min(DRAWER.snapV, v)), stay && d.h0 > DRAWER.open + 1 ? Math.min(DR.h, d.h0) : undefined);
+}
+
+/* ===== The haul (Q21): the Easter egg inside the Easter egg =====
+   With the drawer fully open, hold it with one finger and swipe down with another, hand over hand, swapping fingers as
+   long as one stays down. One finger never starts it (so a mouse can't). It's heavy and steady on purpose (Ivan, "I
+   want the user to work for it"): 0.035 pt of drawer per pt of finger, straight, with a hard stop 120 pt past open, so
+   about ten long swipes reach the back, where "Designed by Ivan" is (screens.js tillDrawer, .tmark). Any finger moving
+   down adds; moving up only counts once a single finger is left. Let go and it stays where it was left (DR.rest).
+   Deliberately un-iOS: iOS never makes you work against a heavy pull. As the Easter egg, that's the point. */
+const hauled = (raw) => Math.min(DRAWER.haul, raw * DRAWER.pull);
+// a second finger on the open drawer starts the haul, or joins it; true when the haul took the finger
+function haulDown(e, el) {
+  if (!DR.haul) {
+    const d = DR.drag;
+    if (!d || d.id === e.pointerId || !DR.open || DR.fade || DR.h < DRAWER.open - 1 || !drawerOK() || e.target.closest('#cashClear')) return false;
+    drawerStop();
+    DR.haul = { ptrs: new Map([[d.id, d.y]]), raw: Math.max(0, DR.h - DRAWER.open) / DRAWER.pull };
+    DR.drag = null;
+    DR.rest = DRAWER.open + hauled(DR.haul.raw); // caught at the end of the opening spring: from where it is, at most 1 pt
+    drawerSet(DR.rest);
+  }
+  DR.haul.ptrs.set(e.pointerId, e.clientY);
+  try {
+    el.setPointerCapture(e.pointerId);
+  } catch (err) {}
+  drawerLine();
+  return true;
+}
+function haulMove(e) {
+  const H = DR.haul;
+  if (!H.ptrs.has(e.pointerId)) return;
+  const dy = e.clientY - H.ptrs.get(e.pointerId);
+  H.ptrs.set(e.pointerId, e.clientY);
+  if (dy > 0 || H.ptrs.size === 1) H.raw = Math.max(0, Math.min(DRAWER.haul / DRAWER.pull, H.raw + dy));
+  DR.rest = DRAWER.open + hauled(H.raw);
+  drawerSet(DR.rest);
+}
+function haulEnd(e) {
+  const H = DR.haul;
+  if (!H.ptrs.has(e.pointerId)) return;
+  H.ptrs.delete(e.pointerId);
+  if (H.ptrs.size) return;
+  DR.haul = null; // it stays where it was left
+  DR.eat = 'haul'; // and the fingers lifting aren't a tap on the line or in the box
+  setTimeout(() => DR.eat === 'haul' && (DR.eat = false), 300);
 }
 document.addEventListener('pointerup', drawerEnd);
 document.addEventListener('pointercancel', drawerEnd);
@@ -541,7 +599,10 @@ document.addEventListener('input', (e) => {
   if (e.target.matches && e.target.matches('#till-bill, #till-cash')) drawerShut();
 });
 document.addEventListener('focusin', (e) => {
-  if (!DR.drag && e.target.matches && e.target.matches('#till-bill, #till-cash')) drawerShut();
+  if (!e.target.matches || !e.target.matches('#till-bill, #till-cash')) return;
+  // the fingers of a haul lifting can land as a tap in the box: no cursor, and the drawer stays where it was left
+  if (DR.haul || DR.eat === 'haul') return e.target.blur();
+  if (!DR.drag) drawerShut();
 });
 // on its side there's no drawer: turning the phone shuts it at once
 addEventListener('resize', () => {

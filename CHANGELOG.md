@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.27 · 4 Nov 2026
+*Quick Till: the haul and the maker's mark (Q21)*
+
+**Hand over hand**
+- The Easter egg inside the Easter egg. With the drawer fully open, hold it with one finger and swipe down with another. Swap fingers and keep going, as long as one stays down.
+- One finger never starts it, so neither does a mouse. It doesn't start on a shut or half-open drawer either.
+- It's heavy and steady on purpose: a long swipe moves it about 12 pt, in a straight line, with no easing towards the end. About ten long swipes take it 120 pt past open, where it stops.
+- Any finger moving down pulls it. Moving up only counts once a single finger is left.
+
+**It stays where you leave it**
+- Let go and it stays put, so the effort isn't lost.
+- A one-finger pull on a hauled drawer gives a little and springs back to where you left it. A slow push up that doesn't shut it leaves it where the push ended.
+- A swipe up, the line, Enter, typing, or switching away still shuts it from any depth. Next time it opens to plain open: the haul is forgotten, and nothing is saved.
+
+**At the very back**
+- "Designed by Ivan", in plain small text (11 pt, regular) in the faint grey, on the drawer floor. It peeks out on the ninth swipe and is whole on the tenth. VoiceOver skips it.
+
+**Behind the scenes**
+- The fingers lifting after a haul don't count as a tap, so they don't shut the drawer or leave the cursor in the cash box.
+- Tested with real two-finger touches as well as made-up ones, so blocking pinch-zoom doesn't swallow the second finger.
+
 ## 2.26 · 4 Nov 2026
 *Quick Till: the drawer fills up with the cash you hand over (Q20)*
 

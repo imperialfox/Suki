@@ -2144,6 +2144,21 @@ body.land #app .cashbox {
     inset 0 3px 4px -3px var(--dr-wall),
     0 0.5px 0 var(--dr-lip);
 }
+/* the maker's mark (Q21), at the very back of the tray: plain Caption 2 in the faint grey, 224 pt from the front, so
+   only the end of the two-finger haul brings it into the opening (it peeks on the ninth swipe, whole on the tenth) */
+.tmark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 224px;
+  font-size: 11px;
+  line-height: 13px;
+  font-weight: 400;
+  letter-spacing: 0.06px;
+  text-align: center;
+  color: var(--fg3);
+  pointer-events: none;
+}
 .tcoins {
   display: flex;
   gap: 4px;

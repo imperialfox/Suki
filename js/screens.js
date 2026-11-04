@@ -429,6 +429,7 @@ function tillDrawer() {
     '<div class="dws" id="tillDrawer"><div class="tray" id="tillTray" aria-hidden="true">' +
     '<div class="tnotes">' + DRAWER_SLOTS.map((n, si) => '<div class="tslot n' + n + '" data-n="' + n + '"><span>' + n + '</span>' + f.slot(si) + '</div>').join('') + '</div>' +
     '<div class="tcoins">' + DRAWER_CUPS.map((c, ci) => '<div class="tcup" data-c="' + c + '"><span>' + CUP_LABELS[c] + '</span>' + f.cup(ci) + '</div>').join('') + '</div>' +
+    '<div class="tmark" id="tillMark" aria-hidden="true">Designed by Ivan</div>' + // at the very back: only the haul reaches it (Q21)
     '</div></div>' +
     '<button type="button" class="hdl" id="tillHdl" aria-expanded="false" aria-label="Open till drawer"><span class="slotln" id="tillSlot" aria-hidden="true"></span></button>'
   );

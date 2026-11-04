@@ -68,6 +68,7 @@ function render(keepScroll) {
     caret = focusId && ae.selectionStart != null ? [ae.selectionStart, ae.selectionEnd] : null;
   closeSwipes();
   landNotes(true); // a Till note still in the air lands now, so a redraw leaves nothing behind (Q18)
+  drawerReset(); // the till drawer always comes back shut, with nothing left running (Q19)
   $('app').innerHTML = SCREENS[U.tab]();
   if (U.tab === 'home') growSmart();
   if (U.tab === 'history') histAfter();

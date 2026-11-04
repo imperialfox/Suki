@@ -160,6 +160,15 @@ const MOTION = (() => {
     requestAnimationFrame(step);
     return () => (stop = true);
   }
+  /* The iOS way (Q19, the till drawer), from Apple's "Designing Fluid Interfaces" and "Animate with springs":
+     - iosSpring(duration, bounce): SwiftUI's spring(duration:bounce:) in this file's terms, {z, f} like SPRINGS.
+       Frequency = 1 / duration, damping ratio = 1 - bounce. Bounce 0 settles with no overshoot.
+     - project(v): how far something coasts at v pt/s with iOS's fast deceleration (0.99), to decide where it settles.
+     - rubber(x, dim): iOS's stretch past an end: x pt of finger gives this much movement, never more than dim. */
+  const iosSpring = (duration, bounce) => ({ z: 1 - bounce, f: 1 / duration });
+  const DECEL = 0.99;
+  const project = (v) => ((v / 1000) * DECEL) / (1 - DECEL);
+  const rubber = (x, dim) => dim * (1 - 1 / ((x * 0.55) / dim + 1));
 
   /* Home's Log card switching sides (Q14), after iPhone Duo's fold. The card stays put and only its contents change.
      One thing is the hinge, the box you type in: it slides from its old spot to its new one. Everything else dissolves
@@ -261,6 +270,9 @@ const MOTION = (() => {
     leave,
     fold,
     spring,
+    iosSpring,
+    project,
+    rubber,
     setSpeed,
     setReduce,
     reducePref: () => rpref,

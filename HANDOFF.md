@@ -398,7 +398,7 @@ Tests: `test_notepress.py` (81 checks), `test_till.py` still 73 of 73. Full suit
 **Receipt:** Q18 fix · Light → Light · 27 steps · 16k written · 9.5M re-read · 1 full test run · same chat as Q18, counted from where its receipt ended
 
 ## Q19 · Quick Till: till drawer
-**Render:** 1 Nov 2026, 13:09, scope as below (with Q18, Q20, Q21) · **Build:** awaiting · Needs: Q18 live (the slot line and materials).
+**Render:** 1 Nov 2026, 13:09, scope as below (with Q18, Q20, Q21) · **Build:** 4 Nov 2026, 12:38, Ivan: "Suki Q19 Build" · shipped as 2.25 · Needs: Q18 live (the slot line and materials); checked: 2.24.1.
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q18 ("iOS way" feel; the Now/iOS toggle and slow-motion controls are prototype only). Phase 2 of 4.
 
 **Goal:** a hidden drawer under the cash box that opens and shuts like a real one.
@@ -415,6 +415,11 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q1
 **Risks:** `render()` redraws must leave it shut with no stray listeners or frames; must not fight sheets, swipe to delete or Q11's motion; 3D smoothness on the phone.
 **Done when:** motion-on tests: a 45 pt held pull shuts, 55 pt opens; a tiny flick shuts, a flick with a stalled last frame opens; a swipe up shuts then scrolls; the knock only on a hard shut; caught mid-movement; typing and a redraw leave it shut; Reduce Motion fades only; the button's labels; no sideways overflow; the fuzzer passes; full suite passes. **Checks:** screenshots open and shut, 375 and 402 px, light and dark, iPad and Mac.
 **For your iPhone:** finding it with no hint; the open and shut feel; the scroll hand-off; the knock's timing; smoothness.
+**Debrief:** shipped as 2.25, built in a fresh chat from this handoff. All seven agreed points as written, with the prototype's numbers (iOS way only; its Now code and toggle not built).
+- **How:** markup `tillDrawer()` in `screens.js`; the gesture block at the end of `gestures.js` (all numbers in `DRAWER`); `MOTION.iosSpring`, `project` and `rubber` added to `motion.js`; `render()` calls `drawerReset()`. Details in `MAINTAINING.md` › The drawer (Q19).
+- **Decided within scope:** (1) the handle is the old 14 px gap and `.denoms` lost its margin, so shut, the Till is pixel for pixel as before. (2) A drag that starts sideways, or after holding still 500 ms inside the box, is left to the text, so 2.24.1's cursor and Select keep working. (3) A tap in the cash box shuts the drawer (it types, and typing shuts it). (4) The compartments' labels wait for Q20, whose handoff lists them. (5) Not in the README either, so the Easter egg stays hidden. (6) Turning an iPhone on its side shuts it at once.
+- **Tests:** new `test_drawer.py`, 82 checks (Done when, all covered). Touched files: till 73, notepress 93, flows 125, onboard 37, all passing. Full suite: 1,157 of 1,159 side by side; the 2 were the known timing checks in `test_smart.py` and `test_motion.py`, 100 of 100 and 63 of 63 on their own.
+- **Left for later:** Q20 (contents, labels, the overload peek), Q21 (the haul).
 
 ## Q20 · Quick Till: drawer contents and fullness
 **Render:** 1 Nov 2026, 13:09, scope as below (with Q18, Q19, Q21) · **Build:** awaiting · Needs: Q19 live.

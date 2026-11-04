@@ -351,15 +351,29 @@ function scrTill() {
       'till-cash',
       'Cash handed over · ₱',
       '<div class="cashbox"><input class="inp big" id="till-cash" data-till="cash" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 1,000" value="' + esc(U.till.cash) + '">' +
-        '<button type="button" class="cx" id="cashClear" data-a="cashClear" aria-label="Clear cash"' + (U.till.cash ? '' : ' hidden') + '><span>' + ICON.x + '</span></button>' +
-        '<span class="slotln" id="tillSlot" aria-hidden="true"></span></div>'
+        '<button type="button" class="cx" id="cashClear" data-a="cashClear" aria-label="Clear cash"' + (U.till.cash ? '' : ' hidden') + '><span>' + ICON.x + '</span></button></div>'
     ) +
+    tillDrawer() +
     '<div class="denoms" role="group" aria-label="Notes you hand over"><button type="button" class="dn ex" data-a="cashExact" aria-label="Cash is exactly the bill">Exact</button>' +
     TILL_KEYS.map((k) => '<button type="button" class="dn ' + k[1] + '" data-a="cashAdd" data-v="' + k[0] + '" aria-label="' + k[2] + '">' + k[0] + '</button>').join('') +
     '</div>' +
     '<div class="tillout" id="tillOut" aria-live="polite">' + tillOut() + '</div>' +
     '<button class="cta ink" id="tillLog" data-a="tillLog"' + (tillState().bill > 0 ? '' : ' disabled') + '>Log this bill</button></div>' +
     '<p class="foot">Tap each note or ₱20 coin you hand over: 20 + 20 makes ₱40.</p>'
+  );
+}
+/* The till drawer (Q19): hidden under the cash box, empty for now. Four note slots at the back (₱1,000, ₱500, ₱100, ₱50)
+   and five coin cups in front (₱20, ₱10, ₱5, ₱1, 25¢); Q20 fills them. The slot line under it is its handle: a real
+   button, hidden at rest. Always drawn shut: a redraw closes it (gestures.js, drawerReset). */
+const DRAWER_SLOTS = [1000, 500, 100, 50];
+const DRAWER_CUPS = ['20', '10', '5', '1', '25c'];
+function tillDrawer() {
+  return (
+    '<div class="dws" id="tillDrawer"><div class="tray" id="tillTray" aria-hidden="true">' +
+    '<div class="tnotes">' + DRAWER_SLOTS.map((n) => '<div class="tslot" data-n="' + n + '"></div>').join('') + '</div>' +
+    '<div class="tcoins">' + DRAWER_CUPS.map((c) => '<div class="tcup" data-c="' + c + '"></div>').join('') + '</div>' +
+    '</div></div>' +
+    '<button type="button" class="hdl" id="tillHdl" aria-expanded="false" aria-label="Open till drawer"><span class="slotln" id="tillSlot" aria-hidden="true"></span></button>'
   );
 }
 function tillState() {

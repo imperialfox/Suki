@@ -81,6 +81,14 @@
   --coin-lo: color-mix(in srgb, var(--coin) 88%, var(--coin-ink));
   --coin-edge: color-mix(in srgb, var(--coin) 70%, var(--coin-ink));
   --ring-edge: color-mix(in srgb, var(--coin-ring) 70%, var(--coin-ink));
+  /* the till drawer (Q19, "Balanced"): built from Suki's own colours, one light from the top left. The floor darkens
+     towards the back; the walls, the lip and the cash box's shadow have their own dark mode values below */
+  --dr-front: color-mix(in srgb, var(--fg) 5%, var(--surface));
+  --dr-back: color-mix(in srgb, var(--fg) 11%, var(--surface));
+  --dr-deep: color-mix(in srgb, var(--fg) 14%, var(--surface));
+  --dr-wall: rgba(0, 0, 0, 0.12);
+  --dr-lip: rgba(255, 255, 255, 0.8);
+  --dr-occlude: rgba(20, 20, 40, 0.16);
   /* Home's exchange rate card (Q17): Suki's icon colours, as a one-off used by that card only. The same in light and
      dark. White passes 4.5:1 on both navy ends and under the glow; the softer white is at least 4.5:1 too */
   --suki-top: #173874;
@@ -129,6 +137,9 @@
     --tint-3-ink: var(--bg);
     --band: rgba(10, 132, 255, 0.32);
     --glass-shadow: rgba(0, 0, 0, 0.55);
+    --dr-wall: rgba(0, 0, 0, 0.36);
+    --dr-lip: rgba(255, 255, 255, 0.12);
+    --dr-occlude: rgba(0, 0, 0, 0.55);
     --scrim: rgba(0, 0, 0, 0.5);
     --warnbg: #3a2a12;
     --warnfg: #ffcf86;
@@ -1777,6 +1788,28 @@ a.row:active {
 .cashbox {
   position: relative;
 }
+/* the cash box is the counter top the till drawer slides out from under (Q19): it takes the pull (a tap still types),
+   sits above the drawer, and casts its own soft shadow onto it, deepening as it opens (--open, 0 to 1, set by the
+   drawer). On iPhone on its side there's no drawer, so it scrolls like anything else */
+#app .cashbox {
+  z-index: 2;
+  border-radius: 12px;
+  touch-action: none;
+}
+#app .cashbox::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    0 7px 10px -5px var(--dr-occlude),
+    0 2px 3px -2px var(--dr-occlude);
+  opacity: var(--open, 0);
+}
+body.land #app .cashbox {
+  touch-action: manipulation;
+}
 .cashbox .inp {
   padding-right: 52px;
 }
@@ -1812,7 +1845,6 @@ a.row:active {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 6px;
-  margin-top: 14px;
 }
 .dn {
   min-width: 0;
@@ -2061,12 +2093,100 @@ a.row:active {
   background-color: var(--coin);
   box-shadow: inset 0 0 0 3px var(--coin-ring);
 }
-/* the slot under the cash box: hidden at rest, like the Home indicator. It shows only while a note slots in, and
-   sits in the gap above the buttons, so nothing moves. (Q19 makes it the drawer's handle.) */
+/* ===== The till drawer (Q19) =====
+   An Easter egg: nothing points to it. It opens from under the cash box, and the six buttons ride on its front.
+   .dws is the opening (0 to 106 pt, set by gestures.js); the tray inside is a rigid 300 pt drawer tilted 26° away from
+   you, so every row shrinks with distance together, its back tucked out of sight. Empty for now: Q20 fills it. */
+.dws {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+  touch-action: none;
+  perspective: 560px;
+  perspective-origin: 50% -60px;
+}
+.tray {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 300px;
+  transform-origin: 50% 100%;
+  transform: rotateX(26deg);
+  transform-style: preserve-3d;
+  border-radius: 12px;
+  padding: 18px 10px 9px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+  background: linear-gradient(to top, var(--dr-front), var(--dr-back) 120px, var(--dr-deep) 300px);
+  box-shadow:
+    inset 5px 0 6px -5px var(--dr-wall),
+    inset -5px 0 6px -5px var(--dr-wall),
+    inset 0 -1px 0 var(--dr-lip);
+}
+/* concentric corners: the tray's 12, its compartments' 5 */
+.tnotes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+.tslot {
+  position: relative;
+  height: 50px;
+  border-radius: 5px;
+  background: var(--surface);
+  box-shadow:
+    inset 0 3px 4px -3px var(--dr-wall),
+    0 0.5px 0 var(--dr-lip);
+}
+.tcoins {
+  display: flex;
+  gap: 4px;
+}
+/* coin cups: square at the back like the note slots, scooped at the front so coins can be slid out */
+.tcup {
+  position: relative;
+  flex: 1;
+  height: 32px;
+  border-radius: 5px 5px 50% 50% / 5px 5px 85% 85%;
+  background: radial-gradient(ellipse 72% 68% at 50% 34%, color-mix(in srgb, var(--fg) 8%, var(--surface)) 0, color-mix(in srgb, var(--fg) 3%, var(--surface)) 45%, var(--surface) 80%);
+  box-shadow:
+    inset 0 3px 4px -3px var(--dr-wall),
+    inset 0 -4px 5px -3px var(--dr-lip),
+    0 0.5px 0 var(--dr-lip);
+}
+/* the handle: the slot line under the drawer, a real button ("Open till drawer" / "Close till drawer") for VoiceOver
+   and the keyboard. It fills the 14 pt gap above the buttons, so the Till looks exactly as before at rest */
+.hdl {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: calc(100% - 128px);
+  height: 14px;
+  margin: 0 64px;
+  padding: 0;
+  border: 0;
+  background: none;
+  touch-action: none;
+  cursor: grab;
+}
+.hdl:focus {
+  outline: none;
+}
+body.land .hdl {
+  visibility: hidden;
+}
+body.land .dws {
+  display: none;
+}
+/* the slot line: hidden at rest, like the Home indicator. It shows for a note slotting in (Q18, .show), and for the
+   drawer (.on on the handle): when you touch or pull the cash box, while it's open, and on keyboard or VoiceOver focus */
 .slotln {
   position: absolute;
   left: 50%;
-  top: calc(100% + 5px);
+  top: 5px;
   width: 44px;
   height: 5px;
   margin-left: -22px;
@@ -2076,7 +2196,9 @@ a.row:active {
   pointer-events: none;
   transition: opacity 0.25s;
 }
-.slotln.show {
+.slotln.show,
+.hdl.on .slotln,
+.hdl:focus-visible .slotln {
   opacity: 1;
 }
 .metric {

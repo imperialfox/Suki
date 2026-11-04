@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.25 · 4 Nov 2026
+*Quick Till: a hidden till drawer under the cash box (Q19)*
+
+**The drawer**
+- An Easter egg: pull the cash box down and a till drawer slides out from under it. Nothing points to it, and it isn't in Help.
+- It's a deep tray tilted away from you, with four note slots at the back and five coin cups in front. It's empty for now.
+- The six buttons ride on its front, and the cash box casts a soft shadow onto it that deepens as it opens.
+
+**Opening and shutting the iOS way**
+- It follows your finger exactly. Let go and it settles at whichever end it would coast to: past halfway it opens, short of that it springs back shut. A real flick opens it from a shorter pull.
+- Pull past open and it stretches, then springs back. Grab it while it's moving and it stops under your finger.
+- A tap still types. Only a drag is the drawer's, and holding still in the box first, or dragging sideways, leaves it to the cursor and Select.
+- Swipe up to shut it. Once it's shut, the rest of the same swipe scrolls the page, and a flick glides on until you touch again.
+- Shut it hard and it knocks the counter: only the cash box nudges up, the instant the drawer hits. A gentle push or a tap closes it quietly.
+
+**The slot line is its handle**
+- The line under the cash box is hidden at rest. It shows when you touch the cash box, while the drawer is open, and when it's reached with the keyboard or VoiceOver.
+- It's a real button: "Open till drawer" or "Close till drawer". Tap it, or press Space or Enter.
+
+**Always starts shut**
+- It's shut every time you come to the Till, and shuts when you start typing in either box, open Log this bill or switch tabs.
+- iPhone upright only: on its side there's no drawer. On iPad and Mac it's the card's width, and opens with a click, Space or Enter, or a mouse drag.
+- Reduce Motion: it fades in and out in 0.2 s, with no spring and no knock.
+
 ## 2.24.1 · 4 Nov 2026
 *Quick Till: only the two boxes can be selected (Q18)*
 

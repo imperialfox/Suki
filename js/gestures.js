@@ -248,3 +248,295 @@ function sheetDragEnd() {
 }
 document.addEventListener('touchend', sheetDragEnd);
 document.addEventListener('touchcancel', sheetDragEnd);
+
+/* ===== The till drawer (Q19) =====
+   An Easter egg: nothing points to it, there's no tip and it isn't in Help. Pull the cash box (or the slot line under
+   it) down and let go: it settles at whichever end it would coast to. Swipe up to shut it; once it's shut, the rest of
+   the same swipe scrolls the page, and a flick glides on. Shut hard, it knocks the counter: only the cash box nudges up.
+   The iOS way, as Ivan chose in the note press prototype (1 Nov 2026, "the ios way is great"):
+   - It follows the finger exactly, can be caught mid-movement, and stretches past open with iOS's rubber band.
+   - Open or shut is decided by where it would coast to (MOTION.project, deceleration 0.99): past halfway, it opens.
+   - The swipe's speed is read over its last tenth of a second, up to the moment of release.
+   - Springs are a length and a bounce (MOTION.iosSpring): opening 0.45 s, with bounce only from a flick (up to 0.15;
+     a tap, Space, Enter or VoiceOver opens with none); shutting 0.35 s with none, cut off at shut.
+   A tap still types: only a drag past 6 pt is the drawer's. Sideways, or after holding still in the box, the drag is
+   left to the text (selecting, moving the cursor: 2.24.1). It starts shut every time: a redraw shuts it (drawerReset,
+   from render()), and so does typing in either box. iPhone upright, iPad and Mac only; on its side there's no drawer.
+   Reduce Motion: a 0.2 s fade, no spring and no knock. The page's glide stays.
+   Q20 fills it (notes and coins in their compartments); Q21 adds the two-finger haul. */
+const DRAWER = {
+  open: 106, // pt, open height
+  claim: 6, // pt a drag must travel before it's the drawer's
+  hold: 500, // ms held still in the cash box before a drag is left to the text cursor
+  window: 100, // ms of the swipe its speed is read over
+  maxV: 2500, // pt/s, the fastest swipe read
+  snapV: 1200, // pt/s, the fastest carried into the spring
+  openFor: 0.45, // s, the opening spring
+  flickBounce: 0.15, // the most bounce a flick gives it
+  bouncePer: 8000, // pt/s of flick per 1 of bounce
+  shutFor: 0.35, // s, the shutting spring (no bounce)
+  stretch: 40, // pt, the most it stretches past open
+  knockAt: 0.3, // how hard a shut must be to knock (speed ÷ 1000 pt/s)
+  knockFast: 600, // pt/s, swiped shut on the way into a scroll
+  knockFull: 1500, // pt/s, the hardest knock
+  knockMs: 200,
+  fade: 200, // ms, Reduce Motion
+  lineFor: 900, // ms the line stays after shutting
+  glideFrom: 120, // pt/s, the slowest flick that glides on
+  glideDecel: 0.998, // per ms, like an iOS scroll
+};
+const DR = { h: 0, open: false, drag: null, raf: 0, glide: 0, hide: 0, eat: false, fade: null };
+const drawerOK = () => U.tab === 'till' && !U.sheet && !(MQ.land.matches && !MQ.reg.matches) && !!$('tillDrawer');
+const drawerBox = () => document.querySelector('#app .cashbox');
+function drawerSet(v) {
+  DR.h = v;
+  const d = $('tillDrawer'),
+    c = drawerBox();
+  if (d) d.style.height = Math.max(0, v).toFixed(2) + 'px';
+  if (c) c.style.setProperty('--open', Math.min(1, Math.max(0, v) / DRAWER.open).toFixed(3));
+}
+// the slot line: shown now, and hidden again ms later unless the drawer is open or held
+function drawerLine(ms) {
+  const hd = $('tillHdl');
+  clearTimeout(DR.hide);
+  if (hd) hd.classList.add('on');
+  if (ms)
+    DR.hide = setTimeout(() => {
+      if (!DR.open && !DR.drag && $('tillHdl')) $('tillHdl').classList.remove('on');
+    }, ms * Math.max(1, MOTION.speed()));
+}
+function drawerStop() {
+  cancelAnimationFrame(DR.raf);
+  DR.raf = 0;
+  if (DR.fade) {
+    DR.fade.cancel();
+    DR.fade = null;
+  }
+}
+// how fast the swipe was over its last tenth of a second, up to now (pt/s, down is positive)
+function drawerSpeed(d, now) {
+  const s = d.samples;
+  if (s.length < 2) return 0;
+  let i = s.length - 1;
+  while (i > 0 && now - s[i - 1].t <= DRAWER.window) i--;
+  if (i === s.length - 1) i--;
+  const a = s[i],
+    b = s[s.length - 1],
+    dt = (now - a.t) / 1000;
+  return dt > 0 ? (b.raw - a.raw) / dt : 0;
+}
+// shut hard, the drawer knocks the counter: only the cash box moves, up 1–2.2 pt at the instant it hits
+function drawerKnock(k) {
+  if (!MOTION.on()) return;
+  MOTION.animate(drawerBox(), [{ transform: 'none' }, { transform: 'translateY(' + (-(0.8 + k * 1.4)).toFixed(2) + 'px)', offset: 0.3 }, { transform: 'none' }], { ms: DRAWER.knockMs, easing: 'ease-out' });
+}
+// open or shut it, carrying the finger's speed (v0, pt/s) into the spring
+function drawerSnap(open, v0) {
+  drawerStop();
+  DR.open = open;
+  const hd = $('tillHdl'),
+    tray = $('tillTray'),
+    to = open ? DRAWER.open : 0;
+  if (hd) {
+    hd.setAttribute('aria-expanded', String(open));
+    hd.setAttribute('aria-label', open ? 'Close till drawer' : 'Open till drawer');
+  }
+  if (open) drawerLine();
+  else drawerLine(DRAWER.lineFor);
+  if (!MOTION.on()) {
+    // Reduce Motion: it fades in, or fades out and then closes. Motion off (the tests): straight there
+    const sp = MOTION.speed();
+    if (!sp || !tray || !MOTION.reduced()) return drawerSet(to);
+    if (open) {
+      const from = DR.h;
+      drawerSet(to);
+      if (from < 0.5) tray.animate([{ opacity: 0 }, { opacity: 1 }], { duration: DRAWER.fade * sp, easing: 'ease-out' });
+      return;
+    }
+    if (DR.h < 0.5) return drawerSet(0);
+    const f = tray.animate([{ opacity: 1 }, { opacity: 0 }], { duration: DRAWER.fade * sp, easing: 'ease-out', fill: 'forwards' });
+    DR.fade = f;
+    f.onfinish = () => {
+      if (DR.fade !== f) return;
+      DR.fade = null;
+      drawerSet(0);
+      f.cancel();
+    };
+    return;
+  }
+  const s = open ? MOTION.iosSpring(DRAWER.openFor, Math.min(DRAWER.flickBounce, Math.max(0, v0 || 0) / DRAWER.bouncePer)) : MOTION.iosSpring(DRAWER.shutFor, 0),
+    w = 2 * Math.PI * s.f,
+    k = open ? 0 : Math.max(0, Math.min(1, -(v0 || 0) / 1000));
+  let x = DR.h,
+    v = v0 || 0,
+    last = performance.now();
+  const step = (now) => {
+    if (!$('tillDrawer')) return void (DR.raf = 0);
+    const dt = Math.max(0, Math.min(0.032, (now - last) / 1000)) / MOTION.speed();
+    last = now;
+    v += (-w * w * (x - to) - 2 * s.z * w * v) * dt;
+    x += v * dt;
+    // a drawer can't travel past shut: it stops dead there, and knocks the counter if it came in hard
+    const done = !open && x <= 0 ? true : Math.abs(x - to) < 0.2 && Math.abs(v) < 4;
+    if (done) {
+      DR.raf = 0;
+      drawerSet(to);
+      if (!open && k > DRAWER.knockAt) drawerKnock(k);
+      return;
+    }
+    drawerSet(x);
+    DR.raf = requestAnimationFrame(step);
+  };
+  DR.raf = requestAnimationFrame(step);
+}
+function drawerShut() {
+  if (DR.open || DR.h > 0) drawerSnap(false);
+}
+// a redraw always brings the drawer back shut, with nothing left running (render() calls this before it redraws)
+function drawerReset() {
+  drawerStop();
+  glideStop();
+  clearTimeout(DR.hide);
+  Object.assign(DR, { h: 0, open: false, drag: null, eat: false });
+}
+
+/* the chain: the rest of a swipe that shut it scrolls the page; let go mid-flick and the page glides on, slowing like
+   an iOS scroll. Any new touch, click or wheel stops it */
+function glideStop() {
+  cancelAnimationFrame(DR.glide);
+  DR.glide = 0;
+}
+function glide(v) {
+  glideStop();
+  if (Math.abs(v) < DRAWER.glideFrom) return;
+  let y = window.scrollY,
+    last = performance.now();
+  const step = (now) => {
+    const dt = Math.max(0, Math.min(32, now - last)),
+      max = document.scrollingElement.scrollHeight - innerHeight;
+    last = now;
+    y += (v * dt) / 1000;
+    v *= Math.pow(DRAWER.glideDecel, dt);
+    const end = y <= 0 || y >= max;
+    window.scrollTo(0, Math.max(0, Math.min(max, y)));
+    if (end || Math.abs(v) < 20) return void (DR.glide = 0);
+    DR.glide = requestAnimationFrame(step);
+  };
+  DR.glide = requestAnimationFrame(step);
+}
+['wheel', 'touchstart', 'pointerdown'].forEach((t) => addEventListener(t, glideStop, { passive: true, capture: true }));
+
+document.addEventListener('pointerdown', (e) => {
+  const el = e.target.closest && e.target.closest('#app .cashbox, #tillHdl, #tillDrawer');
+  if (!el || DR.drag || e.button > 0 || e.target.closest('#cashClear') || !drawerOK()) return;
+  drawerStop(); // caught mid-movement, where the finger lands
+  drawerLine();
+  const now = performance.now();
+  DR.drag = {
+    el,
+    id: e.pointerId,
+    x0: e.clientX,
+    y0: e.clientY,
+    h0: DR.h,
+    t0: now,
+    box: el.classList.contains('cashbox'),
+    focused: document.activeElement === $('till-cash'),
+    sy: window.scrollY,
+    moved: false,
+    dead: false,
+    scrolled: false,
+    hit: false,
+    lastRaw: DR.h,
+    samples: [{ t: now, raw: DR.h }],
+  };
+});
+document.addEventListener('pointermove', (e) => {
+  const d = DR.drag;
+  if (!d || e.pointerId !== d.id) return;
+  const dy = e.clientY - d.y0,
+    dx = e.clientX - d.x0,
+    now = performance.now();
+  if (!d.moved) {
+    if (Math.abs(dy) < DRAWER.claim && Math.abs(dx) < DRAWER.claim) return;
+    // sideways, or after a hold in the box, the finger is working on the text (2.24.1), so the drawer lets it go
+    if (Math.abs(dx) > Math.abs(dy) || (d.box && now - d.t0 > DRAWER.hold)) {
+      DR.drag = null;
+      if (DR.h > 0) drawerSnap(DR.open);
+      else drawerLine(DRAWER.lineFor);
+      return;
+    }
+    d.moved = true;
+    try {
+      d.el.setPointerCapture(d.id);
+    } catch (err) {}
+  }
+  const raw = d.h0 + dy,
+    top = Math.max(DRAWER.open, d.h0),
+    nh = raw > top ? top + MOTION.rubber(raw - top, DRAWER.stretch) : Math.max(0, raw),
+    over = raw < 0 ? -raw : 0;
+  // once it's shut, whatever is left of the swipe up scrolls the page, in the same gesture
+  if (over > 0 || d.scrolled) {
+    window.scrollTo(0, d.sy + over);
+    d.scrolled = over > 0;
+  }
+  d.samples.push({ t: now, raw });
+  if (d.samples.length > 24) d.samples.shift();
+  // swiped shut fast on the way into a scroll: the knock, at the moment it shuts
+  if (!d.hit && d.lastRaw > 0 && raw <= 0) {
+    d.hit = true;
+    const speed = -drawerSpeed(d, now);
+    if (speed > DRAWER.knockFast) drawerKnock(Math.min(1, speed / DRAWER.knockFull));
+  }
+  d.lastRaw = raw;
+  drawerSet(nh);
+});
+function drawerEnd(e) {
+  const d = DR.drag;
+  if (!d || e.pointerId !== d.id) return;
+  DR.drag = null;
+  if (!d.moved) {
+    // a tap in the box types, and typing shuts the drawer; a tap on the drawer lets it carry on from where it was
+    // caught; the handle's own click opens or shuts it
+    if (d.box && e.type === 'pointerup') drawerShut();
+    else if (DR.h > 0 && d.el.id !== 'tillHdl') drawerSnap(DR.open);
+    if (!DR.open) drawerLine(DRAWER.lineFor);
+    return;
+  }
+  DR.eat = true; // the click that follows a drag isn't a tap on the handle
+  setTimeout(() => (DR.eat = false), 50);
+  if (d.box && !d.focused && document.activeElement === $('till-cash')) $('till-cash').blur();
+  const v = Math.max(-DRAWER.maxV, Math.min(DRAWER.maxV, drawerSpeed(d, performance.now())));
+  if (DR.h <= 0.5 && d.lastRaw < 0) {
+    drawerSnap(false, 0);
+    glide(-v);
+    return;
+  }
+  // settle at whichever end it would coast to
+  drawerSnap(DR.h + MOTION.project(v) > DRAWER.open / 2, Math.max(-DRAWER.snapV, Math.min(DRAWER.snapV, v)));
+}
+document.addEventListener('pointerup', drawerEnd);
+document.addEventListener('pointercancel', drawerEnd);
+document.addEventListener('click', (e) => {
+  if (!e.target.closest || !e.target.closest('#tillHdl') || DR.eat || !drawerOK()) return;
+  drawerSnap(!DR.open);
+});
+// typing in either box shuts it
+document.addEventListener('input', (e) => {
+  if (e.target.matches && e.target.matches('#till-bill, #till-cash')) drawerShut();
+});
+document.addEventListener('focusin', (e) => {
+  if (!DR.drag && e.target.matches && e.target.matches('#till-bill, #till-cash')) drawerShut();
+});
+// on its side there's no drawer: turning the phone shuts it at once
+addEventListener('resize', () => {
+  if ((DR.open || DR.h > 0) && MQ.land.matches && !MQ.reg.matches) {
+    drawerReset();
+    drawerSet(0);
+    const hd = $('tillHdl');
+    if (hd) {
+      hd.classList.remove('on');
+      hd.setAttribute('aria-expanded', 'false');
+      hd.setAttribute('aria-label', 'Open till drawer');
+    }
+  }
+});

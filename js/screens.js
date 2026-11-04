@@ -350,8 +350,9 @@ function scrTill() {
     field(
       'till-cash',
       'Cash handed over · ₱',
-      '<div class="cashbox"><input class="inp big" id="till-cash" data-till="cash" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 1,000" value="' + esc(U.till.cash) + '">' +
-        '<button type="button" class="cx" id="cashClear" data-a="cashClear" aria-label="Clear cash"' + (U.till.cash ? '' : ' hidden') + '><span>' + ICON.x + '</span></button></div>'
+      '<div class="cwell"><div class="cashbox"><input class="inp big" id="till-cash" data-till="cash" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 1,000" value="' + esc(U.till.cash) + '">' +
+        '<button type="button" class="cx" id="cashClear" data-a="cashClear" aria-label="Clear cash"' + (U.till.cash ? '' : ' hidden') + '><span>' + ICON.x + '</span></button></div>' +
+        tillPeek() + '</div><span class="vh" id="tillOver" aria-live="polite">' + (tillOverloaded() ? TILL_OVER_SAYS : '') + '</span>'
     ) +
     tillDrawer() +
     '<div class="denoms" role="group" aria-label="Notes you hand over"><button type="button" class="dn ex" data-a="cashExact" aria-label="Cash is exactly the bill">Exact</button>' +
@@ -362,16 +363,72 @@ function scrTill() {
     '<p class="foot">Tap each note or ₱20 coin you hand over: 20 + 20 makes ₱40.</p>'
   );
 }
-/* The till drawer (Q19): hidden under the cash box, empty for now. Four note slots at the back (₱1,000, ₱500, ₱100, ₱50)
-   and five coin cups in front (₱20, ₱10, ₱5, ₱1, 25¢); Q20 fills them. The slot line under it is its handle: a real
-   button, hidden at rest. Always drawn shut: a redraw closes it (gestures.js, drawerReset). */
+/* The till drawer (Q19): hidden under the cash box. Four note slots at the back (₱1,000, ₱500, ₱100, ₱50) and five coin
+   cups in front (₱20, ₱10, ₱5, ₱1, 25¢), each labelled on its front lip. The slot line under it is its handle: a real
+   button, hidden at rest. Always drawn shut: a redraw closes it (gestures.js, drawerReset).
+   Its contents (Q20) are a fullness gauge, not a count: only the cash handed over decides how full it looks. Coins fill
+   first, then the 50s and 100s, then the 500s, then the 1000s; everything is full at ₱20,000. From ₱50,000 it's
+   overloaded: notes tip out, coins spill, and with the drawer shut notes peek out from under the cash box.
+   drawerFill() draws them still (a redraw); fillDrawer() in events.js changes them with calm fades (typing, a note, ✕). */
 const DRAWER_SLOTS = [1000, 500, 100, 50];
 const DRAWER_CUPS = ['20', '10', '5', '1', '25c'];
+const CUP_LABELS = { 20: '20', 10: '10', 5: '5', 1: '1', '25c': '25¢' };
+const TILL_FULL = { over: 50000, sheets: 10, overSheets: 12, popFrom: 8, coins: [4, 4, 5, 5, 5], overCoins: 8 };
+const TILL_OVER_SAYS = 'Till overloaded. Check the amount.';
+// two coins at the bottom of each heap, the rest landing where they fall (dx, dy, tilt), mirrored in every other cup;
+// overloaded, three more spill out of the cup
+const HEAP = [[-3, 13, 0], [7, 12, -8], [-9, 10, 6], [2, 8, -4], [-5, 6, 9]];
+const SPILL = [[-26, 17], [16, 18], [-4, 20]];
+const tillTotal = () => Math.max(0, amount(U.till.cash) || 0);
+const tillOverloaded = () => tillTotal() >= TILL_FULL.over;
+// how full each part looks for the cash handed over, 0 to 1, on a log scale (the prototype's curve)
+function drawerLevels(t) {
+  const L = Math.log10(Math.max(t, 1)),
+    c = (x) => Math.max(0, Math.min(1, x));
+  return { coin: t > 0 ? c(L / 2) : 0, 50: c((L - 1.5) / 1.4), 100: c((L - 1.8) / 1.5), 500: c((L - 2.6) / 1.5), 1000: c((L - 3) / 1.3) };
+}
+// how many sheets stand in each slot and how many coins lie in each cup
+function drawerCounts(t) {
+  const lv = drawerLevels(t),
+    ov = t >= TILL_FULL.over;
+  return {
+    over: ov,
+    slots: DRAWER_SLOTS.map((n) => (ov ? TILL_FULL.overSheets : Math.round(lv[n] * TILL_FULL.sheets))),
+    cups: DRAWER_CUPS.map((c, ci) => (ov ? TILL_FULL.overCoins : Math.round(lv.coin * TILL_FULL.coins[ci]))),
+  };
+}
+// a sheet standing in its slot: upright against the floor's 26° tilt; overloaded, the last four are taller and tip out
+function sheetStyle(i, ov) {
+  const pop = ov && i >= TILL_FULL.popFrom;
+  return { left: (6 + i * 6.6).toFixed(1) + '%', height: (pop ? 46 : 34) + 'px', transform: 'rotateX(-26deg)' + (pop ? ' rotateZ(' + (i % 2 ? 12 : -10) + 'deg)' : '') };
+}
+function coinStyle(ci, i) {
+  if (i < HEAP.length) {
+    const [dx, dy, r] = HEAP[i],
+      m = ci % 2 ? -1 : 1;
+    return { top: dy + 'px', marginLeft: -10 + dx * m + 'px', transform: 'rotate(' + r * m + 'deg)' };
+  }
+  const sp = SPILL[(i - HEAP.length) % SPILL.length];
+  return { top: sp[1] + 'px', marginLeft: sp[0] - 10 + 'px', transform: '' };
+}
+const styleText = (s) => 'left:' + (s.left || '') + ';top:' + (s.top || '') + ';height:' + (s.height || '') + ';margin-left:' + (s.marginLeft || '') + ';transform:' + (s.transform || 'none');
+function drawerFill() {
+  const k = drawerCounts(tillTotal());
+  return {
+    slot: (si) => Array.from({ length: k.slots[si] }, (_, i) => '<i style="' + styleText(sheetStyle(i, k.over)) + '"></i>').join(''),
+    cup: (ci) => Array.from({ length: k.cups[ci] }, (_, i) => '<i' + (ci === 0 ? ' class="r"' : '') + ' style="' + styleText(coinStyle(ci, i)) + '"></i>').join(''),
+  };
+}
+// overloaded, notes poke out from under the cash box even with the drawer shut (and on an iPhone on its side)
+function tillPeek() {
+  return '<div class="peek' + (tillOverloaded() ? ' on' : '') + '" id="tillPeek" aria-hidden="true"><i class="n1000" style="left:16%;transform:rotate(-6deg)"></i><i class="n500" style="left:44%;transform:rotate(4deg)"></i><i class="n1000" style="left:70%;transform:rotate(-3deg)"></i></div>';
+}
 function tillDrawer() {
+  const f = drawerFill();
   return (
     '<div class="dws" id="tillDrawer"><div class="tray" id="tillTray" aria-hidden="true">' +
-    '<div class="tnotes">' + DRAWER_SLOTS.map((n) => '<div class="tslot" data-n="' + n + '"></div>').join('') + '</div>' +
-    '<div class="tcoins">' + DRAWER_CUPS.map((c) => '<div class="tcup" data-c="' + c + '"></div>').join('') + '</div>' +
+    '<div class="tnotes">' + DRAWER_SLOTS.map((n, si) => '<div class="tslot n' + n + '" data-n="' + n + '"><span>' + n + '</span>' + f.slot(si) + '</div>').join('') + '</div>' +
+    '<div class="tcoins">' + DRAWER_CUPS.map((c, ci) => '<div class="tcup" data-c="' + c + '"><span>' + CUP_LABELS[c] + '</span>' + f.cup(ci) + '</div>').join('') + '</div>' +
     '</div></div>' +
     '<button type="button" class="hdl" id="tillHdl" aria-expanded="false" aria-label="Open till drawer"><span class="slotln" id="tillSlot" aria-hidden="true"></span></button>'
   );

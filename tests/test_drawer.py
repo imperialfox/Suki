@@ -71,8 +71,8 @@ def run(b, t):
        'the line is a real button: "Open till drawer", not expanded')
     ok(pg.get_attribute('#tillTray', 'aria-hidden') == 'true', 'the tray itself is hidden from VoiceOver')
     ok(pg.evaluate("document.querySelectorAll('#tillTray .tslot').length") == 4 and pg.evaluate("document.querySelectorAll('#tillTray .tcup').length") == 5
-       and pg.evaluate("document.querySelectorAll('#tillTray .tslot *, #tillTray .tcup *').length") == 0,
-       'inside: four note slots and five coin cups, empty (Q20 fills them)')
+       and pg.evaluate("document.querySelectorAll('#tillTray .tslot > span, #tillTray .tcup > span').length") == 9,
+       'inside: four note slots and five coin cups, each labelled (Q20 fills them: test_drawerfill.py)')
     ok('drawer' not in pg.evaluate("scrHelp()").lower() and 'drawer' not in pg.evaluate("JSON.stringify(TIPS)").lower(),
        'no tip and nothing in Help: it’s an Easter egg')
     gap = pg.evaluate("""(()=>{const i=$('till-cash').getBoundingClientRect(),d=document.querySelector('#app .denoms').getBoundingClientRect(),h=$('tillHdl').getBoundingClientRect();

@@ -82,6 +82,7 @@ function updateTill() {
     x = $('cashClear');
   if (b) b.disabled = !(tillState().bill > 0);
   if (x) x.hidden = !U.till.cash;
+  fillDrawer();
   if (!o) return;
   if (!$('cashRow')) return void (o.innerHTML = tillOut());
   const v = tillView();
@@ -96,6 +97,62 @@ function updateTill() {
 document.addEventListener('pointerdown', (e) => {
   if (e.target.closest('#cashClear')) e.preventDefault();
 });
+/* ===== The drawer's contents (Q20): how full it looks follows the cash handed over =====
+   Pieces that stay keep their place; new ones fade in and old ones fade out over 0.22 s, so nothing jumps (✕ empties it
+   the same calm way). Reduce Motion fades too; motion off (the tests' default), it changes at once. The counts and
+   places are screens.js's (drawerCounts, sheetStyle, coinStyle), so a redraw draws exactly what this leaves. */
+const FILL = { fade: 220 };
+function fillFade(el, show, done) {
+  const sp = MOTION.speed(),
+    a = sp > 0 ? el.animate([{ opacity: show ? 0 : 1 }, { opacity: show ? 1 : 0 }], { duration: FILL.fade * sp, easing: 'ease-out', fill: show ? 'none' : 'forwards' }) : null;
+  if (show) return;
+  if (a) a.onfinish = done;
+  else done();
+}
+function fillSync(box, k, make, place) {
+  const cur = [...box.querySelectorAll('i:not(.going)')];
+  cur.forEach((el, i) => {
+    if (i >= k) {
+      el.classList.add('going');
+      fillFade(el, false, () => el.remove());
+    } else place(el, i);
+  });
+  for (let i = cur.length; i < k; i++) {
+    const el = make();
+    place(el, i);
+    box.appendChild(el);
+    fillFade(el, true);
+  }
+}
+const placeAs = (el, s) => {
+  el.style.left = s.left || '';
+  el.style.top = s.top || '';
+  el.style.height = s.height || '';
+  el.style.marginLeft = s.marginLeft || '';
+  el.style.transform = s.transform || 'none';
+};
+function fillDrawer() {
+  const tray = $('tillTray');
+  if (!tray) return;
+  const k = drawerCounts(tillTotal());
+  tray.querySelectorAll('.tslot').forEach((s, si) => fillSync(s, k.slots[si], () => document.createElement('i'), (el, i) => placeAs(el, sheetStyle(i, k.over))));
+  tray.querySelectorAll('.tcup').forEach((c, ci) =>
+    fillSync(c, k.cups[ci], () => {
+      const el = document.createElement('i');
+      if (ci === 0) el.className = 'r';
+      return el;
+    }, (el, i) => placeAs(el, coinStyle(ci, i)))
+  );
+  drawerPeek();
+  const sr = $('tillOver'),
+    say = k.over ? TILL_OVER_SAYS : '';
+  if (sr && sr.textContent !== say) sr.textContent = say;
+}
+// the notes under the cash box show only when overloaded and the drawer is (nearly) shut
+function drawerPeek() {
+  const p = $('tillPeek');
+  if (p) p.classList.toggle('on', tillOverloaded() && DR.h < 8);
+}
 function setTillCash(v) {
   U.till.cash = v;
   const el = $('till-cash');
@@ -162,12 +219,19 @@ function noteFly(b, v) {
     x0 = r.left + r.width / 2,
     y0 = r.top + r.height / 2,
     f = [];
-  let ms;
+  // the drawer fully open (Q20): each note goes straight into its own slot, the ₱20 into its cup, 40% of the way down
+  const comp = drawerOK() && DR.open && DR.h >= DRAWER.open - 1 ? document.querySelector(coin ? '#tillTray .tcup[data-c="20"]' : '#tillTray .tslot[data-n="' + v + '"]') : null;
+  let ms,
+    dest = null;
+  if (comp) {
+    const cr = comp.getBoundingClientRect();
+    dest = { x: cr.left + cr.width / 2, y: cr.top + cr.height * 0.4 };
+  }
   if (mode === 'slot') {
     const s = slot.getBoundingClientRect(),
-      x1 = s.left + s.width / 2 - w / 2,
-      y1 = s.top + s.height / 2;
-    slotLine();
+      x1 = (dest ? dest.x : s.left + s.width / 2) - w / 2,
+      y1 = dest ? dest.y : s.top + s.height / 2;
+    if (!comp) slotLine();
     ms = FLIGHT.slot;
     f.push(
       { transform: 'translate(' + (x0 - w / 2) + 'px,' + (y0 - h / 2) + 'px) scale(.8)' },
@@ -175,7 +239,7 @@ function noteFly(b, v) {
       { transform: 'translate(' + x1 + 'px,' + y1 + 'px) scaleY(.04)' }
     );
   } else {
-    const t = amountEnd(inp),
+    const t = dest || amountEnd(inp),
       cx = (x0 + t.x) / 2,
       cy = Math.min(y0, t.y) - FLIGHT.arc;
     ms = FLIGHT.fly;
@@ -195,7 +259,7 @@ function noteFly(b, v) {
   el.setAttribute('aria-hidden', 'true');
   if (mode === 'slot') el.style.transformOrigin = '50% 0%';
   document.body.appendChild(el);
-  const fl = { el, v, mode, a: MOTION.animate(el, f, { ms, easing: FLIGHT.ease, fill: 'forwards' }) };
+  const fl = { el, v, mode, comp, a: MOTION.animate(el, f, { ms, easing: FLIGHT.ease, fill: 'forwards' }) };
   flights.add(fl);
   if (fl.a) fl.a.onfinish = () => noteLands(fl);
   else noteLands(fl);
@@ -205,6 +269,8 @@ function noteLands(fl) {
   if (!flights.delete(fl)) return;
   fl.el.remove();
   setTillCash(tillPlus(fl.v));
+  // into the drawer, the compartment it landed in gives the nod instead (if it's still there)
+  if (fl.comp && fl.comp.isConnected) return void MOTION.animate(fl.comp, [{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { ms: FLIGHT.pulse, easing: 'ease-out' });
   MOTION.animate($('till-cash'), [{ transform: 'scale(1)' }, { transform: 'scale(1.035)' }, { transform: 'scale(1)' }], { ms: FLIGHT.pulse, easing: 'ease-out' });
   if (fl.mode === 'slot') {
     MOTION.animate($('tillSlot'), [{ transform: 'scaleX(1)' }, { transform: 'scaleX(1.3)' }, { transform: 'scaleX(1)' }], { ms: FLIGHT.pulse + 20, easing: 'ease-out' });

@@ -2045,7 +2045,8 @@ body.land #app .cashbox {
    same things. A note is a block of paper, lit from the top left; a coin has a hint of metal and a thin edge.
    background-image only, so each piece keeps its colour underneath. */
 .cashrow .nt,
-.nfly:not(.coinf) {
+.nfly:not(.coinf),
+.peek i {
   background-image: linear-gradient(160deg, color-mix(in srgb, var(--n) 86%, var(--white)), var(--n) 55%, color-mix(in srgb, var(--n) 90%, var(--ni)));
 }
 .cashrow .nt {
@@ -2096,7 +2097,7 @@ body.land #app .cashbox {
 /* ===== The till drawer (Q19) =====
    An Easter egg: nothing points to it. It opens from under the cash box, and the six buttons ride on its front.
    .dws is the opening (0 to 106 pt, set by gestures.js); the tray inside is a rigid 300 pt drawer tilted 26° away from
-   you, so every row shrinks with distance together, its back tucked out of sight. Empty for now: Q20 fills it. */
+   you, so every row shrinks with distance together, its back tucked out of sight. Q20 fills it (below). */
 .dws {
   position: relative;
   height: 0;
@@ -2131,12 +2132,14 @@ body.land #app .cashbox {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 5px;
+  transform-style: preserve-3d;
 }
 .tslot {
   position: relative;
   height: 50px;
   border-radius: 5px;
   background: var(--surface);
+  transform-style: preserve-3d;
   box-shadow:
     inset 0 3px 4px -3px var(--dr-wall),
     0 0.5px 0 var(--dr-lip);
@@ -2156,6 +2159,102 @@ body.land #app .cashbox {
     inset 0 3px 4px -3px var(--dr-wall),
     inset 0 -4px 5px -3px var(--dr-lip),
     0 0.5px 0 var(--dr-lip);
+}
+/* ----- The drawer's contents (Q20) -----
+   Labels stand on each compartment's front lip, in front of what's inside, so they're never covered */
+.tslot > span,
+.tcup > span {
+  position: absolute;
+  z-index: 2;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg2);
+  background: var(--surface);
+  border-radius: 4px;
+  padding: 0 3px;
+  line-height: 14px;
+  pointer-events: none;
+}
+.tslot > span {
+  bottom: -5px;
+  right: 50%;
+  transform: translateX(50%) rotateX(-26deg);
+  transform-origin: 50% 100%;
+}
+.tcup > span {
+  left: 50%;
+  bottom: -5px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+/* notes stand up out of the floor as a block of paper: a lit face, a shaded edge and a hairline between sheets.
+   Their upright turn (rotateX(-26deg), against the floor's tilt) is set inline with any tip, by sheetStyle() */
+.tslot i {
+  position: absolute;
+  bottom: 4px;
+  width: 5px;
+  height: 34px;
+  border-radius: 1px 1px 0 0;
+  transform-origin: 50% 100%;
+  background: linear-gradient(to right, color-mix(in srgb, var(--n) 88%, var(--white)), var(--n) 50%, color-mix(in srgb, var(--n) 88%, var(--ni)));
+  box-shadow:
+    0 0 0 0.5px color-mix(in srgb, var(--ni) 35%, transparent),
+    -0.5px 0 0 color-mix(in srgb, var(--ni) 30%, transparent);
+}
+/* coins lie in a loose heap: a hint of metal from the top left, and a thin edge so a heap has thickness */
+.tcup i {
+  position: absolute;
+  left: 50%;
+  width: 20px;
+  height: 11px;
+  margin-left: -10px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 34% 28%, var(--coin-hi) 0, var(--coin) 50%, var(--coin-lo) 100%);
+  box-shadow:
+    0 1.2px 0 var(--coin-edge),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--coin-ink) 25%, transparent);
+}
+.tcup i.r {
+  box-shadow:
+    0 1.2px 0 var(--ring-edge),
+    inset 0 0 0 2px var(--coin-ring);
+}
+/* overloaded: notes poke out from under the cash box, even with the drawer shut. It sits under the box (which is
+   z-index 2) in the handle's gap, so it never moves the layout and never takes a touch */
+.cwell {
+  position: relative;
+}
+.peek {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -7px;
+  height: 14px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.peek.on {
+  opacity: 1;
+}
+.peek i {
+  position: absolute;
+  top: 0;
+  width: 58px;
+  height: 13px;
+  border-radius: 2px;
+  background-color: var(--n);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ni) 40%, transparent);
+}
+/* read by VoiceOver, not seen ("Till overloaded. Check the amount.") */
+.vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 /* the handle: the slot line under the drawer, a real button ("Open till drawer" / "Close till drawer") for VoiceOver
    and the keyboard. It fills the 14 pt gap above the buttons, so the Till looks exactly as before at rest */

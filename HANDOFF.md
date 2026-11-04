@@ -423,7 +423,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q1
 **Receipt:** Q19 · Heavy → Light to medium · 57 steps · 69k written · 14.8M re-read · 1 full test run
 
 ## Q20 · Quick Till: drawer contents and fullness
-**Render:** 1 Nov 2026, 13:09, scope as below (with Q18, Q19, Q21) · **Build:** awaiting · Needs: Q19 live.
+**Render:** 1 Nov 2026, 13:09, scope as below (with Q18, Q19, Q21) · **Build:** 4 Nov 2026, 19:25, Ivan: "Suki Q20 Build" · shipped as 2.26 · Needs: Q19 live; checked: 2.25.
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q18. Phase 3 of 4.
 
 **Goal:** the open drawer shows roughly how much cash is in it.
@@ -438,6 +438,11 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q1
 **Where to look:** `screens.js` (tray contents, the fill), `css/app.css`, the landing target from Q18.
 **Done when:** tests: fullness follows the amount; the peek at ₱50,000 and not below; the VoiceOver text; ✕ empties it; notes land in the right compartment; nothing overflows at ₱999,999; full suite passes. **Checks:** screenshots empty, half, full and overloaded, light and dark.
 **For your iPhone:** whether fullness reads at a glance; the overload peek; smoothness with 40-odd notes.
+**Debrief:** shipped as 2.26, built in a fresh chat from this handoff. All six agreed points as written, with the prototype's numbers (its fill curve, counts, heap and spill places, and timings).
+- **How:** counts and places in `screens.js` (`drawerLevels`, `drawerCounts`, `sheetStyle`, `coinStyle`, all numbers in `TILL_FULL`), drawn still by `drawerFill()`; the fades in `fillDrawer()` in `events.js`, called from `updateTill`; the landing target in `noteFly`; `drawerJiggle` and the peek in `gestures.js`. Details in `MAINTAINING.md` › The drawer's contents (Q20).
+- **Decided within scope:** (1) a note heads for its compartment only once the drawer is fully open (as the prototype); part-open, it goes to the cash box. (2) The compartment gives the nod instead of the cash box. (3) In Slot mode, landing in the drawer skips the slot line. (4) A hard shut also makes the coins jump with the knock (the spec's knock line). (5) Reduce Motion keeps the 0.2 s fades but has no jiggle. (6) The cash box got a wrapper (`.cwell`) so the peek can sit under it; nothing depended on its parent. (7) Q19's "empty" check now checks the nine labels.
+- **Tests:** new `test_drawerfill.py`, 72 checks (Done when, all covered). Touched files: drawer 82, till 73, notepress 93, all passing.
+- **Left for later:** Q21 (the haul and the mark). The spec's "Apple-detail ideas" stay unbuilt.
 
 ## Q21 · Quick Till: the haul and maker's mark
 **Render:** 1 Nov 2026, 13:09, scope as below (with Q18–Q20) · **Build:** awaiting · Needs: Q20 live.

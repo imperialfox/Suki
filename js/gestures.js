@@ -263,7 +263,7 @@ document.addEventListener('touchcancel', sheetDragEnd);
    left to the text (selecting, moving the cursor: 2.24.1). It starts shut every time: a redraw shuts it (drawerReset,
    from render()), and so does typing in either box. iPhone upright, iPad and Mac only; on its side there's no drawer.
    Reduce Motion: a 0.2 s fade, no spring and no knock. The page's glide stays.
-   Q20 fills it (notes and coins in their compartments); Q21 adds the two-finger haul. */
+   Q20 fills it (screens.js drawerFill, events.js fillDrawer) and makes the contents jiggle; Q21 adds the two-finger haul. */
 const DRAWER = {
   open: 106, // pt, open height
   claim: 6, // pt a drag must travel before it's the drawer's
@@ -294,6 +294,20 @@ function drawerSet(v) {
     c = drawerBox();
   if (d) d.style.height = Math.max(0, v).toFixed(2) + 'px';
   if (c) c.style.setProperty('--open', Math.min(1, Math.max(0, v) / DRAWER.open).toFixed(3));
+  drawerPeek();
+}
+// the contents feel the drawer move (Q20, open and shut only): coins lag a frame and settle, and the notes sway about
+// 1.6° and right themselves, each on top of where it stands. Motion on only: Reduce Motion has no jiggle
+function drawerJiggle(dir) {
+  if (!MOTION.on()) return;
+  document.querySelectorAll('#tillTray .tcup i:not(.going)').forEach((c, i) => {
+    const base = c.style.transform && c.style.transform !== 'none' ? c.style.transform : '';
+    MOTION.animate(c, [{ transform: (base + ' translateY(' + (dir * 1.6).toFixed(1) + 'px)').trim() }, { transform: base || 'none' }], { spring: 'ripple', delay: 16 + (i % 3) * 12 });
+  });
+  document.querySelectorAll('#tillTray .tslot i:not(.going)').forEach((n, i) => {
+    const base = n.style.transform && n.style.transform !== 'none' ? n.style.transform : '';
+    MOTION.animate(n, [{ transform: (base + ' rotateZ(' + ((i % 2 ? 1 : -1) * 1.6).toFixed(1) + 'deg)').trim() }, { transform: base || 'none' }], { spring: 'ripple', delay: 24 + (i % 4) * 10 });
+  });
 }
 // the slot line: shown now, and hidden again ms later unless the drawer is open or held
 function drawerLine(ms) {
@@ -329,6 +343,7 @@ function drawerSpeed(d, now) {
 function drawerKnock(k) {
   if (!MOTION.on()) return;
   MOTION.animate(drawerBox(), [{ transform: 'none' }, { transform: 'translateY(' + (-(0.8 + k * 1.4)).toFixed(2) + 'px)', offset: 0.3 }, { transform: 'none' }], { ms: DRAWER.knockMs, easing: 'ease-out' });
+  drawerJiggle(-1); // and the coins jump
 }
 // open or shut it, carrying the finger's speed (v0, pt/s) into the spring
 function drawerSnap(open, v0) {
@@ -364,6 +379,7 @@ function drawerSnap(open, v0) {
     };
     return;
   }
+  if (Math.abs(to - DR.h) > 4) drawerJiggle(open ? -1 : 1);
   const s = open ? MOTION.iosSpring(DRAWER.openFor, Math.min(DRAWER.flickBounce, Math.max(0, v0 || 0) / DRAWER.bouncePer)) : MOTION.iosSpring(DRAWER.shutFor, 0),
     w = 2 * Math.PI * s.f,
     k = open ? 0 : Math.max(0, Math.min(1, -(v0 || 0) / 1000));

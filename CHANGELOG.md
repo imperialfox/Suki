@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.26 · 4 Nov 2026
+*Quick Till: the drawer fills up with the cash you hand over (Q20)*
+
+**How full it looks**
+- The drawer now shows roughly how much cash is in it. It's a gauge, not a count: only the cash handed over decides it, and the bill changes nothing.
+- Coins fill first, then the ₱50s and ₱100s, then the ₱500s, then the ₱1,000s. Everything is full at ₱20,000.
+- Notes stand on edge in their slots as a block of paper, and coins lie in loose heaps in the scooped cups. Each compartment is labelled on its front lip: 1000, 500, 100, 50, then 20, 10, 5, 1 and 25¢.
+
+**Overloaded from ₱50,000**
+- Notes tip out of their slots and coins spill out of their cups.
+- With the drawer shut, notes peek out from under the cash box, so you see it without opening it. On an iPhone on its side, where there's no drawer, the peek still shows.
+- VoiceOver says "Till overloaded. Check the amount."
+
+**Notes land in the drawer**
+- With the drawer fully open, a tapped note flies straight into its own slot and the ₱20 into its cup, in both Fly and Slot. That compartment gives a small nod as it lands, and the amount changes then, as before.
+- With the drawer shut, notes go into the cash box as before.
+
+**Calm and physical**
+- Pieces fade in and out over about 0.2 s, so nothing jumps. ✕ empties the drawer the same calm way.
+- When the drawer opens or shuts, the coins lag a moment and settle, and the notes sway about 1.6° and right themselves. A hard shut makes the coins jump with the knock.
+- Reduce Motion: pieces still fade, but nothing jiggles.
+- Nothing new is saved: the drawer only reflects the cash box.
+
 ## 2.25 · 4 Nov 2026
 *Quick Till: a hidden till drawer under the cash box (Q19)*
 

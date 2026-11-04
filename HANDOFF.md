@@ -382,7 +382,7 @@ Tests: `test_notepress.py` (81 checks), `test_till.py` still 73 of 73. Full suit
 **Receipt:** Q18 · Light to medium → Light to medium · 63 steps · 47k written · 16.6M re-read · 1 full test run
 
 ### Q18 fix · only the two boxes can be selected (2.24.1)
-**Render:** awaiting · **Build:** awaiting · Raised by Ivan, 4 Nov 2026, 10:23: "i keep having the trouble on the till page of highlighting the buttons". Folded into Q18 at his word (10:25) rather than a new item, so it ships as a patch, 2.24.1.
+**Render:** 4 Nov 2026, 10:27, Ivan: "render and build" · scope: as below, with its default · **Build:** 4 Nov 2026, 10:27, same message · Raised by Ivan, 4 Nov 2026, 10:23: "i keep having the trouble on the till page of highlighting the buttons". Folded into Q18 at his word (10:25) rather than a new item, so it ships as a patch, 2.24.1.
 **Goal:** pressing anywhere on the Till never highlights text, except inside the two boxes.
 **Why:** none of the Till's buttons are set as unselectable, so a long press (which the tilt invites) selects the button's number and can bring up the copy menu. Labels, the change figure and the cash row can be selected the same way.
 **Agreed:**

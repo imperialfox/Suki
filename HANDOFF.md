@@ -379,6 +379,7 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Suki note pr
 Tests: `test_notepress.py` (81 checks), `test_till.py` still 73 of 73. Full suite: 1,063 of 1,065 side by side; the 2 were fold checks in `test_smart.py`, which passed 100 of 100 on its own (Known test issues). Pinned Playwright 1.56 pointed at a newer Chromium, as before. Screenshots at 375 and 402 px, light and dark, and mid-flight, checked by eye.
 **For your iPhone:** (1) Press and hold 500 near a corner: does it tip towards your thumb, and spring back when you let go? (2) Tap 1000 for a ₱789.50 bill: does the note arc into the box, and the change settle in as it lands? (3) Tap 20 a few times fast: does the coin spin, and does the amount end right? (4) Switch to Slot in Settings › Accessibility and tap a note: does the line show for it, then fade? (5) In daylight, do the notes read as paper and the coins as metal?
 **Left for later:** nothing new. Q19 (the drawer) is next.
+**Receipt:** Q18 · Light to medium → Light to medium · 63 steps · 47k written · 16.6M re-read · 1 full test run
 
 ## Q19 · Quick Till: till drawer
 **Render:** 1 Nov 2026, 13:09, scope as below (with Q18, Q20, Q21) · **Build:** awaiting · Needs: Q18 live (the slot line and materials).

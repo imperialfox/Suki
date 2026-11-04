@@ -87,12 +87,13 @@ Sorted by priority, highest first: what's broken or helps on the trip (7 Nov –
 3. Prices by region, using the town from Q16.
 4. Back-dated purchases use Rate history first (added 3 Nov 2026, Q23's build): Q22's one-day lookup could read the saved history and snapshot before asking Frankfurter, so a purchase logged for an earlier day offline gets its real rate at once instead of "estimated". Light.
 5. Screen and element IDs (added 3 Nov 2026): every screen, section and element gets its own clear name (like `quickadd-sheet`), and anything that shows up in more than one place also gets a group name, so every copy can be viewed together. First step: an ID map (screens, then their parts, then the group names) to check before any code changes. Medium.
-6. Assets kit (added 3 Nov 2026): switch every element over to the tuning and assets of Ivan's assets kit (coming soon). Waits for the kit, and easier after idea 4: each group swaps once instead of copy by copy. The two can't run at the same time; both touch every screen.
-7. A search circle beside the tab bar (four tabs plus Search), as in iOS 26.
-8. Smart add: a receipt already works through iPhone's Live Text (copy the text from a photo, paste it in). Help could say so.
-9. Search rows: make the peso price the only bold figure (visual audit finding 10; default keeps the pounds).
-10. Rows glide when editing moves a purchase (Q11 covers saving, deleting and Undo only).
-11. Chart bars: switch their entrance from the borrowed ripple to Suki's settle (visual audit finding 9).
-12. Smart add: the prototype's "Try" example chips were left out of Q14 (they'd put made-up purchases a tap from his real log). They could come back as examples that only fill the box with a clearly made-up line, or as a Help section.
-13. Smart add: the flip (the card turning over on its middle) was prototyped beside the fade; the fade was kept. Kept here for the record.
-14. Rate history, later (from its Recon, 2 Nov 2026): compare two dates with two fingers, as in Stocks (medium); your real rate against the reference, noted when changing money (medium); copy a summary for family (light).
+6. Tests: fix the flaky fold check in `test_smart.py` ("the side showing is fully there", added 4 Nov 2026, Q21's build). It has now failed on its own three times with nothing near Home's Log card changed (Q18 locally, Q20 and Q21 on GitHub), and a re-run spends one of the build's checks. Light.
+7. Assets kit (added 3 Nov 2026): switch every element over to the tuning and assets of Ivan's assets kit (coming soon). Waits for the kit, and easier after idea 4: each group swaps once instead of copy by copy. The two can't run at the same time; both touch every screen.
+8. A search circle beside the tab bar (four tabs plus Search), as in iOS 26.
+9. Smart add: a receipt already works through iPhone's Live Text (copy the text from a photo, paste it in). Help could say so.
+10. Search rows: make the peso price the only bold figure (visual audit finding 10; default keeps the pounds).
+11. Rows glide when editing moves a purchase (Q11 covers saving, deleting and Undo only).
+12. Chart bars: switch their entrance from the borrowed ripple to Suki's settle (visual audit finding 9).
+13. Smart add: the prototype's "Try" example chips were left out of Q14 (they'd put made-up purchases a tap from his real log). They could come back as examples that only fill the box with a clearly made-up line, or as a Help section.
+14. Smart add: the flip (the card turning over on its middle) was prototyped beside the fade; the fade was kept. Kept here for the record.
+15. Rate history, later (from its Recon, 2 Nov 2026): compare two dates with two fingers, as in Stocks (medium); your real rate against the reference, noted when changing money (medium); copy a summary for family (light).

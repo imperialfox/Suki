@@ -24,7 +24,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q14 | Logging: Smart add | Shipped · 2.20 | same | Medium to heavy. Folds in the quick add Recon's suggested Q14. After Q17 |
 | Q15 | Logging: the Siri inbox | Shipped · 2.21 | none (slim follow-on to Q14) | Light. Quick add Recon (B), cut down. After Q14 |
 | Q12 | Look: calendar tints and price range strip | Shipped · 2.16 | [Q12 prototype](https://claude.ai/artifact/NFwAtWyj5ERxgyGifutbeS) | Light to medium. Visual audit (B), without the week strip. Built before Q13 at Ivan's word |
-| Q18 | Quick Till: note press | Shipped · 2.24 | [Note press prototype](https://claude.ai/artifact/EsJMmBNf71Sm48FDttcpLS) ("iOS way" feel) | Light to medium. Phase 1 of 4 of the till drawer idea; spec in the project doc `idea_till_note-press_notes.md`, plan in the project doc `q18_till_drawer-and-note-press_blueprint.md`. Finger tilt, Fly and Slot with a setting, and the new note and coin materials. After Q13 |
+| Q18 | Quick Till: note press | Shipped · 2.24; fix (only the two boxes can be selected, 2.24.1) Awaiting Render | [Note press prototype](https://claude.ai/artifact/EsJMmBNf71Sm48FDttcpLS) ("iOS way" feel) | Light to medium. Phase 1 of 4 of the till drawer idea; spec in the project doc `idea_till_note-press_notes.md`, plan in the project doc `q18_till_drawer-and-note-press_blueprint.md`. Finger tilt, Fly and Slot with a setting, and the new note and coin materials. After Q13 |
 | Q19 | Quick Till: till drawer | Approved — awaiting Build | same | Heavy. Phase 2 of 4: the hidden drawer, opening and shutting the iOS way, the scroll chain and the knock. Empty inside. After Q18 |
 | Q20 | Quick Till: drawer contents and fullness | Approved — awaiting Build | same | Medium. Phase 3 of 4: notes land in their compartments, the fullness gauge and the overloaded state. After Q19 |
 | Q21 | Quick Till: the haul and maker's mark | Approved — awaiting Build | same | Light. Phase 4 of 4: the ten-swipe hand-over-hand pull and "Designed by Ivan". After Q20 |
@@ -35,9 +35,10 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 
 Build top to bottom; each still needs its own **build**. One line per item: `N. Q## — reason`, with "needs Q##" for anything that must ship first. Names live in the table above.
 
-1. Q19 — phase 2 of the till drawer (Q18 shipped as 2.24)
-2. Q20 — needs Q19
-3. Q21 — needs Q20
+1. Q18 fix — only the two boxes can be selected on the Till (2.24.1); light
+2. Q19 — phase 2 of the till drawer (Q18 shipped as 2.24)
+3. Q20 — needs Q19
+4. Q21 — needs Q20
 
 **Render:** 31 Oct 2026, 22:56 · Ivan: "render all, then build" · scope: Q01–Q06 exactly as written in HANDOFF.md, built in the order listed above (2.5 to 2.10).
 

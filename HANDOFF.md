@@ -381,6 +381,20 @@ Tests: `test_notepress.py` (81 checks), `test_till.py` still 73 of 73. Full suit
 **Left for later:** nothing new. Q19 (the drawer) is next.
 **Receipt:** Q18 · Light to medium → Light to medium · 63 steps · 47k written · 16.6M re-read · 1 full test run
 
+### Q18 fix · only the two boxes can be selected (2.24.1)
+**Render:** awaiting · **Build:** awaiting · Raised by Ivan, 4 Nov 2026, 10:23: "i keep having the trouble on the till page of highlighting the buttons". Folded into Q18 at his word (10:25) rather than a new item, so it ships as a patch, 2.24.1.
+**Goal:** pressing anywhere on the Till never highlights text, except inside the two boxes.
+**Why:** none of the Till's buttons are set as unselectable, so a long press (which the tilt invites) selects the button's number and can bring up the copy menu. Labels, the change figure and the cash row can be selected the same way.
+**Agreed:**
+1. On the Till page (`#app.tab-till`), no text selection and no long-press menu (`user-select: none`, `-webkit-touch-callout: none`) on everything: the six buttons, labels, the eyebrow and figure, the cash row, the foot lines and Log this bill.
+2. Total bill and Cash handed over stay fully selectable (`-webkit-user-select: text` set back on the two inputs), so holding to move the cursor, selecting and pasting still work.
+3. Taps, the tilt and the flights work as now.
+**Out of scope:** other pages. Copying the change figure goes away; *default if unanswered:* that's fine.
+**Where to look:** `css/app.css` (one rule near the Quick Till block). Add checks to `test_notepress.py`.
+**Done when:** tests: after a long press on a button, a label and the figure, nothing is selected (`getSelection()` empty, computed `user-select` is `none`, `-webkit-touch-callout` is `none`); both boxes still select their text and take typing; Q13 and Q18 tests still pass; full suite passes. A patch version, 2.24.1, with its changelog section.
+**Effort:** light.
+**For your iPhone:** hold a note button for a second: no highlight and no copy menu; hold inside each box: the cursor and Select still work.
+
 ## Q19 · Quick Till: till drawer
 **Render:** 1 Nov 2026, 13:09, scope as below (with Q18, Q20, Q21) · **Build:** awaiting · Needs: Q18 live (the slot line and materials).
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype and spec as Q18 ("iOS way" feel; the Now/iOS toggle and slow-motion controls are prototype only). Phase 2 of 4.

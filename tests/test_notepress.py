@@ -2,7 +2,7 @@
 a tapped note flies (or slots) into the cash box and the amount changes only when it lands, once per tap, also when
 tapped fast; a redraw or a tab switch lands it at once and leaves nothing behind; typing, ✕ and Exact drop notes still
 in the air; Slot's line is hidden at rest, shows for the slot and fades after. The setting in Settings › Accessibility
-(Fly · Slot) switches, survives a reload and isn't in backups. Reduce Motion and motion off: no tilt, no flight, the
+(Fly · Slot) switches, survives a reload and isn't in backups. Only the two boxes can be selected on the Till (2.24.1). Reduce Motion and motion off: no tilt, no flight, the
 amount changes at once. The new materials on the notes and coins, the same in dark mode. Screenshots at 375 and 402 px,
 light and dark."""
 
@@ -225,7 +225,35 @@ def run(b, t):
     t.shot(pg, '402-light-flying')
     pg.context.close()
 
-    # ── 7 · Screenshots ─────────────────────────────────────────────────────────────────────────────────
+    # ── 7 · Only the two boxes can be selected (Q18 fix, 2.24.1) ───────────────────────────────────────
+    pg = t.page(b, w=402, h=874, init=ON)
+    pg.evaluate("go('till')")
+    pg.evaluate("U.till={bill:'789.50',cash:'1000'};$('till-bill').value='789.50';$('till-cash').value='1000';updateTill()")
+    for name, sel in [('a note button', '[data-a=cashAdd][data-v="500"]'), ('Exact', '[data-a=cashExact]'), ('a label', '#app .fld label'),
+                      ('the change figure', '#tillFig'), ('the cash row', '#cashRow'), ('the title', '#app h1')]:
+        pg.evaluate("U.till={bill:'789.50',cash:'1000'};$('till-bill').value='789.50';$('till-cash').value='1000';updateTill();getSelection().removeAllRanges()")
+        pg.locator(sel).first.scroll_into_view_if_needed()
+        pg.locator(sel).first.click(click_count=3)
+        landed(pg)
+        us = pg.evaluate(f"getComputedStyle(document.querySelector('{sel}')).userSelect")
+        ok(pg.evaluate("getSelection().toString()") == '' and us == 'none', f'holding or triple-tapping {name} selects nothing ({us})')
+    ok(pg.evaluate("getComputedStyle($('tillLog')).userSelect") == 'none', 'Log this bill can’t be selected either')
+    pg.evaluate("U.till={bill:'789.50',cash:'1000'};$('till-bill').value='789.50';$('till-cash').value='1000';updateTill()")
+    for box in ['#till-bill', '#till-cash']:
+        pg.click(box, click_count=3)
+        r = pg.evaluate(f"(()=>{{const e=document.querySelector('{box}');return [getComputedStyle(e).userSelect,e.selectionEnd-e.selectionStart,e.value.length]}})()")
+        ok(r[0] in ('text', 'auto') and r[1] == r[2] > 0, f'{box[1:]} still selects its text ({r})')
+    pg.fill('#till-cash', '500')
+    ok(pg.inner_text('#tillFig') == '₱289.50', 'and still takes typing')
+    pg.evaluate("go('convert')")
+    ok(pg.evaluate("getComputedStyle(document.getElementById('app')).userSelect") != 'none', 'other pages are left alone')
+    import os
+    css = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'css', 'app.css'), encoding='utf-8').read()
+    rule = css.split('#app.tab-till {', 1)[1].split('}', 1)[0] if '#app.tab-till {' in css else ''
+    ok('-webkit-touch-callout: none' in rule, 'and the iPhone’s long-press menu is off on the Till')
+    pg.context.close()
+
+    # ── 8 · Screenshots ─────────────────────────────────────────────────────────────────────────────────
     for w, h in [(375, 667), (402, 874)]:
         for sc in ['light', 'dark']:
             pg = t.page(b, w=w, h=h, sc=sc)

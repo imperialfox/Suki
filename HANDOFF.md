@@ -394,6 +394,8 @@ Tests: `test_notepress.py` (81 checks), `test_till.py` still 73 of 73. Full suit
 **Done when:** tests: after a long press on a button, a label and the figure, nothing is selected (`getSelection()` empty, computed `user-select` is `none`, `-webkit-touch-callout` is `none`); both boxes still select their text and take typing; Q13 and Q18 tests still pass; full suite passes. A patch version, 2.24.1, with its changelog section.
 **Effort:** light.
 **For your iPhone:** hold a note button for a second: no highlight and no copy menu; hold inside each box: the cursor and Select still work.
+**Debrief:** shipped as 2.24.1. Built in the Q18 chat, at Ivan's word. One rule in `css/app.css` (`#app.tab-till` unselectable, its inputs selectable again), so anything added to the Till later is unselectable too unless it opts in; noted in `MAINTAINING.md`. The default applied: the change figure no longer copies. Tests: `test_notepress.py` section 7 (12 new checks: holding or triple-tapping a button, Exact, a label, the figure, the cash row and the title selects nothing; Log this bill is unselectable; both boxes select and take typing; other pages left alone; the long-press menu off), 93 of 93. Full suite: 1,076 of 1,077 side by side; the 1 was the known `test_smart.py` fold timing, 100 of 100 on its own.
+**Receipt:** Q18 fix · Light → included in the Q18 chat · see BUILD_RECEIPTS.md
 
 ## Q19 · Quick Till: till drawer
 **Render:** 1 Nov 2026, 13:09, scope as below (with Q18, Q20, Q21) · **Build:** awaiting · Needs: Q18 live (the slot line and materials).

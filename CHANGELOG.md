@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.24.1 · 4 Nov 2026
+*Quick Till: only the two boxes can be selected (Q18)*
+
+- Holding a note, Exact, a label or your change no longer highlights it or brings up the copy menu.
+- Total bill and Cash handed over still select as before, so you can move the cursor, select and paste.
+
 ## 2.24 · 4 Nov 2026
 *Quick Till: tapping a note feels like handing over cash (Q18)*
 

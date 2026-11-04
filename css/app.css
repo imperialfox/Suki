@@ -1996,6 +1996,18 @@ a.row:active {
   margin: 0;
   pointer-events: none;
 }
+/* Only the two boxes can be selected on the Till (Q18 fix, 2.24.1): holding a button, a label or the change never
+   highlights it or brings up the copy menu. The boxes keep selecting, so the cursor, Select and Paste still work. */
+#app.tab-till {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+#app.tab-till input {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
 /* ===== The note press (Q18) =====
    One object, one look: wherever a note or coin appears (the change row, a bundle, a note in flight) it's made of the
    same things. A note is a block of paper, lit from the top left; a coin has a hint of metal and a thin edge.

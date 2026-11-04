@@ -3,40 +3,40 @@
 The one live list of planned work. Nothing here is built until Ivan says **render** for the named item, and then **build**.
 States: `Awaiting Render` · `Approved — awaiting Build` · `Building` · `Shipped` · `Blocked`.
 Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the next minor version when it's built.
-**Release order** (below the table) is the order to build in. Render places the item in it (at the end unless Ivan says where), with "needs Q##" in its reason for anything that must ship first; the Build that ships an item removes it in the same push. The [Render queues](https://imperialfox.github.io/render-queue/) dashboard reads it for Up next and Next build.
+**Release order** (below the table) is the order to build in. Render places the item in it (at the end unless Ivan says where), with "needs Q##" in its reason for anything that must ship first; the Build that ships an item removes it in the same push. Render also fills the item's **Size** in the table (Light, Light to medium, Medium, Medium to heavy or Heavy, the effort guessed in its handoff) and ends its Release order line with the approval stamp `(Ivan, 1 Nov 2026)`. The [Render queues](https://imperialfox.github.io/render-queue/) dashboard reads it for Up next and Next build, and the Size column for each item's size ring.
 
-| ID | Item | State | Prototype | Notes |
-|---|---|---|---|---|
-| Q01 | Fixes: confirm labels, search, swap, rate line | Shipped · 2.5 | [Suki prototype](https://claude.ai/artifact/GYRLsBqjns8tCFveFhAhE8) | Light. Blank red confirm buttons are the urgent one |
-| Q03 | Spending: over time, calendar, Undo, Show more, new day | Shipped · 2.6 | same | Medium. Show more and new-day refresh added from the stress test |
-| Q02 | Prices: a sourced price database and browsing by category | Shipped · 2.7 | same | Medium. 100 prices with sources, checked 31 Oct 2026 |
-| Q04 | Look: soft-edge bar, dock position, tokens, Accessibility, item glyphs | Shipped · 2.8 | same | Medium |
-| Q05 | Data: keep your data safe | Shipped · 2.9 | none (wireframe skipped by Ivan) | Light to medium. From the stress test, A2 |
-| Q06 | Tidy-ups: amounts, backup values, rate timeout, long totals | Shipped · 2.10 | none (wireframe skipped by Ivan) | Light. From the stress test, A3 |
-| Q07 | Onboarding: welcome card, tips and Help | Shipped · 2.11 | [Onboarding prototype](https://claude.ai/artifact/FHaHJmMntjWM9eeDrrDkN9) | Medium. Builds after Q06, as 2.11 |
-| Q08 | Navigation: missing doors | Shipped · 2.12 | [Q08–Q11 prototype](https://claude.ai/artifact/FeN6KP83zyBJrWmh2465Dt) | Light to medium. From the navigation audit (A) and visual audit finding 8 |
-| Q09 | Search: your records in results | Shipped · 2.13 | same | Medium. Navigation audit (B). After Q08 |
-| Q10 | Spending: calendar and bar doors | Shipped · 2.14 | same | Light. Navigation audit (C). After Q09 |
-| Q11 | Motion: sheets and rows | Shipped · 2.15 | same | Medium. Visual audit (A). After Q10 |
-| Q13 | Quick Till: bigger buttons and change as cash | Shipped · 2.17 | [Quick Till prototype](https://claude.ai/artifact/1HLP63FZ3DXfqo7vTdEg8g) | Light to medium. Visual audit (C); spec in the project doc `q13_till_change-as-cash_spec.md`. After Q11 |
-| Q16 | Logging: location | Shipped · 2.18 | same as Q08 (item 12) | Light to medium. Prototyped as "Q14"; Q12–Q15 are suggested by other Recon. After Q13 |
-| Q17 | Home: exchange rate card | Shipped · 2.19 | [Smart add prototype](https://claude.ai/artifact/KmqSWPKWGBSEWDjMQEgCkF) ("Rate above") | Light. After Q16 |
-| Q14 | Logging: Smart add | Shipped · 2.20 | same | Medium to heavy. Folds in the quick add Recon's suggested Q14. After Q17 |
-| Q15 | Logging: the Siri inbox | Shipped · 2.21 | none (slim follow-on to Q14) | Light. Quick add Recon (B), cut down. After Q14 |
-| Q12 | Look: calendar tints and price range strip | Shipped · 2.16 | [Q12 prototype](https://claude.ai/artifact/NFwAtWyj5ERxgyGifutbeS) | Light to medium. Visual audit (B), without the week strip. Built before Q13 at Ivan's word |
-| Q18 | Quick Till: note press | Shipped · 2.24; fix (only the two boxes can be selected) shipped · 2.24.1 | [Note press prototype](https://claude.ai/artifact/EsJMmBNf71Sm48FDttcpLS) ("iOS way" feel) | Light to medium. Phase 1 of 4 of the till drawer idea; spec in the project doc `idea_till_note-press_notes.md`, plan in the project doc `q18_till_drawer-and-note-press_blueprint.md`. Finger tilt, Fly and Slot with a setting, and the new note and coin materials. After Q13 |
-| Q19 | Quick Till: till drawer | Shipped · 2.25 | same | Heavy. Phase 2 of 4: the hidden drawer, opening and shutting the iOS way, the scroll chain and the knock. Empty inside. After Q18 |
-| Q20 | Quick Till: drawer contents and fullness | Approved — awaiting Build | same | Medium. Phase 3 of 4: notes land in their compartments, the fullness gauge and the overloaded state. After Q19 |
-| Q21 | Quick Till: the haul and maker's mark | Approved — awaiting Build | same | Light. Phase 4 of 4: the ten-swipe hand-over-hand pull and "Designed by Ivan". After Q20 |
-| Q22 | Spending: pounds at the rate you paid | Shipped · 2.22 | none (skipped by Ivan, like Q05 and Q06) | Light. Rate history Recon's Milestone A, in the project doc `idea_rate_history_notes.md`: totals in pounds add each purchase at its own rate, and a back-dated purchase gets that day's ECB rate. Built before Q23 |
-| Q23 | Convert: rate history | Shipped · 2.23 | [Rate history prototype](https://claude.ai/artifact/PMTmqDCE7i2cXavLkqYekA) (version 1793642745-fdc9, on prototype kit 1.0.0) | Medium. Milestone B in the same doc: the page from Convert's rate row, why it moved, sourced news notes, and history that never depends on one service. After Q22 |
+| ID | Item | State | Size | Prototype | Notes |
+|---|---|---|---|---|---|
+| Q01 | Fixes: confirm labels, search, swap, rate line | Shipped · 2.5 | | [Suki prototype](https://claude.ai/artifact/GYRLsBqjns8tCFveFhAhE8) | Light. Blank red confirm buttons are the urgent one |
+| Q03 | Spending: over time, calendar, Undo, Show more, new day | Shipped · 2.6 | | same | Medium. Show more and new-day refresh added from the stress test |
+| Q02 | Prices: a sourced price database and browsing by category | Shipped · 2.7 | | same | Medium. 100 prices with sources, checked 31 Oct 2026 |
+| Q04 | Look: soft-edge bar, dock position, tokens, Accessibility, item glyphs | Shipped · 2.8 | | same | Medium |
+| Q05 | Data: keep your data safe | Shipped · 2.9 | | none (wireframe skipped by Ivan) | Light to medium. From the stress test, A2 |
+| Q06 | Tidy-ups: amounts, backup values, rate timeout, long totals | Shipped · 2.10 | | none (wireframe skipped by Ivan) | Light. From the stress test, A3 |
+| Q07 | Onboarding: welcome card, tips and Help | Shipped · 2.11 | | [Onboarding prototype](https://claude.ai/artifact/FHaHJmMntjWM9eeDrrDkN9) | Medium. Builds after Q06, as 2.11 |
+| Q08 | Navigation: missing doors | Shipped · 2.12 | | [Q08–Q11 prototype](https://claude.ai/artifact/FeN6KP83zyBJrWmh2465Dt) | Light to medium. From the navigation audit (A) and visual audit finding 8 |
+| Q09 | Search: your records in results | Shipped · 2.13 | | same | Medium. Navigation audit (B). After Q08 |
+| Q10 | Spending: calendar and bar doors | Shipped · 2.14 | | same | Light. Navigation audit (C). After Q09 |
+| Q11 | Motion: sheets and rows | Shipped · 2.15 | | same | Medium. Visual audit (A). After Q10 |
+| Q13 | Quick Till: bigger buttons and change as cash | Shipped · 2.17 | | [Quick Till prototype](https://claude.ai/artifact/1HLP63FZ3DXfqo7vTdEg8g) | Light to medium. Visual audit (C); spec in the project doc `q13_till_change-as-cash_spec.md`. After Q11 |
+| Q16 | Logging: location | Shipped · 2.18 | | same as Q08 (item 12) | Light to medium. Prototyped as "Q14"; Q12–Q15 are suggested by other Recon. After Q13 |
+| Q17 | Home: exchange rate card | Shipped · 2.19 | | [Smart add prototype](https://claude.ai/artifact/KmqSWPKWGBSEWDjMQEgCkF) ("Rate above") | Light. After Q16 |
+| Q14 | Logging: Smart add | Shipped · 2.20 | | same | Medium to heavy. Folds in the quick add Recon's suggested Q14. After Q17 |
+| Q15 | Logging: the Siri inbox | Shipped · 2.21 | | none (slim follow-on to Q14) | Light. Quick add Recon (B), cut down. After Q14 |
+| Q12 | Look: calendar tints and price range strip | Shipped · 2.16 | | [Q12 prototype](https://claude.ai/artifact/NFwAtWyj5ERxgyGifutbeS) | Light to medium. Visual audit (B), without the week strip. Built before Q13 at Ivan's word |
+| Q18 | Quick Till: note press | Shipped · 2.24; fix (only the two boxes can be selected) shipped · 2.24.1 | | [Note press prototype](https://claude.ai/artifact/EsJMmBNf71Sm48FDttcpLS) ("iOS way" feel) | Light to medium. Phase 1 of 4 of the till drawer idea; spec in the project doc `idea_till_note-press_notes.md`, plan in the project doc `q18_till_drawer-and-note-press_blueprint.md`. Finger tilt, Fly and Slot with a setting, and the new note and coin materials. After Q13 |
+| Q19 | Quick Till: till drawer | Shipped · 2.25 | | same | Heavy. Phase 2 of 4: the hidden drawer, opening and shutting the iOS way, the scroll chain and the knock. Empty inside. After Q18 |
+| Q20 | Quick Till: drawer contents and fullness | Approved — awaiting Build | Medium | same | Medium. Phase 3 of 4: notes land in their compartments, the fullness gauge and the overloaded state. After Q19 |
+| Q21 | Quick Till: the haul and maker's mark | Approved — awaiting Build | Light | same | Light. Phase 4 of 4: the ten-swipe hand-over-hand pull and "Designed by Ivan". After Q20 |
+| Q22 | Spending: pounds at the rate you paid | Shipped · 2.22 | | none (skipped by Ivan, like Q05 and Q06) | Light. Rate history Recon's Milestone A, in the project doc `idea_rate_history_notes.md`: totals in pounds add each purchase at its own rate, and a back-dated purchase gets that day's ECB rate. Built before Q23 |
+| Q23 | Convert: rate history | Shipped · 2.23 | | [Rate history prototype](https://claude.ai/artifact/PMTmqDCE7i2cXavLkqYekA) (version 1793642745-fdc9, on prototype kit 1.0.0) | Medium. Milestone B in the same doc: the page from Convert's rate row, why it moved, sourced news notes, and history that never depends on one service. After Q22 |
 
 ## Release order
 
 Build top to bottom; each still needs its own **build**. One line per item: `N. Q## — reason`, with "needs Q##" for anything that must ship first. Names live in the table above.
 
-1. Q20 — phase 3 of the till drawer (Q19 shipped as 2.25)
-2. Q21 — needs Q20
+1. Q20 — phase 3 of the till drawer (Q19 shipped as 2.25) (Ivan, 1 Nov 2026)
+2. Q21 — needs Q20 (Ivan, 1 Nov 2026)
 
 **Render:** 31 Oct 2026, 22:56 · Ivan: "render all, then build" · scope: Q01–Q06 exactly as written in HANDOFF.md, built in the order listed above (2.5 to 2.10).
 

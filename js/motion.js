@@ -5,6 +5,7 @@
      Each is a damping ratio and a frequency in Hz, turned into a CSS linear() easing and a duration.
      CSS reads them as --ease-gentle / --dur-gentle and so on; JS uses MOTION.animate().
    - Stagger: words 30 ms apart, rows 45 ms, chart bars 30 ms.
+   - EASE (Q26): pop, knob and out, the fixed curves for a timed move, matching app.css's --ease-pop/-knob/-out.
    - Settle and leave (Q11): how a row arrives in a list and how it goes (MOTION.settle, MOTION.leave).
    - Reduce Motion (the iOS setting): no movement or blur, just short fades or nothing.
    - Speed: 1 normally, 4 for slow motion while tuning, 0 for motion off (the tests use 0).
@@ -17,6 +18,9 @@ const MOTION = (() => {
     ripple: { z: 0.6, f: 2.4 },
   };
   const STAGGER = { word: 30, row: 45, bar: 30 };
+  // fixed curves for a timed move that isn't a spring: the same three as app.css's --ease-pop, --ease-knob and
+  // --ease-out (Q26). Don't write a new cubic-bezier( in code: use one of these or a spring (tests/test_values.py)
+  const EASE = { pop: 'cubic-bezier(.3,1.7,.45,1)', knob: 'cubic-bezier(.3,1.35,.5,1)', out: 'cubic-bezier(.2,.8,.2,1)' };
   const BLUR_MAX = 1.5; // px. Ivan chose 1.5 over 2 so far lyrics stay recognisable
   const KEY = 'suki:motion';
   const RKEY = 'suki:reduceMotion'; // auto (match iPhone), on or off. This device only, never in backups
@@ -73,8 +77,9 @@ const MOTION = (() => {
       r.setProperty('--ease-' + k, C[k].ease);
       r.setProperty('--dur-' + k, (on() ? dur(k) : 0) + 'ms');
     });
-    // for CSS transitions that aren't springs (the page behind a sheet): calc(0.45s * var(--mspeed)), 0 with motion off
-    r.setProperty('--mspeed', String(on() ? speed : 0));
+    // every stylesheet duration that isn't a spring is multiplied by this: calc(var(--dur-fade) * var(--mspeed, 1)).
+    // It's the speed itself (4 in slow motion, 0 with motion off), also with Reduce Motion, whose own fades follow it (Q26)
+    r.setProperty('--mspeed', String(speed));
     document.documentElement.classList.toggle('motion-off', !on());
     document.documentElement.classList.toggle('motion-reduced', reduced());
   }
@@ -100,7 +105,7 @@ const MOTION = (() => {
     return el.animate(frames, {
       duration: o.ms ? o.ms * speed : dur(name),
       delay: (o.delay || 0) * speed,
-      easing: o.ms ? o.easing || 'cubic-bezier(.2,.8,.2,1)' : ease(name),
+      easing: o.ms ? o.easing || EASE.out : ease(name),
       fill: o.fill || 'none',
     });
   }
@@ -229,7 +234,7 @@ const MOTION = (() => {
         return;
       }
       const bl = newH ? blurAt(el, newH) : 4;
-      el.animate([{ opacity: 0, filter: 'blur(' + bl.toFixed(1) + 'px) brightness(.82)', transform: 'translateY(5px)' }, { opacity: 1, filter: 'blur(0px) brightness(1)', transform: 'none' }], { duration: 440 * k, delay: (110 + i * 45) * k, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+      el.animate([{ opacity: 0, filter: 'blur(' + bl.toFixed(1) + 'px) brightness(.82)', transform: 'translateY(5px)' }, { opacity: 1, filter: 'blur(0px) brightness(1)', transform: 'none' }], { duration: 440 * k, delay: (110 + i * 45) * k, easing: EASE.out, fill: 'backwards' });
     });
     // watch the frames while it plays; two long gaps and the next fold is a crossfade
     let last = performance.now(),
@@ -258,6 +263,7 @@ const MOTION = (() => {
   return {
     SPRINGS,
     STAGGER,
+    EASE,
     BLUR_MAX,
     curve,
     on,

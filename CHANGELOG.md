@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.30 · 5 Nov 2026
+*Interface: every corner, press, curve and duration has a name (Q26)*
+
+**The value set**
+- Every corner, press, curve, duration and shadow Suki uses is now a named value at the top of the stylesheet, using the parts kit's names and numbers (`--r-card`, `--press`, `--ease-pop`, `--dur-fade` and so on), plus four of Suki's own: the iPad and Mac sheet corner (28), the text button press fade (0.35) and the Till's corner and coin cups.
+- 59 hand-written values were swapped for their name, with no change you'd see. The ones the kit has no name for stay as they are, each listed with why, and that list can only get shorter as the parts kit moves in (Q27, Q28).
+- Code has the same three curves as `MOTION.EASE` (pop, knob, out).
+- A new test stops new hand-written corners, presses, curves, durations and shadows, in the stylesheet and in the code.
+
+**Slow motion**
+- Every fade and timing in the stylesheet now follows Slow motion, so the sheet's dim, the iPad sheet's pop, the toast's fade and Reduce Motion's fades slow down with everything else, and stop with motion off.
+
+**Tidied**
+- The tab bar's padding, width and height transitions are gone. They were left from Vocal Sessions' folding tab bar, which Suki never had.
+
+**Unchanged**
+- Nothing looks or moves differently at normal speed.
+
+Screens: none
+
 ## 2.29 · 5 Nov 2026
 *Interface: every screen, sheet and part has a permanent ID (Q25)*
 

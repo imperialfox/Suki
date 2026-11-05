@@ -32,7 +32,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q23 | Convert: rate history | Shipped · 2.23 | | [Rate history prototype](https://claude.ai/artifact/PMTmqDCE7i2cXavLkqYekA) (version 1793642745-fdc9, on prototype kit 1.0.0) | Medium. Milestone B in the same doc: the page from Convert's rate row, why it moved, sourced news notes, and history that never depends on one service. After Q22 |
 | Q24 | Navigation: Door Rules | Shipped · 2.28 | Light to medium | none (UI consistency audit strips) | UI consistency audit of 2.27, findings 1, 2, 4, 5, 7, 8 and the delete wording in 6. After Q21 |
 | Q25 | Interface: Screen IDs | Shipped · 2.29 | Light to medium | none | The same audit, finding 20 (was idea 5). After Q24 |
-| Q26 | Interface: Value Set and Test | Approved — awaiting Build | Light to medium | none | The same audit, findings 18, 19, 22, part of 21. After Q25 |
+| Q26 | Interface: Value Set and Test | Shipped · 2.30 | Light to medium | none | The same audit, findings 18, 19, 22, part of 21. After Q25 |
 | Q27 | Interface: Parts Kit Pop-ups | Approved — awaiting Build | Medium | the Parts gallery | The same audit, findings 3, 6, 10 to 12, 14, 21; sheets, alerts, toasts, the kit runs the motion. Trip guard. After Q26 |
 | Q28 | Interface: Parts Kit Controls and Presses | Approved — awaiting Build | Medium | the Parts gallery | The same audit, findings 9, 13, 15. Trip guard. After Q27 |
 | Q29 | Interface: Presses and Tap Areas | Approved — awaiting Build | Light | none | The same audit, findings 16, 17. After Q28 |
@@ -42,13 +42,12 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 
 Build top to bottom; each still needs its own **build**. One line per item: `N. Q## — reason`, with "needs Q##" for anything that must ship first. Names live in the table above.
 
-1. Q26 — the named value set and its test; needs Q25 (Ivan, 5 Nov 2026)
-2. Q27 — the parts kit's sheets, alerts, toasts and motion; needs Q26 and a kit version (1.3.0 if built, else 1.2.0); trip guard (Ivan, 5 Nov 2026)
-3. Q28 — the parts kit's buttons, rows, controls and bars; needs Q27; trip guard (Ivan, 5 Nov 2026)
-4. Q29 — 44 pt tap areas and presses for text buttons; needs Q28 (Ivan, 5 Nov 2026)
-5. Q30 — the element sheet; needs Q28 (Ivan, 5 Nov 2026)
+1. Q27 — the parts kit's sheets, alerts, toasts and motion; needs Q26 and a kit version (1.3.0 if built, else 1.2.0); trip guard (Ivan, 5 Nov 2026)
+2. Q28 — the parts kit's buttons, rows, controls and bars; needs Q27; trip guard (Ivan, 5 Nov 2026)
+3. Q29 — 44 pt tap areas and presses for text buttons; needs Q28 (Ivan, 5 Nov 2026)
+4. Q30 — the element sheet; needs Q28 (Ivan, 5 Nov 2026)
 
-**Render:** 5 Nov 2026, 09:17 · Ivan: "Render for 1-7" · scope: Q24 to Q30, the seven items of the UI consistency Blueprint (draft 1, 5 Nov 2026), exactly as written in HANDOFF.md, with every default in its shared block (the kit move split in two, the kit version, S03 to S06, the tab bar under a sheet, the trip guard), built one at a time in Release order; each starts only when Ivan says build for it. They replace the parts kit move blueprint of 4 Nov (its A, B and C are Q25, Q26, Q27 and Q28). Q27 and Q28 ship before the 7 Nov trip only if live and checked on the phone by the evening of 6 Nov; otherwise from 3 Dec. **Build (Q24):** 5 Nov 2026, 09:33, Ivan: "Suki Q24 Build" · shipped as 2.28. **Build (Q25):** 5 Nov 2026, 10:42, Ivan: "Suki Q25 Build" · shipped as 2.29.
+**Render:** 5 Nov 2026, 09:17 · Ivan: "Render for 1-7" · scope: Q24 to Q30, the seven items of the UI consistency Blueprint (draft 1, 5 Nov 2026), exactly as written in HANDOFF.md, with every default in its shared block (the kit move split in two, the kit version, S03 to S06, the tab bar under a sheet, the trip guard), built one at a time in Release order; each starts only when Ivan says build for it. They replace the parts kit move blueprint of 4 Nov (its A, B and C are Q25, Q26, Q27 and Q28). Q27 and Q28 ship before the 7 Nov trip only if live and checked on the phone by the evening of 6 Nov; otherwise from 3 Dec. **Build (Q24):** 5 Nov 2026, 09:33, Ivan: "Suki Q24 Build" · shipped as 2.28. **Build (Q25):** 5 Nov 2026, 10:42, Ivan: "Suki Q25 Build" · shipped as 2.29. **Build (Q26):** 5 Nov 2026, 14:24, Ivan: "Suki Q26 Build" · shipped as 2.30.
 
 **Render:** 31 Oct 2026, 22:56 · Ivan: "render all, then build" · scope: Q01–Q06 exactly as written in HANDOFF.md, built in the order listed above (2.5 to 2.10).
 

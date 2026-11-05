@@ -612,7 +612,7 @@ Findings: Recon 20.
 - **Receipt:** Q25 · Light to medium → Light to medium · 84 steps · 67k written · 24.4M re-read · 1 full test run
 
 ## Q26 · Interface: Value Set and Test
-**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting
+**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** 5 Nov 2026, 14:24, Ivan: "Suki Q26 Build" · shipped as 2.30
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q25 shipped. · Effort: Light to medium.
 Findings: Recon 18, 19, 22, part of 21.
 
@@ -632,6 +632,15 @@ Findings: Recon 18, 19, 22, part of 21.
 **Done when:** the value test passes with its known lists written down with reasons; screenshots of every tab and three sheets look the same as 2.27's (or Q25's).
 **Checks:** `test_values.py`, the full suite, the screenshots.
 **For your iPhone:** 1. Turn on Slow motion and open a sheet: the dim fades slowly too.
+
+**Debrief (2.30, 5 Nov 2026):**
+- **How:** the set sits at the top of `css/app.css`'s `:root`, before the colours: the kit 1.2.0 defaults block's corners, presses, fixed curves, fixed durations and three shadows (same names, same numbers; its menu-only `lift-row`, `recede` and `morph` left out, as Suki has no menus), then Suki's own `--r-form` 28, `--press-fade` 0.35, `--r-till` 12 and `--r-cup` 85%. A one-off script swapped 59 declarations for their names (10 → `--r-small`, 20 → `--r-card`, 0.93 → `--press`, `cubic-bezier(0.3, 1.7, 0.45, 1)` → `--ease-pop`, 0.2 s → `--dur-fade` and so on) and wrapped every stylesheet duration that isn't a spring in `calc(… * var(--mspeed, 1))`. `MOTION.EASE` (pop, knob, out) is in `js/motion.js`; `MOTION.animate`'s default and the Smart add fold's new rows use `EASE.out` (the same curve). The tab bar's padding transition and its buttons' `max-width` and `height` transitions are gone.
+- **Decided within scope:** (1) `--mspeed` is now the speed itself under Reduce Motion too (it was 0), so Reduce Motion's fades keep their 0.2 s at speed 1 and slow with Slow motion, instead of vanishing; only the page behind a sheet read it before, and Reduce Motion's blanket rule overrides that, so nothing changes at normal speed. (2) A raw value took a name by meaning as well as number: the 0.5 s press settle stays raw (the kit has no press settle; its springs replace it at Q28), the page behind's 0.45 s isn't the squish, the sheet's 34 isn't an alert (it goes to `--r-sheet` 46 at Q27), and the page behind's 28 isn't a form sheet. (3) Shadows are enforced with their own list (the handoff's "most shadows"); rings drawn with `box-shadow` (no offset, no blur) are outlines and exempt. (4) In code, a hard-set duration is a number after `duration:` or `ms:`; named constants (`PRESS`, `FLIGHT`, `DRAWER`, `FILL`) pass. (5) Delays stay exempt, as in Vocal Sessions (Suki has none in its stylesheet).
+- **The lists:** `KNOWN` 16 corners, 1 press, 13 easings, 23 durations; `KNOWN_SHADOWS` 19; `KNOWN_JS` 5 curves, 21 keyword easings, 15 durations. Named uses: 20 corners, 4 presses, 13 easings, 23 durations.
+- **Screens:** none.
+- **Tests:** `test_values.py` (29 checks, in `MAINTAINING.md` › Tests). Full suite once: 1,434 of 1,435, the one being the known `test_smart.py` fold check (Known test issues, a seventh time; queue idea 5); `test_smart.py` then passed 100 of 100 on its own. Screenshots of every tab, Help, Rate history and four sheets and the toast at 402 px (and Home, Spending, Settings and a sheet on iPad), light and dark, against 2.29: the same, pixel for pixel, apart from Settings' Storage used figure (the bigger stylesheet).
+- **For your iPhone:** 1. Turn on Slow motion and open a sheet: the dim fades in slowly too. 2. Close it: the page grows back as before.
+- **Left for later:** nothing new. `--mspeed` becomes the kit's `--pk-speed` at Q27, and the lists shrink with Q27 and Q28.
 
 ## Q27 · Interface: Parts Kit Pop-ups
 **Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting

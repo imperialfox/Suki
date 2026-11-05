@@ -148,6 +148,7 @@ function showTip(id) {
     '<span class="ar" aria-hidden="true"></span><div class="tt"><span class="tic">' + ICON[t.icon] + '</span>' + t.t + '</div><div class="tb">' + t.b + '</div>' +
     '<button class="tx" data-a="tipX" aria-label="Close tip">' + ICON.x + '</button>';
   el.dataset.id = id;
+  SCR.mark(el, 'overlay:tip');
   TIPCUR = id;
   placeTip();
   el.classList.remove('on');

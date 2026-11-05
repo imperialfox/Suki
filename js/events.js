@@ -573,6 +573,7 @@ document.addEventListener('change', (e) => {
   if (e.target.matches('select,input[type=date]')) onField(e);
   if (e.target.dataset.a === 'slowMotion') MOTION.setSpeed(e.target.checked ? 4 : 1);
   if (e.target.dataset.a === 'tipsToggle') setTips(e.target.checked);
+  if (e.target.dataset.a === 'screenIds') SCR.setIds(e.target.checked), SCR.label(); // Q25, this device only
 });
 $('importIn').addEventListener('change', (e) => {
   const f = e.target.files && e.target.files[0];

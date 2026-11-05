@@ -39,6 +39,7 @@ Suki shares its foundations with Vocal Sessions (`imperialfox/Vocal-Sessions`): 
 
 | File | Holds |
 |---|---|
+| `js/register.js` | **The screen register** (`REGISTER`, Q25): every screen, sheet and overlay with its permanent ID (`SK-001` onwards), the part names, and the flows (`F-01` onwards). Plain data, loaded first. See Screen IDs below |
 | `js/motion.js` | **The shared springs** (`MOTION`), copied from Vocal Sessions: gentle, nav and ripple springs as CSS `linear()` easings and `--ease-*`/`--dur-*` variables, Reduce Motion, the speed setting (`suki:motion`; 0 = off, used by the tests), and Suki's own `settle` and `leave` (Q11) |
 | `js/catalog.js` | The catalogue (`CATALOG`), official price lookups (`refsFor`, `refFrom`), the fuzzy search (`searchItems`) and the whole-word match for logged purchases (`wordMatch`, Q14) |
 | `js/prices.js` | The official DA-AMAS price snapshot (`window.sukiPriceReferences`) |
@@ -95,6 +96,7 @@ Everything stays on the device. There is no server.
 | localStorage | `suki:onboard` | Onboarding on this device: welcome seen, tips on, which tips are done (Q07). Not backed up |
 | localStorage | `suki:reduceMotion` | Reduce Motion: `on`, `off`, or missing to match the iPhone (not backed up) |
 | localStorage | `suki:noteAnim` | Quick Till's note animation (Q18, 2.24): `slot`, or missing for Fly. This device only, not backed up |
+| localStorage | `suki:screenIds` | Settings › Accessibility › Show screen IDs (Q25, 2.29): `on`, or missing for off. A developer view, this device only, not backed up |
 | IndexedDB `suki-rates` (version 1), store `kv` | `ecb`, `own` | Rate history (Q23, 2.23): `ecb` is `{v: 1, days: {date: [php, usd]}, older}`, the ECB days loaded from Frankfurter (not the shipped snapshot); `own` is `{v: 1, days: {date: {php, src}}}`, every rate loaded for Convert with its source. Its own database, so it never touches his records. Not backed up, not erased by Erase all data: it isn't his data and can be downloaded again. Anything wrong in it is thrown away whole and loaded again |
 
 **These names have been the same since Suki 2.0. Never change them**; the tests load data saved by the real 2.0 app (`tests/fixtures/app-2.0.0`) to prove updating keeps everything.
@@ -344,6 +346,40 @@ Replace the snapshot in `js/prices.js` with the new period, area, source link an
 
 ---
 
+## Screen IDs
+
+Since 2.29 (Q25) every screen, sheet and overlay has a permanent ID, `SK-001` onwards, so a note, a test, the parts kit or a request can point at it in a few characters ("SK-002, the button's too low") and still point at the right thing after it's renamed, moved or redesigned. Its parts have names (`SK-001 › save-button`) and the main journeys have flow IDs (`F-01 · Log a purchase on Home`). The same scheme as Vocal Sessions (its Q36 and Q48), with Suki's own prefix.
+
+- **The register is `js/register.js`** (`REGISTER`; `SCREENS` was already taken by the tab drawing functions in `ui.js`), plain data loaded before everything else. Each screen has: `id`, `name`, `area`, `kind` (Tab, Screen, Sheet, Overlay), `key` (the code key, below), `aliases` (older or code names), `docs` (the exact `README.md` or `MAINTAINING.md` heading that explains it), `status` (`Live`, or `Retired in <version>`) and `parts`. `shared` holds parts named wherever they show (the tab bar, Back, a sheet's Close, the form fields). `actions` names a button by its `data-a` (and `data-v`) wherever it shows. `flows` holds the journeys: each step is a screen ID with the part tapped (or typed in) to get to the next, and a `state` where one screen shows at several moments.
+- **Numbering:** SK-001 to SK-031 follow the order the screens were first built, read from the changelog: the six tabs and the first sheets (2.0 to 2.5), the calendar (2.6), Accessibility (2.8), the data safety sheets (2.9), onboarding and Help (2.11), Words Suki has learned (2.20), Siri (2.21), Rate history and its sheets (2.23).
+- **Code keys:** `tab:<U.tab>` (Help and Rate history are tabs in the code, `help` and `history`), `sheet:<U.sheet>`, and `sheet:confirm/<action>` for each confirmation (the one `confirm` sheet asks three different questions, so each has its own ID: they become separate alerts at Q27). `overlay:toast`, `overlay:tip` and `overlay:launch` are drawn outside `render()`.
+- **On the page** (`SCR` in `ui.js`): `render()` calls `SCR.screen()`, which sets `data-screen` on `#app` and `data-name` on the named parts in `#app`, the bar, the dock and the sidebar; `renderSheet()` calls `SCR.sheet()`, which sets `data-screen` on the `.sheet` and names its parts. `toast()`, `showTip()` and `boot()` call `SCR.mark(el, key)`. Parts drawn in place without a redraw (Search's results, the Till's change, Smart add's preview) are named by a `MutationObserver` on `#app` and `#layer`, once per batch of changes. A push's still copy (`pageStill()`) has its `data-screen` removed, so only one screen ID is on the page.
+- **States of one screen share its ID** (Log a purchase, Edit purchase and Check purchase are all SK-008; Settings on a Mac is still SK-006).
+- **A screen with no entry** gets `data-screen="SK-???"` and one console warning, and `test_screens.py` fails on it.
+- **Show screen IDs** (Settings › Accessibility, `suki:screenIds`, this device only, not backed up): `SCR.label()` keeps `#scrid`, a small grey label just under the top bar in the right corner, showing the screen's ID and then the open sheet's (`SK-006 · SK-019`). Taps go through it, VoiceOver skips it, and it never covers the bar or the tab bar.
+- **Adding a screen:** give it the next number at the end of `screens`, with its key, name, area, kind, docs heading and parts. Add it to a flow if it's on one. A new button gets a `data-a` and a line in `actions` (the test names the action if you forget).
+- **Renaming or moving one:** change its `name`, `key` or `docs` on its line, and put the old key in `aliases`. Never change its `id`.
+- **Retiring one:** set `status: 'Retired in 2.xx'` and leave the line. IDs and flow IDs are never reused or renumbered.
+- **The changelog:** each version's `Screens:` line lists the screens it changed by ID, or `Screens: none`.
+- The register is public: screen names and code keys only, never personal data.
+- Tests: `tests/test_screens.py` (see Tests).
+
+### Naming rules
+
+Vocal Sessions' nine rules (its MAINTAINING › Screen IDs › Naming rules), the same in Suki:
+
+1. **A name is never the wording.** `data-name` is never shown or read aloud; VoiceOver keeps its `aria-label`.
+2. **Shape: what, then kind.** Lower case with hyphens: one to three words for what it does or holds, then a kind word: `button`, `row`, `switch`, `picker`, `field`, `slider`, `stepper`, `tile`, `card`, `tab`, `pill`, `chip`, `menu`, `line`, `bar`, `link`, `option`, `item`, `word`, `dot`, `grabber`. Suki adds four for its own parts: `banner` (Home's notices), `chart`, `drawer` (the till drawer) and `layer` (a sheet's dim, `dim-layer`).
+3. **No position, no state.** Never `top-`, `second-`, `-on`. Fly and Slot are one `note-animation-option` each, told apart by `data-v`.
+4. **Scope is the screen.** A name is unique on its screen; the same name elsewhere means the same role.
+5. **Rows share a name.** Every row of one kind has the same name, told apart by its key (`data-k`, `data-v`) or text: `SK-004 › purchase-row (Jeepney)`, `SK-002 › note-button (500)`.
+6. **Standard roles, standard names:** `back-button`, `close-button`, `cancel-button`, `confirm-button`, `done-button`, `save-button`, `grabber`.
+7. **A name is a promise.** Never reused for another part on its screen. Renaming keeps the old one in the part's `was: []`; retiring sets `status: 'Retired in 2.xx'` and leaves the line.
+8. **Selectors point at meaning:** the action (`data-a`, `data-v`), an `id`, a field (`data-f`) or a class that names the part. Never `nth-child`, `nth-of-type` or a tag path. (Settings' Last backed up row got `id="lastBackupRow"` for this, as it shares Export a backup's action.)
+9. **Checked:** `test_screens.py` fails on any of the above.
+
+**Where a name goes:** `actions` for most buttons (one line per action); `shared` for parts found another way that show in many places (the tab bar by its container, Close, Cancel, fields by `data-f` or `id`); a screen's `parts` when that screen calls the part something else, or for cards and controls that aren't buttons (`SK-001 › log-card`, `SK-002 › drawer`). A screen's parts win over `shared`, which wins over `actions`.
+
 ## Tests
 
 ```
@@ -360,6 +396,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 | File | Covers |
 |---|---|
 | `test_release.py` | The version agrees in the app, README and CHANGELOG, and every file `index.html` loads exists |
+| `test_screens.py` | Q25: the register against the code (every tab, sheet, confirmation and overlay the code can show has an entry, every Live entry is still in the code, every docs link is a real heading, every action and named id is still there, every action has a name), the names' shape (rule 2's kind words, no position), every tab, screen and sheet carrying its ID with the label showing both, every visible control named on each (iPhone light and dark, iPad, Mac), the toast, tip and launch screen, the four flows walked by part name, a missing entry showing `SK-???` with a warning, the Show screen IDs switch (off first, the label, this device only, not in a backup, kept through a reload, covering no bar button), the changelog's Screens line, and every `suki:` key in Where data lives |
 | `test_flows.py` | Logging (with errors and the draft), Spending (chips, filter, days, details, edit, delete, swipe, CSV), Quick Till, Convert, Search and price notes, Settings, empty states |
 | `test_doors.py` | Q08's doors: Home's two figures, Spending's +, logging on a calendar day, a purchase's prices row (whole words only, and on iPad), the old-rate link, Price notes' links to Search, Search's Log row and Settings rows that open things. Q24: Home's two Show all doors opening All after leaving Spending on Day, the gear, Help and Rate history and their Back, the delete message, Mac's Settings section (one lit, no Back, no movement) and Help zooming there, iPad's zooms |
 | `test_search.py` | Q09: Prices, In your purchases (three rows, Show all with the same count in Spending), In your price notes, every word in any order (Search and Spending's filter), no match only when nothing of his matches, the notes row on All, the placeholder, screenshots at 375 px light and dark |
@@ -403,6 +440,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 - On 4 Nov 2026 (Q20) GitHub's first run failed one fold check in `test_smart.py` ("the side showing is fully there"); the re-run passed 1,231 of 1,231, and it passed locally. It's the same check as Q18's; Q20 doesn't touch Home's Log card. If it shows a third time, it should go in the queue to be fixed.
 - On 4 Nov 2026 (Q21) the whole suite side by side failed the three Log-sheet checks in `test_motion.py` (the Q13 entry above) and timed out once at launch in `test_offline.py`; on their own they passed 63 of 63 and 9 of 9. On GitHub the first run timed out the same way in `test_offline.py` (waiting for the offline helper to take control, before any check); the re-run passed it but failed the `test_smart.py` fold check, a third time, so it's in the queue's ideas to be fixed. Q21 touches none of these.
 - On 5 Nov 2026 (Q24) GitHub's run failed the same `test_smart.py` fold check on the first run and on its re-run, a fourth and fifth time; it passed 100 of 100 locally. Q24 doesn't touch Home's Log card. Its fix is in the queue's ideas (5) and should be built before it costs another build a re-run.
+- On 5 Nov 2026 (Q25) the whole suite side by side failed the same `test_smart.py` fold check, a sixth time; the file passed 100 of 100 on its own. Q25 doesn't touch Home's Log card.
 - Checks on animations read the computed `animation-name`, not running animations: a short fade can finish before a busy machine looks.
 - On 31 Oct and 1 Nov 2026 the suite was run locally against a newer Chromium (the pinned Playwright 1.56.0 pointed at it), because 1.56's own browser couldn't be downloaded there. GitHub's run uses the pinned one.
 - Rows and headers only move when they're on screen, so a motion test must scroll the list into view first (Spending's list starts below the chart at 844 px tall), and keep clear of the tab bar.

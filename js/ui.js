@@ -80,6 +80,7 @@ function render(keepScroll) {
   renderSide();
   renderDock();
   renderSheet();
+  SCR.screen(); // Q25 the screen's ID and part names, from the register (register.js)
   if (keepScroll) window.scrollTo(0, y);
   fadeScrollers();
   drawnDay = localISO();
@@ -94,6 +95,118 @@ function render(keepScroll) {
   }
 }
 const rerender = () => render(true);
+/* ===== Screen IDs (Q25) =====
+   The register (register.js) gives every screen, sheet and overlay a permanent ID. render() ends with SCR.screen(),
+   which stamps data-screen on #app and data-name on the named parts in #app, the bar, the dock and the sidebar;
+   renderSheet() calls SCR.sheet() for the sheet in #layer. The toast, the tip and the launch screen call SCR.mark().
+   A part's name comes from its screen's own parts first, then shared, then its action. A screen with no entry gets
+   SK-??? and one console warning (the tests fail on it). Settings › Accessibility › Show screen IDs (suki:screenIds,
+   this device only) shows a small label in the top corner. */
+const SCR = (() => {
+  const BY = {};
+  REGISTER.screens.forEach((s) => (BY[s.key] = s));
+  const warned = {},
+    live = (p) => !p.status || p.status === 'Live';
+  const viewKey = () => 'tab:' + U.tab;
+  const sheetKey = () => (U.sheet === 'confirm' ? 'sheet:confirm/' + (U.sd.action || '') : 'sheet:' + U.sheet);
+  function entry(key) {
+    const s = BY[key];
+    if (s && s.status === 'Live') return s;
+    if (!warned[key]) {
+      warned[key] = 1;
+      console.warn('No screen ID in js/register.js for ' + key);
+    }
+    return null;
+  }
+  const id = (key) => (entry(key) || { id: REGISTER.prefix + '-???' }).id;
+  // names by action, looked up by data-a (and data-v) in one pass over the buttons
+  const BYACT = {};
+  REGISTER.actions.filter(live).forEach((p) => {
+    const m = p.sel.match(/^\[data-a="([^"]+)"\](?:\[data-v="([^"]+)"\])?$/);
+    if (m) BYACT[m[1] + (m[2] === undefined ? '' : '\u0000' + m[2])] = p.name;
+  });
+  const OWN = {};
+  const own = (s) => OWN[s ? s.id : ''] || (OWN[s ? s.id : ''] = REGISTER.shared.concat(s ? s.parts : []).filter(live));
+  function name(s, roots) {
+    const parts = own(s);
+    roots.forEach((r) => {
+      if (!r) return;
+      (r.dataset.a ? [r, ...r.querySelectorAll('[data-a]')] : r.querySelectorAll('[data-a]')).forEach((el) => {
+        const a = el.dataset.a,
+          v = el.dataset.v,
+          n = (v !== undefined && BYACT[a + '\u0000' + v]) || BYACT[a];
+        if (n) el.dataset.name = n;
+      });
+      parts.forEach((p) => {
+        if (r.matches(p.sel)) r.dataset.name = p.name;
+        r.querySelectorAll(p.sel).forEach((el) => (el.dataset.name = p.name));
+      });
+    });
+  }
+  function stamp(el, key) {
+    const s = entry(key);
+    el.dataset.screen = s ? s.id : REGISTER.prefix + '-???';
+    return s;
+  }
+  function screen() {
+    const s = stamp($('app'), viewKey());
+    name(s, [$('app'), $('bar'), $('dock'), $('side')]);
+    label();
+  }
+  function sheet() {
+    const el = U.sheet && $('layer').querySelector('.scrim');
+    if (el) name(stamp(el.querySelector('.sheet') || el, sheetKey()), [el]);
+    label();
+  }
+  // something drawn outside render(): the toast, the tip, the launch screen
+  function mark(el, key) {
+    if (el) name(stamp(el, key), [el]);
+  }
+  const idsOn = () => {
+    try {
+      return localStorage.getItem('suki:screenIds') === 'on';
+    } catch (e) {
+      return false;
+    }
+  };
+  function setIds(on) {
+    try {
+      if (on) localStorage.setItem('suki:screenIds', 'on');
+      else localStorage.removeItem('suki:screenIds');
+    } catch (e) {}
+  }
+  // the screen's ID, then the open sheet's
+  function label() {
+    let el = $('scrid');
+    if (!idsOn()) {
+      if (el) el.remove();
+      return;
+    }
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'scrid';
+      el.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(el);
+    }
+    const sh = U.sheet && $('layer').querySelector('.scrim .sheet');
+    el.textContent = $('app').dataset.screen + (sh && sh.dataset.screen ? ' · ' + sh.dataset.screen : '');
+  }
+  // parts drawn in place without a redraw (Search's results, the Till's change, Smart add's preview…) get their
+  // names too: one pass after each batch of changes
+  let pend = false;
+  const again = () => {
+    pend = false;
+    const a = $('app');
+    if (a.dataset.screen) name(BY[viewKey()] || null, [a]);
+    const sh = U.sheet && $('layer').querySelector('.scrim');
+    if (sh) name(BY[sheetKey()] || null, [sh]);
+  };
+  if (typeof MutationObserver === 'function') {
+    const mo = new MutationObserver(() => pend || ((pend = true), queueMicrotask(again)));
+    ['app', 'layer'].forEach((k) => $(k) && mo.observe($(k), { childList: true, subtree: true }));
+  }
+  return { viewKey, sheetKey, id, screen, sheet, mark, label, idsOn, setIds, BY };
+})();
 /* ===== Door rules (Q24) =====
    Tabs swap instantly. Three pages are pushed: Settings from Home's gear, Help from Settings and Rate history from
    Convert. Every door to them moves the same way, and Back (or the tab they belong to) pops them:
@@ -123,6 +236,7 @@ function pageStill(id) {
   c.style.transform = c.style.transition = '';
   c.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
   c.querySelectorAll('[data-a]').forEach((el) => el.removeAttribute('data-a'));
+  c.querySelectorAll('[data-screen]').forEach((el) => el.removeAttribute('data-screen')); // one screen ID on the page (Q25)
   if (m && window.scrollY) m.style.transform = 'translateY(' + -window.scrollY + 'px)';
   d.className = 'pdim';
   if (id === 'over') s.append(d, c);
@@ -388,7 +502,10 @@ function sheetHTML() {
           '<p class="foot">How a note you tap on Quick Till goes into the cash box: Fly arcs it in, Slot slides it into a slot under the box. With Reduce motion on, the amount just changes.</p>' +
           hdr('Slow motion') +
           '<div class="grp"><label class="row toggle"><span class="lbl"><b>Slow motion</b></span><input type="checkbox" role="switch" data-a="slowMotion"' + (MOTION.speed() > 1 ? ' checked' : '') + '><span class="sw-ui" aria-hidden="true"></span></label></div>' +
-          '<p class="foot">Plays every movement four times slower, for checking how things move. These settings stay on this device and aren’t saved in backups.</p>'
+          '<p class="foot">Plays every movement four times slower, for checking how things move.</p>' +
+          hdr('Screen IDs') +
+          '<div class="grp"><label class="row toggle"><span class="lbl"><b>Show screen IDs</b></span><input type="checkbox" role="switch" data-a="screenIds"' + (SCR.idsOn() ? ' checked' : '') + '><span class="sw-ui" aria-hidden="true"></span></label></div>' +
+          '<p class="foot">Shows each screen’s ID in the top corner, such as SK-001, for pointing at a screen in a note. These settings stay on this device and aren’t saved in backups.</p>'
       );
     }
     case 'welcome':
@@ -448,6 +565,7 @@ function renderSheet() {
     layer.innerHTML = '';
     shownSheet = null;
     document.body.classList.remove('sheet-open');
+    SCR.label();
     return;
   }
   if (over) sheetUnderKeep(was);
@@ -473,6 +591,7 @@ function renderSheet() {
   }
   shownSheet = key;
   document.body.classList.add('sheet-open');
+  SCR.sheet(); // Q25 the sheet's screen ID and part names
 }
 
 /* ===== A sheet over a sheet (Q24) =====
@@ -671,6 +790,7 @@ function toast(t, undo, sticky) {
       document.body.classList.remove('has-sticky');
     });
     w.append(span, b);
+    SCR.mark(w, 'overlay:toast');
     document.body.appendChild(w);
     document.body.classList.add('has-sticky');
     return;
@@ -696,6 +816,7 @@ function toast(t, undo, sticky) {
     });
     el.appendChild(b);
   }
+  SCR.mark(el, 'overlay:toast');
   document.body.appendChild(el);
   toastT = setTimeout(() => {
     el.classList.add('out');

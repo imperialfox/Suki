@@ -5,6 +5,7 @@
 
 const BOOT = { t0: performance.now(), MIN: 600, CAP: 2500 };
 async function boot() {
+  SCR.mark($('splash'), 'overlay:launch');
   layout();
   F.home = loadDraft();
   loadSmart();

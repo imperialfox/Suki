@@ -3990,3 +3990,19 @@ body.swiping > .wrap {
   background: var(--bg);
   box-shadow: -8px 0 24px var(--glass-shadow);
 }
+
+/* ===== Show screen IDs (Q25): a small grey label just under the top bar, in the corner. Taps go through it,
+   VoiceOver skips it, and it sits over sheets so it can show the sheet's ID too ===== */
+#scrid {
+  position: fixed;
+  top: calc(var(--sat) + 58px);
+  right: max(10px, env(safe-area-inset-right));
+  z-index: 65;
+  pointer-events: none;
+  font: 600 11px/1 ui-monospace, Menlo, monospace;
+  letter-spacing: 0.02em;
+  color: var(--fg2);
+  background: var(--glass-strong);
+  border-radius: 999px;
+  padding: 3px 7px;
+}

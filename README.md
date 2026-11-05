@@ -1,8 +1,8 @@
 # Suki
 
-![Version 2.28](https://img.shields.io/badge/version-2.28-blue)
+![Version 2.29](https://img.shields.io/badge/version-2.29-blue)
 
-**Current version: 2.28 · 5 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
+**Current version: 2.29 · 5 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
 
 Suki is a personal travel companion for the Philippines. It checks your change, converts pounds and pesos, looks up prices and keeps track of what you spend. It's a Home Screen web app for iPhone, iPad and Mac, and works offline.
 
@@ -22,7 +22,7 @@ The official prices are a snapshot for 5–11 October 2026, bundled with the app
 - **Search**: the official prices and the catalogue, plus your own purchases and price notes. Open an item for its official price, a link to the DA report and your price notes. Where there's a typical price, a strip under it shows it as a band, with a dot for each time you paid and a ring for each price note. All starts with a door to every price note.
 - **Spending**: every purchase grouped by day, with category chips, a filter, details, editing, deleting (swipe left or from the details) and CSV export. Totals in pounds add each purchase at the rate of the day it was made. The + logs a purchase. A purchase that names a catalogue item links to that item's prices. The period's name opens the calendar, where days are tinted in three steps by how much you spent, and tapping a bar shows just that day.
 - **Convert**: linked pound and peso boxes, handy amounts, and Refresh for the latest reference rate. Tap the rate for **Rate history**: how the pound-to-peso rate has moved (a month to all years since 2005), where today sits in the year, why it moved (the peso or the pound, against the dollar) and the news behind it, each note linked to the BSP's or the Bank of England's own record. No forecasts.
-- **Settings**: backup and restore, price notes, the words Smart add has learned, storage, Erase all data, and information about the app.
+- **Settings**: backup and restore, price notes, the words Smart add has learned, storage, Erase all data, Accessibility (Reduce motion, note animation, Slow motion and Show screen IDs) and information about the app.
 
 ## Layouts
 

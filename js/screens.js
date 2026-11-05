@@ -1056,7 +1056,7 @@ function scrSettings() {
     '<div class="grp tiled set">' +
     row('upload', 'blue', 'Export a backup', 'Purchases, price notes and the saved rate', 'exportBackup') +
     row('download', 'green', 'Restore a backup', 'You’ll see what’s in it before anything changes', 'importPick') +
-    row('clock', overdue || !lb ? 'orange' : 'gray', 'Last backed up', { t: lb ? whenAgo(lb) + (overdue ? ' · over two weeks ago' : '') : 'Not backed up yet', cls: overdue ? 'red' : '' }, 'exportBackup') +
+    row('clock', overdue || !lb ? 'orange' : 'gray', 'Last backed up', { t: lb ? whenAgo(lb) + (overdue ? ' · over two weeks ago' : '') : 'Not backed up yet', cls: overdue ? 'red' : '' }, 'exportBackup', ' id="lastBackupRow"') +
     '</div><p class="foot">iOS can clear a website’s data if it isn’t opened for a few weeks, so keep a recent backup in Files.</p>' +
     hdr('Your data') +
     '<div class="grp tiled set">' +

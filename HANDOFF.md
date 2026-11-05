@@ -581,7 +581,7 @@ Findings: Recon 1, 2, 4, 5, 7, 8 and the delete wording in 6.
 - **Receipt:** Q24 · Light to medium → Light to medium · 68 steps · 56k written · 16.7M re-read · 1 full test run
 
 ## Q25 · Interface: Screen IDs
-**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting
+**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** 5 Nov 2026, 10:42, Ivan: "Suki Q25 Build" · shipped as 2.29
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q24 shipped. · Effort: Light to medium.
 Findings: Recon 20.
 
@@ -600,6 +600,15 @@ Findings: Recon 20.
 **Done when:** the register test passes and every door in the Recon's table can be named by ID.
 **Checks:** quick tests while building, the full suite once.
 **For your iPhone:** 1. Turn on Show screen IDs and see one on Home and in a sheet.
+
+**Debrief (2.29, 5 Nov 2026):**
+- **How:** `js/register.js` (`REGISTER`, loaded first) holds 31 screens, SK-001 to SK-031, numbered in the order the changelog shows them first built: the 6 tabs, Help and Rate history, 20 sheets and 3 overlays (the toast, the tip, the launch screen). The handoff guessed about 40; the code has 18 kinds of sheet, and the one `confirm` sheet asks three questions, so each got its own ID (`sheet:confirm/<action>`: SK-011 delete a purchase, SK-012 delete a price note, SK-022 clear recovered data), ready to become separate alerts at Q27. `SCR` in `ui.js` (Vocal Sessions' model) stamps `data-screen` and `data-name` after `render()` and `renderSheet()`, and `SCR.mark()` does the toast, tip and launch screen. Flows F-01 to F-04 as agreed.
+- **Decided within scope:** the register is `REGISTER`, because `SCREENS` already names the tab drawing functions. Every action in the code has a name (Vocal Sessions' Q48 level, not only the main buttons), since the test is what makes "every main button" checkable. A `MutationObserver` on `#app` and `#layer` names parts drawn in place without a redraw (Search's results, the Till's change, Smart add's preview), once per batch. Rule 2 gains four Suki kind words: `banner`, `chart`, `drawer`, `layer`. Settings' Last backed up row got `id="lastBackupRow"`, as it shares Export a backup's action. A push's still copy drops its `data-screen`. The switch sits under its own Screen IDs heading in Accessibility; the label is `#scrid`, 11 px grey on strong glass under the bar's right end.
+- **Screens:** SK-019 (the switch). Every screen gained `data-screen` and `data-name` attributes, with nothing you'd see.
+- **Tests:** `test_screens.py` (65 checks, listed in `MAINTAINING.md` › Tests). Full suite once: 1,405 of 1,406, the one being the known `test_smart.py` fold check (Known test issues, queue idea 5); `test_smart.py` then passed 100 of 100 on its own.
+- **Every door in the Recon's table can be named:** Home SK-001, Till SK-002, Search SK-003, Spending SK-004, Convert SK-005, Settings SK-006, Purchase SK-007, Log sheet SK-008, Item SK-009, Price notes SK-010, the delete confirmation SK-011, Erase SK-013, Export a backup SK-014, Calendar SK-018, Accessibility SK-019, Add to Home Screen SK-023, Help SK-025, the toast SK-016, Rate history SK-029, News SK-030.
+- **For your iPhone:** 1. Settings › Accessibility › Show screen IDs on: SK-001 under the gear on Home, and SK-001 · SK-007 with a purchase open.
+- **Left for later:** nothing new.
 
 ## Q26 · Interface: Value Set and Test
 **Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting

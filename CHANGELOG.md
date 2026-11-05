@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.29 · 5 Nov 2026
+*Interface: every screen, sheet and part has a permanent ID (Q25)*
+
+**Screen IDs**
+- Every screen, sheet and pop-up has an ID that never changes, SK-001 to SK-031, so a note or a request can point at it in a few characters ("SK-002, the button's too low"). Home is SK-001, Quick Till SK-002, the Calendar SK-018, Rate history SK-029.
+- Every button, field and control on them has a name too, such as SK-001 › save-button, and the four main journeys have IDs: F-01 Log a purchase on Home, F-02 Pay at the Till and log the bill, F-03 Look up a price and add a note, F-04 Check Spending for a day.
+- They're kept in one list in the code, the screen register, which the parts kit and later builds read.
+
+**Show screen IDs**
+- Settings › Accessibility has a new Show screen IDs switch, off at first. On, a small grey label just under the top bar shows the screen's ID, and the sheet's after it when one is open (SK-006 · SK-019). It stays on this device and isn't saved in backups.
+
+**Unchanged**
+- Nothing else looks or moves differently.
+
+Screens: SK-019
+
 ## 2.28 · 5 Nov 2026
 *Navigation: every door follows one rule (Q24)*
 

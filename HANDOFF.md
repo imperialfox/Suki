@@ -712,7 +712,7 @@ Findings: Recon 9, 13, 15.
 - **Receipt:** Q28 · Medium → Medium · 133 steps · 107k written · 44.3M re-read · 1 full test run
 
 ## Q29 · Interface: Presses and Tap Areas
-**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting
+**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** 5 Nov 2026, 19:42, Ivan: "Suki Q29 Build" · shipped as 2.33
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q28 shipped. · Effort: Light.
 Findings: Recon 16, 17.
 
@@ -727,6 +727,15 @@ Findings: Recon 16, 17.
 **Done when:** the tap-area test passes at 375 and 402 wide; nothing moves at rest (screenshots).
 **Checks:** the new test, the full suite.
 **For your iPhone:** 1. Tap the sheet ✕ near its edge. 2. Press "Show all" and see it fade.
+
+**Debrief (2.33, 5 Nov 2026):**
+- **How:** an invisible `::after` at least 44 pt each way, centred, on `.tbtn`, `.tlink`, `.textlink`, `.link`, `.chip`, `.segc button`, `.sidepill`, `.dateline` and `.cday`. The glass circles (✕, pencil, calendar arrows) have both pseudo-elements taken (kit light, rim), so they carry a child `<span class="hit">` the same size; no button got bigger. Text families fade to `--press-fade` at once and come back over `--dur-fade`; calendar days lay the row press colour under the number (multiply, as the rate card); the Mac sidebar highlights like a row. Details: MAINTAINING › Parts kit › Tap areas and Text presses.
+- **Decided within scope:** (1) The goal is "everything you can tap", so the test counts every button on every screen, and the census found a few small ones beyond the list in Agreed 1: Accessibility's two option controls, Rate history's range, Home's date line and the item sheet's DA report link. They got the same tap area. (2) Where something tappable sits right under a button (Show all and Add over their first row, the Smart add pill over the Log card, Search's chips over Price notes) the area reaches up instead of overlapping it; the Siri sheet's "Smart add" link, on the top line of a label that clips, reaches down. (3) The scrolling chip rows got 6 pt of room above inside the scroller (margins take it back, so nothing moves). (4) More details, Spending's period label, the DA report link, the "Edit in the form" and "Words Suki has learned" links and the Smart add pill fade too: they are text buttons that gave no feedback (finding 17). (5) The test measures how far a tap still lands on the button from its middle, up, down, left and right, rather than a fixed square: a square fails every round 44 pt button, as taps don't land in rounded corners. Text boxes are counted too, so no tap area steals a field's taps. (6) Home's date line and title open the same calendar, so they count as one door where their areas meet.
+- **Screens:** SK-001 to SK-010, SK-013, SK-014, SK-018 to SK-020, SK-023, SK-025, SK-027 to SK-031 (the Mac sidebar is on every tab).
+- **Tests:** new `test_taps.py` (17 checks): 44 × 44 at 375 and 402 wide with only the drawer handle known, the presses, screenshots. Before and after: every screen and sheet at 375, 402 light and dark and 1440, against 2.32: no size or position changed; differences are a clock tick on Put back, a faint edge on the calendar's picked day and text anti-aliasing of a few levels. Full suite once: see GitHub below.
+- **For your iPhone:** 1. Tap a sheet's ✕ just outside its circle: it closes. 2. Press and hold "Show all" on Home: it fades, and comes back when you let go. 3. Tap a chip on Search just above it. 4. Hold a calendar day: it greys.
+- **Way back:** the version before Q29 is commit `05f8132` (2.32).
+- **Left for later:** a press for the kit's text button, so this fade can move into the kit (kit request, as the Recon said).
 
 ## Q30 · Interface: Element Sheet
 **Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting

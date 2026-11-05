@@ -1488,6 +1488,116 @@ a.row:hover:active {
   transition: none;
 }
 
+/* Q29 (Recon 16, 17) everything you can tap reaches the finger over at least 44 pt and answers when pressed.
+   Tap areas: a button smaller than 44 pt keeps its size and look, and an invisible ::after, at least 44 pt each way and
+   centred on it, takes the taps round it. Neighbours sit at least 44 pt apart, so the areas never overlap (test_taps.py
+   checks both). The small glass circles (a sheet's ✕ and pencil, the calendar's arrows) use their ::after for the kit's
+   light and their ::before for the rim, so theirs is a child, .hit, the same size.
+   Presses: text buttons, Cancel, word links and the bin and forget buttons fade to --press-fade while pressed (S06), at
+   once, coming back over --dur-fade like a row's highlight. Calendar days and the Mac sidebar highlight like rows. */
+.tbtn,
+.tlink,
+.textlink,
+.link,
+.chip,
+.segc button,
+.sidepill,
+.dateline,
+.cday {
+  position: relative;
+}
+.tbtn::after,
+.tlink::after,
+.textlink::after,
+.link::after,
+.chip::after,
+.segc button::after,
+.sidepill::after,
+.dateline::after,
+.cday::after,
+.circ.sm > .hit {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+}
+/* where a neighbour sits right under it (a section's text button over its first row, the Smart add pill over Home's Log
+   card, chips over Search's Price notes row) the area reaches up instead of down; a word link on the top line of a
+   row's label, which clips, reaches down */
+.hdr .tbtn::after,
+.sidepill::after {
+  top: auto;
+  bottom: 0;
+  transform: translateX(-50%);
+}
+.chips.scroller .chip::after {
+  top: auto;
+  bottom: -2px;
+  transform: translateX(-50%);
+}
+.lbl .tlink::after {
+  top: 0;
+  transform: translateX(-50%);
+}
+.tbtn,
+.tlink,
+.textlink,
+.link,
+.ghost,
+.ibtn,
+.disclose,
+.sidepill,
+.perline .plabel.cal {
+  transition: opacity calc(var(--dur-fade) * var(--pk-speed)) var(--ease-out);
+}
+.tbtn:active,
+.tlink:active,
+.textlink:active,
+.link:active,
+.ghost:active,
+.ibtn:active,
+.disclose:active,
+.sidepill:active,
+.perline .plabel.cal:active,
+:is(.tbtn, .link, .perline .plabel.cal):hover:active {
+  opacity: var(--press-fade);
+  transition: none;
+}
+/* calendar days: the row press colour laid between the day's own colour and its number (as the rate card's highlight) */
+.cday {
+  isolation: isolate;
+}
+.cday::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: var(--pk-row-press);
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: opacity calc(var(--dur-fade) * var(--pk-speed)) var(--ease-out);
+}
+.cday:active::before {
+  opacity: 1;
+  transition: none;
+}
+/* the Mac sidebar (Suki's own): a row's highlight */
+.sbi {
+  transition: background-color calc(var(--dur-fade) * var(--pk-speed)) var(--ease-out);
+}
+.sbi:active,
+.sbi.on:active,
+.sbi:not(.on):hover:active {
+  background-color: var(--pk-row-press);
+  transition: none;
+}
+
 /* ===== Chips ===== */
 .chips {
   display: flex;
@@ -1497,8 +1607,8 @@ a.row:hover:active {
 .chips.scroller {
   flex-wrap: nowrap;
   overflow-x: auto;
-  margin: 12px -16px 0;
-  padding: 2px 16px;
+  margin: 8px -16px -2px; /* Q29 room inside the scroller for the chips' 44 pt tap areas, which reach 6 pt up */
+  padding: 6px 16px 4px;
   scrollbar-width: none;
   overscroll-behavior-x: contain;
 }

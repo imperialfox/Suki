@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.33 · 5 Nov 2026
+*Interface: presses and tap areas (Q29)*
+
+**Easier to hit**
+- Small buttons now take a tap anywhere within 44 pt of their middle, the size Apple recommends, without looking any bigger: a sheet's ✕ and pencil, the calendar's arrows and days, chips, the period and range controls, the options in Accessibility, Show all, an item's Add, the Smart add pill, Home's date line, the DA report link and word links such as Search and Smart add.
+- Where a button sits right above something else you can tap (Show all and Add over their first row, the Smart add pill over the Log card, Search's chips over Price notes), its extra room reaches up, so the two never overlap.
+
+**Pressing things**
+- Text buttons, Cancel, word links, More details, the Smart add pill, Spending's period label and the bin and forget buttons fade while you hold them, as on iPhone, and come back when you let go.
+- Calendar days and the Mac sidebar light up grey while pressed, like a row.
+
+**Tests**
+- `test_taps.py` checks every button and text box on every screen and sheet reaches 44 × 44 pt with nothing else in the way, at 375 and 402 wide, with the Till's drawer handle the one small button on purpose. It also presses each kind and checks it fades or lights up and comes back.
+
+Screens: SK-001, SK-002, SK-003, SK-004, SK-005, SK-006, SK-007, SK-008, SK-009, SK-010, SK-013, SK-014, SK-018, SK-019, SK-020, SK-023, SK-025, SK-027, SK-028, SK-029, SK-030, SK-031
+
 ## 2.32 · 5 Nov 2026
 *Interface: buttons, rows, controls and bars from the parts kit (Q28)*
 

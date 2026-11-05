@@ -492,7 +492,7 @@ function sheetWrap(title, body, tools, label, o) {
     (title === null
       ? ''
       : '<div class="shead">' + (o.lock ? '' : '<div class="grab"></div>') + '<div class="shrow"><h2>' + title + '</h2>' + (tools || '') +
-        (o.lock ? '' : '<button class="circ glass pk-press sm" data-a="close" aria-label="Close">' + ICON.x + '</button>') + '</div></div>') +
+        (o.lock ? '' : '<button class="circ glass pk-press sm" data-a="close" aria-label="Close">' + ICON.x + '<span class="hit" aria-hidden="true"></span></button>') + '</div></div>') +
     body + '</div></div>'
   );
 }
@@ -506,7 +506,7 @@ function sheetHTML() {
     case 'purchase': {
       const p = D.purchases.find((x) => x.id === sd.id);
       if (!p) return null;
-      return sheetWrap('Purchase', purchaseDetail(p), '<button class="circ glass pk-press sm" data-a="editPurchase" data-k="' + esc(p.id) + '" aria-label="Edit purchase">' + ICON.pencil + '</button>');
+      return sheetWrap('Purchase', purchaseDetail(p), '<button class="circ glass pk-press sm" data-a="editPurchase" data-k="' + esc(p.id) + '" aria-label="Edit purchase">' + ICON.pencil + '<span class="hit" aria-hidden="true"></span></button>');
     }
     case 'edit': {
       const isNew = !sd.id,
@@ -610,7 +610,7 @@ function sheetHTML() {
         mTotal = Object.values(spent).reduce((a, b) => a + b, 0);
       return sheetWrap(
         monthName(m),
-        '<div class="calhead"><span class="small">' + (mTotal ? cash(Math.round(mTotal * 100) / 100) + ' this month' : 'Nothing logged this month') + '</span><span><button class="circ glass pk-press sm" data-a="calStep" data-v="-1" aria-label="Earlier month">' + ICON.back + '</button><button class="circ glass pk-press sm fwd" data-a="calStep" data-v="1" aria-label="Later month">' + ICON.back + '</button></span></div>' +
+        '<div class="calhead"><span class="small">' + (mTotal ? cash(Math.round(mTotal * 100) / 100) + ' this month' : 'Nothing logged this month') + '</span><span><button class="circ glass pk-press sm" data-a="calStep" data-v="-1" aria-label="Earlier month">' + ICON.back + '<span class="hit" aria-hidden="true"></span></button><button class="circ glass pk-press sm fwd" data-a="calStep" data-v="1" aria-label="Later month">' + ICON.back + '<span class="hit" aria-hidden="true"></span></button></span></div>' +
           '<div class="calgrid"><div class="cdows" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div><div class="cdays">' + cells + '</div>' +
           (mTotal ? '<div class="tkey" aria-hidden="true">Less <i class="t1"></i><i class="t2"></i><i class="t3"></i> More</div>' : '') +
           '</div>' +

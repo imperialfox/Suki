@@ -2639,6 +2639,11 @@ main {
 .sk-sheet.locked .pk-grabber {
   display: none;
 }
+/* a locked sheet can't be dragged (HOST), so its content scrolls the usual way, even at the top: on a small iPhone or
+   on its side the welcome card's Continue is further down */
+.sk-sheet.locked > .pk-sheet-body {
+  touch-action: pan-y;
+}
 .sk-sheet.sk-nohead > .pk-sheet-head {
   min-height: 22px;
   padding: 0;

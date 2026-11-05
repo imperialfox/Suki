@@ -69,6 +69,11 @@ def run(b, t):
                 else:
                     els = [e for e in pg.evaluate(VIS) if e['a'] not in SKIP]
                     if not els:
+                        # a sheet taller than the screen (the welcome card on a small iPhone or on its side) scrolls to
+                        # what's further down, as a finger would
+                        pg.evaluate("document.querySelectorAll('#layer .sheet .pk-sheet-body, #own .scrim .sheet').forEach(e=>e.scrollTop=e.scrollHeight)")
+                        els = [e for e in pg.evaluate(VIS) if e['a'] not in SKIP]
+                    if not els:
                         note('nothing tappable on screen', trace); trace.append('nothing tappable'); pg.keyboard.press('Escape'); continue
                     wts = [0.3 if x['a'] == 'tab' else (3 if x['a'] in HEAVY else 1) for x in els]
                     e = R.choices(els, weights=wts)[0]; sel = f'[data-fz="{e["i"]}"]'

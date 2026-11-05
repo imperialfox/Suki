@@ -644,7 +644,7 @@ Findings: Recon 18, 19, 22, part of 21.
 - **Receipt:** Q26 · Light to medium → Light to medium · 62 steps · 60k written · 17.8M re-read · 1 full test run
 
 ## Q27 · Interface: Parts Kit Pop-ups
-**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** 5 Nov 2026, 15:07, Ivan: "Suki Q27 Build" · shipped as 2.31
+**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** 5 Nov 2026, 15:07, Ivan: "Suki Q27 Build" · shipped as 2.31, with 2.31.1
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q26 shipped; the parts kit version settled (shared default 2). · Effort: Medium.
 Findings: Recon 3, 6, 10, 11, 12, 14, 21.
 
@@ -672,6 +672,8 @@ Findings: Recon 3, 6, 10, 11, 12, 14, 21.
 - **Screens:** SK-007 to SK-016, SK-018 to SK-024, SK-027, SK-028, SK-030, SK-031 (every sheet, the five alerts and the toast).
 - **Tests:** new `test_parts.py` (80 checks); `test_motion.py`'s Q11 and Q24 sheet checks rewritten for the kit; the alert and sheet selectors in eight other files moved to the kit's; `test_values.py` on `--pk-speed` and the kit's springs; the known lists shrank (corners 16 → 15, easings 13 → 11, durations 23 → 18; in code curves 5 → 3, durations 15 → 11). The Till, drawer, haul and Smart add tests passed unchanged. Full suite once: 1,513 of 1,514, the one `test_offline.py` timing out at launch side by side (Known test issues, as Q21); it passed 9 of 9 on its own. Screenshots of every tab against 2.30: the same apart from Settings' version line; four sheets light and dark side by side; a strip of a sheet opening and closing at × 4.
 - **For your iPhone:** 1. Delete a purchase: the alert, then Undo. 2. Open a sheet and flick it shut; drag one down from its content. 3. Edit from a purchase: the second sheet rises over the first. 4. Turn on Reduce Motion: quick fades. 5. The Till and drawer feel the same. Also worth a look: a sheet with the phone on its side (it's shorter now, the kit leaves 90 pt above it).
+- **2.31.1:** GitHub's run of 2.31 failed one random-tap seed: the welcome card, opened from Help on a short screen (iPhone SE or on its side), is taller than the screen, so Continue sat below the edge. That was so in 2.30 too, but the kit's sheet takes a finger at the top of its content for dragging, and the welcome card can't be dragged, so it couldn't be scrolled either. Its content now scrolls the usual way (`touch-action: pan-y` on a locked sheet's body), and the random taps scroll a tall sheet before looking for something to tap.
+- **Way back:** the version before Q27 is commit `9246418` (2.30). The tag `suki-2.30` was made but couldn't be pushed from Claude's workspace (as with Vocal Sessions' tags).
 - **Left for later:** queue idea 15 (the kit's rise fix). Q28 brings the buttons, rows, controls and bars.
 
 ## Q28 · Interface: Parts Kit Controls and Presses

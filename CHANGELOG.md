@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.31.1 · 5 Nov 2026
+*Interface: the welcome card scrolls on a small iPhone (Q27 fix)*
+
+- On an iPhone SE, or any iPhone on its side, the welcome card is taller than the screen: its content now scrolls the usual way, so Continue can always be reached. The card still can't be dragged or tapped away.
+- Tests: the random taps scroll a sheet taller than the screen before looking for something to tap.
+
+Screens: SK-024
+
 ## 2.31 · 5 Nov 2026
 *Interface: sheets, alerts and toasts from the parts kit (Q27)*
 

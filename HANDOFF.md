@@ -641,6 +641,7 @@ Findings: Recon 18, 19, 22, part of 21.
 - **Tests:** `test_values.py` (29 checks, in `MAINTAINING.md` › Tests). Full suite once: 1,434 of 1,435, the one being the known `test_smart.py` fold check (Known test issues, a seventh time; queue idea 5); `test_smart.py` then passed 100 of 100 on its own. Screenshots of every tab, Help, Rate history and four sheets and the toast at 402 px (and Home, Spending, Settings and a sheet on iPad), light and dark, against 2.29: the same, pixel for pixel, apart from Settings' Storage used figure (the bigger stylesheet).
 - **For your iPhone:** 1. Turn on Slow motion and open a sheet: the dim fades in slowly too. 2. Close it: the page grows back as before.
 - **Left for later:** nothing new. `--mspeed` becomes the kit's `--pk-speed` at Q27, and the lists shrink with Q27 and Q28.
+- **Receipt:** Q26 · Light to medium → Light to medium · 62 steps · 60k written · 17.8M re-read · 1 full test run
 
 ## Q27 · Interface: Parts Kit Pop-ups
 **Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting

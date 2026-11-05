@@ -609,6 +609,7 @@ Findings: Recon 20.
 - **Every door in the Recon's table can be named:** Home SK-001, Till SK-002, Search SK-003, Spending SK-004, Convert SK-005, Settings SK-006, Purchase SK-007, Log sheet SK-008, Item SK-009, Price notes SK-010, the delete confirmation SK-011, Erase SK-013, Export a backup SK-014, Calendar SK-018, Accessibility SK-019, Add to Home Screen SK-023, Help SK-025, the toast SK-016, Rate history SK-029, News SK-030.
 - **For your iPhone:** 1. Settings › Accessibility › Show screen IDs on: SK-001 under the gear on Home, and SK-001 · SK-007 with a purchase open.
 - **Left for later:** nothing new.
+- **Receipt:** Q25 · Light to medium → Light to medium · 84 steps · 67k written · 24.4M re-read · 1 full test run
 
 ## Q26 · Interface: Value Set and Test
 **Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting

@@ -577,6 +577,8 @@ Findings: Recon 1, 2, 4, 5, 7, 8 and the delete wording in 6.
 - **Tests:** `test_doors.py` (Show all ×2 after Day, Transport, a filter and a bar; the gear, Help, Rate history and their Back; the delete message; Mac's section, one lit, no Back, no movement, Help zooming; iPad's zooms), `test_motion.py` (push and pop mid-way and after, Back mid-push, Reduce Motion, sheet over sheet at 4× in light and dark plus Log what you paid and Delete), `test_history.py` (the push over Convert, Convert's 33% and 10% under the finger, letting go on the nav spring). Full suite once: 1,340 of 1,341, the one being the hex rule above, then fixed and its file re-run. Six-frame strips at ×4 of the gear, Back, Help, Rate history, Edit from a purchase and iPad's Settings, looked at against the Recon's.
 - **For your iPhone:** 1. The gear into Settings and Back: Home slides a little left and darkens. 2. Rate history's swipe back, short (springs back) and long. 3. Edit from a purchase: the dim stays, no flash. 4. Home's Show all after leaving Spending on Day: every purchase.
 - **Left for later:** nothing new.
+- **On GitHub:** the Tests run failed only the known `test_smart.py` fold check ("the side showing is fully there"), on the first run and on its one re-run; it passes 100 of 100 locally and Q24 doesn't touch Home's Log card. Pages deployed 2.28. The fix is queued (Ideas, 5).
+- **Receipt:** Q24 · Light to medium → Light to medium · 68 steps · 56k written · 16.7M re-read · 1 full test run
 
 ## Q25 · Interface: Screen IDs
 **Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting

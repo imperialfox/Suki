@@ -100,7 +100,7 @@ Sorted by priority, highest first: what's broken or helps on the trip (7 Nov –
 2. Nueva Ecija prices: no local tricycle fare or post-rise bus fare is published online yet; add them from price notes during the trip.
 3. Prices by region, using the town from Q16.
 4. Back-dated purchases use Rate history first (added 3 Nov 2026, Q23's build): Q22's one-day lookup could read the saved history and snapshot before asking Frankfurter, so a purchase logged for an earlier day offline gets its real rate at once instead of "estimated". Light.
-5. Tests: fix the flaky fold check in `test_smart.py` ("the side showing is fully there", added 4 Nov 2026, Q21's build). It has now failed on its own three times with nothing near Home's Log card changed (Q18 locally, Q20 and Q21 on GitHub), and a re-run spends one of the build's checks. Light.
+5. Tests: fix the flaky fold check in `test_smart.py` ("the side showing is fully there", added 4 Nov 2026, Q21's build). It has now failed on its own three times with nothing near Home's Log card changed (Q18 locally, Q20 and Q21 on GitHub), and a re-run spends one of the build's checks. On 5 Nov 2026 (Q24) it failed on GitHub twice in a row, first run and re-run. Light.
 6. Assets kit (added 3 Nov 2026): switch every element over to the tuning and assets of Ivan's assets kit (coming soon). Waits for the kit, and easier after Q25 (screen IDs): each group swaps once instead of copy by copy. The two can't run at the same time; both touch every screen.
 7. A search circle beside the tab bar (four tabs plus Search), as in iOS 26.
 8. Smart add: a receipt already works through iPhone's Live Text (copy the text from a photo, paste it in). Help could say so.

@@ -707,7 +707,9 @@ Findings: Recon 9, 13, 15.
 - **Tests:** `test_parts.py` grew three parts (`presses`, `controls`, `bars`: 47 checks); three tests read the knob's `--pk-i`; `test_values.py`'s known lists shrank (presses 1 → 0, durations 18 → 12, shadows 19 → 17, in code keywords 21 → 20 and durations 11 → 10), the speed check now finds 33 durations, and the tab bar check reads the kit's. Full suite once: 1,570 of 1,570. Screenshots of every tab and two sheets, light and dark, on its side and iPad, against 2.31.1: the same apart from the tab bar's highlight, the segmented knob, the switches and the edge.
 - **For your iPhone:** 1. Press the gear and a sheet's ✕: they swell and light. 2. Press and hold a purchase row: it highlights. 3. Drag the knob on Spending's period control. 4. Switch tabs: the highlight slides. Also worth a look: the top bar's fade over a long list, now without the blur.
 - **Way back:** the version before Q28 is commit `e060624` (2.31.1); the tag `suki-2.31.1` couldn't be pushed from Claude's workspace.
+- **GitHub:** 1,570 of 1,570; Pages published 2.32.
 - **Left for later:** queue idea 16 (chips' picked colour). Q29's tap areas can't use `::after` on glass buttons any more (MAINTAINING › Parts kit).
+- **Receipt:** Q28 · Medium → Medium · 133 steps · 107k written · 44.3M re-read · 1 full test run
 
 ## Q29 · Interface: Presses and Tap Areas
 **Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting

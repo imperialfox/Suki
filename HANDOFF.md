@@ -530,3 +530,161 @@ For: Ivan · Builder: Claude · Repo: imperialfox/Suki. Prototype: [Suki rate hi
 Tests: `test_history.py` (87 checks, listed in `MAINTAINING.md`), plus Rate history in `test_layout.py` (the page and both sheets at every size), `test_offline.py` (the page with no connection) and the fuzzer's taps. Full suite: 981 of 984 side by side on the pinned Playwright 1.56 pointed at a newer Chromium; the three were timing on this small machine (two Smart add fades and one history fade check), and passed on their own; the history check was then made timing-proof. Screenshots at 375 and 402 px, light and dark, on its side, iPad and Mac, checked by eye.
 **For your iPhone:** (1) On Convert, tap the rate: does Rate history slide in, and swipe back from the middle of the page? (2) Drag along the chart over October's dots: can you pick each one, and does letting go open it? (3) Read the chart outside in the sun. (4) Does "Mostly the peso" answer why without reading the news? (5) In flight mode, open it: does it still draw, and say it's offline?
 **Left for later:** back-dated purchases reading the saved history (queue idea 4); Rate history's later ideas (queue idea 14).
+
+## Q24 to Q30 · shared: decisions and defaults
+
+From the UI consistency audit of 2.27 (Recon, 5 Nov 2026: the Suki project notes `suki_ui_consistency_audit_recon_2026-11-05.md`, page "UI consistency audit · Suki 2.27") and its Blueprint (`suki_ui_consistency_blueprint.md`, draft 1). They replace the parts kit move blueprint of 4 Nov. Built one after another in Release order, each in a fresh chat with its own receipt, because each touches `css/app.css`, `js/ui.js` or `js/motion.js`.
+
+**Decisions** (Suki's register: the project note `suki_parts_decisions.md`). Vocal Sessions' IDs where it's the same choice, S01 onwards for Suki's own. D01 tab bar never folds · D04 gallery segmented knob · D06 rows and card doors highlight · D08 yes or no questions are alerts, a delete is an alert then Undo · D14 sheets follow the finger, no shrink · D15 strong glass sheets · D16 toasts 3 s, Undo too · D17 sheets 46 corners on iPhone · D18 the kit runs the motion · D19 top bar buttons at Suki's own top area · D20 Reduce Motion fades 100 ms · D21 the page behind follows the sheet · D22 push 33% under, 10% dim · D23 Erase all data as a three-button alert · S01 iPad and Mac sheets stay centred, `--r-form` 28 · S02 Suki's settle becomes `MOTION.land`.
+
+**Defaults, Rendered with the items:**
+1. The kit move is two items, Q27 then Q28.
+2. Kit version: the newest built when Q27 starts (1.3.0 if it's out, otherwise 1.2.0), pinned unchanged. On 1.2.0, Erase all data stays a sheet as a listed difference (S03) until 1.3.0 is copied in.
+3. Sticky warnings ("Couldn't save" with OK) stay Suki's own (S04).
+4. Details stay sheets on iPhone and panes on iPad and Mac (S05).
+5. Text buttons, Cancel and word links fade to 35% while pressed, `--press-fade` (S06).
+6. The tab bar stays under a sheet's dim instead of disappearing (with the kit's sheet, Q27).
+7. The trip guard: Q27 and Q28 change every pop-up and button used abroad. Each Build tags the version before it (e.g. `suki-2.30`). If one isn't shipped and checked on the phone by the evening of 6 Nov, it waits until after the trip (from 3 Dec), and the items before it stay as they are.
+
+**Out of scope for all seven:** any change to the parts kit itself; the Till, drawer, note press and haul, the calendar, charts, price strip, Smart add fold and swipe to delete keep their own motion (they only take named values and the kit's speed and Reduce Motion); the Mac sidebar stays Suki's own; new features. **Saved data:** one new key, `suki:screenIds` (Q25, device-only, not backed up); nothing renamed.
+
+## Q24 · Navigation: Door Rules
+**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.27 · Needs: 2.27 live on `main`. · Effort: Light to medium.
+Findings: Recon 1, 2, 4, 5, 7, 8 and the delete wording in 6.
+
+**Goal:** every door follows one rule, so the same page moves the same way from every door of the same shape, and Back returns to the tab you were on.
+**Agreed:**
+1. **Settings.** On iPhone the gear pushes Settings in and Back pops it, the same push as Help and Rate history (agreed 4). On iPad it zooms like Rate history. On Mac (`MQ.wide`) Settings is a sidebar section: it switches like a tab, only Settings is lit (not Home as well), and the bar shows no Back button. Help on Mac lights only Settings.
+2. **Help on iPad and Mac** zooms in and out, the same lines as Rate history in `go()`.
+3. **Home's "Show all" doors** (`.tbtn` and `.row.more` under Recent, `screens.js` 282 and 285) use `ACT.toSpend` with `all`, like Total spent, so they always open All with no category, filter or picked bar.
+4. **The push shows the page underneath.** Tapped pushes (Settings, Help, Rate history) draw a still copy of the page being left, as `sbUnder()` already does for Rate history's swipe back, move it 33% left and dim it 10% (D22), both on the nav spring, and the pushed page slides in over it. Back runs the same in reverse. Rate history's swipe back lets go on the nav spring instead of its own 280 ms curve, with the same 33% and 10%. Vocal Sessions' `js/zoom.js` push layer (`.zm-under`, `.zm-dim`, `PUSH_UNDER`, `PUSH_DIM`) is the model; copy the idea, not the file.
+5. **A sheet opened from a sheet** keeps the dim (no fade back from nothing) and the new sheet arrives over the old one, which stays in place behind it until it's covered. Going back is unchanged (Q11). Doors: purchase › pencil and prices row, item › Log what you paid, calendar › Log a purchase on … and its purchases, Price notes › a note, Delete from a sheet.
+6. **The delete message** says what goes, with no promise about backups: "Chickenjoy bucket, ₱459.00." (and "Bigas, ₱52 on 3 Nov." for a price note). Still a sheet until Q27.
+7. Reduce Motion: pushes and zooms are a short fade, as now. Motion off: everything at once, as now.
+
+**Out of scope:** the sheet's own rise and leave, alerts, toasts, presses (Q27 and Q28); the zoom's look.
+**Where to look:** `go()`, `renderBar()`, `renderSide()`, `tabButtons()`, `renderSheet()`, `sheetAway()` in `js/ui.js`; `sbUnder()`, `sbEnd()` in `js/history.js`; `ACT.delPurchase`, `ACT.delObs` in `js/events.js`; `screens.js` 282 and 285. MAINTAINING › Doors (Q08), Things arrive and leave (Q11), Rate history (Q23).
+**Risks:** a still copy of a long page costs a frame on older phones (Vocal Sessions' Q44 found the same; take the still before the redraw). Swipe back on Rate history must still beat the chart's scrubbing.
+**Done when:** every door in the Recon's Page transitions table marked Change for this item moves as agreed on iPhone, iPad and Mac; Back from Settings, Help and Rate history lands on the tab you came from; Home's Show all always opens All with every purchase; no sheet-over-sheet frame shows an undimmed page.
+**Checks:** `test_doors.py` (Show all, the gear, Mac's Settings), `test_motion.py` (sheet over sheet keeps the dim at 4×), `test_history.py` (swipe back on the nav spring), `test_layout.py` (iPad and Mac), then the full suite. Six-frame strips at ×4 of the gear, Help and Rate history, compared with the Recon's.
+**For your iPhone:** 1. The gear into Settings and Back. 2. Rate history's swipe back. 3. Edit from a purchase: no flash. 4. Home's Show all after leaving Spending on Day.
+
+## Q25 · Interface: Screen IDs
+**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q24 shipped. · Effort: Light to medium.
+Findings: Recon 20.
+
+**Goal:** every screen, sheet, main part and journey has a permanent ID, as Vocal Sessions has since Q36 and Q48, so plans, tests and the kit can point at them.
+**Agreed:**
+1. `js/register.js`: every screen and sheet as `SK-001` onwards (name, area, where in the code, aliases, docs link, status), in the order they were first built. About 40 entries (6 tabs, Help, Rate history and about 30 sheets).
+2. `data-screen` on each screen's and sheet's root; `data-name` on its main parts (buttons, cards, controls), written `SK-004 › save-button`, following Vocal Sessions' nine naming rules (MAINTAINING › Screen IDs › Naming rules there).
+3. Flows: `F-01` Log a purchase on Home, `F-02` Pay at the Till and log the bill, `F-03` Look up a price and add a note, `F-04` Check Spending for a day.
+4. A Settings › Accessibility switch, Show screen IDs, off by default, device-only (`suki:screenIds` is the one new key; it's a developer view, not backed up).
+5. `tests/test_screens.py`: the register matches the code (every screen the code can show has an entry, every Live entry exists, every docs link points at a real heading, every main button has a name).
+6. `MAINTAINING.md` › Screen IDs; the changelog gets its Screens line from this version on.
+
+**Out of scope:** anything you'd see, apart from the switch.
+**Where to look:** every `scr*()` in `js/screens.js`, `sheetHTML()` in `js/ui.js`, `js/history.js`, `js/onboard.js`, `js/smart.js`. Vocal Sessions' `js/register.js` and `tests/test_screens.py` as the model.
+**Risks:** none for you; a long list to get right. `suki:screenIds` gets its row in `MAINTAINING.md` › Where data lives.
+**Done when:** the register test passes and every door in the Recon's table can be named by ID.
+**Checks:** quick tests while building, the full suite once.
+**For your iPhone:** 1. Turn on Show screen IDs and see one on Home and in a sheet.
+
+## Q26 · Interface: Value Set and Test
+**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q25 shipped. · Effort: Light to medium.
+Findings: Recon 18, 19, 22, part of 21.
+
+**Goal:** every corner, press, curve and duration has a name from the kit's set, and a test stops new hand-written ones, as Vocal Sessions has since Q40.
+**Agreed:**
+1. A named value block at the top of `css/app.css`, using the kit's names (`--r-small` … `--r-sheet`, `--press`, `--press-row`, `--ease-*`, `--dur-*`, the three shadows) set to the kit's numbers, plus Suki's own: `--r-form` 28 (S01), `--press-fade` 0.35 (S06), and names for the Till's and the drawer's values where they're in CSS.
+2. Every hand-written value that matches a name is replaced by it (no visible change). The ones that don't (about 36 corners, 9 curves, 13 durations, most shadows) go on the test's known list with a reason. The list can only shrink.
+3. Every stylesheet duration follows the speed setting (`calc(… * var(--mspeed))` now, the kit's `--pk-speed` from Q27), so Slow motion slows the dim, the iPad sheet and the toast fade too, and motion off stops them.
+4. `MOTION.EASE` (pop, knob, out) in `js/motion.js`, matching the CSS names.
+5. `tests/test_values.py` checks the stylesheet **and** times and easings in `js/` (cubic-beziers, keyword easings, hard-set durations), each with its own known list. Vocal Sessions had to add the `js/` half later; Suki starts with it.
+6. Retire the tab bar's padding transition and every `.glass` `max-width` and `height` transition (leftovers from a folding tab bar Suki never had).
+7. `MAINTAINING.md` › Value set.
+
+**Out of scope:** changing any value you'd notice; Reduce Motion lengths (they move to 100 ms with the kit in Q27).
+**Where to look:** `css/app.css` (all), `js/motion.js`, the `js/` files the inventory lists (tools note `inventory.py`). Vocal Sessions' `tests/test_values.py` as the model.
+**Risks:** a replaced value that looked the same but wasn't (a curve close to a name). Screenshots before and after, side by side.
+**Done when:** the value test passes with its known lists written down with reasons; screenshots of every tab and three sheets look the same as 2.27's (or Q25's).
+**Checks:** `test_values.py`, the full suite, the screenshots.
+**For your iPhone:** 1. Turn on Slow motion and open a sheet: the dim fades slowly too.
+
+## Q27 · Interface: Parts Kit Pop-ups
+**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q26 shipped; the parts kit version settled (shared default 2). · Effort: Medium.
+Findings: Recon 3, 6, 10, 11, 12, 14, 21.
+
+**Goal:** Suki loads the parts kit, the kit runs the motion, and every sheet, alert and toast is the kit's.
+**Agreed:**
+1. **Add the kit.** `css/parts-kit.css` and `js/parts-kit.js` pinned unchanged, its README, changelog, licence and checksums in `tools/parts-kit/`, loaded before `css/app.css` and before `js/motion.js` (`index.html`), cached by `sw.js`. `js/parts.settings.js` with one line per decision in the table above, each with its ID. Before the first change, tag the version before it.
+2. **The kit runs the motion (D18).** `js/motion.js` keeps only Suki's helpers (`animate`, `spring`, `stagger`, `land`, `leave`, `fold`, `iosSpring`, `project`, `rubber`, `blur`) and reads springs, speed and Reduce Motion from `Parts.motion`. `MOTION.settle` becomes `MOTION.land` everywhere (S02). Settings › Accessibility still saves `suki:motion` and `suki:reduceMotion` on the device and hands them to the kit at start-up. Reduce Motion fades are the kit's 100 ms (D20): the blanket `!important` rule goes, and the 150, 180, 200 and 220 ms fades in `motion.js`, `gestures.js` and `events.js` read `--dur-reduced`.
+3. **Sheets (kit part 41).** `renderSheet()` still decides which sheet is open and draws its content; the kit's sheet hosts it (as Vocal Sessions' `HOST` in `js/ui.js`): it rises from the bottom on the sheet spring, leaves in 350 ms speeding up, drags from its header or from its content at the top, closes on a flick past 700 pt/s, has 46 corners (D17), strong glass (D15), no shrink (D14), and stacks over a sheet underneath. The page behind follows it (D21). The tab bar stays under the dim (shared default 6). The welcome card stays locked. On iPad and Mac the centred sheet stays Suki's own (S01), named with `--r-form`, `--dur-appear` and `--dur-close`.
+4. **Alerts (kit part 48, D08).** Delete purchase, delete price note, clear recovered data, Put back and Restore become alerts with Cancel and a red action, then Undo where there is one. Erase all data becomes the three-button alert (D23) on kit 1.3.0, or stays a sheet as S03 on 1.2.0. The handoff lists each before changing it.
+5. **Toasts (kit part 49, D16).** Every `toast()` call is the kit's: in over 500 ms, out over 350 ms, 3 s with or without Undo. Sticky warnings stay Suki's own (S04).
+6. `tests/test_parts.py`: the pinned copy and checksums, the settings and their IDs, the kit running the motion (speed, slow motion, forced Reduce Motion, a reload), `Parts.differences()` against Suki's list, every alert still doing what it did, toasts 3 s with Undo, sheets (46 corners, a flick, a pull from the content, stacking). `MAINTAINING.md` › Parts kit; `tools/parts-kit/REPLACED.md` lists every value and part this item dropped.
+
+**Out of scope:** buttons, rows, controls and bars (Q28); the push (Q24); the Till and drawer, apart from reading speed and Reduce Motion from the kit.
+**Where to look:** `index.html`, `sw.js`, `js/motion.js`, `js/ui.js` (sheets, toasts, `confirmBody`), `js/gestures.js` (sheet drag), `js/events.js` (every `openSheet('confirm'…)`, `toast(`), `js/backup.js`, `js/onboard.js`, `css/app.css` (old sheet and toast rules out). Vocal Sessions' MAINTAINING › Parts kit and its Q41 handoff as the model.
+**Risks:** this changes every pop-up you'll use abroad (the trip guard). The Q11 tests on sheets leaving and rows are rewritten, not just re-run. The Till and drawer tests must pass unchanged.
+**Done when:** the kit copy matches its checksums; the settings load with no problems; speed 0, Slow motion and forced Reduce Motion reach every part and survive a reload; every confirmation is an alert (or listed as S03) and does what it did; toasts stay 3 s and Undo works; every iPhone sheet has 46 corners, closes on a flick and stacks; `Parts.differences()` lists only Suki's IDs; the value test's known list only shrinks; the Till, drawer, haul and Smart add tests pass unchanged; the full suite passes at 375, 390 and 402 wide, on its side, iPad and Mac, locally and on GitHub.
+**Checks:** quick tests per step, the full suite once, a backup export and import round trip, screenshots of every tab and four sheets in light and dark beside 2.27's, strips of a sheet opening and closing at ×4.
+**For your iPhone:** 1. Delete a purchase: the alert, then Undo. 2. Open a sheet and flick it shut; drag one down from its content. 3. Edit from a purchase: the second sheet rises over the first. 4. Turn on Reduce Motion: quick fades. 5. The Till and drawer feel the same.
+
+## Q28 · Interface: Parts Kit Controls and Presses
+**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q27 shipped. · Effort: Medium.
+Findings: Recon 9, 13, 15.
+
+**Goal:** Suki's buttons, rows, controls and bars are the kit's, so pressing anything feels the same as in Vocal Sessions.
+**Agreed:**
+1. **Glass buttons (kit part 12):** the top bar circles, the sheet ✕ and pencil, the calendar arrows, swap, and the glass capsules (`.btn.glass`) grow 17 pt and light up, with the kit's press and release springs. Lift them above their neighbours; nothing may cut them off.
+2. **Solid capsules (part 14):** Save purchase, Log this bill and the red ones shrink to `--press` and come back on the release spring.
+3. **Rows and card doors (part 35, D06):** every row, Home's two figures and the rate card highlight while pressed; none shrinks.
+4. **Chips (part 18).** **Segmented controls (part 23, D04):** the four (Spending's period, Rate history's range, Reduce motion, Note animation) take the gallery's knob, draggable, no squish. **Switches (part 21):** Slow motion and Show tips.
+5. **Tab bar (parts 4 and 15, D01):** the kit's tab bar, its highlight sliding between tabs, buttons that only light up; on its side, the compact bar as now. **Top bar (parts 2 and 51):** the kit's soft edge, buttons at Suki's top area (D19). iPad's top tabs follow the tab bar.
+6. The Till's notes and Exact keep their own press and tilt (Q18). The Mac sidebar stays Suki's own.
+7. `test_parts.py` grows to the controls, rows and bars; `tools/parts-kit/REPLACED.md` and `MAINTAINING.md` › Parts kit updated.
+
+**Out of scope:** tap areas and text-button presses (Q29).
+**Where to look:** `css/app.css` (the press rules at 1369 to 1393, 799, 840, `.segc`, `.sw-ui`, `.tabbar`, `.toptabs`, `.bar`), `renderBar()`, `renderDock()`, `tabButtons()` in `js/ui.js`, `squish()` and the segment actions in `js/events.js`, `js/history.js` (range), `js/onboard.js` (Show tips).
+**Risks:** a grown button clipped by a sheet's or card's edge (Vocal Sessions found several); a segmented drag fighting a scroll.
+**Done when:** every family in the Recon's Buttons table marked Change for this item presses the kit's way; `Parts.differences()` lists only Suki's IDs; the value test's known list only shrinks; the full suite passes as in Q27.
+**Checks:** as Q27, plus strips of a glass circle and a row pressed at ×4.
+**For your iPhone:** 1. Press the gear and a sheet's ✕: they swell and light. 2. Press and hold a purchase row: it highlights. 3. Drag the knob on Spending's period control. 4. Switch tabs: the highlight slides.
+
+## Q29 · Interface: Presses and Tap Areas
+**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q28 shipped. · Effort: Light.
+Findings: Recon 16, 17.
+
+**Goal:** everything you can tap is at least 44 pt to the finger and answers when pressed.
+**Agreed:**
+1. A 44 pt tap area (an invisible `::after`, never a bigger button) round the sheet ✕ and pencil, the calendar arrows and days, Search's clear, chips, segments, "Show all", an item's "Add", Smart add's pill and word links. Neighbours' tap areas never overlap.
+2. Text buttons, Cancel, word links and the bin and forget buttons fade to `--press-fade` while pressed (S06). Calendar days and Mac sidebar items highlight like rows.
+3. A test: every button on every screen in the register has a tap area of at least 44 × 44 pt, or is on a known list with a reason (the Till's drawer handle, on purpose).
+
+**Out of scope:** changing any button's look at rest.
+**Where to look:** the Recon's census (tools note `census.py`), `css/app.css`.
+**Done when:** the tap-area test passes at 375 and 402 wide; nothing moves at rest (screenshots).
+**Checks:** the new test, the full suite.
+**For your iPhone:** 1. Tap the sheet ✕ near its edge. 2. Press "Show all" and see it fade.
+
+## Q30 · Interface: Element Sheet
+**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q28 shipped (Q29 if it's in). · Effort: Medium.
+Findings: Recon 20 (the element sheet).
+
+**Goal:** one sheet lists every element in Suki with its kit part, spring, duration, corner, press and status, built from the code, as Vocal Sessions' Q55 does.
+**Agreed:**
+1. A script builds `reference/elements.md` from the register, the value set and `js/parts.settings.js`: one row per element with screen ID, part name, kit part (or Suki's own), spring, duration, corner, press, status (In use, Phasing out, Retired) and decision ID.
+2. A test fails when an element has no row, no kit part and no reason, or uses a retired value.
+3. `MAINTAINING.md` › Element sheet. Follow Vocal Sessions' Q55 handoff for the columns, so the two apps' sheets read the same.
+
+**Out of scope:** a visual gallery page (later, if wanted).
+**Done when:** the sheet builds with no gaps and its test passes.
+**Checks:** the new test, the full suite once.
+**For your iPhone:** nothing to check; it's a reference file.

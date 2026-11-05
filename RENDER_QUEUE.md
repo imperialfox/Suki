@@ -30,12 +30,27 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q21 | Quick Till: the haul and maker's mark | Shipped · 2.27 | Light | same | Light. Phase 4 of 4: the ten-swipe hand-over-hand pull and "Designed by Ivan". After Q20 |
 | Q22 | Spending: pounds at the rate you paid | Shipped · 2.22 | | none (skipped by Ivan, like Q05 and Q06) | Light. Rate history Recon's Milestone A, in the project doc `idea_rate_history_notes.md`: totals in pounds add each purchase at its own rate, and a back-dated purchase gets that day's ECB rate. Built before Q23 |
 | Q23 | Convert: rate history | Shipped · 2.23 | | [Rate history prototype](https://claude.ai/artifact/PMTmqDCE7i2cXavLkqYekA) (version 1793642745-fdc9, on prototype kit 1.0.0) | Medium. Milestone B in the same doc: the page from Convert's rate row, why it moved, sourced news notes, and history that never depends on one service. After Q22 |
+| Q24 | Navigation: Door Rules | Approved — awaiting Build | Light to medium | none (UI consistency audit strips) | UI consistency audit of 2.27, findings 1, 2, 4, 5, 7, 8 and the delete wording in 6. After Q21 |
+| Q25 | Interface: Screen IDs | Approved — awaiting Build | Light to medium | none | The same audit, finding 20 (was idea 5). After Q24 |
+| Q26 | Interface: Value Set and Test | Approved — awaiting Build | Light to medium | none | The same audit, findings 18, 19, 22, part of 21. After Q25 |
+| Q27 | Interface: Parts Kit Pop-ups | Approved — awaiting Build | Medium | the Parts gallery | The same audit, findings 3, 6, 10 to 12, 14, 21; sheets, alerts, toasts, the kit runs the motion. Trip guard. After Q26 |
+| Q28 | Interface: Parts Kit Controls and Presses | Approved — awaiting Build | Medium | the Parts gallery | The same audit, findings 9, 13, 15. Trip guard. After Q27 |
+| Q29 | Interface: Presses and Tap Areas | Approved — awaiting Build | Light | none | The same audit, findings 16, 17. After Q28 |
+| Q30 | Interface: Element Sheet | Approved — awaiting Build | Medium | none | The same audit, finding 20 (element sheet). After Q28 |
 
 ## Release order
 
 Build top to bottom; each still needs its own **build**. One line per item: `N. Q## — reason`, with "needs Q##" for anything that must ship first. Names live in the table above.
 
-Nothing approved is waiting. The till drawer is complete (Q18–Q21).
+1. Q24 — High doors first: Settings cuts, Home's Show all, sheet over sheet, pushes over an empty page; needs 2.27 (Ivan, 5 Nov 2026)
+2. Q25 — screen IDs and part names before the kit move; needs Q24 (Ivan, 5 Nov 2026)
+3. Q26 — the named value set and its test; needs Q25 (Ivan, 5 Nov 2026)
+4. Q27 — the parts kit's sheets, alerts, toasts and motion; needs Q26 and a kit version (1.3.0 if built, else 1.2.0); trip guard (Ivan, 5 Nov 2026)
+5. Q28 — the parts kit's buttons, rows, controls and bars; needs Q27; trip guard (Ivan, 5 Nov 2026)
+6. Q29 — 44 pt tap areas and presses for text buttons; needs Q28 (Ivan, 5 Nov 2026)
+7. Q30 — the element sheet; needs Q28 (Ivan, 5 Nov 2026)
+
+**Render:** 5 Nov 2026, 09:17 · Ivan: "Render for 1-7" · scope: Q24 to Q30, the seven items of the UI consistency Blueprint (draft 1, 5 Nov 2026), exactly as written in HANDOFF.md, with every default in its shared block (the kit move split in two, the kit version, S03 to S06, the tab bar under a sheet, the trip guard), built one at a time in Release order; each starts only when Ivan says build for it. They replace the parts kit move blueprint of 4 Nov (its A, B and C are Q25, Q26, Q27 and Q28). Q27 and Q28 ship before the 7 Nov trip only if live and checked on the phone by the evening of 6 Nov; otherwise from 3 Dec.
 
 **Render:** 31 Oct 2026, 22:56 · Ivan: "render all, then build" · scope: Q01–Q06 exactly as written in HANDOFF.md, built in the order listed above (2.5 to 2.10).
 
@@ -86,14 +101,13 @@ Sorted by priority, highest first: what's broken or helps on the trip (7 Nov –
 2. Nueva Ecija prices: no local tricycle fare or post-rise bus fare is published online yet; add them from price notes during the trip.
 3. Prices by region, using the town from Q16.
 4. Back-dated purchases use Rate history first (added 3 Nov 2026, Q23's build): Q22's one-day lookup could read the saved history and snapshot before asking Frankfurter, so a purchase logged for an earlier day offline gets its real rate at once instead of "estimated". Light.
-5. Screen and element IDs (added 3 Nov 2026): every screen, section and element gets its own clear name (like `quickadd-sheet`), and anything that shows up in more than one place also gets a group name, so every copy can be viewed together. First step: an ID map (screens, then their parts, then the group names) to check before any code changes. Medium.
-6. Tests: fix the flaky fold check in `test_smart.py` ("the side showing is fully there", added 4 Nov 2026, Q21's build). It has now failed on its own three times with nothing near Home's Log card changed (Q18 locally, Q20 and Q21 on GitHub), and a re-run spends one of the build's checks. Light.
-7. Assets kit (added 3 Nov 2026): switch every element over to the tuning and assets of Ivan's assets kit (coming soon). Waits for the kit, and easier after idea 4: each group swaps once instead of copy by copy. The two can't run at the same time; both touch every screen.
-8. A search circle beside the tab bar (four tabs plus Search), as in iOS 26.
-9. Smart add: a receipt already works through iPhone's Live Text (copy the text from a photo, paste it in). Help could say so.
-10. Search rows: make the peso price the only bold figure (visual audit finding 10; default keeps the pounds).
-11. Rows glide when editing moves a purchase (Q11 covers saving, deleting and Undo only).
-12. Chart bars: switch their entrance from the borrowed ripple to Suki's settle (visual audit finding 9).
-13. Smart add: the prototype's "Try" example chips were left out of Q14 (they'd put made-up purchases a tap from his real log). They could come back as examples that only fill the box with a clearly made-up line, or as a Help section.
-14. Smart add: the flip (the card turning over on its middle) was prototyped beside the fade; the fade was kept. Kept here for the record.
-15. Rate history, later (from its Recon, 2 Nov 2026): compare two dates with two fingers, as in Stocks (medium); your real rate against the reference, noted when changing money (medium); copy a summary for family (light).
+5. Tests: fix the flaky fold check in `test_smart.py` ("the side showing is fully there", added 4 Nov 2026, Q21's build). It has now failed on its own three times with nothing near Home's Log card changed (Q18 locally, Q20 and Q21 on GitHub), and a re-run spends one of the build's checks. Light.
+6. Assets kit (added 3 Nov 2026): switch every element over to the tuning and assets of Ivan's assets kit (coming soon). Waits for the kit, and easier after Q25 (screen IDs): each group swaps once instead of copy by copy. The two can't run at the same time; both touch every screen.
+7. A search circle beside the tab bar (four tabs plus Search), as in iOS 26.
+8. Smart add: a receipt already works through iPhone's Live Text (copy the text from a photo, paste it in). Help could say so.
+9. Search rows: make the peso price the only bold figure (visual audit finding 10; default keeps the pounds).
+10. Rows glide when editing moves a purchase (Q11 covers saving, deleting and Undo only).
+11. Chart bars: switch their entrance from the borrowed ripple to Suki's settle (visual audit finding 9).
+12. Smart add: the prototype's "Try" example chips were left out of Q14 (they'd put made-up purchases a tap from his real log). They could come back as examples that only fill the box with a clearly made-up line, or as a Help section.
+13. Smart add: the flip (the card turning over on its middle) was prototyped beside the fade; the fade was kept. Kept here for the record.
+14. Rate history, later (from its Recon, 2 Nov 2026): compare two dates with two fingers, as in Stocks (medium); your real rate against the reference, noted when changing money (medium); copy a summary for family (light).

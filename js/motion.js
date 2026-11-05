@@ -1,22 +1,25 @@
-/* Suki · motion.js (shared with Vocal Sessions)
-   ===== Motion: the app's shared springs =====
+/* Suki · motion.js (Suki's own helpers on the parts kit's springs; the kit runs the motion since Q27, D18)
+   ===== Motion: Suki's helpers, on the parts kit's springs =====
    Everything that moves uses these, so the whole app feels made by the same hand.
-   - Springs: gentle (rows, capsules, sheets, fades), nav (card zoom, swiping back), ripple (peeks, small pops).
-     Each is a damping ratio and a frequency in Hz, turned into a CSS linear() easing and a duration.
-     CSS reads them as --ease-gentle / --dur-gentle and so on; JS uses MOTION.animate().
+   - Springs come from the parts kit (Parts.motion, js/parts-kit.js): gentle (rows, capsules, fades), nav (pushes,
+     swiping back), ripple (peeks, small pops) and the kit's own (press, release, snap, sheet …). The kit publishes them
+     on <html> as --ease-<name> / --dur-<name>, and only the kit writes those, --pk-speed, .motion-off and
+     .motion-reduced. A spring that differs from the kit's is a line in js/parts.settings.js (springs: {…}) with its
+     decision ID; there are none today. JS uses MOTION.animate().
    - Stagger: words 30 ms apart, rows 45 ms, chart bars 30 ms.
    - EASE (Q26): pop, knob and out, the fixed curves for a timed move, matching app.css's --ease-pop/-knob/-out.
-   - Settle and leave (Q11): how a row arrives in a list and how it goes (MOTION.settle, MOTION.leave).
-   - Reduce Motion (the iOS setting): no movement or blur, just short fades or nothing.
-   - Speed: 1 normally, 4 for slow motion while tuning, 0 for motion off (the tests use 0).
-     Set on this device with MOTION.setSpeed(n); kept in localStorage 'suki:motion', never in backups.
+   - Land and leave (Q11; land was "settle" until Q27, S02): how a row arrives in a list and how it goes.
+   - Reduce Motion (the iOS setting, or forced on or off in Settings › Accessibility): the kit's
+     Parts.motion.setReduced. This device's choice is kept in localStorage 'suki:reduceMotion' ('on' / 'off', absent
+     = Match iPhone) and handed to the kit at start-up, because the kit doesn't save it. Its fades are the kit's
+     --dur-reduced (100 ms, D20): reducedMs().
+   - Speed: 1 normally, 4 for slow motion while tuning, 0 for motion off (the tests use 0): Parts.motion.setSpeed,
+     kept in localStorage 'suki:motion', never in backups.
    - Distance blur: kept from Vocal Sessions for later use; Suki doesn't use it yet. */
 const MOTION = (() => {
-  const SPRINGS = {
-    gentle: { z: 0.82, f: 1.9 },
-    nav: { z: 0.86, f: 2.2 },
-    ripple: { z: 0.6, f: 2.4 },
-  };
+  const PM = Parts.motion;
+  // the springs in use (the kit's, with any of the app's springs: {…} lines on top)
+  const SPRINGS = PM.springs();
   const STAGGER = { word: 30, row: 45, bar: 30 };
   // fixed curves for a timed move that isn't a spring: the same three as app.css's --ease-pop, --ease-knob and
   // --ease-out (Q26). Don't write a new cubic-bezier( in code: use one of these or a spring (tests/test_values.py)
@@ -24,72 +27,63 @@ const MOTION = (() => {
   const BLUR_MAX = 1.5; // px. Ivan chose 1.5 over 2 so far lyrics stay recognisable
   const KEY = 'suki:motion';
   const RKEY = 'suki:reduceMotion'; // auto (match iPhone), on or off. This device only, never in backups
-  const mq = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
-  const linearOK = !!(window.CSS && CSS.supports && CSS.supports('transition-timing-function', 'linear(0, 1)'));
-
-  // a spring's position over time, sampled into a linear() easing; ms is when it has settled
-  function curve(z, f) {
-    const w = 2 * Math.PI * f,
-      wd = w * Math.sqrt(1 - z * z),
-      T = Math.log(500) / (z * w),
-      n = 40,
-      p = [];
-    for (let i = 0; i <= n; i++) {
-      const t = (T * i) / n;
-      p.push(+(1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + ((z * w) / wd) * Math.sin(wd * t))).toFixed(4));
-    }
-    p[n] = 1;
-    return { ease: linearOK ? 'linear(' + p.join(', ') + ')' : 'cubic-bezier(.25,.9,.3,1)', ms: Math.round(T * 1000) };
-  }
+  const curve = PM.curve;
   const C = {};
   Object.keys(SPRINGS).forEach((k) => (C[k] = curve(SPRINGS[k].z, SPRINGS[k].f)));
 
-  let speed = 1;
-  try {
-    const s = localStorage.getItem(KEY);
-    if (s !== null && !isNaN(+s)) speed = Math.max(0, Math.min(8, +s));
-  } catch (e) {}
-
+  // this device's choices, handed to the kit at start-up (the kit doesn't save them)
+  const read = (k) => {
+    try {
+      return localStorage.getItem(k);
+    } catch (e) {
+      return null;
+    }
+  };
   let rpref = 'auto';
-  try {
-    const r = localStorage.getItem(RKEY);
-    if (r === 'on' || r === 'off') rpref = r;
-  } catch (e) {}
-  const reduced = () => rpref === 'on' || (rpref === 'auto' && !!(mq && mq.matches));
+  function load() {
+    const s = read(KEY);
+    PM.setSpeed(s !== null && !isNaN(+s) ? Math.max(0, Math.min(8, +s)) : 1);
+    const r = read(RKEY);
+    rpref = r === 'on' || r === 'off' ? r : 'auto';
+    PM.setReduced(rpref === 'on' ? true : rpref === 'off' ? false : null);
+  }
+  load();
+
+  const speed = () => PM.speed();
+  const reduced = () => PM.reduced();
+  const on = () => PM.on();
+  const dur = (name) => (C[name] ? C[name].ms : C.gentle.ms) * speed();
+  const ease = (name) => (C[name] || C.gentle).ease;
+  // the delay for item i, for MOTION.animate's delay (which applies the speed itself, so this doesn't)
+  const stagger = (i, kind) => i * (STAGGER[kind] || STAGGER.row);
+  // a named duration from the stylesheet (--dur-close and the like) in ms, before the speed
+  const ms = (name, dflt) => {
+    const m = /^([\d.]+)(ms|s)$/.exec(getComputedStyle(document.documentElement).getPropertyValue(name).trim());
+    return m ? +m[1] * (m[2] === 's' ? 1000 : 1) : dflt;
+  };
+  // (D20) the kit's Reduce Motion fade (--dur-reduced, 100 ms) in ms, before the speed: every fade that replaces
+  // movement under Reduce Motion uses it
+  const reducedMs = () => ms('--dur-reduced', 100);
+
+  // the kit writes the CSS variables and classes; this re-reads this device's choices and asks it to
+  function publish() {
+    load();
+  }
+  function setSpeed(n) {
+    const v = Math.max(0, Math.min(8, +n || 0));
+    try {
+      if (v === 1) localStorage.removeItem(KEY);
+      else localStorage.setItem(KEY, String(v));
+    } catch (e) {}
+    PM.setSpeed(v);
+  }
   function setReduce(v) {
     rpref = v === 'on' || v === 'off' ? v : 'auto';
     try {
       if (rpref === 'auto') localStorage.removeItem(RKEY);
       else localStorage.setItem(RKEY, rpref);
     } catch (e) {}
-    publish();
-  }
-  const on = () => speed > 0 && !reduced();
-  const dur = (name) => (C[name] ? C[name].ms : C.gentle.ms) * speed;
-  const ease = (name) => (C[name] || C.gentle).ease;
-  // the delay for item i, for MOTION.animate's delay (which applies the speed itself, so this doesn't)
-  const stagger = (i, kind) => i * (STAGGER[kind] || STAGGER.row);
-
-  // CSS variables, so stylesheets use the same springs: transition: opacity var(--dur-gentle) var(--ease-gentle)
-  function publish() {
-    const r = document.documentElement.style;
-    Object.keys(C).forEach((k) => {
-      r.setProperty('--ease-' + k, C[k].ease);
-      r.setProperty('--dur-' + k, (on() ? dur(k) : 0) + 'ms');
-    });
-    // every stylesheet duration that isn't a spring is multiplied by this: calc(var(--dur-fade) * var(--mspeed, 1)).
-    // It's the speed itself (4 in slow motion, 0 with motion off), also with Reduce Motion, whose own fades follow it (Q26)
-    r.setProperty('--mspeed', String(speed));
-    document.documentElement.classList.toggle('motion-off', !on());
-    document.documentElement.classList.toggle('motion-reduced', reduced());
-  }
-  function setSpeed(n) {
-    speed = Math.max(0, Math.min(8, +n || 0));
-    try {
-      if (speed === 1) localStorage.removeItem(KEY);
-      else localStorage.setItem(KEY, String(speed));
-    } catch (e) {}
-    publish();
+    PM.setReduced(rpref === 'on' ? true : rpref === 'off' ? false : null);
   }
 
   // el.animate on a spring. With motion off or Reduce Motion it jumps to the end (or fades, if asked)
@@ -97,32 +91,34 @@ const MOTION = (() => {
     o = o || {};
     if (!el || !el.animate) return null;
     if (!on()) {
-      if (reduced() && o.fade && speed > 0)
-        return el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
+      if (reduced() && o.fade && speed() > 0)
+        return el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reducedMs() * speed(), easing: 'ease-out' });
       return null;
     }
     const name = o.spring || 'gentle';
     return el.animate(frames, {
-      duration: o.ms ? o.ms * speed : dur(name),
-      delay: (o.delay || 0) * speed,
+      duration: o.ms ? o.ms * speed() : dur(name),
+      delay: (o.delay || 0) * speed(),
       easing: o.ms ? o.easing || EASE.out : ease(name),
       fill: o.fill || 'none',
     });
   }
 
-  // "Settle" (Q11): Suki's own movement, a small drop into place like a coin set down on a counter. Kept for things
-  // that land: a saved purchase arriving in its list (12 px), and the Till's notes and coins (Q13, 10 px).
-  // i staggers them 45 ms apart. Reduce Motion: a fade. Motion off: nothing.
-  function settle(el, i, drop) {
+  // "Land" (Q11; "settle" until Q27, S02, so --ease-settle means only the kit's spring): Suki's own movement, a small
+  // drop into place like a coin set down on a counter. Kept for things that land: a saved purchase arriving in its
+  // list (12 px), and the Till's notes and coins (Q13, 10 px). i staggers them 45 ms apart. Reduce Motion: a fade.
+  // Motion off: nothing.
+  function land(el, i, drop) {
     return animate(el, [{ transform: 'translateY(-' + (drop || 12) + 'px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { spring: 'ripple', delay: stagger(i || 0, 'row'), fill: 'backwards', fade: true });
   }
   // something going away where it was: it fades and shrinks to .94 in 220 ms (a row), or to `to` in `ms` (the Till's
-  // notes and coins: .6 in 160 ms); only fades with Reduce Motion.
+  // notes and coins: .6 in 160 ms); only fades with Reduce Motion (the kit's --dur-reduced).
   // Returns the animation (null with motion off), ending on its last frame so the caller can remove the element.
   function leave(el, ms, to) {
-    if (!el || !el.animate || speed === 0) return null;
-    if (reduced()) return el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200 * speed, easing: 'ease-out', fill: 'forwards' });
-    return el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(' + (to || 0.94) + ')' }], { duration: (ms || 220) * speed, easing: 'ease-in', fill: 'forwards' });
+    const sp = speed();
+    if (!el || !el.animate || sp === 0) return null;
+    if (reduced()) return el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reducedMs() * sp, easing: 'ease-out', fill: 'forwards' });
+    return el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(' + (to || 0.94) + ')' }], { duration: (ms || 220) * sp, easing: 'ease-in', fill: 'forwards' });
   }
 
   // a spring that starts moving: from and to are {x, y, …} in px, v is the finger's speed in px/s (3.12, the floating
@@ -146,7 +142,7 @@ const MOTION = (() => {
     const t0 = performance.now();
     const step = (now) => {
       if (stop) return;
-      const t = (now - t0) / 1000 / speed,
+      const t = (now - t0) / 1000 / speed(),
         e = Math.exp(-s.z * w * t),
         p = {};
       let left = 0;
@@ -191,14 +187,15 @@ const MOTION = (() => {
     return out.filter((el) => el.getBoundingClientRect().height > 0);
   }
   function fold(wrap, ghost, neu) {
-    if (!ghost || !neu || !neu.animate || speed === 0) return;
-    const k = speed,
-      gone = () => ghost.isConnected && ghost.remove();
+    const k = speed();
+    if (!ghost || !neu || !neu.animate || k === 0) return;
+    const gone = () => ghost.isConnected && ghost.remove();
     wrap.appendChild(ghost);
     if (reduced() || foldLite) {
-      ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150 * k, easing: 'ease-out', fill: 'forwards' }).onfinish = gone;
-      neu.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 * k, easing: 'ease-out', fill: 'backwards' });
-      setTimeout(gone, 150 * k + 300);
+      const rm = reducedMs() * k;
+      ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: rm, easing: 'ease-out', fill: 'forwards' }).onfinish = gone;
+      neu.animate([{ opacity: 0 }, { opacity: 1 }], { duration: rm, easing: 'ease-out', fill: 'backwards' });
+      setTimeout(gone, rm + 300);
       return;
     }
     const hingeOf = (face) => face.querySelector('textarea, input'),
@@ -254,12 +251,6 @@ const MOTION = (() => {
   const dim = (d) => (d <= 0 ? 1 : +Math.max(0.3, 0.55 - 0.05 * d).toFixed(2));
   const dimLabel = (d) => (d <= 0 ? 1 : +Math.max(0.45, 0.7 - 0.05 * d).toFixed(2)); // labels only dim, never blur
 
-  if (mq) {
-    if (mq.addEventListener) mq.addEventListener('change', publish);
-    else if (mq.addListener) mq.addListener(publish);
-  }
-  publish();
-
   return {
     SPRINGS,
     STAGGER,
@@ -272,7 +263,9 @@ const MOTION = (() => {
     ease,
     stagger,
     animate,
-    settle,
+    land,
+    reducedMs,
+    ms,
     leave,
     fold,
     spring,
@@ -282,7 +275,7 @@ const MOTION = (() => {
     setSpeed,
     setReduce,
     reducePref: () => rpref,
-    speed: () => speed,
+    speed,
     publish,
     blur,
     dim,

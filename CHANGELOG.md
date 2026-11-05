@@ -1,5 +1,30 @@
 # Changelog
 
+## 2.31 · 5 Nov 2026
+*Interface: sheets, alerts and toasts from the parts kit (Q27)*
+
+**Sheets**
+- On iPhone every sheet is the parts kit's, the same as Vocal Sessions': it rises from the bottom of the screen and leaves faster as it goes, with the screen's own rounder corners.
+- Drag it down by its top, or by its content when that's scrolled to the top. A quick flick closes it; a short, slow pull springs back.
+- A sheet opened from a sheet (Edit from a purchase, Log what you paid from an item) rises over the first, which waits underneath and is there again when you close the top one.
+- The page behind shrinks and comes back in step with the sheet. The tab bar stays, under the dim, instead of disappearing.
+- iPad and Mac keep Suki's own sheet in the middle of the screen, opening and closing a little quicker.
+
+**Questions are alerts**
+- Delete a purchase, Delete a price note, Clear recovered data, Put back what was here and Restore this backup now ask in a small alert with Cancel and a red button. A delete still shows Undo after.
+- Restore says in words what's on the device and what's in the backup.
+- Erase all data stays a sheet for now, with Export a backup first. It becomes an alert with the next parts kit.
+
+**Toasts**
+- Messages drop in from the top and stay 3 seconds, with or without Undo. A longer one wraps onto a second line.
+- "Couldn't save" still stays until you tap OK.
+
+**Motion**
+- The parts kit runs Suki's springs, Slow motion and Reduce Motion. Your settings in Accessibility are kept as before.
+- With Reduce Motion on, every fade is a quick 0.1 seconds.
+
+Screens: SK-007, SK-008, SK-009, SK-010, SK-011, SK-012, SK-013, SK-014, SK-015, SK-016, SK-018, SK-019, SK-020, SK-021, SK-022, SK-023, SK-024, SK-027, SK-028, SK-030, SK-031
+
 ## 2.30 · 5 Nov 2026
 *Interface: every corner, press, curve and duration has a name (Q26)*
 

@@ -1,8 +1,8 @@
 # Suki
 
-![Version 2.30](https://img.shields.io/badge/version-2.30-blue)
+![Version 2.31](https://img.shields.io/badge/version-2.31-blue)
 
-**Current version: 2.30 · 5 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
+**Current version: 2.31 · 5 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
 
 Suki is a personal travel companion for the Philippines. It checks your change, converts pounds and pesos, looks up prices and keeps track of what you spend. It's a Home Screen web app for iPhone, iPad and Mac, and works offline.
 
@@ -79,4 +79,4 @@ The launch images in `splash/` are made from `icon-512.png` by `python tools/spl
 
 ## Stack and licence
 
-Vanilla HTML, CSS and JavaScript with no frameworks or build step, a web app manifest and a service worker, hosted on GitHub Pages. It shares its foundations (motion, offline support, layouts and tests) with Vocal Sessions. Licensed under MIT; see [LICENSE.txt](LICENSE.txt).
+Vanilla HTML, CSS and JavaScript with no frameworks or build step, a web app manifest and a service worker, hosted on GitHub Pages. It shares its foundations (offline support, layouts and tests) with Vocal Sessions, and since 2.31 its sheets, alerts, toasts and motion come from the same parts kit, [imperialfox/parts-kit](https://github.com/imperialfox/parts-kit) 1.2.0 (MIT, its licence in `tools/parts-kit/`), whose numbers follow [sdegenaar/liquid_glass_widgets](https://github.com/sdegenaar/liquid_glass_widgets) (MIT). Licensed under MIT; see [LICENSE.txt](LICENSE.txt).

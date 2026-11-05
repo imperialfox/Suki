@@ -155,8 +155,8 @@ def run(b, t):
     # the bin on a note row doesn't light it
     pg.click(s + '.row[data-dot="note:oj"] [data-a=delObs]')
     pg.wait_for_function("U.sheet!=='item'")
-    ok(pg.evaluate("U.dot") is None, 'the bin on a price note row opens the delete sheet without lighting the ring')
-    pg.click('#layer .sheet [data-a=close]')
+    ok(pg.evaluate("U.dot") is None, 'the bin on a price note row opens the delete alert without lighting the ring')
+    pg.click('#layer .pk-alert [data-a=no]')
     pg.wait_for_function("U.sheet==='item'")
     # a You paid row still opens the purchase, and its dot is lit when you come back
     pg.click(s + '.row[data-dot="paid:j2"]')

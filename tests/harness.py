@@ -210,3 +210,14 @@ def ready(pg):
     pg.wait_for_timeout(100)
 
 BAD_TEXT = r"""(()=>{const t=document.body.innerText;const m=t.match(/.{0,30}(\bundefined\b|\bNaN\b|\[object Object\]|\bnull\b).{0,30}/);return m?m[0]:''})()"""
+
+
+# a quick flick down on an element (Q27, the kit's sheets): pointer events sent from the page itself, 8 ms apart, so the
+# finger's speed doesn't depend on how busy the machine is. dy per step × steps; returns nothing
+FLICK = """([sel,dy,steps,gap])=>{const e=document.querySelector(sel);const r=e.getBoundingClientRect();const x=r.left+Math.min(40,r.width/2);let y=r.top+Math.min(12,r.height/2);
+ const ev=(t,yy)=>e.dispatchEvent(new PointerEvent(t,{pointerId:7,pointerType:'touch',isPrimary:true,clientX:x,clientY:yy,bubbles:true,cancelable:true,button:0,buttons:t==='pointerup'?0:1}));
+ ev('pointerdown',y);for(let i=0;i<steps;i++){const t0=performance.now();while(performance.now()-t0<gap){}y+=dy;ev('pointermove',y)}ev('pointerup',y)}"""
+
+
+def flick(pg, sel, dy=30, steps=5, gap=8):
+    pg.evaluate(FLICK, [sel, dy, steps, gap])

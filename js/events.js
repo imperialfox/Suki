@@ -1014,6 +1014,8 @@ function showDot() {
 /* ===== Keyboard (iPad keyboards and Mac) ===== */
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    // the kit's sheets and alerts close themselves on Escape (Q27, HOST in ui.js)
+    if (HOST.kitEscape(e)) return;
     if (U.sheet && !document.querySelector('#layer .sheet.locked')) {
       e.preventDefault();
       closeSheet();

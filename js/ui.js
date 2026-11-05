@@ -52,7 +52,8 @@ function renderSide() {
     '<div class="sbgap"></div><button class="sbi' + (U.tab === 'settings' || U.tab === 'help' ? ' on' : '') + '" data-a="tab" data-v="settings" aria-current="' + (U.tab === 'settings' ? 'page' : 'false') + '">' + ICON.gear + '<span>Settings</span></button>';
 }
 function renderDock() {
-  if (MQ.reg.matches || U.sheet) {
+  // the tab bar stays under a sheet's dim (Q27, shared default 6); iPad and Mac have none
+  if (MQ.reg.matches) {
     $('dock').innerHTML = '';
     return;
   }
@@ -153,9 +154,15 @@ const SCR = (() => {
     name(s, [$('app'), $('bar'), $('dock'), $('side')]);
     label();
   }
+  // the overlay on top (Q27): the kit's alert, else the top sheet (the kit's on iPhone, Suki's own on iPad and Mac)
+  function top() {
+    if (!U.sheet) return null;
+    const L = $('layer');
+    return [...L.querySelectorAll('.pk-alert:not(.pk-leaving)')].pop() || [...L.querySelectorAll('.pk-sheet.sheet:not(.pk-leaving)')].pop() || L.querySelector('#own .scrim .sheet');
+  }
   function sheet() {
-    const el = U.sheet && $('layer').querySelector('.scrim');
-    if (el) name(stamp(el.querySelector('.sheet') || el, sheetKey()), [el]);
+    const el = top();
+    if (el) name(stamp(el, sheetKey()), [el]);
     label();
   }
   // something drawn outside render(): the toast, the tip, the launch screen
@@ -188,7 +195,7 @@ const SCR = (() => {
       el.setAttribute('aria-hidden', 'true');
       document.body.appendChild(el);
     }
-    const sh = U.sheet && $('layer').querySelector('.scrim .sheet');
+    const sh = top();
     el.textContent = $('app').dataset.screen + (sh && sh.dataset.screen ? ' · ' + sh.dataset.screen : '');
   }
   // parts drawn in place without a redraw (Search's results, the Till's change, Smart add's preview…) get their
@@ -198,14 +205,14 @@ const SCR = (() => {
     pend = false;
     const a = $('app');
     if (a.dataset.screen) name(BY[viewKey()] || null, [a]);
-    const sh = U.sheet && $('layer').querySelector('.scrim');
+    const sh = top();
     if (sh) name(BY[sheetKey()] || null, [sh]);
   };
   if (typeof MutationObserver === 'function') {
     const mo = new MutationObserver(() => pend || ((pend = true), queueMicrotask(again)));
     ['app', 'layer'].forEach((k) => $(k) && mo.observe($(k), { childList: true, subtree: true }));
   }
-  return { viewKey, sheetKey, id, screen, sheet, mark, label, idsOn, setIds, BY };
+  return { viewKey, sheetKey, id, screen, sheet, top, mark, label, idsOn, setIds, BY };
 })();
 /* ===== Door rules (Q24) =====
    Tabs swap instantly. Three pages are pushed: Settings from Home's gear, Help from Settings and Rate history from
@@ -326,7 +333,7 @@ let shownSheet = null,
   backTop = 0; // where the sheet underneath was scrolled to, for going back to it
 function openSheet(name, sd, push) {
   if (push && U.sheet) {
-    const s = document.querySelector('#layer .sheet');
+    const s = document.querySelector('#own .scrim .sheet');
     U.stack.push({ sheet: U.sheet, sd: U.sd, top: s ? s.scrollTop : 0 });
   } else if (!push) U.stack = [];
   U.sheet = name;
@@ -438,16 +445,17 @@ function sheetHTML() {
           '<button class="cta" data-a="saveBackup"' + (sd.file ? '' : ' disabled') + '>' + (sd.file ? 'Save backup' : 'Preparing…') + '</button>'
       );
     case 'restore': {
+      // an alert (Q27, D08): what's here and what's in the backup, in words, since an alert holds no table
       const n = sd.data,
-        row = (k, a, b) => '<div class="row cmp"><span class="lbl">' + k + '</span><span class="v">' + a + '</span><span class="v b">' + b + '</span></div>';
+        list = (a) => (a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a[0]),
+        has = (d) => list([plural(d.purchases.length, 'purchase'), plural(d.observations.length, 'price note')].concat(d.learned.length ? [plural(d.learned.length, 'learned word')] : [], d.rate ? ['a saved rate'] : []));
       return sheetWrap(
         'Restore this backup?',
-        '<p class="note">Made ' + (sd.when ? esc(sd.when) : 'on an unknown date') + (sd.skipped ? '. ' + plural(sd.skipped, 'damaged record') + ' will be left out' : '') + '. Restoring replaces what’s on this device.</p>' +
-          '<div class="grp"><div class="row cmp head"><span class="lbl"></span><span class="v">This device</span><span class="v b">Backup</span></div>' +
-          row('Purchases', D.purchases.length, n.purchases.length) + row('Price notes', D.observations.length, n.observations.length) +
-          row('Saved rate', D.rate ? D.rate.value.toFixed(2) : 'None', n.rate ? n.rate.value.toFixed(2) : 'None') +
-          (D.learned.length || n.learned.length ? row('Learned words', D.learned.length, n.learned.length) : '') + '</div>' +
-          '<div class="gap"></div><button class="cta red" data-a="restoreYes">Replace with this backup</button><button class="ghost" data-a="close">Cancel</button>'
+        confirmBody(
+          'Made ' + (sd.when ? esc(sd.when) : 'on an unknown date') + (sd.skipped ? ', with ' + plural(sd.skipped, 'damaged record') + ' left out' : '') + '. This device has ' + has(D) + '; the backup has ' + has(n) + '. Restoring replaces what’s on this device.',
+          'Replace with this backup',
+          'restoreYes'
+        )
       );
     }
     case 'calendar': {
@@ -536,8 +544,26 @@ function sheetHTML() {
   }
   return null;
 }
+/* ===== Which sheets are on screen (Q27) =====
+   U.stack and U.sheet are the sheets open, bottom first. A yes or no question (ALERTS) is the kit's alert, over the
+   sheet underneath it if there is one (D08). The sheets go to the parts kit's sheet on iPhone (HOST, below) and stay
+   Suki's own centred sheet on iPad and Mac (ownSheets(), S01). Erase all data stays a sheet on kit 1.2.0 (S03). */
+const ALERTS = { confirm: 1, putback: 1, restore: 1 };
+const levelKey = (e) => e.sheet + ':' + (e.sd.id || e.sd.action || '') + ':' + (e.sd.k || '');
+// the markup for a sheet that isn't the top one (the sheet under an alert)
+function htmlAt(e) {
+  const s = U.sheet,
+    d = U.sd;
+  U.sheet = e.sheet;
+  U.sd = e.sd;
+  try {
+    return sheetHTML();
+  } finally {
+    U.sheet = s;
+    U.sd = d;
+  }
+}
 function renderSheet() {
-  const layer = $('layer');
   let html = U.sheet ? sheetHTML() : null;
   // a sheet with nothing to show (its purchase was deleted) closes itself, so the tab bar always comes back
   if (U.sheet && !html) {
@@ -548,8 +574,37 @@ function renderSheet() {
     if (!html) U.sheet = null;
     renderDock();
   }
-  const key = U.sheet ? U.sheet + ':' + (U.sd.id || '') : null,
-    depth = html ? U.stack.length + 1 : 0,
+  const lv = U.stack.map((e) => ({ sheet: e.sheet, sd: e.sd })).concat(html ? [{ sheet: U.sheet, sd: U.sd }] : []),
+    alertTop = !!(html && ALERTS[U.sheet]),
+    sheets = alertTop ? lv.slice(0, -1) : lv,
+    sheetHtml = !sheets.length ? null : alertTop ? htmlAt(sheets[sheets.length - 1]) : html;
+  HOST.alert(alertTop ? html : null, alertTop ? levelKey(lv[lv.length - 1]) : null);
+  let fresh;
+  if (MQ.reg.matches) {
+    HOST.sheets([], null);
+    fresh = ownSheets(sheets, sheetHtml);
+  } else {
+    ownSheets([], null);
+    fresh = HOST.sheets(sheets, sheetHtml);
+  }
+  document.body.classList.toggle('sheet-open', sheets.length > 0);
+  if (fresh && !alertTop) {
+    const f = fresh.querySelector('input:not([type=date]),textarea');
+    if (U.sheet === 'edit' && !U.sd.id && f) setTimeout(() => f.focus({ preventScroll: true }), 60);
+    if (U.sheet === 'welcome') welcomeArrive();
+  }
+  SCR.sheet(); // Q25 the sheet's (or alert's) screen ID and part names
+}
+
+/* ===== iPad and Mac: Suki's own centred sheet (S01) =====
+   It opens in the middle of the screen in #own, inside #layer. One opened from another goes back to the first when it
+   closes. Returns the sheet when it has just appeared (not redrawn in place), for focusing its first field. */
+function ownSheets(list, html) {
+  const layer = $('own'),
+    e = list[list.length - 1];
+  if (!e) html = null;
+  const key = e ? levelKey(e) : null,
+    depth = html ? list.length : 0,
     was = layer.querySelector('.scrim'),
     // fewer sheets than before: the top one is closing, to the page or to the sheet underneath (Q11)
     closing = !!(was && shownSheet && depth < shownDepth),
@@ -564,9 +619,7 @@ function renderSheet() {
   if (!html) {
     layer.innerHTML = '';
     shownSheet = null;
-    document.body.classList.remove('sheet-open');
-    SCR.label();
-    return;
+    return null;
   }
   if (over) sheetUnderKeep(was);
   layer.innerHTML = html;
@@ -580,24 +633,21 @@ function renderSheet() {
   }
   // redrawing the same sheet keeps its place and doesn't rise again; going back to the sheet underneath finds it
   // simply there, where it was scrolled to, while the closing one slides off over it
-  if (key === shownSheet || closing) {
+  const same = key === shownSheet || closing;
+  if (same) {
     sh.classList.add('still');
     layer.querySelector('.scrim').classList.add('still');
     sh.scrollTop = key === shownSheet ? top : backTop;
-  } else {
-    const f = sh.querySelector('input:not([type=date]),textarea');
-    if (U.sheet === 'edit' && !U.sd.id && f) setTimeout(() => f.focus({ preventScroll: true }), 60);
-    if (U.sheet === 'welcome') welcomeArrive();
   }
   shownSheet = key;
-  document.body.classList.add('sheet-open');
-  SCR.sheet(); // Q25 the sheet's screen ID and part names
+  return same ? null : sh;
 }
 
-/* ===== A sheet over a sheet (Q24) =====
+/* ===== A sheet over a sheet on iPad and Mac (Q24) =====
    The old sheet and its dim move to #leaving (which nothing can tap), beneath the new one (.under, z-index 39), and
-   stay exactly where they were until the new sheet has risen over them (or popped, on iPad and Mac, or faded with
-   Reduce Motion); then they go. Any other sheet change before that ends the wait at once. Motion off: nothing waits. */
+   stay exactly where they were until the new sheet has popped over them (or faded, with Reduce Motion); then they go.
+   Any other sheet change before that ends the wait at once. Motion off: nothing waits. On iPhone the kit's sheets
+   stack by themselves (HOST). */
 let UNDER_SC = null;
 function sheetUnderKeep(sc) {
   const out = $('leaving'),
@@ -612,7 +662,7 @@ function sheetUnderKeep(sc) {
   out.appendChild(sc);
   if (sh) sh.scrollTop = top;
   UNDER_SC = sc;
-  const ms = MOTION.reduced() ? 200 * sp : MQ.reg.matches ? 420 * sp : MOTION.dur('gentle');
+  const ms = (MOTION.reduced() ? MOTION.reducedMs() : MOTION.ms('--dur-appear', 250)) * sp;
   clearTimeout(sheetUnderKeep.t);
   sheetUnderKeep.t = setTimeout(sheetUnderGo, ms + 40);
 }
@@ -622,16 +672,15 @@ function sheetUnderGo() {
   UNDER_SC = null;
   if (!sc) return;
   sc.remove();
-  const top = $('layer').querySelector('.scrim');
+  const top = $('own').querySelector('.scrim');
   if (top) top.style.background = '';
 }
 
-/* ===== A sheet leaving (Q11) =====
-   The closing sheet moves to #leaving (which nothing can tap) and slides down off the screen while the page behind
-   grows back, as one movement and quicker than it arrived. Going back to a sheet underneath, the dim stays and only
-   the top sheet slides off. iPad and Mac: it shrinks to .94 and fades. Reduce Motion: a 200 ms fade. Motion off: it
-   simply goes. Every close path ends here, because they all redraw: ✕, Cancel, the dim, Escape, dragging it down,
-   and closing after a save or a delete. A second close mid-way just starts another one. */
+/* ===== A centred sheet leaving, on iPad and Mac (Q11, S01) =====
+   The closing sheet moves to #leaving (which nothing can tap) and shrinks to .94 and fades over --dur-close, from
+   wherever it was. Going back to a sheet underneath, the dim stays and only the top sheet goes. Reduce Motion: the
+   kit's --dur-reduced fade. Motion off: it simply goes. Every close path ends here, because they all redraw: ✕,
+   Cancel, the dim, Escape, and closing after a save or a delete. A second close mid-way just starts another one. */
 function sheetAway(sc, toPrev) {
   const sh = sc.querySelector('.sheet'),
     sp = MOTION.speed(),
@@ -643,9 +692,8 @@ function sheetAway(sc, toPrev) {
     top = sh.scrollTop,
     dimFrom = getComputedStyle(sc).backgroundColor,
     red = MOTION.reduced(),
-    reg = MQ.reg.matches,
-    ms = (red ? 200 : reg ? 220 : 330) * sp;
-  // hold it exactly where it is (half-risen, or where a finger dragged it), then let it go from there
+    ms = (red ? MOTION.reducedMs() : MOTION.ms('--dur-close', 170)) * sp;
+  // hold it exactly where it is (half-arrived), then let it go from there
   sc.classList.add('still');
   sh.classList.add('still');
   sh.classList.remove('drag', 'back');
@@ -659,17 +707,8 @@ function sheetAway(sc, toPrev) {
   let a;
   if (red) a = sc.animate([{ opacity: 1 }, { opacity: 0 }], { duration: ms, easing: 'ease-out', fill: 'forwards' });
   else {
-    a = sh.animate(
-      reg ? [{ transform: tr, opacity: op }, { transform: 'scale(.94)', opacity: 0 }] : [{ transform: tr }, { transform: 'translateY(115%)' }],
-      { duration: ms, easing: reg ? 'ease-in' : 'cubic-bezier(.3,0,.25,1)', fill: 'forwards' }
-    );
+    a = sh.animate([{ transform: tr, opacity: op }, { transform: 'scale(.94)', opacity: 0 }], { duration: ms, easing: 'ease-in', fill: 'forwards' });
     if (!toPrev) sc.animate([{ backgroundColor: dimFrom }, { backgroundColor: 'rgba(0,0,0,0)' }], { duration: ms, easing: 'ease-out', fill: 'forwards' });
-  }
-  // the page behind grows back on the same quicker curve (CSS: body.unsheet)
-  if (!toPrev) {
-    document.body.classList.add('unsheet');
-    clearTimeout(sheetAway.t);
-    sheetAway.t = setTimeout(() => document.body.classList.remove('unsheet'), ms + 60);
   }
   const done = () => sc.remove();
   a.onfinish = done;
@@ -677,18 +716,274 @@ function sheetAway(sc, toPrev) {
   setTimeout(done, ms + 400);
 }
 
+/* ===== Q27 The sheet host: Suki's sheets and alerts on the parts kit =====
+   Suki still decides which sheets are open (U.stack, U.sheet, renderSheet()) and draws their contents; the host shows
+   them with the kit's parts, inside #layer (the kit's root):
+   - On iPhone, each sheet in the kit's sheet (Parts.sheet, part 41): it rises from the bottom on the sheet spring,
+     leaves in 350 ms speeding up, is dragged from its head or from its content when that's at the top, and closes
+     on a flick past 700 pt/s (D14: no shrinking), with 46 corners (D17) and strong glass (D15). Suki's own head
+     (.shead: title, tools, ✕) takes the kit's head's place, and its content goes in the kit's body, which scrolls.
+     A sheet opened from a sheet rises over it and the first waits underneath, still open; closing the top one shows
+     it again, drawn afresh. Closing a sheet the kit's way (a flick, the dim, Escape) is closeSheet().
+   - A yes or no question as the kit's alert (Parts.confirm, part 48, D08), on every device: the sheet's title, its
+     .note as the message, its red .cta as the action and Cancel. The action runs Suki's own button (fire()).
+   - A locked sheet (the welcome card, Add to Home Screen in Safari) can only be left with its own buttons: no
+     grabber, and the dim, a drag and Escape do nothing.
+   The kit measures a sheet as it opens; when Suki draws it again with content of another height, it's opened again
+   in place, with no movement (refill). */
+const HOST = (() => {
+  let st = []; // the kit's sheets on screen, bottom first: { key, level, ctl, id }
+  let al = null; // the alert on screen: { key, id, k, done }
+  let seq = 0;
+  // run one of Suki's actions as if its button had been tapped: a hidden button with the same data- attributes
+  function fire(src) {
+    const b = document.createElement('button');
+    [...src.attributes].forEach((a) => /^data-/.test(a.name) && b.setAttribute(a.name, a.value));
+    b.hidden = true;
+    document.body.appendChild(b);
+    b.click();
+    b.remove();
+  }
+  const text = (el) => (el ? el.textContent.replace(/\s+/g, ' ').trim() : '');
+  const titleOf = (sh) => text(sh.querySelector('.shead h2, h2'));
+  function parse(h) {
+    const t = document.createElement('div');
+    t.innerHTML = h || '';
+    return t.querySelector('.sheet');
+  }
+  // Suki's head (its grabber aside: the kit's is used) where the kit's title and ✕ were
+  function head(ctl, sh) {
+    const el = ctl.el,
+      hd = sh.querySelector(':scope > .shead'),
+      kh = el.querySelector(':scope > .pk-sheet-head');
+    if (!kh) return;
+    kh.querySelectorAll(':scope > :not(.pk-grabber)').forEach((x) => x.remove());
+    if (hd) kh.appendChild(hd);
+    kh.classList.toggle('sk-own', !!hd);
+    el.classList.toggle('sk-nohead', !hd);
+  }
+  // the sheet's content, without its head; a tall sheet (the welcome card) fills the screen from the start
+  function inner(sh) {
+    const c = sh.cloneNode(true),
+      hd = c.querySelector(':scope > .shead');
+    if (hd) hd.remove();
+    return sh.classList.contains('tall') ? '<div class="sk-tall">' + c.innerHTML + '</div>' : c.innerHTML;
+  }
+  // Suki's sheet (.sheet) into the kit's: its classes and labels on the kit's element, its head in the kit's head
+  function dress(ctl, sh) {
+    const el = ctl.el;
+    sh.classList.forEach((c) => c !== 'glass' && el.classList.add(c));
+    el.classList.add('sk-sheet');
+    ['aria-label', 'aria-modal'].forEach((a) => sh.hasAttribute(a) && el.setAttribute(a, sh.getAttribute(a)));
+    head(ctl, sh);
+  }
+  // the kit's sheet's height for what it holds now
+  function natural(ctl) {
+    const kh = ctl.el.querySelector(':scope > .pk-sheet-head');
+    return Math.min(window.innerHeight - Parts.N.topInset, (kh ? kh.offsetHeight : 0) + ctl.body.scrollHeight);
+  }
+  // no movement: whatever the kit started (the rise, the dim fading in) jumps to its end
+  function still(ctl) {
+    [ctl.el, ...document.querySelectorAll('#layer .pk-dim')].forEach((x) =>
+      x.getAnimations().forEach((a) => {
+        try {
+          a.finish();
+        } catch (e) {}
+      })
+    );
+  }
+  function open(sh, key, level, now) {
+    const id = ++seq;
+    const ctl = Parts.sheet({
+      key: key.split(':')[0],
+      name: sh.getAttribute('aria-label') || titleOf(sh) || 'Sheet',
+      html: inner(sh),
+      onClose: (why) => gone(id, why),
+    });
+    dress(ctl, sh);
+    if (now) still(ctl);
+    else rise(ctl.el);
+    return { key, level, ctl, id };
+  }
+  // Kit 1.2.0 measures a sheet that fits its content by styling it in place first, so its rise from below the screen
+  // starts from where it ends and it simply appears (sheets with stops rise). Until a kit version fixes it, the host
+  // starts it again from below the screen, on the kit's own transition; this goes when the kit's fix is pinned.
+  function rise(el) {
+    if (!Parts.motion.on()) return;
+    const y = el.style.getPropertyValue('--pk-y');
+    el.style.transition = 'none';
+    el.style.setProperty('--pk-y', el.offsetHeight + 8 + 'px');
+    void el.offsetWidth;
+    el.style.transition = '';
+    el.style.setProperty('--pk-y', y);
+  }
+  // take a sheet away at once (no movement), without telling Suki
+  function drop(ctl) {
+    ctl.close('app');
+    ctl.el.remove();
+    document.querySelectorAll('#layer .pk-dim:not(.pk-on)').forEach((d) => d.remove());
+  }
+  // a sheet leaving, or covered by the one opened over it, isn't "the sheet" any more: it loses .sheet (only
+  // .sheet .note styles by it) and can't be reached, so code and tests that look for .sheet find the top one
+  function cover(el, on) {
+    el.classList.toggle('sheet', !on);
+    el.classList.toggle('sk-covered', on);
+    el.inert = on;
+  }
+  const shut = (e) => {
+    cover(e.ctl.el, true);
+    Parts.motion.speed() ? e.ctl.close('app') : drop(e.ctl);
+  };
+  // the kit closed a sheet itself (a flick, the dim, Escape): Suki closes it too
+  function gone(id, why) {
+    const i = st.findIndex((e) => e.id === id);
+    if (i < 0 || why === 'app') return;
+    st.splice(i).forEach((e) => cover(e.ctl.el, true));
+    if (why === 'drag' && typeof tipDone === 'function') tipDone('sheet');
+    if (U.sheet && !ALERTS[U.sheet]) closeSheet();
+  }
+  // the same sheet drawn again: its content changes, its scroll stays; a new height opens it again in place
+  function refill(i, h) {
+    const e = st[i],
+      sh = parse(h);
+    if (!sh) return;
+    const c = e.ctl,
+      top = c.body.scrollTop,
+      oldH = c.el.offsetHeight;
+    head(c, sh.cloneNode(true)); // the head moves into the kit's sheet; sh stays whole in case it opens again
+    c.body.innerHTML = inner(sh);
+    c.body.scrollTop = top;
+    // only the top sheet is opened again (it's the last thing in the kit's layer, so nothing is covered)
+    if (i !== st.length - 1 || al || Math.abs(natural(c) - oldH) <= 2) return;
+    drop(c);
+    st[i] = open(sh, e.key, e.level, true);
+    st[i].ctl.body.scrollTop = top;
+  }
+  // list: the sheets that should be on screen, bottom first; h: the top one's markup. Returns the top sheet's element
+  // when it has just opened
+  function sheets(list, h) {
+    let keep = 0;
+    while (keep < st.length && st[keep].level < list.length && st[keep].key === levelKey(list[st[keep].level])) keep++;
+    st
+      .splice(keep)
+      .reverse()
+      .forEach(shut);
+    let fresh = null;
+    if (list.length) {
+      const L = list.length - 1,
+        t = st[st.length - 1],
+        sh = t && t.level === L ? null : parse(h);
+      if (t && t.level === L) refill(st.length - 1, h);
+      else if (sh) {
+        st.push(open(sh, levelKey(list[L]), L, false));
+        fresh = st[st.length - 1].ctl.el;
+      }
+    }
+    st.forEach((e, i) => cover(e.ctl.el, i < st.length - 1));
+    return fresh;
+  }
+  // an alert Suki no longer wants: its Cancel, quietly
+  function cancelAlert() {
+    if (al) al.done = true;
+    const el = [...document.querySelectorAll('#layer .pk-alert:not(.pk-leaving)')].pop();
+    if (!el) return;
+    const b = el.querySelector('[data-a=no]');
+    if (b) b.click();
+    if (!Parts.motion.speed()) {
+      el.remove();
+      document.querySelectorAll('#layer .pk-dim:not(.pk-on)').forEach((d) => d.remove());
+    }
+  }
+  // h: the alert's markup (a sheetWrap with confirmBody), or null for none; key: which one
+  function alert(h, key) {
+    if (!h) {
+      if (al && !al.done) cancelAlert();
+      al = null;
+      return;
+    }
+    if (al && al.key === key && !al.done) return;
+    if (al && !al.done) cancelAlert();
+    const sh = parse(h),
+      id = ++seq,
+      act = sh.querySelector('.cta.red'),
+      no = sh.querySelector('button.ghost[data-a=close]');
+    al = { key, id, k: U.sheet, done: false };
+    Parts.confirm({
+      title: titleOf(sh),
+      message: text(sh.querySelector('.note')),
+      action: text(act),
+      cancel: no ? text(no) : 'Cancel',
+      red: true,
+      name: sh.getAttribute('aria-label') || titleOf(sh),
+    }).then((yes) => {
+      if (!al || al.id !== id || al.done) return;
+      al.done = true;
+      if (yes && act) fire(act);
+      else if (U.sheet === al.k) closeSheet();
+    });
+  }
+  // a locked sheet on top keeps its dim, drag and Escape from closing it
+  const lockedTop = () => {
+    const t = st[st.length - 1];
+    return !!(t && !al && t.ctl.el.classList.contains('locked'));
+  };
+  document.addEventListener(
+    'pointerdown',
+    (e) => {
+      if (e.target.closest && e.target.closest('.pk-sheet.locked') && !e.target.closest('button, a, input, textarea, select, label')) e.stopPropagation();
+    },
+    true
+  );
+  document.addEventListener(
+    'click',
+    (e) => {
+      const d = e.target.classList && e.target.classList.contains('pk-dim') ? e.target : null;
+      if (d && d.nextElementSibling && d.nextElementSibling.classList.contains('locked')) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    },
+    true
+  );
+  // Escape: the kit closes the newest overlay (so Suki's own Escape leaves it alone: kitEscape)
+  const ESC = new WeakSet();
+  window.addEventListener(
+    'keydown',
+    (e) => {
+      if (e.key !== 'Escape' || !Parts.open) return;
+      if (lockedTop()) {
+        e.stopPropagation();
+        e.preventDefault();
+        return;
+      }
+      ESC.add(e);
+    },
+    true
+  );
+  return {
+    sheets,
+    alert,
+    fire,
+    // the kit's sheet on top now (its body scrolls), for tests and for keeping its place
+    top: () => (st.length ? st[st.length - 1].ctl : null),
+    count: () => st.length,
+    alertOpen: () => !!(al && !al.done),
+    kitEscape: (e) => ESC.has(e),
+  };
+})();
+
 /* ===== Rows arriving and leaving (Q11) =====
    Lists are drawn with innerHTML, so a change is measured before the redraw and played after it (FLIP), right where
    the change happens (saving, deleting, Undo):
      const before = rowsBefore();  …change D and redraw…  rowsAfter(before);
-   A purchase that's new to the list settles in (MOTION.settle, rows 45 ms apart); rows, "Show all" rows, headers and
+   A purchase that's new to the list settles in (MOTION.land, rows 45 ms apart); rows, "Show all" rows, headers and
    the group under each glide from where they were on the gentle spring; a row that went (deleted, or pushed out of
    Recent) fades and shrinks where it was. Rows in a sheet that is itself closing go with the sheet. Nothing here blocks
    a tap: the copies that fade sit in #leaving. Motion off: nothing is measured. */
 const ROW_SEL = '.row[data-a=openPurchase][data-k], .row.more[data-a]';
 function rowsBefore() {
   if (!MOTION.speed()) return null;
-  const m = { rows: new Map(), heads: new Map(), ids: new Set(D.purchases.map((p) => p.id)), sheet: shownSheet };
+  const m = { rows: new Map(), heads: new Map(), ids: new Set(D.purchases.map((p) => p.id)), sheet: U.sheet ? levelKey({ sheet: U.sheet, sd: U.sd }) : null };
   ['app', 'layer'].forEach((where) => {
     const root = $(where);
     if (!root) return;
@@ -712,7 +1007,7 @@ function rowsAfter(b) {
   if (!b) return;
   const now = rowsBefore(),
     added = new Set(D.purchases.filter((p) => !b.ids.has(p.id)).map((p) => p.id)),
-    sameSheet = shownSheet === b.sheet,
+    sameSheet = (U.sheet ? levelKey({ sheet: U.sheet, sd: U.sd }) : null) === b.sheet,
     seen = (r) => r.bottom > 0 && r.top < innerHeight,
     shift = new Map();
   if (!now) return;
@@ -733,7 +1028,7 @@ function rowsAfter(b) {
     const w = b.rows.get(k);
     if (!w) {
       // only what's new settles in: a sheet coming back into view keeps its rows still
-      if (v.id && added.has(v.id) && seen(v.rect)) MOTION.settle(v.host, n++);
+      if (v.id && added.has(v.id) && seen(v.rect)) MOTION.land(v.host, n++);
       return;
     }
     const dy = w.rect.top - v.rect.top - (shift.get(v.host.closest('.grp')) || 0);
@@ -768,10 +1063,11 @@ function rowGoes(w, inSheet) {
   setTimeout(() => c.remove(), 220 * MOTION.speed() + 400);
 }
 
-/* ===== Toasts ===== */
-let toastT = null;
-// undo: a function that puts back what was just removed; the toast then shows an Undo button and stays a little longer.
-// sticky: a warning that stays until it's tapped (OK); other toasts drop in below it instead of replacing it (Q05)
+/* ===== Toasts (Q27: the parts kit's, part 49, D16) =====
+   undo: a function that puts back what was just removed; the toast then shows an Undo button. Every toast drops in
+   from the top over 500 ms, stays 3 s (the kit's timing.toast, Undo too) and goes over 350 ms; one at a time. A longer
+   message wraps onto a second line (.sk-long).
+   sticky: a warning that stays until it's tapped (OK), Suki's own (S04, Q05); other toasts drop in below it. */
 function toast(t, undo, sticky) {
   if (sticky) {
     const s = document.querySelector('.toast.sticky');
@@ -795,31 +1091,14 @@ function toast(t, undo, sticky) {
     document.body.classList.add('has-sticky');
     return;
   }
-  clearTimeout(toastT);
-  const o = document.querySelector('.toast:not(.sticky)');
-  if (o) o.remove();
-  const el = document.createElement('div');
-  el.className = 'toast glass' + (undo ? ' undo' : '');
-  el.setAttribute('role', 'status');
-  const s = document.createElement('span');
-  s.textContent = t;
-  el.appendChild(s);
-  if (undo) {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.textContent = 'Undo';
-    b.addEventListener('click', (e) => {
-      e.stopPropagation();
-      clearTimeout(toastT);
-      el.remove();
-      undo();
-    });
-    el.appendChild(b);
-  }
+  const c = Parts.toast(t, undo ? { undo } : {}),
+    el = c.el;
+  // the one it replaced is on its way out: it's no longer "the toast"
+  document.querySelectorAll('#layer .pk-toast.pk-leaving.toast').forEach((x) => x.classList.remove('toast', 'undo'));
+  el.classList.add('toast');
+  if (undo) el.classList.add('undo');
+  const span = el.querySelector(':scope > span');
+  if (span && span.scrollWidth > span.clientWidth + 1) el.classList.add('sk-long');
   SCR.mark(el, 'overlay:toast');
-  document.body.appendChild(el);
-  toastT = setTimeout(() => {
-    el.classList.add('out');
-    setTimeout(() => el.remove(), 250);
-  }, undo ? 4500 : 2200);
+  return c;
 }

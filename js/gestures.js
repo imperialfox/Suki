@@ -163,10 +163,11 @@ window.addEventListener('offline', netChange);
 /* ===== Sheets keep scrolling to themselves =====
    When a sheet can't scroll any further that way (or the swipe is on the dimmed page around it), the page behind
    stays put. iOS ignores overscroll-behavior once nothing inside can scroll, so touches and the wheel are checked here. */
-const overlayOpen = () => !!$('layer').firstElementChild;
+// a sheet or alert is open: Suki's own (iPad and Mac) or the kit's (its dim); a toast alone isn't one (Q27)
+const overlayOpen = () => !!document.querySelector('#own .scrim, #layer .pk-dim');
 function canScrollIn(el, dy) {
   for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
-    if (n.classList.contains('scrim') || n.id === 'layer') return false;
+    if (n.classList.contains('scrim') || n.classList.contains('pk-dim') || n.id === 'layer') return false;
     const oy = getComputedStyle(n).overflowY;
     if ((oy === 'auto' || oy === 'scroll') && n.scrollHeight > n.clientHeight + 1) {
       if (dy > 0 ? n.scrollTop + n.clientHeight < n.scrollHeight - 1 : n.scrollTop > 0) return true;
@@ -206,12 +207,12 @@ document.addEventListener(
   { passive: false }
 );
 
-/* ===== Drag a sheet down by its header to close it, like iOS ===== */
+/* ===== Drag a centred sheet down by its header to close it (iPad and Mac, S01; the kit's sheets drag themselves) ===== */
 let SD = null;
 document.addEventListener(
   'touchstart',
   (e) => {
-    const h = e.target.closest('.shead');
+    const h = e.target.closest('.scrim .shead');
     SD = null;
     if (!h || e.touches.length !== 1 || e.target.closest('button') || h.closest('.sheet.locked')) return;
     SD = { sh: h.closest('.sheet'), y: e.touches[0].clientY, dy: 0 };

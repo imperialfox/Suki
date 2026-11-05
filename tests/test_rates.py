@@ -234,7 +234,7 @@ def run(b, t):
     pg.evaluate("D.purchases=[];save('purchases')")
     pg.set_input_files('#importIn', f)
     pg.wait_for_function("U.sheet==='restore'")
-    pg.click('.sheet [data-a=restoreYes]')
+    pg.click('#layer .pk-alert [data-a=yes]')
     pg.wait_for_function("D.purchases.some(p=>p.id==='k1')")
     r1 = next(x for x in pg.evaluate(READ, 'purchases') if x['id'] == 'k1')
     ok(r1['rateDate'] == day(5) and r1['rateEstimated'] is True and r1['futureField'] == 'kept', 'and restoring it brings them back')

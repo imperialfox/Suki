@@ -16,7 +16,7 @@ def until(pg, js, timeout=5000):
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PART_RE = re.compile(r'^[a-z0-9]+(-[a-z0-9]+)*$')
-KINDS = {'Tab', 'Screen', 'Sheet', 'Overlay'}
+KINDS = {'Tab', 'Screen', 'Sheet', 'Alert', 'Overlay'}
 # rule 2: every name ends in a kind word. Vocal Sessions' list, plus Suki's own: banner (Home's notices), chart,
 # drawer (the till drawer), layer (a sheet's dim)
 KIND_WORDS = ('button', 'row', 'switch', 'picker', 'field', 'slider', 'stepper', 'tile', 'card', 'tab', 'pill', 'chip', 'menu',
@@ -25,7 +25,7 @@ KIND_WORDS = ('button', 'row', 'switch', 'picker', 'field', 'slider', 'stepper',
 NOT_BUTTONS = {}
 REG = "JSON.parse(JSON.stringify(REGISTER))"
 HERE = "()=>[document.getElementById('app').dataset.screen,SCR.viewKey()]"
-SHEET = "()=>{const s=document.querySelector('#layer .scrim .sheet');return s?[s.dataset.screen||'',(document.getElementById('scrid')||{}).textContent||'']:null}"
+SHEET = "()=>{const s=SCR.top();return s?[s.dataset.screen||'',(document.getElementById('scrid')||{}).textContent||'']:null}"
 INTERACTIVE = "button,[data-a],input,select,textarea,a[href],[role=switch]"
 UNNAMED_JS = """o=>{const out=[],dup={};const re=/^[a-z0-9]+(-[a-z0-9]+)*$/;
  for(const r of o.roots.map(x=>document.querySelector(x)).filter(Boolean))for(const e of r.querySelectorAll(o.sel)){
@@ -42,7 +42,8 @@ ROLES = ['back-button', 'close-button', 'cancel-button', 'confirm-button', 'done
 def src_all():
     out = ''
     for f in sorted(os.listdir(os.path.join(ROOT, 'js'))):
-        if f.endswith('.js') and f != 'register.js': out += open(os.path.join(ROOT, 'js', f), encoding='utf-8').read() + '\n'
+        # the parts kit and its settings are the kit's own (its parts carry the kit's plain names until Suki's)
+        if f.endswith('.js') and f not in ('register.js', 'parts-kit.js', 'parts.settings.js'): out += open(os.path.join(ROOT, 'js', f), encoding='utf-8').read() + '\n'
     return out
 
 
@@ -131,10 +132,11 @@ def register(b, t):
     ok(not nodoc, f'every docs link points at a real heading in README.md or MAINTAINING.md ({nodoc})')
     # every part's action or id is still in the code
     html = open(os.path.join(ROOT, 'index.html'), encoding='utf-8').read()
+    kit = open(os.path.join(ROOT, 'js', 'parts-kit.js'), encoding='utf-8').read()  # the kit's alert buttons (yes, no)
     nopart = []
     for w, p in allp:
         for a in re.findall(r'data-a="([A-Za-z]+)"', p['sel']):
-            if not re.search(r'data-a=\\?"' + a + r'\\?"|\'' + a + r"'|\b" + a + r':', src): nopart.append(w + ' › ' + p['name'])
+            if not re.search(r'data-a=\\?"' + a + r'\\?"|\'' + a + r"'|\b" + a + r':', src + kit): nopart.append(w + ' › ' + p['name'])
         for i in re.findall(r'#([A-Za-z][\w-]*)', p['sel']):
             if i not in ('dock', 'barL', 'barR', 'barT', 'side', 'app') and not re.search(r'id=\\?"' + i + r'|\.id = \'' + i + "'|id=\"' \+ \w+ \+ '-|'" + i + "'", src + html):
                 if not (i.startswith('conv-') and "'conv-' + c" in src) and not (i.startswith('till-') and "data-till" in src): nopart.append(w + ' › ' + p['name'] + ' #' + i)
@@ -192,7 +194,7 @@ def screens_on_page(b, t):
         # sheets: each opens from the sample data and carries its own ID; the label shows the screen's then the sheet's
         bad, opened = [], 0
         for s in S:
-            if s['kind'] != 'Sheet': continue
+            if s['kind'] not in ('Sheet', 'Alert'): continue
             pg.evaluate("go('home')")
             pg.evaluate(SHEETS[s['key']]); pg.wait_for_timeout(60)
             got = pg.evaluate(SHEET)
@@ -205,7 +207,7 @@ def screens_on_page(b, t):
                 if unnamed_s: bad += unnamed_s
                 if r['dup']: bad += [s['id'] + ' ' + x for x in r['dup']]
             pg.evaluate(CLEAR); pg.wait_for_timeout(30)
-        nsheets = sum(1 for s in S if s['kind'] == 'Sheet')
+        nsheets = sum(1 for s in S if s['kind'] in ('Sheet', 'Alert'))
         ok(not bad and opened == nsheets, f'{sc}: all {opened} of {nsheets} sheets carry their own ID, the label shows both, and every control in them is named ({bad})')
         pg.evaluate("go('home')"); pg.evaluate("openSheet('purchase',{id:'a1'})"); pg.wait_for_timeout(80)
         t.shot(pg, 'label-' + sc)
@@ -257,7 +259,7 @@ def flows(b, t):
     ok = t.ok
     pg = t.page(b)
     n = lambda: pg.evaluate("D.purchases.length")
-    at = lambda: pg.evaluate("[document.getElementById('app').dataset.screen,(document.querySelector('#layer .scrim .sheet')||{dataset:{}}).dataset.screen||null]")
+    at = lambda: pg.evaluate("[document.getElementById('app').dataset.screen,(SCR.top()||{dataset:{}}).dataset.screen||null]")
     # F-01 Log a purchase on Home
     before = n()
     ok(at() == ['SK-001', None], 'F-01: starts on SK-001 · Home')

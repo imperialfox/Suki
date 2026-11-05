@@ -68,7 +68,8 @@
 <link rel="apple-touch-startup-image" href="splash/launch-2266x1488-light.png" media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: light)">
 <link rel="apple-touch-startup-image" href="splash/launch-2266x1488-dark.png" media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) and (prefers-color-scheme: dark)">
 <title>Suki</title>
-<link rel="stylesheet" href="css/app.css?v=2.30">
+<link rel="stylesheet" href="css/parts-kit.css?v=2.31">
+<link rel="stylesheet" href="css/app.css?v=2.31">
 </head>
 <body>
 <!-- launch screen: the icon on the plain background until your data has loaded (js/boot.js) -->
@@ -85,35 +86,37 @@
   <main id="app"></main>
 </div>
 <div class="dock"><div class="in" id="dock"></div></div>
-<div id="layer"></div>
+<div id="layer"><div id="own"></div></div>
 <div id="leaving" inert aria-hidden="true"></div>
 <input type="file" id="importIn" accept=".json,application/json" hidden>
 
 <script>
 // The version lives here so pull to refresh can check it, and tools/release.py updates it with the ?v= on each file.
-const APP_VERSION='2.30', RELEASE_DATE='5 Nov 2026';
+const APP_VERSION='2.31', RELEASE_DATE='5 Nov 2026';
 </script>
-<script src="js/register.js?v=2.30"></script>
-<script src="js/motion.js?v=2.30"></script>
-<script src="js/catalog.js?v=2.30"></script>
-<script src="js/prices.js?v=2.30"></script>
-<script src="js/typical.js?v=2.30"></script>
-<script src="js/reader.js?v=2.30"></script>
-<script src="js/storage.js?v=2.30"></script>
-<script src="js/helpers.js?v=2.30"></script>
-<script src="js/screens.js?v=2.30"></script>
-<script src="js/ui.js?v=2.30"></script>
-<script src="js/rate.js?v=2.30"></script>
-<script src="js/backup.js?v=2.30"></script>
-<script src="js/events.js?v=2.30"></script>
-<script src="js/towns.js?v=2.30"></script>
-<script src="js/locate.js?v=2.30"></script>
-<script src="js/smart.js?v=2.30"></script>
-<script src="js/gestures.js?v=2.30"></script>
-<script src="js/onboard.js?v=2.30"></script>
-<script src="js/ratesnap.js?v=2.30"></script>
-<script src="js/news.js?v=2.30"></script>
-<script src="js/history.js?v=2.30"></script>
-<script src="js/boot.js?v=2.30"></script>
+<script src="js/register.js?v=2.31"></script>
+<script src="js/parts-kit.js?v=2.31"></script>
+<script src="js/parts.settings.js?v=2.31"></script>
+<script src="js/motion.js?v=2.31"></script>
+<script src="js/catalog.js?v=2.31"></script>
+<script src="js/prices.js?v=2.31"></script>
+<script src="js/typical.js?v=2.31"></script>
+<script src="js/reader.js?v=2.31"></script>
+<script src="js/storage.js?v=2.31"></script>
+<script src="js/helpers.js?v=2.31"></script>
+<script src="js/screens.js?v=2.31"></script>
+<script src="js/ui.js?v=2.31"></script>
+<script src="js/rate.js?v=2.31"></script>
+<script src="js/backup.js?v=2.31"></script>
+<script src="js/events.js?v=2.31"></script>
+<script src="js/towns.js?v=2.31"></script>
+<script src="js/locate.js?v=2.31"></script>
+<script src="js/smart.js?v=2.31"></script>
+<script src="js/gestures.js?v=2.31"></script>
+<script src="js/onboard.js?v=2.31"></script>
+<script src="js/ratesnap.js?v=2.31"></script>
+<script src="js/news.js?v=2.31"></script>
+<script src="js/history.js?v=2.31"></script>
+<script src="js/boot.js?v=2.31"></script>
 </body>
 </html>

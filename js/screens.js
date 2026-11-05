@@ -588,7 +588,7 @@ function renderCash(b) {
       dy = a.top - n.top;
     if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) MOTION.animate(old[k], [{ transform: 'translate(' + dx + 'px,' + dy + 'px)' }, { transform: 'none' }], { spring: 'gentle' });
   });
-  fresh.forEach((el, i) => MOTION.settle(el, i, 10));
+  fresh.forEach((el, i) => MOTION.land(el, i, 10));
   if (small) {
     const dy = smallTop - small.getBoundingClientRect().top;
     if (Math.abs(dy) > 0.5) MOTION.animate(small, [{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { spring: 'gentle' });

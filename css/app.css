@@ -7,7 +7,7 @@
      The parts kit's names and numbers (kit 1.2.0's defaults block), plus Suki's own below them. Use a name, never a raw
      value: tests/test_values.py stops new ones (MAINTAINING.md › Value set says how to add a name on purpose).
      Durations here are fixed; where they're used they're multiplied by the motion speed: calc(var(--dur-fade) *
-     var(--mspeed, 1)), so Slow motion slows them and motion off stops them. The springs (--ease-gentle, --dur-gentle,
+     var(--pk-speed)), so Slow motion slows them and motion off stops them. The springs (--ease-gentle, --dur-gentle,
      nav, ripple) come from js/motion.js, already at the speed. */
   /* corners */
   --r-small: 10px; /* icon tiles, small inner boxes, the focus ring */
@@ -31,7 +31,7 @@
   --ease-lift: cubic-bezier(0, 0, 0.58, 1); /* the press light coming up (kit) */
   --ease-linear: linear; /* spinners turning */
   --ease-steps: steps(8); /* the pull to refresh spinner */
-  /* durations (fixed; times --mspeed where used) */
+  /* durations (fixed; times --pk-speed where used) */
   --dur-quick: 120ms; /* a press going down */
   --dur-fade: 200ms; /* fades and colour changes, the sheet dim */
   --dur-lift-in: 150ms;
@@ -298,19 +298,19 @@ svg.i {
   max-width: 430px;
   margin: 0 auto;
   position: relative;
-  /* --mspeed follows Slow motion (4) and is 0 with motion off (Q11) */
+  /* Q27 (D21): the page behind a sheet follows the sheet. It comes back on the kit sheet's leave timing (this rule,
+     used when sheet-open goes) and shrinks on the kit's sheet spring (the rule below, used when it comes), so no
+     overshoot. --dur-sheet already carries the speed; --dur-leave takes it here, as the kit does */
   transition:
-    transform calc(0.45s * var(--mspeed, 1)) cubic-bezier(0.3, 1.3, 0.5, 1),
-    border-radius calc(0.45s * var(--mspeed, 1));
-}
-/* a sheet closing: the page grows back with it, quicker than it shrank (Q11) */
-body.unsheet .wrap {
-  transition-duration: calc(0.33s * var(--mspeed, 1));
-  transition-timing-function: cubic-bezier(0.3, 0, 0.25, 1);
+    transform calc(var(--dur-leave) * var(--pk-speed)) var(--ease-accel),
+    border-radius calc(var(--dur-leave) * var(--pk-speed)) var(--ease-accel);
 }
 body.sheet-open .wrap {
   transform: scale(0.94);
   border-radius: 28px;
+  transition:
+    transform var(--dur-sheet) var(--ease-sheet),
+    border-radius var(--dur-sheet) var(--ease-sheet);
 }
 
 /* ===== Liquid Glass (a CSS imitation: blur, rim light and a soft highlight) ===== */
@@ -356,9 +356,8 @@ body.sheet-open .wrap {
 .pill,
 .tabbar,
 .toptabs,
-.sheet,
-.btn,
-.toast {
+.scrim > .sheet,
+.btn {
   position: relative;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -381,7 +380,7 @@ body.sheet-open .wrap {
   z-index: 15;
   pointer-events: none;
   opacity: 0;
-  transition: opacity calc(var(--dur-appear) * var(--mspeed, 1));
+  transition: opacity calc(var(--dur-appear) * var(--pk-speed));
   background: color-mix(in srgb, var(--bg) 62%, transparent);
   -webkit-backdrop-filter: blur(14px) saturate(180%);
   backdrop-filter: blur(14px) saturate(180%);
@@ -410,7 +409,7 @@ body.scrolled .edge {
   font-size: 17px;
   font-weight: 600;
   opacity: 0;
-  transition: opacity calc(var(--dur-fade) * var(--mspeed, 1));
+  transition: opacity calc(var(--dur-fade) * var(--pk-speed));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -854,12 +853,12 @@ h1 {
 .sumcard .door {
   justify-content: center;
   -webkit-tap-highlight-color: transparent;
-  transition: transform calc(0.5s * var(--mspeed, 1)) var(--ease-pop), opacity calc(var(--dur-fade) * var(--mspeed, 1));
+  transition: transform calc(0.5s * var(--pk-speed)) var(--ease-pop), opacity calc(var(--dur-fade) * var(--pk-speed));
 }
 .sumcard .door:active {
   transform: scale(0.96);
   opacity: 0.7;
-  transition-duration: calc(var(--dur-quick) * var(--mspeed, 1));
+  transition-duration: calc(var(--dur-quick) * var(--pk-speed));
 }
 .sumcard .cv {
   color: var(--fg3);
@@ -895,11 +894,11 @@ h1 {
   box-shadow:
     inset 0 0 0 0.5px var(--suki-rim),
     0 8px 24px var(--suki-shadow);
-  transition: transform calc(0.5s * var(--mspeed, 1)) var(--ease-pop);
+  transition: transform calc(0.5s * var(--pk-speed)) var(--ease-pop);
 }
 .ratecard:active {
   transform: scale(var(--press-row));
-  transition-duration: calc(var(--dur-quick) * var(--mspeed, 1));
+  transition-duration: calc(var(--dur-quick) * var(--pk-speed));
 }
 .ratecard .rc {
   flex: 1;
@@ -1304,7 +1303,7 @@ textarea.inp {
   height: 20px;
 }
 .locbtn.busy svg.i {
-  animation: locpulse calc(0.8s * var(--mspeed, 1)) ease-in-out infinite;
+  animation: locpulse calc(0.8s * var(--pk-speed)) ease-in-out infinite;
 }
 html.motion-reduced .locbtn.busy svg.i {
   animation: none;
@@ -1400,7 +1399,7 @@ html.motion-reduced .locbtn.busy svg.i {
   margin-top: 12px;
 }
 .btn.busy svg.i {
-  animation: turn calc(0.9s * var(--mspeed, 1)) var(--ease-linear) infinite;
+  animation: turn calc(0.9s * var(--pk-speed)) var(--ease-linear) infinite;
 }
 .btn:disabled {
   opacity: 0.55;
@@ -1433,7 +1432,7 @@ html.motion-reduced .locbtn.busy svg.i {
 .tabbar button,
 .toptabs button,
 .sbi {
-  transition: transform calc(0.5s * var(--mspeed, 1)) var(--ease-pop);
+  transition: transform calc(0.5s * var(--pk-speed)) var(--ease-pop);
 }
 .cta:active:not(:disabled),
 .circ:active,
@@ -1442,15 +1441,15 @@ html.motion-reduced .locbtn.busy svg.i {
 .tabbar button:active,
 .toptabs button:active {
   transform: scale(var(--press));
-  transition-duration: calc(var(--dur-quick) * var(--mspeed, 1));
+  transition-duration: calc(var(--dur-quick) * var(--pk-speed));
 }
 .row {
-  transition: transform calc(0.5s * var(--mspeed, 1)) var(--ease-pop);
+  transition: transform calc(0.5s * var(--pk-speed)) var(--ease-pop);
 }
 button.row:active,
 a.row:active {
   transform: scale(var(--press-row));
-  transition-duration: calc(var(--dur-quick) * var(--mspeed, 1));
+  transition-duration: calc(var(--dur-quick) * var(--pk-speed));
 }
 
 /* ===== Chips ===== */
@@ -1560,7 +1559,7 @@ a.row:active {
 .sw .fg {
   position: relative;
   z-index: 1;
-  transition: transform calc(0.22s * var(--mspeed, 1)) ease;
+  transition: transform calc(0.22s * var(--pk-speed)) ease;
   background: var(--surface);
 }
 .sw.dragging .fg {
@@ -1917,11 +1916,11 @@ body.land #app .cashbox {
   background: var(--n);
   color: var(--ni);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ni) 28%, transparent);
-  transition: transform calc(0.5s * var(--mspeed, 1)) var(--ease-pop);
+  transition: transform calc(0.5s * var(--pk-speed)) var(--ease-pop);
 }
 .dn:active {
   transform: scale(var(--press));
-  transition-duration: calc(var(--dur-quick) * var(--mspeed, 1));
+  transition-duration: calc(var(--dur-quick) * var(--pk-speed));
 }
 .dn.ex {
   --n: var(--fill);
@@ -2308,7 +2307,7 @@ body.land #app .cashbox {
   z-index: 1;
   pointer-events: none;
   opacity: 0;
-  transition: opacity calc(var(--dur-appear) * var(--mspeed, 1));
+  transition: opacity calc(var(--dur-appear) * var(--pk-speed));
 }
 .peek.on {
   opacity: 1;
@@ -2368,7 +2367,7 @@ body.land .dws {
   background: var(--fg3);
   opacity: 0;
   pointer-events: none;
-  transition: opacity calc(var(--dur-appear) * var(--mspeed, 1));
+  transition: opacity calc(var(--dur-appear) * var(--pk-speed));
 }
 .slotln.show,
 .hdl.on .slotln,
@@ -2528,16 +2527,29 @@ main {
   overflow: hidden;
   white-space: nowrap;
   transition:
-    transform calc(0.5s * var(--mspeed, 1)) var(--ease-pop),
-    opacity calc(var(--dur-appear) * var(--mspeed, 1)),
-    background calc(var(--dur-fade) * var(--mspeed, 1));
+    transform calc(0.5s * var(--pk-speed)) var(--ease-pop),
+    opacity calc(var(--dur-appear) * var(--pk-speed)),
+    background calc(var(--dur-fade) * var(--pk-speed));
 }
 .tabbar button.on {
   color: var(--accent);
   background: var(--fill);
 }
-/* ===== Sheets ===== */
-#layer .scrim,
+/* ===== Sheets =====
+   Q27: on iPhone a sheet is the parts kit's (part 41) with Suki's head and content inside (.sk-sheet, HOST in ui.js);
+   alerts are the kit's everywhere. On iPad and Mac a sheet stays Suki's own, centred (S01): .scrim > .sheet in #own.
+   #layer is the kit's root: the whole screen above the app (and above the tab bar, which stays under the dim),
+   letting taps through where nothing is open. */
+#layer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+}
+#own > * {
+  pointer-events: auto;
+}
+#own .scrim,
 #leaving .scrim {
   position: fixed;
   inset: 0;
@@ -2545,25 +2557,29 @@ main {
   overscroll-behavior: contain;
   background: var(--scrim);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  animation: fade calc(var(--dur-fade) * var(--mspeed, 1));
+  animation: fade calc(var(--dur-fade) * var(--pk-speed));
 }
-.sheet {
+/* Q11 kept on the kit's parts: a sheet, alert or dim on its way out never takes a tap */
+#layer .pk-dim:not(.pk-on),
+#layer .pk-leaving {
+  pointer-events: none;
+}
+.scrim > .sheet {
   width: 100%;
-  max-width: 440px;
-  max-height: 90vh;
-  max-height: 90dvh;
+  max-width: 540px;
+  margin: 24px;
+  max-height: min(86vh, 900px);
   overflow-y: auto;
   overscroll-behavior: contain;
-  margin: 0 8px calc(8px + var(--sab));
-  border-radius: 34px;
+  border-radius: var(--r-form);
   padding: 10px 16px 18px;
   background: var(--glass-strong);
-  animation: up var(--dur-gentle, 0.55s) var(--ease-gentle, cubic-bezier(0.28, 1.35, 0.45, 1));
+  animation: pop calc(var(--dur-appear) * var(--pk-speed)) cubic-bezier(0.28, 1.25, 0.45, 1);
 }
-.sheet.still,
-#layer .scrim.still {
+.scrim > .sheet.still,
+#own .scrim.still {
   animation: none;
 }
 /* a sheet on its way out (Q11): above the one underneath, and never in the way of a tap */
@@ -2579,11 +2595,11 @@ main {
 #leaving .scrim.under {
   z-index: 39;
 }
-.sheet.drag {
+.scrim > .sheet.drag {
   transition: none;
 }
-.sheet.back {
-  transition: transform calc(0.32s * var(--mspeed, 1)) cubic-bezier(0.3, 1.2, 0.5, 1);
+.scrim > .sheet.back {
+  transition: transform calc(0.32s * var(--pk-speed)) cubic-bezier(0.3, 1.2, 0.5, 1);
 }
 .grab {
   width: 36px;
@@ -2603,6 +2619,40 @@ main {
   backdrop-filter: blur(20px) saturate(180%);
   border-radius: 34px 34px 0 0;
   touch-action: none;
+}
+/* Q27 Suki's head inside the kit's sheet: it takes the kit's head's place at the kit's 60 pt, so the kit measures it
+   right; the kit's grabber is the one shown (none on a locked sheet) */
+.sk-sheet > .pk-sheet-head.sk-own {
+  padding: 0;
+  display: block;
+}
+.sk-sheet .shead {
+  position: static;
+  margin: 0;
+  padding: 14px 16px 6px;
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-radius: 0;
+}
+.sk-sheet .shead .grab,
+.sk-sheet.locked .pk-grabber {
+  display: none;
+}
+.sk-sheet.sk-nohead > .pk-sheet-head {
+  min-height: 22px;
+  padding: 0;
+}
+/* the welcome card fills the screen from the start (the kit measures a sheet by its content) */
+.sk-tall {
+  min-height: calc(100dvh - 140px);
+  display: flex;
+  flex-direction: column;
+}
+/* iPhone on its side: the sheet stays at most 560 pt wide, in the middle */
+body.land .sk-sheet {
+  left: max(var(--pk-m, 8px), calc(50% - 280px));
+  right: max(var(--pk-m, 8px), calc(50% - 280px));
 }
 .shrow {
   display: flex;
@@ -2649,26 +2699,23 @@ main {
   }
 }
 
-/* ===== Toast ===== */
-.toast {
-  position: fixed;
-  left: 50%;
+/* ===== Toast =====
+   Q27: toasts are the parts kit's (part 49, D16: 500 ms in, 350 ms out, 3 s), at Suki's place under the status bar; a
+   longer message wraps (.sk-long). The sticky warning ("Couldn't save", with OK) stays Suki's own (S04, below). */
+#layer .pk-toast.toast {
   top: calc(14px + var(--sat));
-  transform: translateX(-50%);
-  z-index: 60;
-  border-radius: 999px;
-  padding: 11px 18px;
-  font-size: 15px;
-  font-weight: 500;
-  max-width: calc(100vw - 32px);
-  width: max-content;
-  text-align: center;
-  line-height: 1.3;
-  animation: drop var(--dur-gentle, 0.45s) var(--ease-gentle, ease-out);
-  transition: opacity calc(0.22s * var(--mspeed, 1));
+  z-index: 2; /* over a sheet or alert opened after it, as before */
 }
-.toast.out {
-  opacity: 0;
+.pk-toast.sk-long {
+  height: auto;
+  min-height: 50px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-radius: var(--r-large);
+  line-height: 1.3;
+}
+.pk-toast.sk-long > span {
+  white-space: normal;
 }
 @keyframes drop {
   from {
@@ -2694,7 +2741,7 @@ main {
   width: 28px;
   height: 28px;
   opacity: 0;
-  transition: opacity calc(var(--dur-fade) * var(--mspeed, 1));
+  transition: opacity calc(var(--dur-fade) * var(--pk-speed));
 }
 .spin i {
   position: absolute;
@@ -2706,13 +2753,13 @@ main {
   background: var(--fg2);
   transform-origin: 1.5px 12px;
   opacity: 0;
-  transition: opacity calc(0.08s * var(--mspeed, 1));
+  transition: opacity calc(0.08s * var(--pk-speed));
 }
 #ptr.go .spin {
-  animation: turn calc(0.8s * var(--mspeed, 1)) var(--ease-steps) infinite;
+  animation: turn calc(0.8s * var(--pk-speed)) var(--ease-steps) infinite;
 }
 main.ptr-snap {
-  transition: transform calc(0.42s * var(--mspeed, 1)) cubic-bezier(0.25, 0.8, 0.3, 1);
+  transition: transform calc(0.42s * var(--pk-speed)) cubic-bezier(0.25, 0.8, 0.3, 1);
 }
 
 /* ===== Launch screen ===== */
@@ -2725,7 +2772,7 @@ main.ptr-snap {
   height: 100lvh;
   z-index: 200;
   background: var(--bg);
-  transition: opacity calc(var(--dur-leave) * var(--mspeed, 1)) ease;
+  transition: opacity calc(var(--dur-leave) * var(--pk-speed)) ease;
   contain: strict;
 }
 #splash img {
@@ -2737,7 +2784,7 @@ main.ptr-snap {
   margin: -56px 0 0 -56px;
   border-radius: var(--r-large);
   box-shadow: 0 10px 30px rgba(10, 30, 80, 0.3);
-  transition: transform calc(0.45s * var(--mspeed, 1)) cubic-bezier(0.3, 0.9, 0.4, 1);
+  transition: transform calc(0.45s * var(--pk-speed)) cubic-bezier(0.3, 0.9, 0.4, 1);
 }
 #splash.out {
   opacity: 0;
@@ -2781,11 +2828,6 @@ body.land .dash {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 0 24px;
   align-items: start;
-}
-body.land .sheet {
-  max-width: 560px;
-  max-height: 94vh;
-  max-height: 94dvh;
 }
 body.land.sheet-open .wrap {
   transform: none;
@@ -2875,20 +2917,6 @@ body.reg .dash {
   height: 40px;
   stroke-width: 1.5;
   color: var(--fg3);
-}
-body.reg #layer .scrim,
-body.reg #leaving .scrim {
-  align-items: center;
-}
-body.reg .sheet {
-  max-width: 540px;
-  margin: 24px;
-  max-height: min(86vh, 900px);
-  border-radius: var(--r-form);
-  animation: pop calc(0.42s * var(--mspeed, 1)) cubic-bezier(0.28, 1.25, 0.45, 1);
-}
-body.reg .sheet.still {
-  animation: none;
 }
 body.reg .grab {
   display: none;
@@ -3016,7 +3044,7 @@ body.wide .side-nav {
   height: 31px;
   border-radius: 999px;
   background: var(--fill2);
-  transition: background calc(var(--dur-appear) * var(--mspeed, 1));
+  transition: background calc(var(--dur-appear) * var(--pk-speed));
 }
 .sw-ui::after {
   content: '';
@@ -3028,7 +3056,7 @@ body.wide .side-nav {
   border-radius: 50%;
   background: var(--white);
   box-shadow: 0 3px 8px var(--glass-shadow);
-  transition: transform calc(0.3s * var(--mspeed, 1)) var(--ease-knob);
+  transition: transform calc(0.3s * var(--pk-speed)) var(--ease-knob);
 }
 .row.toggle input:checked + .sw-ui {
   background: var(--good);
@@ -3042,7 +3070,7 @@ body.wide .side-nav {
 }
 
 /* ===== Onboarding (Q07): the welcome card, the Home Screen steps and tips ===== */
-.sheet.tall {
+.scrim > .sheet.tall {
   min-height: calc(100dvh - var(--sat) - var(--sab) - 64px);
   display: flex;
   flex-direction: column;
@@ -3145,15 +3173,15 @@ body.wide .side-nav {
   pointer-events: none;
   transform: scale(0.9);
   transition:
-    opacity calc(0.18s * var(--mspeed, 1)) ease,
-    transform calc(0.18s * var(--mspeed, 1)) ease;
+    opacity calc(0.18s * var(--pk-speed)) ease,
+    transform calc(0.18s * var(--pk-speed)) ease;
 }
 #tip.on {
   opacity: 1;
   pointer-events: auto;
   transform: none;
   transition:
-    opacity calc(0.3s * var(--mspeed, 1)) ease,
+    opacity calc(0.3s * var(--pk-speed)) ease,
     transform var(--dur-gentle, 0.5s) var(--ease-gentle, cubic-bezier(0.3, 1.35, 0.5, 1));
 }
 html.motion-reduced #tip {
@@ -3240,7 +3268,7 @@ html.motion-reduced #tip {
   width: calc((100% - 4px) / var(--n));
   border-radius: 999px;
   transform: translateX(calc(var(--i) * 100%));
-  transition: transform calc(var(--dur-squish) * var(--mspeed, 1)) var(--ease-knob);
+  transition: transform calc(var(--dur-squish) * var(--pk-speed)) var(--ease-knob);
   box-shadow: 0 3px 8px var(--glass-shadow);
 }
 .segc button {
@@ -3391,7 +3419,7 @@ html.motion-reduced .segc .knob {
   border-radius: 4px 4px 0 0;
   overflow: hidden;
   transform-origin: bottom;
-  transition: opacity calc(var(--dur-fade) * var(--mspeed, 1));
+  transition: opacity calc(var(--dur-fade) * var(--pk-speed));
 }
 .chart .bfill i {
   flex-basis: 0;
@@ -3578,8 +3606,20 @@ h1 .chev {
   font-size: 13px;
   color: var(--fg2);
 }
-/* a warning that stays until it's tapped (Q05); other toasts drop in below it */
+/* a warning that stays until it's tapped (Q05, Suki's own: S04); other toasts drop in below it */
 .toast.sticky {
+  position: fixed;
+  left: 50%;
+  top: calc(14px + var(--sat));
+  transform: translateX(-50%);
+  z-index: 60;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 500;
+  max-width: calc(100vw - 32px);
+  width: max-content;
+  line-height: 1.3;
+  animation: drop var(--dur-gentle) var(--ease-gentle);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -3597,23 +3637,8 @@ h1 .chev {
   padding: 0 12px;
   border-radius: 999px;
 }
-body.has-sticky .toast:not(.sticky) {
+body.has-sticky #layer .pk-toast.toast {
   top: calc(76px + var(--sat));
-}
-/* toasts with Undo */
-.toast.undo {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 6px 6px 6px 18px;
-}
-.toast.undo button {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--accent);
-  min-height: 36px;
-  padding: 0 12px;
-  border-radius: 999px;
 }
 /* sideways rows fade at the edge with more to see */
 .scroller.fr {
@@ -3629,8 +3654,10 @@ body.has-sticky .toast:not(.sticky) {
   mask: linear-gradient(90deg, transparent, black 36px, black calc(100% - 36px), transparent);
 }
 
-/* ===== Reduce Motion: nothing moves, but changes still fade over about 0.2 s =====
-   A class on <html> (motion.js), set from the iPhone's setting or from Settings › Accessibility. */
+/* ===== Reduce Motion: nothing moves, but changes still fade, over the kit's --dur-reduced (100 ms, D20) =====
+   A class on <html> (the parts kit, through motion.js), set from the iPhone's setting or from Settings ›
+   Accessibility. Q27: the rule's own forced 0.2 s is gone; it now only keeps every transition to fades and colour
+   changes, at the kit's one length, so nothing slides or grows under Reduce Motion. */
 @keyframes fadein {
   from {
     opacity: 0;
@@ -3640,13 +3667,13 @@ html.motion-reduced *,
 html.motion-reduced *::before,
 html.motion-reduced *::after {
   transition-property: opacity, color, background-color, border-color, box-shadow !important;
-  transition-duration: calc(var(--dur-fade) * var(--mspeed, 1)) !important;
+  transition-duration: calc(var(--dur-reduced) * var(--pk-speed)) !important; /* Q27 (D20): the kit's 100 ms */
 }
-html.motion-reduced .sheet,
-html.motion-reduced .toast {
-  animation: fadein calc(var(--dur-fade) * var(--mspeed, 1)) ease-out;
+html.motion-reduced .scrim > .sheet,
+html.motion-reduced .toast.sticky {
+  animation: fadein calc(var(--dur-reduced) * var(--pk-speed)) ease-out;
 }
-html.motion-reduced .sheet.still {
+html.motion-reduced .scrim > .sheet.still {
   animation: none;
 }
 html.motion-reduced body.sheet-open .wrap {
@@ -3657,7 +3684,7 @@ html.motion-reduced #splash.out img {
 }
 html.motion-reduced .btn.busy svg.i,
 html.motion-reduced #ptr.go .spin {
-  animation-duration: calc(2s * var(--mspeed, 1));
+  animation-duration: calc(2s * var(--pk-speed));
 }
 
 /* a row that went, fading and shrinking where it was (Q11) */

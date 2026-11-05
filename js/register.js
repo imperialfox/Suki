@@ -27,11 +27,11 @@ const REGISTER = {
     { name: 'settings-button', sel: '#barR [data-a="tab"][data-v="settings"]' },
     { name: 'back-button', sel: '#barL [data-a="tab"]' },
     { name: 'close-button', sel: '.circ[data-a="close"], [data-a="tipX"]' },
-    { name: 'cancel-button', sel: '.ghost[data-a="close"], [data-a="obsCancel"]' },
-    { name: 'dim-layer', sel: '.scrim[data-a="close"]' },
-    { name: 'grabber', sel: '.grab' },
+    { name: 'cancel-button', sel: '.ghost[data-a="close"], [data-a="obsCancel"], .pk-alert [data-a="no"]' },
+    { name: 'dim-layer', sel: '.scrim[data-a="close"], .pk-dim' },
+    { name: 'grabber', sel: '.grab, .pk-grabber' },
     { name: 'save-button', sel: 'button[type="submit"], #homeSave' },
-    { name: 'confirm-button', sel: '.cta.red[data-a$="Yes"]' },
+    { name: 'confirm-button', sel: '.cta.red[data-a$="Yes"], .pk-alert [data-a="yes"]' },
     // fields, by what they hold (data-f is the form's field)
     { name: 'item-field', sel: '[data-f="item"], #smartItem' },
     { name: 'amount-field', sel: '[data-f="price"], #smartPrice' },
@@ -209,11 +209,11 @@ const REGISTER = {
       docs: 'MAINTAINING.md#search-finds-your-records-q09', status: 'Live', parts: [],
     },
     {
-      id: 'SK-011', name: 'Delete this purchase?', area: 'Spending', kind: 'Sheet', key: 'sheet:confirm/delPurchaseYes', aliases: ['confirm'],
+      id: 'SK-011', name: 'Delete this purchase?', area: 'Spending', kind: 'Alert', key: 'sheet:confirm/delPurchaseYes', aliases: ['confirm'],
       docs: 'MAINTAINING.md#door-rules-q24-228', status: 'Live', parts: [],
     },
     {
-      id: 'SK-012', name: 'Delete this price note?', area: 'Search', kind: 'Sheet', key: 'sheet:confirm/delObsYes', aliases: [],
+      id: 'SK-012', name: 'Delete this price note?', area: 'Search', kind: 'Alert', key: 'sheet:confirm/delObsYes', aliases: [],
       docs: 'MAINTAINING.md#door-rules-q24-228', status: 'Live', parts: [],
     },
     {
@@ -225,7 +225,7 @@ const REGISTER = {
       docs: 'MAINTAINING.md#backups', status: 'Live', parts: [],
     },
     {
-      id: 'SK-015', name: 'Restore this backup?', area: 'Settings', kind: 'Sheet', key: 'sheet:restore', aliases: ['restore'],
+      id: 'SK-015', name: 'Restore this backup?', area: 'Settings', kind: 'Alert', key: 'sheet:restore', aliases: ['restore'],
       docs: 'MAINTAINING.md#keeping-data-safe-q05', status: 'Live', parts: [],
     },
     {
@@ -258,11 +258,11 @@ const REGISTER = {
       docs: 'MAINTAINING.md#keeping-data-safe-q05', status: 'Live', parts: [],
     },
     {
-      id: 'SK-021', name: 'Put back what was here?', area: 'Settings', kind: 'Sheet', key: 'sheet:putback', aliases: ['putback'],
+      id: 'SK-021', name: 'Put back what was here?', area: 'Settings', kind: 'Alert', key: 'sheet:putback', aliases: ['putback'],
       docs: 'MAINTAINING.md#keeping-data-safe-q05', status: 'Live', parts: [],
     },
     {
-      id: 'SK-022', name: 'Clear recovered data?', area: 'Settings', kind: 'Sheet', key: 'sheet:confirm/clearRescueYes', aliases: [],
+      id: 'SK-022', name: 'Clear recovered data?', area: 'Settings', kind: 'Alert', key: 'sheet:confirm/clearRescueYes', aliases: [],
       docs: 'MAINTAINING.md#keeping-data-safe-q05', status: 'Live', parts: [],
     },
     {

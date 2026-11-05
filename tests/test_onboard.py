@@ -74,9 +74,12 @@ def run(b, t):
     pg.keyboard.press('Escape'); pg.wait_for_timeout(400)
     pg.click('[data-a=openPurchase][data-k=a1]'); pg.wait_for_timeout(200)
     ok(pg.evaluate("TIPCUR") == 'sheet' and 'Drag down' in pg.inner_text('#tip'), 'the first details sheet shows the drag-down tip')
-    hd = '#layer .sheet .shead'
-    hb = pg.locator(hd).bounding_box(); y0 = hb['y'] + 20
-    pg.evaluate(TOUCH, [hd, 'touchstart', 120, y0]); pg.evaluate(TOUCH, [hd, 'touchmove', 120, y0 + 160]); pg.evaluate(TOUCH, [hd, 'touchend', 120, y0 + 160]); pg.wait_for_timeout(400)
+    # the kit's sheet follows a pointer (Q27): drag its head down past the snap point and let go
+    hd = '#layer .sheet .shead h2'
+    hb = pg.locator(hd).bounding_box(); x0, y0 = hb['x'] + 20, hb['y'] + hb['height'] / 2
+    pg.mouse.move(x0, y0); pg.mouse.down()
+    for dy in (10, 60, 160, 320, 420): pg.mouse.move(x0, y0 + dy)
+    pg.mouse.up(); pg.wait_for_timeout(400)
     ok(pg.evaluate("U.sheet") is None and pg.evaluate(OB)['seen'].get('sheet') is True and pg.evaluate("TIPCUR") is None, 'dragging the sheet down closes it and the tip')
 
     # ── Settings › Help ──
@@ -109,7 +112,7 @@ def run(b, t):
     ok('onboard' not in raw and 'welcome' not in raw and 'tips' not in raw, 'a backup doesn’t include what’s been seen')
     pg.evaluate("localStorage.setItem('suki:onboard',JSON.stringify({welcome:true,tips:false,seen:{till:true}}))")
     pg.set_input_files('#importIn', dl.value.path()); pg.wait_for_timeout(300)
-    pg.click('.sheet [data-a=restoreYes]'); pg.wait_for_timeout(300)
+    pg.click('#layer .pk-alert [data-a=yes]'); pg.wait_for_timeout(300)
     ok(pg.evaluate(OB) == {'welcome': True, 'tips': False, 'seen': {'till': True}}, 'and restoring one leaves this device’s settings as they were')
     pg.context.close()
 

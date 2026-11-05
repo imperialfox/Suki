@@ -198,11 +198,11 @@ def run_q24(b, t):
     # the delete message says what goes, with no promise about backups
     pg.evaluate("go('spending')"); pg.wait_for_timeout(60)
     pg.evaluate("ACT.delPurchase({dataset:{k:'a1'}})"); pg.wait_for_timeout(80)
-    txt = pg.inner_text('#layer .sheet')
+    txt = pg.inner_text('#layer .pk-alert')
     ok('Chickenjoy bucket, ₱459.00.' in txt and 'backup' not in txt.lower(), 'Delete says “Chickenjoy bucket, ₱459.00.” and nothing about backups')
     pg.evaluate("closeSheet()"); pg.wait_for_timeout(60)
     pg.evaluate("ACT.delObs({dataset:{k:'o1'}})"); pg.wait_for_timeout(80)
-    ok('Bigas, ₱52' in pg.inner_text('#layer .sheet') and 'backup' not in pg.inner_text('#layer .sheet').lower(), 'a price note’s says “Bigas, ₱52 on …”')
+    ok('Bigas, ₱52' in pg.inner_text('#layer .pk-alert') and 'backup' not in pg.inner_text('#layer .pk-alert').lower(), 'a price note’s says “Bigas, ₱52 on …”')
     pg.context.close()
 
     # Mac: Settings is a sidebar section; Help lights only Settings and zooms

@@ -2,12 +2,12 @@
 since its Q40 (the app look skill, 6b). From the UI consistency audit of 2.27, findings 18, 19, 22 and part of 21.
 
 named    the set at the top of css/app.css has the parts kit's names and numbers (kit 1.2.0) and Suki's own; every name
-         used is defined (in the set or as a MOTION spring); MOTION.EASE holds the same three curves for code; the names
+         used is defined (in the set or as a kit spring); MOTION.EASE holds the same three curves for code; the names
          resolve in the page;
 css      in css/app.css every corner above 6 px (not 999px or 50%), every :active press scale(), every transition and
          animation easing and duration, and every shadow is a named value or on KNOWN; the list may only get shorter
          (a new stray fails, and a stray that's gone but still listed fails too, with a "list can shrink" message);
-speed    every stylesheet duration that isn't a spring follows the speed (times var(--mspeed)): Slow motion slows the
+speed    every stylesheet duration that isn't a spring follows the speed (times var(--pk-speed)): Slow motion slows the
          dim, the iPad sheet and the toast's fade, motion off stops them, Reduce Motion's fades keep their length;
 js       in js/ every cubic-bezier(, keyword easing and hard-set duration (duration: or ms: with a number) is on its
          known list (MOTION.EASE's own three are the names), with the same rule;
@@ -29,7 +29,7 @@ wanted = lambda k: not _only or k in _only
 CSS = os.path.join(ROOT, 'css', 'app.css')
 JSDIR = os.path.join(ROOT, 'js')
 # data files, with no motion in them
-JS_SKIP = ('towns.js', 'ratesnap.js', 'prices.js', 'typical.js', 'news.js', 'catalog.js', 'register.js')
+JS_SKIP = ('parts-kit.js', 'parts.settings.js', 'towns.js', 'ratesnap.js', 'prices.js', 'typical.js', 'news.js', 'catalog.js', 'register.js')
 
 # the agreed set (Render 5 Nov 2026, 09:17): the parts kit 1.2.0's numbers, and Suki's own. Change a number here and in
 # app.css together, on purpose
@@ -51,7 +51,8 @@ NAMED = {
     # Suki's own
     'r-form': '28px', 'press-fade': '0.35', 'r-till': '12px', 'r-cup': '85%',
 }
-SPRINGS = ('gentle', 'nav', 'ripple')
+# the parts kit's springs, published by the kit already at the speed (Q27)
+SPRINGS = ('gentle', 'nav', 'ripple', 'press', 'release', 'snap', 'bloom', 'settle', 'pill', 'sheet', 'menu-open', 'menu-close')
 
 # ---------------------------------------------------------------- reading the stylesheet (Vocal Sessions' reader)
 
@@ -131,8 +132,8 @@ def norm(tok):
 
 
 def inner(d):
-    """A duration without its speed: calc(0.5s * var(--mspeed, 1)) → 0.5s, calc(var(--dur-fade) * …) → var(--dur-fade)."""
-    m = re.fullmatch(r'calc\(\s*(.+?)\s*\*\s*var\(--mspeed(?:,\s*1)?\)\s*\)', d)
+    """A duration without its speed: calc(0.5s * var(--pk-speed)) → 0.5s, calc(var(--dur-fade) * …) → var(--dur-fade)."""
+    m = re.fullmatch(r'calc\(\s*(.+?)\s*\*\s*var\(--pk-speed\)\s*\)', d)
     return m.group(1) if m else d
 
 
@@ -196,7 +197,7 @@ def items(css):
                     i = inner(d)
                     if ms(i) == 0:
                         continue
-                    speed.append((sel, p, d, line, spring(i) or '--mspeed' in d))
+                    speed.append((sel, p, d, line, spring(i) or '--pk-speed' in d))
                     if ms(i) is not None and ms(i) >= 1000:
                         continue  # a slow loop: exempt from naming, not from the speed
                     out.append(('duration', sel, p, i, line, ms(i) is None and i.startswith('var(--dur-')))
@@ -264,9 +265,9 @@ KNOWN = [
     'corner · .appico · border-radius · 8px',
     'corner · #tip · border-radius · 18px',
     'corner · .perline .plabel.cal · border-radius · 8px',
-    # sheets: 34 now, the kit's --r-sheet (46, D17) with the kit's sheet at Q27; the page behind follows the sheet (D21)
+    # the page behind a sheet keeps its 28 corner while it's shrunk (D21); a centred sheet's head is Suki's own (S01;
+    # inside the kit's sheet it has none)
     'corner · body.sheet-open .wrap · border-radius · 28px',
-    'corner · .sheet · border-radius · 34px',
     'corner · .shead · border-radius · 34px',
     'corner · .shead · border-radius · 34px',
     # Home's two figures shrink to 0.96 and fade until D06 makes card doors highlight (Q28)
@@ -278,23 +279,15 @@ KNOWN = [
     'duration · .row · transition · 0.5s',
     'duration · .dn · transition · 0.5s',
     'duration · .tabbar button · transition · 0.5s',
-    # the page behind a sheet: its own bouncy curve and timings until it follows the kit's sheet (D21, Q27)
-    'ease · .wrap · transition · cubic-bezier(0.3, 1.3, 0.5, 1)',
-    'duration · .wrap · transition · 0.45s',
-    'duration · .wrap · transition · 0.45s',
-    'duration · body.unsheet .wrap · transition-duration · 0.33s',
-    'ease · body.unsheet .wrap · transition-timing-function · cubic-bezier(0.3, 0, 0.25, 1)',
-    # sheets and toasts: Suki's own until the kit's sheet and toast (Q27)
-    'duration · .sheet.back · transition · 0.32s',
-    'ease · .sheet.back · transition · cubic-bezier(0.3, 1.2, 0.5, 1)',
-    'duration · .toast · transition · 0.22s',
-    # iPad and Mac sheets stay Suki's own (S01): their pop has no kit name yet
-    'duration · body.reg .sheet · animation · 0.42s',
-    'ease · body.reg .sheet · animation · cubic-bezier(0.28, 1.25, 0.45, 1)',
+    # iPad and Mac sheets stay Suki's own (S01): dragged back, and their pop's curve, have no kit name (the pop's length
+    # is --dur-appear since Q27)
+    'duration · .scrim > .sheet.back · transition · 0.32s',
+    'ease · .scrim > .sheet.back · transition · cubic-bezier(0.3, 1.2, 0.5, 1)',
+    'ease · .scrim > .sheet · animation · cubic-bezier(0.28, 1.25, 0.45, 1)',
     # the switch knob: 0.3 s until the kit's switch (380 ms, Q28)
     'duration · .sw-ui::after · transition · 0.3s',
-    # Reduce Motion's fade: its length moves to --dur-reduced with the kit at Q27 (D20); the keyword goes with it
-    'ease · html.motion-reduced .sheet, html.motion-reduced .toast · animation · ease-out',
+    # Reduce Motion's fade for Suki's own centred sheet and sticky warning: --dur-reduced since Q27 (D20), its keyword
+    'ease · html.motion-reduced .scrim > .sheet, html.motion-reduced .toast.sticky · animation · ease-out',
     # swipe to delete stays Suki's own (Vocal Sessions kept its own too)
     'duration · .sw .fg · transition · 0.22s',
     'ease · .sw .fg · transition · ease',
@@ -370,30 +363,24 @@ KNOWN_JS = [
     'gestures.js · keyword · ease-out',
     'locate.js · keyword · ease-out',
     'locate.js · duration · 700',
-    # MOTION's fallback for a browser without linear() springs, and the Smart add fold's hinge (Q14, Suki's own)
-    'motion.js · curve · cubic-bezier(.25, .9, .3, 1)',
+    # the Smart add fold's hinge (Q14, Suki's own; the springs' fallback curve is the kit's since Q27)
     'motion.js · curve · cubic-bezier(.3, 1.25, .5, 1)',
-    # Reduce Motion's fades (180 and 200; they move to --dur-reduced with the kit at Q27, D20), leave (220, ease-in) and
-    # the Smart add fold's timings (Q14)
+    # Reduce Motion's fades (their length is --dur-reduced since Q27, D20), leave (220, ease-in) and the Smart add
+    # fold's timings (Q14)
     'motion.js · keyword · ease-out',
     'motion.js · keyword · ease-out',
     'motion.js · keyword · ease-in',
     'motion.js · keyword · ease-out',
     'motion.js · keyword · ease-out',
     'motion.js · keyword · ease-in',
-    'motion.js · duration · 180',
-    'motion.js · duration · 200',
     'motion.js · duration · 220',
-    'motion.js · duration · 150',
-    'motion.js · duration · 200',
     'motion.js · duration · 420',
     'motion.js · duration · 120',
     'motion.js · duration · 140',
     'motion.js · duration · 240',
     'motion.js · duration · 260',
     'motion.js · duration · 440',
-    # a sheet leaving: its own curve and the dim's fade, until the kit's sheet (Q27)
-    'ui.js · curve · cubic-bezier(.3, 0, .25, 1)',
+    # a centred sheet leaving on iPad and Mac (S01): the fade, the shrink and the dim
     'ui.js · keyword · ease-out',
     'ui.js · keyword · ease-in',
     'ui.js · keyword · ease-out',
@@ -417,7 +404,7 @@ def named(b, t):
     ok(root.index('--r-small') < root.index('--bg:'), 'it sits at the very top, before the colours')
     defined = set(got) | {f'{a}-{s}' for s in SPRINGS for a in ('ease', 'dur')}
     used = set(re.findall(r'var\(--((?:r|ease|dur|shadow)-[a-z0-9-]+|press(?:-[a-z]+)?)\b', css))
-    ok(used <= defined, f'every named value used is defined, in the set or as a MOTION spring ({used - defined})')
+    ok(used <= defined, f'every named value used is defined, in the set or as a kit spring ({used - defined})')
     _, names = js_values()
     ok(set(names) == {'pop', 'knob', 'out'} and all(same_curve(names[k], NAMED['ease-' + k]) for k in names),
        f'MOTION.EASE holds the same three curves as --ease-pop, --ease-knob and --ease-out ({names})')
@@ -456,21 +443,22 @@ def css_strays(b, t):
 
 
 SPEED_JS = """async s=>{MOTION.setSpeed(s);
- const L=document.getElementById('layer');ACT.openPurchase({dataset:{k:'a1'}});
+ ACT.openPurchase({dataset:{k:'a1'}});
  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
- const sc=L.querySelector('.scrim'), sh=L.querySelector('.sheet');
- const t=document.createElement('div');t.className='toast';document.body.appendChild(t);
- const o={dim:getComputedStyle(sc).animationDuration, toast:getComputedStyle(t).transitionDuration,
-   sheet:getComputedStyle(sh).animationDuration};
- t.remove();return o}"""
+ const L=document.getElementById('layer'), kd=L.querySelector('.pk-dim'), od=L.querySelector('#own .scrim'),
+   sh=L.querySelector('.sheet'), c=Parts.toast('x'), t=c.el;
+ const o={dim: kd ? getComputedStyle(kd).transitionDuration : getComputedStyle(od).animationDuration,
+   toast: getComputedStyle(t).transitionDuration, sheet: getComputedStyle(sh).animationDuration};
+ c.close();return o}"""
 
 
 def speed(b, t):
+    """Q27: the dim and the toast are the parts kit's (times --pk-speed), the iPad sheet is Suki's own (S01)."""
     ok = t.ok
     css = open(CSS, encoding='utf-8').read()
     _, sp = items(css)
     deaf = [f'line {l}: {s} · {p} · {d}' for s, p, d, l, f in sp if not f]
-    ok(not deaf, 'every stylesheet duration follows the speed: a spring, or times var(--mspeed, 1)'
+    ok(not deaf, 'every stylesheet duration follows the speed: a spring, or times var(--pk-speed)'
        + ('' if not deaf else f' ({"; ".join(deaf[:6])})'))
     ok(len(sp) > 40, f'the speed check found the durations ({len(sp)})')
     sec = lambda v: [round(float(x[:-1]), 3) for x in v.split(',')]
@@ -481,24 +469,24 @@ def speed(b, t):
     slow = pg.evaluate(SPEED_JS, 4)
     pg.context.close()
     ok(sec(one['dim']) == [0.2] and sec(slow['dim']) == [0.8], f'Slow motion slows the sheet dim, 0.2 s to 0.8 s ({one["dim"]} → {slow["dim"]})')
-    ok(sec(one['toast'])[0] == 0.22 and sec(slow['toast'])[0] == 0.88, f'… and the toast’s fade, 0.22 s to 0.88 s ({one["toast"]} → {slow["toast"]})')
+    ok(sec(one['toast'])[0] == 0.5 and sec(slow['toast'])[0] == 2, f'… and the toast dropping in, 0.5 s to 2 s ({one["toast"]} → {slow["toast"]})')
     pg = t.page(b, w=820, h=1180, ua=None)
     ipad = pg.evaluate(SPEED_JS, 4)
     pg.context.close()
-    ok(sec(ipad['sheet']) == [1.68], f'… and the iPad sheet’s pop, 0.42 s to 1.68 s ({ipad["sheet"]})')
+    ok(sec(ipad['sheet']) == [1.0], f'… and the iPad sheet’s pop, --dur-appear 0.25 s to 1 s ({ipad["sheet"]})')
     pg = t.page(b)
     off = pg.evaluate(SPEED_JS, 0)
-    ok(sec(off['dim']) == [0] and sec(off['toast'])[0] == 0, f'motion off stops the dim and the toast’s fade ({off})')
-    ok(pg.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--mspeed').trim()") == '0', '--mspeed is 0 with motion off')
+    ok(sec(off['dim']) == [0] and sec(off['toast'])[0] == 0, f'motion off stops the dim and the toast ({off})')
+    ok(pg.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--pk-speed').trim()") == '0', '--pk-speed is 0 with motion off')
     pg.context.close()
     pg = t.page(b, init="localStorage.setItem('suki:reduceMotion','on')")
     rm = pg.evaluate(SPEED_JS, 1)
     tr = pg.evaluate("getComputedStyle(document.querySelector('.row')).transitionDuration")
-    ok(sec(rm['dim']) == [0.2] and sec(rm['sheet']) == [0.2] and set(sec(tr)) == {0.2},
-       f'Reduce Motion keeps its 0.2 s fades at speed 1 (dim {rm["dim"]}, sheet {rm["sheet"]}, a row {tr})')
+    ok(sec(rm['dim']) == [0.1] and set(sec(tr)) == {0.1},
+       f'Reduce Motion fades are the kit’s 0.1 s at speed 1 (D20; dim {rm["dim"]}, a row {tr})')
     pg.evaluate("MOTION.setSpeed(4)")
     tr4 = pg.evaluate("getComputedStyle(document.querySelector('.row')).transitionDuration")
-    ok(set(sec(tr4)) == {0.8}, f'… and Slow motion slows them too ({tr4})')
+    ok(set(sec(tr4)) == {0.4}, f'… and Slow motion slows them too ({tr4})')
     pg.context.close()
 
 
@@ -516,7 +504,7 @@ def guard(b, t):
     ok = t.ok
     css = open(CSS, encoding='utf-8').read()
     extra = ('\n.vtest:active { transform: scale(0.91); border-radius: 11px; box-shadow: 0 2px 9px red; '
-             'transition: opacity calc(0.3s * var(--mspeed, 1)) cubic-bezier(0.1, 0.2, 0.3, 1); }\n')
+             'transition: opacity calc(0.3s * var(--pk-speed)) cubic-bezier(0.1, 0.2, 0.3, 1); }\n')
     its, _ = items(css + extra)
     new, gone = compare([key(i) for i in its if not i[5]], KNOWN + KNOWN_SHADOWS)
     kinds = sorted(k.split(' · ')[0] for k in new)
@@ -526,8 +514,8 @@ def guard(b, t):
     deaf = [d for s, p, d, l, f in sp if not f]
     ok(deaf == ['var(--dur-fade)', '0.3s'], f'a duration that ignores the speed is caught, named or not ({deaf})')
     named_extra = ('\n.vtest:active { transform: scale(var(--press)); border-radius: var(--r-card); box-shadow: var(--shadow-lifted); '
-                   'transition: opacity calc(var(--dur-fade) * var(--mspeed, 1)) var(--ease-out), transform var(--dur-gentle) var(--ease-gentle); '
-                   'animation: spin calc(2s * var(--mspeed, 1)) linear infinite; border-radius: 4px 999px 50%; }\n'
+                   'transition: opacity calc(var(--dur-fade) * var(--pk-speed)) var(--ease-out), transform var(--dur-gentle) var(--ease-gentle); '
+                   'animation: spin calc(2s * var(--pk-speed)) linear infinite; border-radius: 4px 999px 50%; }\n'
                    '.vtest2 { box-shadow: inset 0 0 0 1.5px var(--fg), 0 0 0 3px var(--bg); }\n')
     its, sp = items(css + named_extra)
     new, _ = compare([key(i) for i in its if not i[5]], KNOWN + KNOWN_SHADOWS)

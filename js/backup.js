@@ -115,7 +115,7 @@ async function restoreYes() {
   if (U.sheet !== 'restore' || !U.sd.data) return;
   const data = U.sd.data;
   // what's on the phone is kept first; if it can't be kept, nothing changes (Q05)
-  if (!(await keepSafetyCopy('restore'))) return toast('Couldn’t keep a safety copy of what’s here, so nothing has changed.', null, true);
+  if (!(await keepSafetyCopy('restore'))) return safetyFailed();
   D = data;
   U.sel = U.item = null;
   U.stack = [];
@@ -124,6 +124,12 @@ async function restoreYes() {
   go('home');
   toast('Backup restored', putBack);
   await save();
+}
+
+// the safety copy couldn't be kept: nothing changes, and the question that asked (an alert since Q27) is closed
+function safetyFailed() {
+  if (ALERTS[U.sheet]) closeSheet();
+  toast('Couldn’t keep a safety copy of what’s here, so nothing has changed.', null, true);
 }
 
 /* ===== Erase everything ===== */
@@ -148,7 +154,7 @@ async function eraseYes() {
 async function putBack() {
   if (!SAFETY) return;
   const before = SAFETY;
-  if (!(await keepSafetyCopy(before.why))) return toast('Couldn’t keep a safety copy of what’s here, so nothing has changed.', null, true);
+  if (!(await keepSafetyCopy(before.why))) return safetyFailed();
   const keep = D.learned;
   D = cleanData(before.data);
   // a safety copy from before Smart add (Q14) has no learned words: the ones here stay

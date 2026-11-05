@@ -281,7 +281,8 @@ def run(b, t):
     ok(len(a) == 1 and not any(k['t'] for k in a[0]), 'a deleted row only fades out')
     pg.context.close()
 
-    # ── 7 · Kept still: tabs switch instantly, and Settings and Convert don't move ───────────────────────
+    # ── 7 · Kept still: tabs switch instantly, and Settings and Convert don't move (Settings opened from another tab;
+    #      from Home's gear it's pushed since Q24, section 8) ──────────────────────────────────────────────────────
     pg = t.page(b, touch=True, init=ON)
     for tab in ['till', 'convert', 'settings', 'spending']:
         pg.evaluate(f"go('{tab}')")
@@ -289,7 +290,93 @@ def run(b, t):
         ok(n == 0, f'switching to {tab} moves nothing')
     pg.context.close()
 
-    # ── 8 · Frames in dark mode, at 4× slow motion ───────────────────────────────────────────────────────
+    # ── 8 · Door rules (Q24): pushes over a still page, pops, and a sheet over a sheet keeping its dim ────────────
+    WRAPX = "(()=>{const m=new DOMMatrix(getComputedStyle(document.querySelector('body > .wrap')).transform);return m.m41})()"
+    STILLX = "(s=>{const e=document.querySelector(s+' > .wrap');return e?new DOMMatrix(getComputedStyle(e).transform).m41:null})"
+    DIMO = "(s=>{const e=document.querySelector(s+' .pdim');return e?+getComputedStyle(e).opacity:null})"
+    GONE = "!document.querySelector('#under,#over')&&!document.body.classList.contains('pushing')"
+    pg = t.page(b, touch=True, init=SLOW)
+    pg.wait_for_timeout(300)
+    pg.click('#barR [aria-label=Settings]'); pg.wait_for_timeout(500)
+    ux, wx, d = pg.evaluate(STILLX + "('#under')"), pg.evaluate(WRAPX), pg.evaluate(DIMO + "('#under')")
+    ok(pg.evaluate("U.tab") == 'settings' and pg.locator('#under').count() == 1 and pg.evaluate("document.body.classList.contains('pushing')"),
+       'the gear: Settings slides in over a still copy of Home')
+    ok(pg.locator('#under [id], #under [data-a]').count() == 0 and 'recent' in pg.inner_text('#under').lower(), 'the copy is Home, with no ids or actions')
+    ok(wx > 0 and ux is not None and ux < 0 and d is not None and 0 < d <= 0.1001, f'mid-way: Settings is coming in ({wx:.0f}), Home is moving left ({ux:.0f}) and dimming ({d})')
+    pg.wait_for_function(GONE, timeout=8000)
+    ok(pg.evaluate(WRAPX) == 0, 'once it lands, the copy goes and Settings sits in place')
+    t.shot(pg, 'q24-settings-landed')
+    pg.click('#barL [aria-label="Back to Home"]'); pg.wait_for_timeout(500)
+    ox, wx, d = pg.evaluate(STILLX + "('#over')"), pg.evaluate(WRAPX), pg.evaluate(DIMO + "('#over')")
+    ok(pg.evaluate("U.tab") == 'home' and pg.locator('#over').count() == 1 and 'Settings' in pg.inner_text('#over'), 'Back: a still copy of Settings lies over Home')
+    ok(ox is not None and ox > 0 and wx < 0 and d is not None and 0 < d < 0.1001, f'mid-way: Settings is leaving right ({ox:.0f}), Home coming from the left ({wx:.0f}) under the dim ({d})')
+    pg.wait_for_function(GONE, timeout=8000)
+    ok(pg.evaluate(WRAPX) == 0, 'and once it lands, nothing is left')
+    # Help from Settings and back, and Rate history from Convert, move the same way
+    pg.evaluate("go('settings')"); pg.wait_for_function(GONE, timeout=8000)
+    pg.click('#app [data-a=openHelp]'); pg.wait_for_timeout(400)
+    ok(pg.locator('#under').count() == 1 and 'Settings' in pg.inner_text('#under') and pg.evaluate(WRAPX) > 0, 'Help slides in over Settings')
+    pg.wait_for_function(GONE, timeout=8000)
+    pg.click('#barL [aria-label="Back to Settings"]'); pg.wait_for_timeout(400)
+    ok(pg.locator('#over').count() == 1 and pg.evaluate(WRAPX) < 0, 'Back from Help: Settings comes from under it')
+    pg.wait_for_function(GONE, timeout=8000)
+    pg.evaluate("go('convert')"); pg.wait_for_timeout(200)
+    pg.click('[data-a=openHistory]'); pg.wait_for_timeout(400)
+    ok(pg.locator('#under').count() == 1 and pg.evaluate(STILLX + "('#under')") < 0, 'Rate history slides in over Convert, the same')
+    pg.wait_for_function(GONE, timeout=8000)
+    # interrupting: Back mid-push leaves one copy at most, and none once it lands
+    pg.evaluate("go('home')"); pg.wait_for_function(GONE, timeout=8000)
+    pg.click('#barR [aria-label=Settings]'); pg.wait_for_timeout(250)
+    pg.click('#barL [aria-label="Back to Home"]'); pg.wait_for_timeout(100)
+    ok(pg.locator('#under, #over').count() == 1, 'Back mid-push: only one still copy at a time')
+    pg.wait_for_function(GONE, timeout=8000)
+    ok(pg.evaluate("U.tab") == 'home' and pg.evaluate(WRAPX) == 0, 'and nothing is left once it lands')
+    # tabs and the tab bar still switch at once
+    pg.click('#dock [data-v=spending]'); pg.wait_for_timeout(30)
+    ok(pg.locator('#under, #over').count() == 0, 'a tab switches with no push')
+    pg.context.close()
+
+    # Reduce Motion: a short fade, no still copy
+    pg = t.page(b, touch=True, init=ON + ";localStorage.setItem('suki:reduceMotion','on')")
+    pg.wait_for_timeout(300)
+    pg.click('#barR [aria-label=Settings]'); pg.wait_for_timeout(30)
+    a = anims(pg, '#app')
+    ok(pg.locator('#under, #over').count() == 0 and a and all(not k['t'] for k in a[0]), 'Reduce Motion: the gear fades Settings in, with nothing sliding')
+    pg.context.close()
+
+    # a sheet over a sheet keeps the dim at 4×, and the old sheet waits behind until it's covered
+    SAMPLE = """()=>{window.DIMS=[];window.UNDER=[];const t0=performance.now();const f=()=>{let m=0;document.querySelectorAll('#layer .scrim, #leaving .scrim').forEach(s=>{const c=getComputedStyle(s).backgroundColor,p=c.match(/[\\d.]+/g)||[];const al=c==='transparent'?0:p.length>3?+p[3]:1;m=Math.max(m,al*+getComputedStyle(s).opacity)});DIMS.push(m);UNDER.push(!!document.querySelector('#leaving .scrim.under .sheet'));if(performance.now()-t0<3300)requestAnimationFrame(f)};requestAnimationFrame(f)}"""
+    for sc in ['light', 'dark']:
+        pg = t.page(b, sc=sc, touch=True, init=SLOW)
+        pg.evaluate("go('spending')")
+        open_sheet(pg, "openSheet('purchase',{id:'a1'})")
+        pg.evaluate(SAMPLE.replace('t0<3300', 't0<200')); pg.wait_for_timeout(300)
+        base = min(pg.evaluate("DIMS"))
+        pg.evaluate(SAMPLE)
+        pg.click('#layer .sheet [data-a=editPurchase]')
+        pg.wait_for_timeout(700)
+        t.shot(pg, f'q24-sheet-over-{sc}')
+        pg.wait_for_timeout(2800)
+        dims, under = pg.evaluate("DIMS"), pg.evaluate("UNDER")
+        ok(pg.evaluate("U.sheet") == 'edit' and base > 0 and min(dims) >= base * 0.97, f'{sc}: Edit from a purchase never shows the page undimmed (lowest {min(dims):.3f}, before {base:.3f})')
+        ok(max(dims) <= base * 1.03, f'{sc}: and the dim is never doubled (highest {max(dims):.3f})')
+        ok(any(under) and not under[-1], f'{sc}: the purchase sheet waits behind it until covered, then goes ({sum(under)} of {len(under)} frames)')
+        ok(pg.evaluate("getComputedStyle(document.querySelector('#layer .scrim')).animationName") == 'none', f'{sc}: the dim doesn’t fade in again')
+        pg.context.close()
+    # the other doors of the same shape: item › Log what you paid, Price notes › a note, Delete from a sheet
+    pg = t.page(b, touch=True, init=SLOW)
+    open_sheet(pg, "openSheet('item',{id:'jeepney'})")
+    pg.evaluate(SAMPLE); pg.click('#layer .sheet [data-a=logItem]'); pg.wait_for_timeout(3400)
+    ok(pg.evaluate("U.sheet") == 'edit' and min(pg.evaluate("DIMS")) > 0 and any(pg.evaluate("UNDER")), 'item › Log what you paid: over the item sheet, the dim kept')
+    pg.evaluate("U.stack=[];U.sheet=null;rerender()"); pg.wait_for_timeout(1500)
+    open_sheet(pg, "openSheet('purchase',{id:'a1'})")
+    pg.evaluate(SAMPLE); pg.evaluate("ACT.delPurchase({dataset:{k:'a1'}})"); pg.wait_for_timeout(3400)
+    ok(pg.evaluate("U.sheet") == 'confirm' and min(pg.evaluate("DIMS")) > 0 and any(pg.evaluate("UNDER")), 'Delete from a purchase: over it, the dim kept')
+    pg.evaluate("closeSheet()"); pg.wait_for_timeout(1800)
+    ok(pg.evaluate("U.sheet") == 'purchase' and pg.locator('#leaving .scrim').count() == 0, 'and going back is unchanged (Q11)')
+    pg.context.close()
+
+    # ── 9 · Frames in dark mode, at 4× slow motion ───────────────────────────────────────────────────────
     pg = t.page(b, sc='dark', touch=True, init=SLOW)
     pg.evaluate("go('spending')")
     open_sheet(pg, "openSheet('purchase',{id:'a1'})")

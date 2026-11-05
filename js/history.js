@@ -772,7 +772,7 @@ function sbUnder() {
   u.id = 'under';
   u.setAttribute('aria-hidden', 'true');
   u.inert = true;
-  u.innerHTML = '<div class="wrap"><header class="bar"><span class="side"></span><span class="mt"></span><span class="side r"></span></header><main class="tab-convert narrow">' + scrConvert() + '</main></div>';
+  u.innerHTML = '<div class="wrap"><header class="bar"><span class="side"></span><span class="mt"></span><span class="side r"></span></header><main class="tab-convert narrow">' + scrConvert() + '</main></div><div class="pdim"></div>';
   u.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
   u.querySelectorAll('[data-a]').forEach((el) => el.removeAttribute('data-a'));
   document.body.appendChild(u);
@@ -799,6 +799,7 @@ document.addEventListener('pointermove', (e) => {
     if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) return void (SB = null);
     if (!(dx > 10 && dx > Math.abs(dy) * 1.2)) return;
     SB.on = true;
+    pushClear(); // a push still under way ends at once, so the swipe starts from a settled page
     sbUnder();
     document.body.classList.add('swiping');
   }
@@ -814,7 +815,14 @@ document.addEventListener('pointermove', (e) => {
     w.style.transition = 'none';
     w.style.transform = 'translateX(' + SB.dx + 'px)';
   }
-  if (u) u.style.transform = MOTION.reduced() ? '' : 'translateX(' + (-0.3 * W + 0.3 * SB.dx) + 'px)';
+  // Convert underneath moves a third and lifts its 10% dim as the page goes (Q24, the same as a tapped push)
+  if (u && !MOTION.reduced()) {
+    const k = Math.min(1, SB.dx / W),
+      c = u.querySelector('.wrap'),
+      d = u.querySelector('.pdim');
+    if (c) c.style.transform = 'translateX(' + -PUSH_UNDER * W * (1 - k) + 'px)';
+    if (d) d.style.opacity = String(PUSH_DIM * (1 - k));
+  }
 });
 function sbEnd(e, cancel) {
   if (!SB || e.pointerId !== SB.id) return;
@@ -833,10 +841,14 @@ function sbEnd(e, cancel) {
     }
   };
   if (!MOTION.on() || !w || !w.animate) return done();
-  const ms = 280 * MOTION.speed(),
-    ease = 'cubic-bezier(.2,.9,.25,1)';
-  const a = w.animate([{ transform: 'translateX(' + s.dx + 'px)' }, { transform: back ? 'translateX(' + innerWidth + 'px)' : 'none' }], { duration: ms, easing: ease, fill: 'forwards' });
-  if (u) u.animate([{ transform: u.style.transform || 'none' }, { transform: back ? 'none' : 'translateX(' + -0.3 * innerWidth + 'px)' }], { duration: ms, easing: ease, fill: 'forwards' });
+  // it lets go on the nav spring, like every push and pop (Q24; it was its own 280 ms curve)
+  const o = { spring: 'nav', fill: 'forwards' },
+    c = u && u.querySelector('.wrap'),
+    d = u && u.querySelector('.pdim'),
+    a = MOTION.animate(w, [{ transform: 'translateX(' + s.dx + 'px)' }, { transform: back ? 'translateX(' + innerWidth + 'px)' : 'none' }], o);
+  if (c) MOTION.animate(c, [{ transform: c.style.transform || 'none' }, { transform: back ? 'none' : 'translateX(' + -PUSH_UNDER * innerWidth + 'px)' }], o);
+  if (d) MOTION.animate(d, [{ opacity: d.style.opacity || '0' }, { opacity: back ? 0 : PUSH_DIM }], o);
+  if (!a) return done();
   a.onfinish = () => {
     a.cancel();
     done();

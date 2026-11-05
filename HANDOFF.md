@@ -549,7 +549,7 @@ From the UI consistency audit of 2.27 (Recon, 5 Nov 2026: the Suki project notes
 **Out of scope for all seven:** any change to the parts kit itself; the Till, drawer, note press and haul, the calendar, charts, price strip, Smart add fold and swipe to delete keep their own motion (they only take named values and the kit's speed and Reduce Motion); the Mac sidebar stays Suki's own; new features. **Saved data:** one new key, `suki:screenIds` (Q25, device-only, not backed up); nothing renamed.
 
 ## Q24 · Navigation: Door Rules
-**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting
+**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** 5 Nov 2026, 09:33, Ivan: "Suki Q24 Build" · shipped as 2.28
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.27 · Needs: 2.27 live on `main`. · Effort: Light to medium.
 Findings: Recon 1, 2, 4, 5, 7, 8 and the delete wording in 6.
 
@@ -569,6 +569,14 @@ Findings: Recon 1, 2, 4, 5, 7, 8 and the delete wording in 6.
 **Done when:** every door in the Recon's Page transitions table marked Change for this item moves as agreed on iPhone, iPad and Mac; Back from Settings, Help and Rate history lands on the tab you came from; Home's Show all always opens All with every purchase; no sheet-over-sheet frame shows an undimmed page.
 **Checks:** `test_doors.py` (Show all, the gear, Mac's Settings), `test_motion.py` (sheet over sheet keeps the dim at 4×), `test_history.py` (swipe back on the nav spring), `test_layout.py` (iPad and Mac), then the full suite. Six-frame strips at ×4 of the gear, Help and Rate history, compared with the Recon's.
 **For your iPhone:** 1. The gear into Settings and Back. 2. Rate history's swipe back. 3. Edit from a purchase: no flash. 4. Home's Show all after leaving Spending on Day.
+
+**Debrief (2.28, 5 Nov 2026):**
+- **How:** a push is a still copy of the page left behind (`pageStill()`, cloned from `.wrap` before the redraw, ids and actions removed) in `#under`, with the pushed `.wrap` sliding in over it; a pop puts the copy of the page being left in `#over` on top. `PUSHES` and `doorKind()` in `ui.js` hold the rule; `pushClear()` ends one at once (every `go()`, and when a swipe back starts). Swipe back reuses `PUSH_UNDER` and `PUSH_DIM` and lets go through `MOTION.animate` on `nav`. Sheet over sheet moves the old scrim into `#leaving` as `.under` (z-index 39) until the new sheet has risen, with the new scrim `.still` and transparent meanwhile, so the dim never drops or doubles (`sheetUnderKeep()`, `sheetUnderGo()`).
+- **Decided within scope:** a tab tapped on a pushed page pops it, as Rate history's Convert tab already did (Settings › Home tab now pops instead of cutting). Help › Home tab stays a cut (not in the Recon's table). The price note's delete message already read "Bigas, ₱52 on 3 Nov.", so only the purchase's changed. The dim is a new token, `--push-dim` (black, both modes), because the release test allows no hex in rules.
+- **Seen, left for Q27:** in the first frames of a sheet over a sheet, the two sheets show through each other, because the sheet's own rise still starts see-through. Q27 replaces the rise.
+- **Tests:** `test_doors.py` (Show all ×2 after Day, Transport, a filter and a bar; the gear, Help, Rate history and their Back; the delete message; Mac's section, one lit, no Back, no movement, Help zooming; iPad's zooms), `test_motion.py` (push and pop mid-way and after, Back mid-push, Reduce Motion, sheet over sheet at 4× in light and dark plus Log what you paid and Delete), `test_history.py` (the push over Convert, Convert's 33% and 10% under the finger, letting go on the nav spring). Full suite once: 1,340 of 1,341, the one being the hex rule above, then fixed and its file re-run. Six-frame strips at ×4 of the gear, Back, Help, Rate history, Edit from a purchase and iPad's Settings, looked at against the Recon's.
+- **For your iPhone:** 1. The gear into Settings and Back: Home slides a little left and darkens. 2. Rate history's swipe back, short (springs back) and long. 3. Edit from a purchase: the dim stays, no flash. 4. Home's Show all after leaving Spending on Day: every purchase.
+- **Left for later:** nothing new.
 
 ## Q25 · Interface: Screen IDs
 **Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting

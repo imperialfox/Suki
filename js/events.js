@@ -636,13 +636,14 @@ const ACT = {
     F.edit = { item: p.item, price: fmtAmt(p.price), category: p.category, date: p.date, location: p.location, venue: p.venue, payment: p.payment, notes: p.notes, said: p.said, saidAt: p.saidAt };
     openSheet('edit', { id: p.id }, U.sheet === 'purchase');
   },
+  // the message says what goes and promises nothing about backups: Undo brings it back (Q24)
   delPurchase: (el) => {
     closeSwipes();
     const p = D.purchases.find((x) => x.id === el.dataset.k);
     if (!p) return;
     openSheet(
       'confirm',
-      { title: 'Delete this purchase?', text: '“' + p.item + '” (' + cash(p.price) + ') will be removed from this device. You can only get it back from a backup.', btn: 'Delete purchase', action: 'delPurchaseYes', k: p.id },
+      { title: 'Delete this purchase?', text: p.item + ', ' + cash(p.price) + '.', btn: 'Delete purchase', action: 'delPurchaseYes', k: p.id },
       !!U.sheet
     );
   },

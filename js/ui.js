@@ -16,7 +16,8 @@ function renderBar() {
   T.classList.toggle('tabs', tabsMode);
   T.innerHTML = tabsMode ? topTabs() : esc(TAB_TITLE[U.tab]);
   $('barL').innerHTML =
-    U.tab === 'settings'
+    // on Mac Settings is a sidebar section, so it has no Back (Q24)
+    U.tab === 'settings' && !MQ.wide.matches
       ? '<button class="circ glass" data-a="tab" data-v="home" aria-label="Back to Home">' + ICON.back + '</button>'
       : U.tab === 'help'
         ? '<button class="circ glass" data-a="tab" data-v="settings" aria-label="Back to Settings">' + ICON.back + '</button>'
@@ -29,11 +30,13 @@ function renderBar() {
     // Spending's own door to the Log sheet (Q08); with nothing logged, the page's own button does it
     (U.tab === 'spending' && D.purchases.length ? '<button class="circ glass" data-a="newPurchase" aria-label="Log a purchase">' + ICON.plus + '</button>' : '');
 }
+// the tab lit for the page on screen; on Mac, Settings and Help light only the sidebar's Settings (Q24)
+const litTab = () => (MQ.wide.matches && (U.tab === 'settings' || U.tab === 'help') ? null : tabOf(U.tab));
 const tabButtons = (cls, withIcon) =>
   TABS.map(
     (t, i) =>
-      '<button class="' + cls + (tabOf(U.tab) === t[0] ? ' on' : '') + '" data-a="tab" data-v="' + t[0] + '" aria-current="' +
-      (tabOf(U.tab) === t[0] ? 'page' : 'false') + '" title="' + t[1] + ' (' + (APPLE ? '⌘' : 'Ctrl+') + (i + 1) + ')">' + (withIcon ? t[2] : '') + '<span>' + t[1] + '</span></button>'
+      '<button class="' + cls + (litTab() === t[0] ? ' on' : '') + '" data-a="tab" data-v="' + t[0] + '" aria-current="' +
+      (litTab() === t[0] ? 'page' : 'false') + '" title="' + t[1] + ' (' + (APPLE ? '⌘' : 'Ctrl+') + (i + 1) + ')">' + (withIcon ? t[2] : '') + '<span>' + t[1] + '</span></button>'
   ).join('');
 const topTabs = () => '<nav class="toptabs glass" aria-label="Tabs">' + tabButtons('', false) + '</nav>';
 function renderSide() {
@@ -91,31 +94,91 @@ function render(keepScroll) {
   }
 }
 const rerender = () => render(true);
+/* ===== Door rules (Q24) =====
+   Tabs swap instantly. Three pages are pushed: Settings from Home's gear, Help from Settings and Rate history from
+   Convert. Every door to them moves the same way, and Back (or the tab they belong to) pops them:
+   - iPhone: the pushed page slides in over a still copy of the page left behind, which moves a third left and dims
+     10% (PUSH_UNDER, PUSH_DIM, after Vocal Sessions' D22), both on the nav spring. Back is the same in reverse.
+   - iPad and Mac: they zoom in and out.
+   - Mac: Settings is a sidebar section, so Home ⇄ Settings switches like a tab (only Help zooms from it).
+   - Reduce Motion: a short fade. Motion off: at once. After a swipe back the page is already there (SB_GONE). */
+const PUSH_UNDER = 0.33,
+  PUSH_DIM = 0.1,
+  PUSHES = { 'home>settings': 'push', 'settings>help': 'push', 'convert>history': 'push', 'settings>home': 'pop', 'help>settings': 'pop', 'history>convert': 'pop' };
+function doorKind(from, to) {
+  if (MQ.wide.matches && ((from === 'home' && to === 'settings') || (from === 'settings' && to === 'home'))) return null;
+  return PUSHES[from + '>' + to] || null;
+}
+// a still copy of the page as it is now, ids and actions removed: under the pushed page, or over the page popped to
+function pageStill(id) {
+  const w = document.querySelector('body > .wrap');
+  if (!w) return null;
+  const s = document.createElement('div'),
+    c = w.cloneNode(true),
+    d = document.createElement('div'),
+    m = c.querySelector('main');
+  s.id = id;
+  s.setAttribute('aria-hidden', 'true');
+  s.inert = true;
+  c.style.transform = c.style.transition = '';
+  c.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+  c.querySelectorAll('[data-a]').forEach((el) => el.removeAttribute('data-a'));
+  if (m && window.scrollY) m.style.transform = 'translateY(' + -window.scrollY + 'px)';
+  d.className = 'pdim';
+  if (id === 'over') s.append(d, c);
+  else s.append(c, d);
+  document.body.appendChild(s);
+  return s;
+}
+let PUSH = null;
+function pushClear() {
+  const p = PUSH;
+  PUSH = null;
+  if (p) {
+    clearTimeout(p.t);
+    p.a.forEach((x) => x && x.cancel());
+    p.st.remove();
+  }
+  document.body.classList.remove('pushing');
+}
+function pushPlay(kind, st) {
+  const w = document.querySelector('body > .wrap');
+  if (!w || !st) return pushClear();
+  const W = innerWidth,
+    under = 'translateX(' + -PUSH_UNDER * W + 'px)',
+    off = 'translateX(' + W + 'px)',
+    c = st.querySelector('.wrap'),
+    d = st.querySelector('.pdim'),
+    o = { spring: 'nav', fill: 'both' };
+  document.body.classList.add('pushing');
+  const a =
+    kind === 'push'
+      ? [MOTION.animate(w, [{ transform: off }, { transform: 'none' }], o), MOTION.animate(c, [{ transform: 'none' }, { transform: under }], o), MOTION.animate(d, [{ opacity: 0 }, { opacity: PUSH_DIM }], o)]
+      : [MOTION.animate(w, [{ transform: under }, { transform: 'none' }], o), MOTION.animate(c, [{ transform: 'none' }, { transform: off }], o), MOTION.animate(d, [{ opacity: PUSH_DIM }, { opacity: 0 }], o)];
+  PUSH = { a, st, t: setTimeout(pushClear, MOTION.dur('nav') + 400) };
+  if (a[0]) a[0].onfinish = () => PUSH && PUSH.a === a && pushClear();
+}
 function go(tab) {
   if (!SCREENS[tab]) return;
   const same = U.tab === tab,
-    from = U.tab;
+    from = U.tab,
+    kind = same ? null : doorKind(from, tab),
+    gone = kind === 'pop' && from === 'history' && SB_GONE;
+  if (SB_GONE) SB_GONE = false;
+  pushClear();
+  // the still is taken before the redraw (and before the scroll moves), so it costs no extra frame
+  const st = kind && !gone && MOTION.on() && !split() ? pageStill(kind === 'push' ? 'under' : 'over') : null;
   U.tab = tab;
   if (!same) {
     window.scrollTo(0, 0);
     U.shown = SHOW_STEP;
   }
-  // every tab, Settings included, swaps instantly; the launch into Home has its own fade in boot.js
+  // the launch into Home has its own fade in boot.js
   render(same);
-  // Help is pushed from Settings: it slides in from the right, and back slides Settings in from the left (Q07)
-  if (from === 'settings' && tab === 'help') MOTION.animate($('app'), [{ transform: 'translateX(100%)' }, { transform: 'none' }], { spring: 'nav', fade: true });
-  if (from === 'help' && tab === 'settings') MOTION.animate($('app'), [{ transform: 'translateX(-30%)', opacity: 0.4 }, { transform: 'none', opacity: 1 }], { spring: 'nav', fade: true });
-  // Rate history is pushed from Convert's rate row on iPhone, and zooms from it on iPad and Mac (Q23).
-  // After a swipe back, Convert is already in place, so it doesn't slide in again
-  if (from === 'convert' && tab === 'history') {
-    if (split()) MOTION.animate($('app'), [{ transform: 'scale(.94)', opacity: 0 }, { transform: 'none', opacity: 1 }], { spring: 'nav', fade: true });
-    else MOTION.animate($('app'), [{ transform: 'translateX(100%)' }, { transform: 'none' }], { spring: 'nav', fade: true });
-  }
-  if (from === 'history' && tab === 'convert') {
-    if (SB_GONE) SB_GONE = false;
-    else if (split()) MOTION.animate($('app'), [{ transform: 'scale(1.04)', opacity: 0 }, { transform: 'none', opacity: 1 }], { spring: 'nav', fade: true });
-    else MOTION.animate($('app'), [{ transform: 'translateX(-30%)', opacity: 0.4 }, { transform: 'none', opacity: 1 }], { spring: 'nav', fade: true });
-  }
+  if (!kind || gone) return;
+  if (!MOTION.on()) return void MOTION.animate($('app'), [{ opacity: 0 }, { opacity: 1 }], { fade: true });
+  if (split()) MOTION.animate($('app'), kind === 'push' ? [{ transform: 'scale(.94)', opacity: 0 }, { transform: 'none', opacity: 1 }] : [{ transform: 'scale(1.04)', opacity: 0 }, { transform: 'none', opacity: 1 }], { spring: 'nav', fade: true });
+  else pushPlay(kind, st);
 }
 
 /* ===== A new day: when the date moves on (coming back to the app, or a check each minute), redraw in place so
@@ -374,8 +437,12 @@ function renderSheet() {
     // fewer sheets than before: the top one is closing, to the page or to the sheet underneath (Q11)
     closing = !!(was && shownSheet && depth < shownDepth),
     old = layer.querySelector('.sheet'),
-    top = old ? old.scrollTop : 0;
+    top = old ? old.scrollTop : 0,
+    // a different sheet over one already open (Edit from a purchase, Log from a calendar day…): it arrives over the
+    // old one, which waits behind it under the same dim until it's covered (Q24)
+    over = !!(html && was && shownSheet && key !== shownSheet && !closing);
   if (closing) sheetAway(was, depth > 0);
+  if (key !== shownSheet) sheetUnderGo();
   shownDepth = depth;
   if (!html) {
     layer.innerHTML = '';
@@ -383,8 +450,16 @@ function renderSheet() {
     document.body.classList.remove('sheet-open');
     return;
   }
+  if (over) sheetUnderKeep(was);
   layer.innerHTML = html;
   const sh = layer.querySelector('.sheet');
+  // the dim is already there, so the new one doesn't fade in from nothing; while the old sheet waits behind, the
+  // old dim is the one showing, so it's never doubled
+  if (over || (UNDER_SC && key === shownSheet)) {
+    const sc = layer.querySelector('.scrim');
+    sc.classList.add('still');
+    if (UNDER_SC) sc.style.background = 'transparent';
+  }
   // redrawing the same sheet keeps its place and doesn't rise again; going back to the sheet underneath finds it
   // simply there, where it was scrolled to, while the closing one slides off over it
   if (key === shownSheet || closing) {
@@ -398,6 +473,38 @@ function renderSheet() {
   }
   shownSheet = key;
   document.body.classList.add('sheet-open');
+}
+
+/* ===== A sheet over a sheet (Q24) =====
+   The old sheet and its dim move to #leaving (which nothing can tap), beneath the new one (.under, z-index 39), and
+   stay exactly where they were until the new sheet has risen over them (or popped, on iPad and Mac, or faded with
+   Reduce Motion); then they go. Any other sheet change before that ends the wait at once. Motion off: nothing waits. */
+let UNDER_SC = null;
+function sheetUnderKeep(sc) {
+  const out = $('leaving'),
+    sp = MOTION.speed();
+  if (!out || sp === 0) return;
+  const sh = sc.querySelector('.sheet'),
+    top = sh ? sh.scrollTop : 0;
+  sc.classList.add('still', 'under');
+  if (sh) sh.classList.add('still');
+  sc.removeAttribute('data-a');
+  sc.querySelectorAll('[id]').forEach((e) => e.removeAttribute('id'));
+  out.appendChild(sc);
+  if (sh) sh.scrollTop = top;
+  UNDER_SC = sc;
+  const ms = MOTION.reduced() ? 200 * sp : MQ.reg.matches ? 420 * sp : MOTION.dur('gentle');
+  clearTimeout(sheetUnderKeep.t);
+  sheetUnderKeep.t = setTimeout(sheetUnderGo, ms + 40);
+}
+function sheetUnderGo() {
+  clearTimeout(sheetUnderKeep.t);
+  const sc = UNDER_SC;
+  UNDER_SC = null;
+  if (!sc) return;
+  sc.remove();
+  const top = $('layer').querySelector('.scrim');
+  if (top) top.style.background = '';
 }
 
 /* ===== A sheet leaving (Q11) =====

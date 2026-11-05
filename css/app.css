@@ -35,6 +35,7 @@
   --band: rgba(0, 122, 255, 0.22);
   --glass-shadow: rgba(20, 20, 40, 0.15);
   --scrim: rgba(0, 0, 0, 0.22);
+  --push-dim: #000; /* the page under a push, at 10% (Q24); the same in dark mode */
   --warnbg: #fff4e5;
   --warnfg: #9a5b00;
   /* category colours for charts and dots: checked with the dataviz palette validator, light and dark (Q03) */
@@ -2518,6 +2519,10 @@ main {
   z-index: 41;
   animation: none;
 }
+/* a sheet waiting behind the one opened over it (Q24) */
+#leaving .scrim.under {
+  z-index: 39;
+}
 .sheet.drag {
   transition: none;
 }
@@ -3947,15 +3952,38 @@ body.reg .hcols {
 body.reg .hside > .hdr:first-child {
   margin-top: 16px;
 }
-/* swipe back: Convert waits underneath, and the page follows the finger */
-#under {
+/* pushes and swipe back (Q23, Q24): a still copy of the page left behind waits underneath (#under), or of the page
+   being popped lies on top (#over); .pdim is the 10% dim that goes with the page underneath */
+#under,
+#over {
   position: fixed;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+}
+#under {
   background: var(--bg);
 }
+#over {
+  z-index: 2;
+}
+#under > .wrap,
+#over > .wrap {
+  transition: none;
+}
+#over > .wrap {
+  min-height: 100vh;
+  background: var(--bg);
+  box-shadow: -8px 0 24px var(--glass-shadow);
+}
+.pdim {
+  position: absolute;
+  inset: 0;
+  background: var(--push-dim);
+  opacity: 0;
+}
+body.pushing > .wrap,
 body.swiping > .wrap {
   z-index: 1;
   min-height: 100vh;

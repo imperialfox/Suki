@@ -1,5 +1,7 @@
 """Navigation doors (Q08): Home's two figures, Spending's +, logging on a calendar day, a purchase leading to its
-item's prices (whole words only), words that name a place, and Settings rows that open what they name."""
+item's prices (whole words only), words that name a place, and Settings rows that open what they name.
+Door rules (Q24): Home's Show all doors, the gear, Help and Rate history and their Back, the delete message, Mac's
+Settings section and the zooms on iPad and Mac."""
 import datetime as dt
 from harness import sample, day, today, RATE
 
@@ -19,6 +21,11 @@ def data():
 
 
 def run(b, t):
+    run_q08(b, t)
+    run_q24(b, t)
+
+
+def run_q08(b, t):
     ok = t.ok
     pg = t.page(b, data=data())
     n0 = pg.evaluate("D.purchases.length")
@@ -149,4 +156,90 @@ def run(b, t):
     pg.click('#app .sl [data-a=openPurchase][data-k=a2]'); pg.wait_for_timeout(100)
     pg.click('#app .pane [data-a=openItem]'); pg.wait_for_timeout(120)
     ok(pg.evaluate("U.sheet==='item'&&U.sd.id==='jeepney'"), 'on iPad, the prices row in the details pane opens the item')
+    pg.context.close()
+
+
+# ===== Door rules (Q24) =====
+APP_ANIMS = "(()=>{const a=document.getElementById('app');return a?a.getAnimations().map(x=>JSON.stringify(x.effect.getKeyframes().map(k=>k.transform||'')+'|'+x.effect.getKeyframes().map(k=>k.opacity))):[]})()"
+LIT = "[...document.querySelectorAll('#side .sbi.on')].map(e=>e.dataset.v)"
+
+
+def run_q24(b, t):
+    ok = t.ok
+    pg = t.page(b, data=data())
+    n = pg.evaluate("D.purchases.length")
+
+    # Home's Show all doors open All, with every purchase, after leaving Spending on Day with a category and a filter
+    for sel, name in [('#app .tbtn[data-a=toSpend]', 'Show all'), ('#app .row.more[data-a=toSpend]', f'Show all {n} purchases')]:
+        pg.evaluate("go('spending');U.range='day';U.roff=1;U.cat='Transport';U.filter='zzz';U.bar=2;go('home')"); pg.wait_for_timeout(80)
+        ok(pg.locator(sel).count() == 1, f'Home’s “{name}” is a door to All')
+        pg.click(sel); pg.wait_for_timeout(120)
+        ok(pg.evaluate("U.tab==='spending'&&U.range==='all'&&U.roff===0&&U.cat==='all'&&U.filter===''&&U.bar===null"),
+           f'“{name}” opens Spending on All, with no category, filter or picked bar left over')
+        ok(pg.locator('#spendList [data-a=openPurchase]').count() == n, f'and lists every purchase ({n})')
+    ok(pg.locator('#app [data-a=tab][data-v=spending]').count() == 0, 'no Show all door goes to the last period any more')
+
+    # the gear pushes Settings, Back pops it to Home; Help and Rate history the same
+    pg.evaluate("go('home')"); pg.wait_for_timeout(60)
+    pg.click('#barR [aria-label=Settings]'); pg.wait_for_timeout(100)
+    ok(pg.evaluate("U.tab") == 'settings' and pg.locator('#barL [aria-label="Back to Home"]').count() == 1, 'the gear opens Settings, with Back to Home')
+    pg.click('#app [data-a=openHelp]'); pg.wait_for_timeout(100)
+    ok(pg.evaluate("U.tab") == 'help', 'Settings › Help opens Help')
+    pg.click('#barL [aria-label="Back to Settings"]'); pg.wait_for_timeout(100)
+    ok(pg.evaluate("U.tab") == 'settings', 'Back from Help lands on Settings')
+    pg.click('#barL [aria-label="Back to Home"]'); pg.wait_for_timeout(100)
+    ok(pg.evaluate("U.tab") == 'home' and pg.locator('#dock .on[data-v=home]').count() == 1, 'Back from Settings lands on Home, the tab it came from')
+    pg.evaluate("go('convert')"); pg.wait_for_timeout(60)
+    pg.click('[data-a=openHistory]'); pg.wait_for_timeout(100)
+    pg.click('#barL [aria-label="Back to Convert"]'); pg.wait_for_timeout(100)
+    ok(pg.evaluate("U.tab") == 'convert', 'Back from Rate history lands on Convert')
+    ok(pg.locator('#under, #over').count() == 0, 'with motion off, no still copy is left behind')
+
+    # the delete message says what goes, with no promise about backups
+    pg.evaluate("go('spending')"); pg.wait_for_timeout(60)
+    pg.evaluate("ACT.delPurchase({dataset:{k:'a1'}})"); pg.wait_for_timeout(80)
+    txt = pg.inner_text('#layer .sheet')
+    ok('Chickenjoy bucket, ₱459.00.' in txt and 'backup' not in txt.lower(), 'Delete says “Chickenjoy bucket, ₱459.00.” and nothing about backups')
+    pg.evaluate("closeSheet()"); pg.wait_for_timeout(60)
+    pg.evaluate("ACT.delObs({dataset:{k:'o1'}})"); pg.wait_for_timeout(80)
+    ok('Bigas, ₱52' in pg.inner_text('#layer .sheet') and 'backup' not in pg.inner_text('#layer .sheet').lower(), 'a price note’s says “Bigas, ₱52 on …”')
+    pg.context.close()
+
+    # Mac: Settings is a sidebar section; Help lights only Settings and zooms
+    pg = t.page(b, w=1440, h=900, ua=None, data=data(), init="localStorage.setItem('suki:motion','1')")
+    pg.evaluate("go('spending')"); pg.wait_for_timeout(500)
+    pg.click('#side .sbi[data-v=settings]'); pg.wait_for_timeout(30)
+    ok(pg.evaluate("U.tab") == 'settings' and pg.evaluate(LIT) == ['settings'], 'Mac: the sidebar’s Settings opens Settings and only Settings is lit')
+    ok(pg.inner_html('#barL').strip() == '', 'Mac: Settings shows no Back button')
+    ok(pg.evaluate(APP_ANIMS) == [] and pg.locator('#under, #over').count() == 0, 'Mac: it switches like a tab, with nothing moving')
+    pg.click('#app [data-a=openHelp]'); pg.wait_for_timeout(30)
+    a = pg.evaluate(APP_ANIMS)
+    ok(pg.evaluate(LIT) == ['settings'], 'Mac: Help lights only Settings')
+    ok(any('scale(0.94)' in x for x in a), f'Mac: Help zooms in ({a})')
+    ok(pg.locator('#barL [aria-label="Back to Settings"]').count() == 1, 'Mac: Help keeps its Back to Settings')
+    pg.wait_for_timeout(900)
+    pg.click('#barL [aria-label="Back to Settings"]'); pg.wait_for_timeout(30)
+    a = pg.evaluate(APP_ANIMS)
+    ok(any('scale(1.04)' in x for x in a), f'Mac: and zooms out going back ({a})')
+    pg.wait_for_timeout(900)
+    pg.click('#side .sbi[data-v=home]'); pg.wait_for_timeout(30)
+    ok(pg.evaluate("U.tab") == 'home' and pg.evaluate(LIT) == ['home'] and pg.evaluate(APP_ANIMS) == [], 'Mac: Home from the sidebar switches back like a tab')
+    pg.context.close()
+
+    # iPad: the gear and Help zoom, like Rate history
+    pg = t.page(b, w=820, h=1180, data=data(), init="localStorage.setItem('suki:motion','1')")
+    pg.wait_for_timeout(400)
+    pg.click('#barR [aria-label=Settings]'); pg.wait_for_timeout(30)
+    a = pg.evaluate(APP_ANIMS)
+    ok(pg.evaluate("U.tab") == 'settings' and any('scale(0.94)' in x for x in a), f'iPad: the gear zooms Settings in ({a})')
+    pg.wait_for_timeout(900)
+    pg.click('#app [data-a=openHelp]'); pg.wait_for_timeout(30)
+    ok(any('scale(0.94)' in x for x in pg.evaluate(APP_ANIMS)), 'iPad: Help zooms in')
+    pg.wait_for_timeout(900)
+    pg.click('#barL [aria-label="Back to Settings"]'); pg.wait_for_timeout(30)
+    ok(any('scale(1.04)' in x for x in pg.evaluate(APP_ANIMS)), 'iPad: Help zooms out going back')
+    pg.wait_for_timeout(900)
+    pg.click('#barL [aria-label="Back to Home"]'); pg.wait_for_timeout(30)
+    ok(pg.evaluate("U.tab") == 'home' and any('scale(1.04)' in x for x in pg.evaluate(APP_ANIMS)), 'iPad: Back zooms Settings out to Home')
+    ok(pg.locator('#under, #over').count() == 0, 'iPad: no still copy (zooms only)')
     pg.context.close()

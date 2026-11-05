@@ -312,13 +312,28 @@ def run(b, t):
     ok(pg.evaluate("U.tab") == 'history', 'dragging on the chart scrubs; it never swipes back')
     pg.context.close()
 
-    # with motion on: the push slides in; Reduce Motion fades it
+    # with motion on: the push slides in over Convert (Q24); Reduce Motion fades it
     pg = page(t, b, init="localStorage.setItem('suki:motion','1')")
     pg.evaluate("go('convert')")
-    pg.evaluate("(()=>{window.KF=[];const a=Element.prototype.animate;Element.prototype.animate=function(k,o){if(this.id==='app')KF.push(JSON.stringify(k));return a.call(this,k,o)}})()")
+    pg.evaluate("(()=>{window.KF=[];const a=Element.prototype.animate;Element.prototype.animate=function(k,o){if(this.matches&&this.matches('body > .wrap'))KF.push(JSON.stringify(k));return a.call(this,k,o)}})()")
     pg.click('[data-a=openHistory]'); pg.wait_for_timeout(30)
     kf = pg.evaluate("KF")
-    ok(any('translateX(100%)' in k for k in kf), 'with motion on, the page slides in from the right')
+    ok(any('translateX(390px)' in k for k in kf) and pg.locator('#under').count() == 1, 'with motion on, the page slides in from the right, over a still copy of Convert')
+    pg.wait_for_function("!document.querySelector('#under')", timeout=6000)
+    # swipe back: Convert moves a third and lifts its 10% dim with the finger, and letting go is on the nav spring (Q24)
+    h1 = pg.locator('#app h1').bounding_box()
+    sy = h1['y'] + h1['height'] / 2
+    pg.mouse.move(20, sy); pg.mouse.down(); pg.mouse.move(215, sy, steps=6)
+    cx = pg.evaluate("new DOMMatrix(getComputedStyle(document.querySelector('#under > .wrap')).transform).m41")
+    dim = pg.evaluate("+getComputedStyle(document.querySelector('#under .pdim')).opacity")
+    k = pg.evaluate("parseFloat(document.querySelector('body > .wrap').style.transform.slice(11))") / 390
+    ok(abs(cx - (-0.33 * 390 * (1 - k))) < 2 and abs(dim - 0.1 * (1 - k)) < 0.005, f'swiping: Convert sits {cx:.0f} pt left and dimmed {dim:.3f}, following the finger')
+    pg.mouse.up(); pg.wait_for_timeout(20)
+    tm = pg.evaluate("document.querySelector('body > .wrap').getAnimations().map(a=>[a.effect.getTiming().easing,a.effect.getTiming().duration])")
+    nav = pg.evaluate("MOTION.dur('nav')")
+    ok(tm and tm[0][0].startswith('linear(0 0%, 0.0147') and tm[0][1] == nav, f'letting go runs on the nav spring ({tm[0][1] if tm else None} ms), not its own 280 ms curve')
+    pg.wait_for_function("U.tab==='convert'&&!document.querySelector('#under')", timeout=6000)
+    ok(pg.evaluate("document.querySelector('body > .wrap').style.transform") == '', 'and it lands on Convert with nothing left behind')
     pg.context.close()
     pg = page(t, b, init="localStorage.setItem('suki:motion','1');localStorage.setItem('suki:reduceMotion','on')")
     pg.evaluate("go('convert')")

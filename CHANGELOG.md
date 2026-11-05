@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.28 · 5 Nov 2026
+*Navigation: every door follows one rule (Q24)*
+
+**Pushes show the page underneath**
+- On iPhone, the gear now pushes Settings in, and Back pops it. It used to cut straight to Settings.
+- Settings, Help and Rate history all move the same way. The new page slides in over a still copy of the page you left, which moves a third to the left and dims a little. Back runs it in reverse.
+- Rate history's swipe back moves Convert the same third, with the same dim, and lets go on the same spring as the pushes.
+- On iPad, Settings and Help zoom in and out, like Rate history.
+
+**Settings on a Mac**
+- Settings is a section of its own in the sidebar. It switches like a tab, only Settings is lit (not Home as well), and there's no Back button. Help lights only Settings and zooms in from it.
+
+**Home's Show all**
+- Both Show all doors under Recent now open Spending on All, with every purchase, like Total spent. Before, they opened whatever period, category or filter Spending was last left on.
+
+**A sheet over a sheet**
+- Edit from a purchase, its prices row, Log what you paid, Log a purchase on a calendar day, a note in Price notes, and Delete from a sheet: the new sheet rises over the old one, and the dim stays put. Before, the first sheet and the dim vanished and the dim faded back.
+
+**Deleting**
+- The delete message says what goes, for example "Chickenjoy bucket, ₱459.00.", with no promise about backups. Undo brings it back.
+
+**Unchanged**
+- Reduce Motion: pushes and zooms are still a short fade. With motion off, everything happens at once. Tabs still switch instantly.
+
 ## 2.27 · 4 Nov 2026
 *Quick Till: the haul and the maker's mark (Q21)*
 

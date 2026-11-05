@@ -278,11 +278,12 @@ function scrHome() {
       : '');
   // two sides: the form, and Smart add (Q14, smart.js), switched by the pill on the heading
   const log = logCard();
+  // both Show all doors open All, with every purchase, like Total spent (Q24)
   const rec =
-    hdr('Recent', D.purchases.length ? '<button class="tbtn" data-a="tab" data-v="spending">Show all</button>' : '') +
+    hdr('Recent', D.purchases.length ? '<button class="tbtn" data-a="toSpend" data-v="all">Show all</button>' : '') +
     (recent.length
       ? '<div class="grp tiled">' + recent.map((p) => purchaseRow(p)).join('') +
-        (D.purchases.length > recent.length ? '<button class="row more" data-a="tab" data-v="spending"><span class="lbl">Show all ' + D.purchases.length + ' purchases</span>' + ICON.chev + '</button>' : '') + '</div>'
+        (D.purchases.length > recent.length ? '<button class="row more" data-a="toSpend" data-v="all"><span class="lbl">Show all ' + D.purchases.length + ' purchases</span>' + ICON.chev + '</button>' : '') + '</div>'
       : '<div class="grp"><div class="empty">No purchases yet. Log your first one ' + (split() ? 'here.' : 'above.') + '</div></div>');
   return (
     // the date and the title both open the calendar (Apple Books style)

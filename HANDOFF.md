@@ -679,7 +679,7 @@ Findings: Recon 3, 6, 10, 11, 12, 14, 21.
 - **Receipt:** Q27 · Medium → Medium · 203 steps · 173k written · 84.8M re-read · 1 full test run
 
 ## Q28 · Interface: Parts Kit Controls and Presses
-**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting
+**Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** 5 Nov 2026, 18:40, Ivan: "Suki Q28 Build" · shipped as 2.32
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q27 shipped. · Effort: Medium.
 Findings: Recon 9, 13, 15.
 
@@ -699,6 +699,15 @@ Findings: Recon 9, 13, 15.
 **Done when:** every family in the Recon's Buttons table marked Change for this item presses the kit's way; `Parts.differences()` lists only Suki's IDs; the value test's known list only shrinks; the full suite passes as in Q27.
 **Checks:** as Q27, plus strips of a glass circle and a row pressed at ×4.
 **For your iPhone:** 1. Press the gear and a sheet's ✕: they swell and light. 2. Press and hold a purchase row: it highlights. 3. Drag the knob on Spending's period control. 4. Switch tabs: the highlight slides.
+
+**Debrief (2.32, 5 Nov 2026):**
+- **How:** glass buttons (`.circ.glass`, `.btn.glass`, swap) carry the kit's `.pk-press`; their soft highlight moved from `.glass::after` into the background (`.glass.pk-press`) so the kit's light can use `::after`, and they look the same at rest. Solid capsules carry `.pk-press-solid`. Rows highlight with `--pk-row-press` by CSS `:active` (as Vocal Sessions), since the kit's `.pk-row` class would bring its own row styles. The four segmented controls are drawn by `segHTML()`, picked with `segPick()`; the tab bar and iPad's top tabs are `.pk-tabbar`; a tap's click reaches its button and a drag clicks where the knob settles (Vocal Sessions' bridge). `keepBars()` starts a redrawn knob or highlight where the old one was on screen, so it slides on. Switches keep Suki's checkbox (focus, `data-a`) with the kit's `.pk-switch` beside it. Details: MAINTAINING › Parts kit.
+- **Decided within scope:** (1) Show screen IDs is the kit's switch too (the same part as Slow motion and Show tips). (2) Chips keep Suki's ink for the picked one, not the kit's accent, so they look the same at rest (queue idea 16). (3) The soft edge is the kit's text-heavy kind and reaches 20 pt below the bar as Suki's did: with the plain kind ending at the bar, the compact title sat over almost clear edge and was hard to read over a list. (4) Tabs are equal, as the kit's highlight needs: on its side and on iPad they're as wide as the widest, so the side bar may now be up to 640 pt. (5) The calendar's head got 6 pt of room above, so its arrows aren't cut off by the sheet's scrolling content when they grow. (6) Home's two figures highlight 8 pt round them, with margins taking that room back; the rate card lays the row press colour over its own colours.
+- **Screens:** SK-001 to SK-010, SK-013, SK-014, SK-018 to SK-020, SK-023 to SK-025, SK-027 to SK-031 (the tab bar and top bar on every tab, every sheet's ✕, and the controls).
+- **Tests:** `test_parts.py` grew three parts (`presses`, `controls`, `bars`: 47 checks); three tests read the knob's `--pk-i`; `test_values.py`'s known lists shrank (presses 1 → 0, durations 18 → 12, shadows 19 → 17, in code keywords 21 → 20 and durations 11 → 10), the speed check now finds 33 durations, and the tab bar check reads the kit's. Full suite once: 1,570 of 1,570. Screenshots of every tab and two sheets, light and dark, on its side and iPad, against 2.31.1: the same apart from the tab bar's highlight, the segmented knob, the switches and the edge.
+- **For your iPhone:** 1. Press the gear and a sheet's ✕: they swell and light. 2. Press and hold a purchase row: it highlights. 3. Drag the knob on Spending's period control. 4. Switch tabs: the highlight slides. Also worth a look: the top bar's fade over a long list, now without the blur.
+- **Way back:** the version before Q28 is commit `e060624` (2.31.1); the tag `suki-2.31.1` couldn't be pushed from Claude's workspace.
+- **Left for later:** queue idea 16 (chips' picked colour). Q29's tap areas can't use `::after` on glass buttons any more (MAINTAINING › Parts kit).
 
 ## Q29 · Interface: Presses and Tap Areas
 **Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting

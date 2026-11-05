@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.32 · 5 Nov 2026
+*Interface: buttons, rows, controls and bars from the parts kit (Q28)*
+
+**Pressing things**
+- Glass buttons (the round buttons at the top, a sheet's ✕ and pencil, the calendar's arrows, swap, and the glass buttons like Export as CSV and Refresh) now swell and light up while pressed, the same as in Vocal Sessions, instead of shrinking.
+- The big buttons (Save purchase, Log this bill, the red ones) shrink a little and spring back on the kit's release spring.
+- Rows, Home's two figures and the exchange rate card light up grey while pressed. Nothing shrinks any more.
+- The Till's notes and Exact keep their own press and tilt.
+
+**Controls**
+- Spending's period, Rate history's range, Reduce motion and Note animation: the knob slides on a spring, swells while you hold it, and you can drag it along. No more squish.
+- Slow motion, Show screen IDs and Show tips are the kit's switch: a bit wider, and you can drag or flick the knob.
+- Chips no longer shrink when pressed.
+
+**Bars**
+- The tab bar's highlight slides from tab to tab, swells while pressed, and you can drag it along the bar. The tabs themselves only light up. On its side and on iPad's top tabs, every tab is the same width so the highlight fits.
+- The fade behind the top bar when you scroll is the kit's: the page colour fading out, without the blur, in a little quicker.
+
+**Tests**
+- `test_parts.py` presses every kind of button, control and bar and checks nothing pressed is cut off.
+
+Screens: SK-001, SK-002, SK-003, SK-004, SK-005, SK-006, SK-007, SK-008, SK-009, SK-010, SK-013, SK-014, SK-018, SK-019, SK-020, SK-023, SK-024, SK-025, SK-027, SK-028, SK-029, SK-030, SK-031
+
 ## 2.31.1 · 5 Nov 2026
 *Interface: the welcome card scrolls on a small iPhone (Q27 fix)*
 

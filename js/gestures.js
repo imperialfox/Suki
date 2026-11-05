@@ -32,7 +32,7 @@ document.addEventListener(
   'touchstart',
   (e) => {
     PTR.y = null;
-    if (e.touches.length !== 1 || !ptrOK() || e.target.closest('[data-own-gesture],input,textarea,select')) return;
+    if (e.touches.length !== 1 || !ptrOK() || e.target.closest('[data-own-gesture],input,textarea,select,.pk-seg,.pk-switch')) return;
     for (let n = e.target; n && n !== document.body; n = n.parentElement) if (n.scrollTop > 0) return;
     PTR.y = e.touches[0].clientY;
     PTR.x = e.touches[0].clientX;

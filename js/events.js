@@ -318,10 +318,6 @@ function updateSpending() {
 const fmtAmt = (n) => (Math.round(n * 100) / 100).toString();
 
 /* ===== Spending over time (Q03) ===== */
-// the segmented control's knob squishes as it lands (from Vocal Sessions)
-function squish(k) {
-  if (k) MOTION.animate(k, [{ scale: '1 1' }, { scale: '1.22 .86' }, { scale: '.96 1.04' }, { scale: '1 1' }], { ms: 450, easing: 'ease-out' });
-}
 // redraw the numbers, chart, breakdown and list for a new period; step says which way time moved
 function spendingChanged(step) {
   const keep = $('spendSum');
@@ -764,12 +760,7 @@ const ACT = {
     U.roff = 0;
     U.bar = null;
     U.shown = SHOW_STEP;
-    const seg = $('rangeSeg');
-    if (seg) {
-      seg.style.setProperty('--i', RANGES.findIndex((r) => r[0] === U.range));
-      seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.v === U.range));
-      squish(seg.querySelector('.knob'));
-    }
+    segPick($('rangeSeg'), U.range);
     spendingChanged(0);
   },
   rangeStep: (el) => {
@@ -930,21 +921,11 @@ const ACT = {
   openAccess: () => openSheet('access'),
   setReduce: (el) => {
     MOTION.setReduce(el.dataset.v);
-    const seg = $('reduceSeg');
-    if (seg) {
-      seg.style.setProperty('--i', ['auto', 'on', 'off'].indexOf(el.dataset.v));
-      seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.v === el.dataset.v));
-      squish(seg.querySelector('.knob'));
-    }
+    segPick($('reduceSeg'), el.dataset.v);
   },
   setNoteAnim: (el) => {
     setNoteAnim(el.dataset.v);
-    const seg = $('noteSeg');
-    if (seg) {
-      seg.style.setProperty('--i', el.dataset.v === 'slot' ? 1 : 0);
-      seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.v === noteAnim()));
-      squish(seg.querySelector('.knob'));
-    }
+    segPick($('noteSeg'), noteAnim());
   },
 };
 document.addEventListener('click', (e) => {

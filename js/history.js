@@ -423,12 +423,9 @@ function hOn(d, pts) {
 }
 
 function scrHistory() {
-  const i = Math.max(0, HIST_RANGES.findIndex((r) => r[0] === HV.range));
   return (
     '<h1>Rate history</h1>' +
-    '<div class="segc hseg" id="hSeg" role="group" aria-label="Range" style="--n:' + HIST_RANGES.length + ';--i:' + i + '"><span class="knob glass" aria-hidden="true"></span>' +
-    HIST_RANGES.map((r) => '<button data-a="hRange" data-v="' + r[0] + '" aria-label="' + r[2] + '" aria-pressed="' + (HV.range === r[0]) + '">' + r[1] + '</button>').join('') +
-    '</div>' +
+    segHTML('hSeg', 'Range', HIST_RANGES, HV.range, 'hRange', 'hseg') +
     '<div id="hbody">' + histBody() + '</div>'
   );
 }
@@ -788,7 +785,8 @@ function sbClear() {
 document.addEventListener('pointerdown', (e) => {
   SB = null;
   if (U.tab !== 'history' || U.sheet || split() || (e.pointerType === 'mouse' && e.button !== 0)) return;
-  if (!e.target.closest || !e.target.closest('main') || e.target.closest('#hchart, input, textarea')) return;
+  // the range control and anything else that owns its gesture gets the finger first (the kit's rule, Q28)
+  if (!e.target.closest || !e.target.closest('main') || e.target.closest('#hchart, input, textarea, .pk-seg, [data-own-gesture]')) return;
   SB = { id: e.pointerId, x: e.clientX, y: e.clientY, on: false, vx: 0, lx: e.clientX, lt: performance.now(), dx: 0 };
 });
 document.addEventListener('pointermove', (e) => {
@@ -905,12 +903,7 @@ Object.assign(ACT, {
     if (HV.range === v || !HIST_RANGES.some((r) => r[0] === v)) return;
     HV.range = v;
     HV.showAll = false;
-    const seg = $('hSeg');
-    if (seg) {
-      seg.style.setProperty('--i', HIST_RANGES.findIndex((r) => r[0] === v));
-      seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.v === v));
-      squish(seg.querySelector('.knob'));
-    }
+    segPick($('hSeg'), v);
     histRedraw();
     if (v === 'All') histOlder();
   },

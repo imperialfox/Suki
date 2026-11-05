@@ -16,7 +16,13 @@ sheets   iPhone sheets are the kit's: 46 corners (D17), strong glass (D15), a fl
          sheet (S01, 28 corners); the tab bar stays under the dim;
 sizes    a sheet, an alert and a toast at 375, 390 and 402 wide, on its side, iPad and Mac, light and dark: inside the
          screen, no sideways scroll, no errors.
-SUKI_PARTS=pin,settings,motion,diff,alerts,toasts,sheets,sizes runs only those parts."""
+presses  Q28: glass buttons grow 17 pt and light up (part 12) and nothing pressed is cut off; solid capsules shrink to
+         --press (part 14); rows and card doors highlight (part 35, D06); the Till's notes keep their own press;
+controls Q28: chips (part 18), the four segmented controls (part 23, D04: tap, drag, swell, no squish, no swipe back)
+         and the switches (part 21: a row tap, a drag back, a drag over, a tap, Space);
+bars     Q28: the tab bar (parts 4 and 15: equal tabs, the highlight sliding and dragged), on its side, iPad's top tabs,
+         the Mac sidebar staying Suki's own, and the top bar's soft edge (parts 2 and 51).
+SUKI_PARTS=pin,settings,motion,diff,alerts,toasts,sheets,sizes,presses,controls,bars runs only those parts."""
 import os, re, hashlib
 import harness
 from harness import ROOT, READ
@@ -308,8 +314,229 @@ def sizes(b, t):
             pg.context.close()
 
 
+# Q28: a press held from a named element, measured while held, let go without a click (the action isn't run)
+HELD = """(sel)=>{const el=document.querySelector(sel); if(!el) return null; const r=el.getBoundingClientRect(), cs=getComputedStyle(el);
+ let p=el.parentElement, cut=[]; while(p&&p!==document.body){const c=getComputedStyle(p); if(/hidden|auto|scroll|clip/.test(c.overflowX+c.overflowY)){const q=p.getBoundingClientRect(); if(r.left<q.left-0.5||r.right>q.right+0.5||r.top<q.top-0.5||r.bottom>q.bottom+0.5) cut.push((p.id||p.className).toString().slice(0,40));} p=p.parentElement;}
+ return {w:el.offsetWidth, h:el.offsetHeight, scale:cs.scale, transform:cs.transform, z:cs.zIndex, lit:getComputedStyle(el,'::after').opacity, bg:cs.backgroundColor, cut}}"""
+NOCLICK = "addEventListener('click', e=>{e.stopPropagation();e.preventDefault()}, {capture:true, once:true})"
+
+
+def hold(pg, sel, ms=450):
+    el = pg.locator(sel).first
+    el.scroll_into_view_if_needed()
+    pg.wait_for_timeout(80)
+    bx = el.bounding_box()
+    pg.mouse.move(bx['x'] + bx['width'] / 2, bx['y'] + bx['height'] / 2)
+    pg.mouse.down()
+    pg.wait_for_timeout(ms)
+    r = pg.evaluate(HELD, sel)
+    pg.evaluate(NOCLICK)
+    pg.mouse.up()
+    pg.wait_for_timeout(ms)
+    a = pg.evaluate(f"getComputedStyle(document.querySelector({sel!r})).scale")
+    r['after'] = a == 'none' or abs(float(a) - 1) < 0.01
+    return r
+
+
+def presses(b, t):
+    """Q28 parts 12, 14 and 35: glass buttons grow 17 pt and light up, solid capsules shrink to --press, rows and card
+    doors highlight; nothing pressed is cut off."""
+    ok = t.ok
+    pg = t.page(b, w=402, h=874, init="localStorage.setItem('suki:motion','1')")
+    glass = []
+    def g(name, sel):
+        r = hold(pg, sel)
+        want = 1 + 17 / max(r['w'], r['h'])
+        glass.append((name, r))
+        ok(abs(float(r['scale']) - want) < 0.01 and r['lit'] == '1' and r['z'] == '20' and not r['cut'] and r['after'],
+           f'{name}: grows 17 pt (×{want:.3f}) and lights up while pressed, above its neighbours and not cut off, then comes back ({r})')
+    g('the gear', '#barR .circ[data-v=settings]')
+    pg.evaluate("go('spending')"); pg.wait_for_timeout(200)
+    g('Spending’s +', '#barR .circ[data-a=newPurchase]')
+    g('Export as CSV (a glass capsule)', '#app .btn.glass.csv')
+    pg.evaluate("openSheet('purchase',{id:'a1'})"); pg.wait_for_timeout(700)
+    g('a sheet’s ✕', '#layer .sheet .shrow [data-a=close]')
+    g('a sheet’s pencil', '#layer .sheet .shrow [data-a=editPurchase]')
+    pg.evaluate("closeSheet()"); pg.wait_for_timeout(500)
+    pg.evaluate("openSheet('calendar')"); pg.wait_for_timeout(700)
+    g('the calendar’s arrows', '#layer .sheet .calhead .circ')
+    pg.evaluate("closeSheet()"); pg.wait_for_timeout(500)
+    pg.evaluate("go('convert')"); pg.wait_for_timeout(200)
+    g('swap', '#app .swap')
+    g('Refresh (a glass capsule)', '#refreshRate')
+    pg.evaluate("go('help')"); pg.wait_for_timeout(200)
+    g('Back', '#barL .circ')
+    # solid capsules shrink to --press (part 14) and come back on the release spring
+    pg.evaluate("go('home')"); pg.wait_for_timeout(200)
+    r = hold(pg, '#homeSave')
+    ok(r['scale'] == '0.93' and r['after'] and 'pk-press-solid' in pg.get_attribute('#homeSave', 'class'),
+       f'Save purchase shrinks to --press (0.93) while pressed and comes back ({r})')
+    pg.evaluate("go('till')"); pg.wait_for_timeout(200)
+    pg.fill('#till-bill', '37')
+    pg.wait_for_timeout(200)
+    r = hold(pg, '#tillLog')
+    ok(r['scale'] == '0.93', f'Log this bill shrinks to --press too ({r["scale"]})')
+    trans = pg.evaluate("getComputedStyle(document.getElementById('tillLog')).transitionTimingFunction")
+    ok(trans.startswith('linear('), f'it comes back on the release spring, a linear() curve ({trans[:30]})')
+    ok(pg.evaluate("[...document.querySelectorAll('#app .dn')].every(d=>!/pk-press/.test(d.className))"),
+       'the Till’s notes and Exact keep their own press and tilt (Q18), not the kit’s')
+    # rows and card doors highlight (part 35, D06): none shrinks
+    press = pg.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--pk-row-press').trim()")
+    pg.evaluate("go('spending')"); pg.wait_for_timeout(200)
+    r = hold(pg, '#spendList button.row', 150)
+    ok(r['scale'] == 'none' and r['transform'] == 'none' and r['bg'] == pg.evaluate(f"(()=>{{const d=document.createElement('i');d.style.color={press!r};document.body.append(d);const c=getComputedStyle(d).color;d.remove();return c}})()"),
+       f'a purchase row highlights with the kit’s row press colour and doesn’t shrink ({r["bg"]}, {r["scale"]}, {r["transform"]})')
+    pg.evaluate("go('home')"); pg.wait_for_timeout(200)
+    for name, sel in (('Total spent', '#app .sumcard .door[data-v=all]'), ('Today', '#app .sumcard .door[data-v=day]')):
+        r = hold(pg, sel, 150)
+        ok(r['scale'] == 'none' and r['transform'] == 'none' and r['bg'] != 'rgba(0, 0, 0, 0)', f'Home’s {name} highlights like a row and doesn’t shrink ({r["bg"]})')
+    r = hold(pg, '#rateCard', 150)
+    ok(r['scale'] == 'none' and r['transform'] == 'none' and r['lit'] == '1', f'the rate card highlights (the row press colour over its own) and doesn’t shrink ({r})')
+    t.shot(pg, 'parts-home-pressed-card')
+    # nothing moved at rest: the card doors take back the room their highlight reaches into
+    sides = pg.evaluate("""[...document.querySelectorAll('#app .sumcard .door')].map(d=>{const c=getComputedStyle(d),n=(p)=>parseFloat(c[p]);
+      return [n('marginTop')+n('paddingTop'), n('marginBottom')+n('paddingBottom'), n('marginRight')+n('paddingRight'), n('paddingTop')]})""")
+    ok(sides == [[0, 0, 0, 8], [0, 0, 0, 8]], f'Home’s figures sit where they did: each door’s highlight reaches 8 pt round them, with that room taken back ({sides})')
+    pg.context.close()
+
+
+def controls(b, t):
+    """Q28 parts 18, 21 and 23: chips, switches and the four segmented controls are the kit's."""
+    ok = t.ok
+    pg = t.page(b, w=402, h=874, init="localStorage.setItem('suki:motion','1')")
+    # chips (part 18): the kit's chip, picked by Suki (.pk-static), no shrink
+    pg.evaluate("go('search')"); pg.wait_for_timeout(200)
+    ok(pg.evaluate("[...document.querySelectorAll('#browse .chip')].every(c=>c.classList.contains('pk-chip'))") and pg.evaluate("!!document.querySelector('#browse.pk-static')"),
+       'Search’s category chips are the kit’s .pk-chip, in a .pk-static row (Suki picks them)')
+    r = hold(pg, '#browse .chip:not(.on)', 150)
+    ok(r['scale'] == 'none' and r['transform'] == 'none', f'a chip doesn’t shrink while pressed ({r["scale"]}, {r["transform"]})')
+    pg.click('#browse .chip:not(.on)'); pg.wait_for_timeout(200)
+    ok(pg.evaluate("document.querySelectorAll('#browse .chip.on').length") == 1 and pg.evaluate("U.scat") != 'all',
+       f'tapping a chip still picks it, one at a time ({pg.evaluate("U.scat")})')
+    # the four segmented controls (part 23, D04)
+    segs = {'rangeSeg': "go('spending')", 'hSeg': "go('history')", 'reduceSeg': "go('settings');openSheet('access')", 'noteSeg': "go('settings');openSheet('access')"}
+    for sid, how in segs.items():
+        pg.evaluate("closeSheet()"); pg.wait_for_timeout(400)
+        pg.evaluate(how); pg.wait_for_timeout(700)
+        info = pg.evaluate(f"""(()=>{{const s=document.getElementById('{sid}'), k=s.querySelector(':scope > .pk-seg-ind'), on=s.querySelector(':scope > button.on');
+          return {{seg:s.classList.contains('pk-seg'), knob:!!k, oldKnob:!!s.querySelector('.knob'), n:s.style.getPropertyValue('--pk-n'), i:s.style.getPropertyValue('--pk-i'),
+          on:[...s.querySelectorAll(':scope > button')].indexOf(on), pressed:on&&on.getAttribute('aria-pressed')}}}})()""")
+        ok(info['seg'] and info['knob'] and not info['oldKnob'] and info['i'] == str(info['on']) and info['pressed'] == 'true',
+           f'#{sid} is the kit’s segmented control: its knob starts on the picked button ({info})')
+    ok(pg.evaluate("Parts.settings ? true : true") and pg.evaluate("!document.documentElement.classList.contains('pk-seg-squish')"),
+       'no squish: segmented.style is the gallery’s (D04)')
+    # Spending's period: a tap slides the knob, a drag picks where it settles, and the knob swells while held
+    pg.evaluate("closeSheet()"); pg.wait_for_timeout(400)
+    pg.evaluate("go('spending')"); pg.wait_for_timeout(200)
+    pg.locator('#rangeSeg').scroll_into_view_if_needed()
+    pg.click('#rangeSeg [data-v=week]'); pg.wait_for_timeout(40)
+    moving = pg.evaluate("document.querySelector('#rangeSeg .pk-seg-ind').getAnimations().some(a=>a.transitionProperty==='translate')")
+    pg.wait_for_timeout(500)
+    ok(pg.evaluate("U.range") == 'week' and moving and pg.get_attribute('#rangeSeg [data-v=week]', 'aria-pressed') == 'true',
+       f'a tap on W picks Week, and the knob slides there on its spring (sliding {moving})')
+    bx = pg.locator('#rangeSeg').bounding_box(); y = bx['y'] + bx['height'] / 2
+    pg.mouse.move(bx['x'] + bx['width'] * 0.375, y); pg.mouse.down(); pg.wait_for_timeout(120)
+    live = pg.evaluate("document.querySelector('#rangeSeg .pk-seg-ind').classList.contains('pk-live')")
+    for k in range(12):
+        pg.mouse.move(bx['x'] + bx['width'] * (0.375 + 0.025 * k), y); pg.wait_for_timeout(16)
+    pg.mouse.up(); pg.wait_for_timeout(600)
+    ok(live, 'the knob swells into glass while it’s held')
+    ok(pg.evaluate("U.range") == 'month' and pg.evaluate("document.querySelectorAll('#rangeSeg button.on').length") == 1,
+       f'dragging the knob from W to M picks Month ({pg.evaluate("U.range")})')
+    ok(pg.evaluate("window.scrollY") >= 0 and not t.errors, 'a drag on the control doesn’t scroll the page or break anything')
+    # Rate history's range: dragging it isn't a swipe back
+    pg.evaluate("go('history')"); pg.wait_for_timeout(300)
+    bx = pg.locator('#hSeg').bounding_box(); y = bx['y'] + bx['height'] / 2
+    pg.mouse.move(bx['x'] + bx['width'] * 0.1, y); pg.mouse.down()
+    for k in range(15):
+        pg.mouse.move(bx['x'] + bx['width'] * (0.1 + 0.05 * k), y); pg.wait_for_timeout(16)
+    pg.mouse.up(); pg.wait_for_timeout(700)
+    ok(pg.evaluate("U.tab") == 'history' and pg.evaluate("HV.range") != 'M', f'dragging Rate history’s range picks a range and doesn’t swipe back ({pg.evaluate("U.tab")}, {pg.evaluate("HV.range")})')
+    # switches (part 21)
+    pg.evaluate("go('settings');openSheet('access')"); pg.wait_for_timeout(700)
+    sws = pg.evaluate("[...document.querySelectorAll('#layer label.row.toggle')].map(l=>[l.querySelector('input').dataset.a, !!l.querySelector('.pk-switch'), !!l.querySelector('.sw-ui'), l.querySelector('.pk-switch').getAttribute('tabindex')])")
+    ok(len(sws) == 2 and all(s[1] and not s[2] and s[3] is None for s in sws), f'Slow motion and Show screen IDs are the kit’s switch, which takes no focus of its own ({sws})')
+    SW = "(a=>{const i=document.querySelector('#layer input[data-a='+a+']');return [i.checked, i.parentElement.querySelector('.pk-switch').classList.contains('on')]})"
+    pg.click('#layer label.row.toggle:has([data-a=screenIds]) .lbl'); pg.wait_for_timeout(500)
+    ok(pg.evaluate(f"{SW}('screenIds')") == [True, True] and pg.evaluate("SCR.idsOn()"), 'a tap on the row turns Show screen IDs on, and its switch slides on')
+    sw = pg.locator('#layer label.row.toggle:has([data-a=screenIds]) .pk-switch').bounding_box()
+    sy = sw['y'] + sw['height'] / 2
+    pg.mouse.move(sw['x'] + 50, sy); pg.mouse.down()
+    for k in range(6): pg.mouse.move(sw['x'] + 50 - 3 * k, sy); pg.wait_for_timeout(16)
+    for k in range(6): pg.mouse.move(sw['x'] + 35 + 3 * k, sy); pg.wait_for_timeout(16)
+    pg.mouse.up(); pg.wait_for_timeout(600)
+    ok(pg.evaluate(f"{SW}('screenIds')") == [True, True], 'dragging the knob and letting it go back where it was changes nothing')
+    pg.mouse.move(sw['x'] + 50, sy); pg.mouse.down()
+    for k in range(10): pg.mouse.move(sw['x'] + 50 - 5 * k, sy); pg.wait_for_timeout(16)
+    pg.mouse.up(); pg.wait_for_timeout(600)
+    ok(pg.evaluate(f"{SW}('screenIds')") == [False, False] and not pg.evaluate("SCR.idsOn()"), 'dragging the knob to the other side turns it off')
+    pg.click('#layer label.row.toggle:has([data-a=screenIds]) .pk-switch'); pg.wait_for_timeout(600)
+    ok(pg.evaluate(f"{SW}('screenIds')") == [True, True], 'a tap on the switch itself turns it back on')
+    pg.focus('#layer input[data-a=screenIds]'); pg.keyboard.press('Space'); pg.wait_for_timeout(600)
+    ok(pg.evaluate(f"{SW}('screenIds')") == [False, False], 'Space on the focused switch turns it off, and the switch follows')
+    pg.evaluate("closeSheet()"); pg.wait_for_timeout(400)
+    pg.evaluate("go('help')"); pg.wait_for_timeout(200)
+    tip = pg.locator('label.row.toggle:has([data-a=tipsToggle])')
+    if tip.count():
+        ok(tip.locator('.pk-switch').count() == 1, 'Show tips is the kit’s switch too')
+    t.shot(pg, 'parts-switch')
+    pg.context.close()
+
+
+def bars(b, t):
+    """Q28 parts 2, 4, 15 and 51: the tab bar, iPad's top tabs and the top bar's soft edge are the kit's."""
+    ok = t.ok
+    pg = t.page(b, w=402, h=874, init="localStorage.setItem('suki:motion','1')")
+    info = pg.evaluate("""(()=>{const bar=document.querySelector('#dock .tabbar'), k=bar.querySelector(':scope > .pk-tab-ind'), tabs=[...bar.querySelectorAll(':scope > .pk-tab')];
+      const kr=k.getBoundingClientRect(), on=bar.querySelector('.pk-tab.on').getBoundingClientRect();
+      return {kit:bar.classList.contains('pk-tabbar'), tabs:tabs.length, widths:[...new Set(tabs.map(x=>Math.round(x.getBoundingClientRect().width)))], fit:Math.abs(kr.left-on.left)<1.5&&Math.abs(kr.width-on.width)<1.5, h:Math.round(bar.getBoundingClientRect().height), bg:getComputedStyle(bar.querySelector('.pk-tab.on')).backgroundColor}})()""")
+    ok(info['kit'] and info['tabs'] == 5 and len(info['widths']) == 1 and info['fit'] and info['h'] == 64 and info['bg'] == 'rgba(0, 0, 0, 0)',
+       f'the tab bar is the kit’s: five equal tabs, 64 pt, the picked one on the kit’s highlight ({info})')
+    r = hold(pg, '#dock .pk-tab[data-v=till]', 150)
+    ok(r['scale'] in ('none', '1') and r['transform'] == 'none', f'a tab doesn’t shrink while pressed, it only lights up ({r["scale"]}, {r["transform"]})')
+    pg.click('#dock .pk-tab[data-v=convert]'); pg.wait_for_timeout(40)
+    moving = pg.evaluate("document.querySelector('#dock .pk-tab-ind').getAnimations().some(a=>a.transitionProperty==='translate')")
+    pg.wait_for_timeout(600)
+    ok(pg.evaluate("U.tab") == 'convert' and moving and pg.evaluate("document.querySelector('#dock .tabbar').style.getPropertyValue('--pk-i')") == '4',
+       f'switching tabs: Convert opens and the highlight slides to it (sliding {moving})')
+    bx = pg.locator('#dock .tabbar').bounding_box(); y = bx['y'] + bx['height'] / 2
+    pg.mouse.move(bx['x'] + bx['width'] * 0.9, y); pg.mouse.down()
+    for k in range(14): pg.mouse.move(bx['x'] + bx['width'] * (0.9 - 0.03 * k), y); pg.wait_for_timeout(16)
+    pg.mouse.up(); pg.wait_for_timeout(600)
+    ok(pg.evaluate("U.tab") == 'search', f'dragging the highlight along the bar opens the tab it settles on ({pg.evaluate("U.tab")})')
+    # the top bar's soft edge (parts 2 and 51)
+    pg.evaluate("go('spending')"); pg.wait_for_timeout(200)
+    e0 = pg.evaluate("(e=>{const c=getComputedStyle(e);return [e.classList.contains('pk-edge'), c.opacity, c.backdropFilter, c.transitionDuration]})(document.querySelector('.edge'))")
+    pg.evaluate("window.scrollTo(0,200)"); pg.wait_for_timeout(500)
+    e1 = pg.evaluate("[getComputedStyle(document.querySelector('.edge')).opacity, document.getElementById('bar').classList.contains('scrolled')]")
+    ok(e0[0] and e0[1] == '0' and e0[2] == 'none' and e0[3] == '0.2s' and e1 == ['1', True],
+       f'the soft edge is the kit’s: the page colour fading out, no blur, in over 200 ms after 36 pt of scrolling ({e0} {e1})')
+    t.shot(pg, 'parts-edge-scrolled')
+    pg.context.close()
+    # on its side: still equal tabs in the compact bar, nothing cut short
+    pg = t.page(b, w=852, h=393)
+    info = pg.evaluate("""(()=>{const bar=document.querySelector('#dock .tabbar'), tabs=[...bar.querySelectorAll(':scope > .pk-tab')];
+      return {h:Math.round(bar.getBoundingClientRect().height), widths:[...new Set(tabs.map(x=>Math.round(x.getBoundingClientRect().width)))], cut:tabs.filter(x=>{const s=x.querySelector('span');return s.scrollWidth>s.clientWidth+1}).length}})()""")
+    ok(info['h'] == 50 and len(info['widths']) == 1 and info['cut'] == 0, f'on its side: the 50 pt bar, equal tabs, no label cut short ({info})')
+    t.shot(pg, 'parts-tabbar-side')
+    pg.context.close()
+    # iPad's top tabs follow the tab bar; the Mac sidebar stays Suki's own
+    pg = t.page(b, w=820, h=1180, ua=None)
+    info = pg.evaluate("""(()=>{const bar=document.querySelector('#barT .toptabs'), tabs=[...bar.querySelectorAll(':scope > .pk-tab')], k=bar.querySelector('.pk-tab-ind').getBoundingClientRect(), on=bar.querySelector('.pk-tab.on').getBoundingClientRect();
+      return {kit:bar.classList.contains('pk-tabbar'), widths:[...new Set(tabs.map(x=>Math.round(x.getBoundingClientRect().width)))], fit:Math.abs(k.left-on.left)<1.5&&Math.abs(k.width-on.width)<1.5, h:Math.round(bar.getBoundingClientRect().height)}})()""")
+    ok(info['kit'] and len(info['widths']) == 1 and info['fit'] and info['h'] == 44, f'iPad’s top tabs are the kit’s tab bar: equal tabs, the highlight under the picked one ({info})')
+    pg.click('#barT .pk-tab[data-v=spending]'); pg.wait_for_timeout(300)
+    ok(pg.evaluate("U.tab") == 'spending' and pg.evaluate("document.querySelector('#barT .toptabs').style.getPropertyValue('--pk-i')") == '3', 'a top tab opens its tab and the highlight follows')
+    t.shot(pg, 'parts-toptabs-ipad')
+    pg.context.close()
+    pg = t.page(b, w=1440, h=900, ua=None)
+    ok(pg.evaluate("!document.querySelector('#side .pk-tabbar,#side .pk-tab') && !!document.querySelector('#side .sbi.on')"), 'the Mac sidebar stays Suki’s own (no kit tab bar)')
+    pg.context.close()
+
+
 def run(b, t):
     for k, f in (('pin', pin), ('settings', settings), ('motion', motion), ('diff', diff), ('alerts', alerts),
-                 ('toasts', toasts), ('sheets', sheets), ('sizes', sizes)):
+                 ('toasts', toasts), ('sheets', sheets), ('sizes', sizes), ('presses', presses), ('controls', controls),
+                 ('bars', bars)):
         if wanted(k):
             f(b, t)

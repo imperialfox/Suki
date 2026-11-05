@@ -83,7 +83,7 @@ def run(b, t):
     t.shot(pg, 'year-390-light', full_page=True)
     # the pill: the knob slides in place, then the page below changes
     pg.click('#hSeg [data-v=M]'); pg.wait_for_timeout(60)
-    ok(pg.evaluate("getComputedStyle(document.getElementById('hSeg')).getPropertyValue('--i').trim()") == '0' and 'a month ago' in pg.inner_text('#hHead'),
+    ok(pg.evaluate("getComputedStyle(document.getElementById('hSeg')).getPropertyValue('--pk-i').trim()") == '0' and 'a month ago' in pg.inner_text('#hHead'),
        'M: the knob moves and the figures follow')
     pg.click('#hSeg [data-v="5Y"]'); pg.wait_for_timeout(60)
     ok('5 years ago' in pg.inner_text('#hHead') and 'past 5 years' in pg.inner_text('#hbody').lower(), '5Y works from the snapshot')

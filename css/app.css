@@ -19,7 +19,7 @@
   --r-actions: 28px; /* action sheet groups */
   /* press */
   --press: 0.93; /* solid buttons, chips, glass buttons and the Till's notes, while pressed */
-  --press-row: 0.98; /* rows and the rate card, while pressed (until D06's highlight, Q28) */
+  --press-row: 0.98; /* the kit's row shrink; unused in Suki since Q28 (rows and card doors highlight, D06) */
   /* easings (fixed curves; code uses the same three as MOTION.EASE) */
   --ease-pop: cubic-bezier(0.3, 1.7, 0.45, 1); /* the solid press settle */
   --ease-knob: cubic-bezier(0.3, 1.35, 0.5, 1); /* the segmented and switch knobs' settle */
@@ -352,6 +352,18 @@ body.sheet-open .wrap {
   background: var(--tint);
   color: var(--white);
 }
+/* Q28 (part 12) a glass button grows 17 pt and lights up while pressed (the kit's .pk-press, on its press and release
+   springs). The light is the kit's ::after, so on these buttons the soft highlight above moves into the background
+   instead: the same picture at rest */
+.glass.pk-press {
+  background: radial-gradient(120% 70% at 25% 0%, var(--spec), transparent 55%), var(--glass);
+}
+.glass.tinted.pk-press {
+  background: radial-gradient(120% 70% at 25% 0%, var(--spec), transparent 55%), var(--tint);
+}
+.glass.pk-press::after {
+  background: var(--lift-max);
+}
 .circ,
 .pill,
 .tabbar,
@@ -367,25 +379,25 @@ body.sheet-open .wrap {
   .glass.tinted {
     background: var(--accent);
   }
+  .glass.pk-press {
+    background: radial-gradient(120% 70% at 25% 0%, var(--spec), transparent 55%), var(--surface);
+  }
+  .glass.tinted.pk-press {
+    background: radial-gradient(120% 70% at 25% 0%, var(--spec), transparent 55%), var(--accent);
+  }
 }
 
 /* ===== Top bar (iOS 27): no card of its own. At the top only the circle buttons and the large title show; once the page
-   scrolls, a soft edge appears: a full-width blur from the very top of the screen, solid fading to clear, with the compact title ===== */
+   scrolls 36 pt, the soft edge and the compact title fade in.
+   Q28 (parts 2 and 51) the edge is the kit's .pk-edge, its text-heavy kind (Suki's pages are lists of words and
+   figures): the page colour fading out from the top of the screen, no blur, in over 200 ms. It reaches 20 pt below the
+   bar, as Suki's did, so the compact title reads over a list. It sits over the whole width, fixed; the bar's buttons
+   stay at Suki's own top area (D19) ===== */
 .edge {
   position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
+  inset: 0 0 auto;
   height: calc(var(--sat) + 76px);
   z-index: 15;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity calc(var(--dur-appear) * var(--pk-speed));
-  background: color-mix(in srgb, var(--bg) 62%, transparent);
-  -webkit-backdrop-filter: blur(14px) saturate(180%);
-  backdrop-filter: blur(14px) saturate(180%);
-  -webkit-mask: linear-gradient(black 62%, transparent);
-  mask: linear-gradient(black 62%, transparent);
 }
 body.scrolled .edge {
   opacity: 1;
@@ -409,7 +421,7 @@ body.scrolled .edge {
   font-size: 17px;
   font-weight: 600;
   opacity: 0;
-  transition: opacity calc(var(--dur-fade) * var(--pk-speed));
+  transition: opacity calc(var(--dur-fade) * var(--pk-speed)) var(--ease-out);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -853,12 +865,37 @@ h1 {
 .sumcard .door {
   justify-content: center;
   -webkit-tap-highlight-color: transparent;
-  transition: transform calc(0.5s * var(--pk-speed)) var(--ease-pop), opacity calc(var(--dur-fade) * var(--pk-speed));
+  /* Q28 (part 35, D06) a card door highlights while pressed, like a row, no shrink: the highlight reaches 8 pt round
+     the figure, with the same room taken back so nothing moves at rest */
+  margin: -8px;
+  padding: 8px;
+  border-radius: var(--r-medium);
+  transition: background-color calc(var(--dur-fade) * var(--pk-speed)) var(--ease-out);
+}
+.sumcard .stat.r.door {
+  position: relative;
+  margin-left: 0; /* the line between the two figures stays where it was, drawn at its old height */
+  border-left: 0;
+  padding-left: 16.5px;
+}
+.sumcard .stat.r.door::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  border-left: 0.5px solid var(--sep);
+}
+.sumcard.long .stat.r.door {
+  margin-left: -8px;
+  padding-left: 8px;
+}
+.sumcard.long .stat.r.door::before {
+  content: none;
 }
 .sumcard .door:active {
-  transform: scale(0.96);
-  opacity: 0.7;
-  transition-duration: calc(var(--dur-quick) * var(--pk-speed));
+  background-color: var(--pk-row-press);
+  transition: none;
 }
 .sumcard .cv {
   color: var(--fg3);
@@ -894,11 +931,22 @@ h1 {
   box-shadow:
     inset 0 0 0 0.5px var(--suki-rim),
     0 8px 24px var(--suki-shadow);
-  transition: transform calc(0.5s * var(--pk-speed)) var(--ease-pop);
 }
-.ratecard:active {
-  transform: scale(var(--press-row));
-  transition-duration: calc(var(--dur-quick) * var(--pk-speed));
+/* Q28 (part 35, D06) the rate card highlights while pressed, like a row: the row press colour laid over its own
+   colours (darker in light mode, lighter in dark), no shrink */
+.ratecard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--pk-row-press);
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: opacity calc(var(--dur-fade) * var(--pk-speed)) var(--ease-out);
+}
+.ratecard:active::after {
+  opacity: 1;
+  transition: none;
 }
 .ratecard .rc {
   flex: 1;
@@ -1425,31 +1473,19 @@ html.motion-reduced .locbtn.busy svg.i {
 .actions .btn {
   flex: 1;
 }
-.cta,
-.circ,
-.btn,
-.chip,
-.tabbar button,
-.toptabs button,
-.sbi {
-  transition: transform calc(0.5s * var(--pk-speed)) var(--ease-pop);
-}
-.cta:active:not(:disabled),
-.circ:active,
-.btn:active:not(:disabled),
-.chip:active,
-.tabbar button:active,
-.toptabs button:active {
-  transform: scale(var(--press));
-  transition-duration: calc(var(--dur-quick) * var(--pk-speed));
-}
+/* Q28 presses are the parts kit's: glass buttons grow and light up (.pk-press, part 12), solid capsules shrink to
+   --press and come back on the release spring (.pk-press-solid, part 14), tabs only light up (parts 4 and 15), and rows
+   highlight with the kit's row press colour, none shrinks (part 35, D06). The highlight comes at once and fades out
+   over 200 ms, as the kit's rows do */
 .row {
-  transition: transform calc(0.5s * var(--pk-speed)) var(--ease-pop);
+  transition: background-color calc(var(--dur-fade) * var(--pk-speed)) var(--ease-out);
 }
 button.row:active,
-a.row:active {
-  transform: scale(var(--press-row));
-  transition-duration: calc(var(--dur-quick) * var(--pk-speed));
+a.row:active,
+button.row:hover:active,
+a.row:hover:active {
+  background-color: var(--pk-row-press);
+  transition: none;
 }
 
 /* ===== Chips ===== */
@@ -2499,10 +2535,13 @@ main {
   margin: 0 auto;
   pointer-events: auto;
 }
+/* Q28 (parts 4 and 15, D01) the kit's .pk-tabbar: the picked tab sits on its highlight (.pk-tab-ind), which slides
+   between tabs on its spring and swells into clear glass while pressed, and can be dragged; the tabs themselves only
+   light up. The tabs are equal, as the highlight needs: five of 76 pt, narrower together on a small screen */
 .tabbar {
   display: flex;
-  gap: 2px;
-  padding: 5px;
+  gap: 0;
+  padding: 4px;
   border-radius: 999px;
   width: max-content;
   max-width: 100%;
@@ -2513,7 +2552,7 @@ main {
   width: 76px;
   min-width: 0;
   max-width: 76px;
-  height: 54px;
+  height: 56px;
   border-radius: 999px;
   display: flex;
   flex-direction: column;
@@ -2526,14 +2565,9 @@ main {
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
-  transition:
-    transform calc(0.5s * var(--pk-speed)) var(--ease-pop),
-    opacity calc(var(--dur-appear) * var(--pk-speed)),
-    background calc(var(--dur-fade) * var(--pk-speed));
 }
 .tabbar button.on {
   color: var(--accent);
-  background: var(--fill);
 }
 /* ===== Sheets =====
    Q27: on iPhone a sheet is the parts kit's (part 41) with Suki's head and content inside (.sk-sheet, HOST in ui.js);
@@ -2814,12 +2848,22 @@ body.land .wrap {
 body.land main {
   padding-bottom: calc(70px + var(--dockb)); /* the compact bar (50px) and the same 20px gap */
 }
+/* still equal tabs on its side: each as wide as the widest, so the highlight fits every one */
+body.land .dock .in {
+  max-width: 640px;
+}
+body.land .tabbar {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  height: 50px;
+}
 body.land .tabbar button {
   flex-direction: row;
   width: auto;
   max-width: none;
   flex: none;
-  height: 40px;
+  height: 42px;
   padding: 0 14px;
   font-size: 13px;
   gap: 6px;
@@ -2865,22 +2909,25 @@ body.reg .bar.tabsmode::after {
   display: flex;
   justify-content: center;
 }
+/* iPad's top tabs follow the tab bar (Q28): the kit's highlight under equal tabs, as wide as the widest */
 .toptabs {
-  display: inline-flex;
-  gap: 2px;
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 0;
+  height: 44px;
   padding: 4px;
   border-radius: 999px;
 }
 .toptabs button {
   height: 36px;
-  padding: 0 16px;
+  padding: 0 12px;
   border-radius: 999px;
   font-size: 15px;
   font-weight: 500;
   color: var(--fg);
 }
 .toptabs button.on {
-  background: var(--fill);
   color: var(--accent);
   font-weight: 600;
 }
@@ -3042,34 +3089,12 @@ body.wide .side-nav {
   width: 1px;
   height: 1px;
 }
-.sw-ui {
-  flex: none;
-  position: relative;
-  width: 51px;
-  height: 31px;
-  border-radius: 999px;
-  background: var(--fill2);
-  transition: background calc(var(--dur-appear) * var(--pk-speed));
+/* Q28 (part 21) the kit's .pk-switch beside the row's checkbox: 64 × 28, its knob swells while pressed and travels over
+   380 ms; drag it, or flick faster than 200 px/s. The checkbox keeps the focus, so its ring shows on the kit's switch */
+.row.toggle .pk-switch {
+  pointer-events: auto;
 }
-.sw-ui::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 27px;
-  height: 27px;
-  border-radius: 50%;
-  background: var(--white);
-  box-shadow: 0 3px 8px var(--glass-shadow);
-  transition: transform calc(0.3s * var(--pk-speed)) var(--ease-knob);
-}
-.row.toggle input:checked + .sw-ui {
-  background: var(--good);
-}
-.row.toggle input:checked + .sw-ui::after {
-  transform: translateX(20px);
-}
-.row.toggle input:focus-visible + .sw-ui {
+.row.toggle input:focus-visible + .pk-switch {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
@@ -3255,26 +3280,17 @@ html.motion-reduced #tip {
 .seg-drink,
 .seg-essentials { background: var(--cat-other); }
 /* the segmented control: a fill track with a glass knob that slides (from Vocal Sessions) */
+/* Q28 (part 23, D04) the kit's .pk-seg: its knob (.pk-seg-ind) slides on a 350 ms spring, swells to glass while
+   pressed and can be dragged. Suki keeps its track's size and its bold labels */
 .segc {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(var(--n), 1fr);
+  grid-template-columns: repeat(var(--pk-n), 1fr);
   height: 36px;
   padding: 2px;
   margin: 6px 0 12px;
   border-radius: 999px;
   background: var(--fill);
-}
-.segc .knob {
-  position: absolute;
-  top: 2px;
-  bottom: 2px;
-  left: 2px;
-  width: calc((100% - 4px) / var(--n));
-  border-radius: 999px;
-  transform: translateX(calc(var(--i) * 100%));
-  transition: transform calc(var(--dur-squish) * var(--pk-speed)) var(--ease-knob);
-  box-shadow: 0 3px 8px var(--glass-shadow);
 }
 .segc button {
   position: relative;
@@ -3284,10 +3300,6 @@ html.motion-reduced #tip {
   font-weight: 600;
   color: var(--fg);
   min-height: 32px;
-}
-html.motion-off .segc .knob,
-html.motion-reduced .segc .knob {
-  transition: none;
 }
 .stats {
   padding: 16px 16px 12px 18px;
@@ -3516,7 +3528,7 @@ h1 .chev {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 0 4px 10px;
+  margin: 6px 4px 10px; /* Q28 room above for the arrows to grow into when pressed: the sheet's content clips at its top */
 }
 .calhead > span:last-child {
   display: flex;

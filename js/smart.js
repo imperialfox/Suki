@@ -175,7 +175,7 @@ function smartOut() {
   const list = smartRead();
   if (!list.length) {
     // just saved: the button stays where he tapped, saying so (Q11's Saved)
-    if (Date.now() < savedUntil) return '<button type="button" class="cta ink saved" id="homeSave" data-side="smart"><span class="tk">' + ICON.tick + '</span>Saved</button>' + learnedLink();
+    if (Date.now() < savedUntil) return '<button type="button" class="cta pk-press-solid ink saved" id="homeSave" data-side="smart"><span class="tk">' + ICON.tick + '</span>Saved</button>' + learnedLink();
     return '<p class="small sh">Suki picks out the amount, item, category, day, place and how you paid, and shows you before anything is saved.</p>' + learnedLink();
   }
   // Q15: lines already saved (from the Siri inbox, pasted again) are shown greyed and left out of Save
@@ -193,7 +193,7 @@ function smartOut() {
     (many ? previewMany(list) : previewOne(list[0])) +
     (fresh.length
       ? '<p class="err" id="smartErr" role="alert"></p>' +
-        '<button type="button" class="cta ink' + (ready ? '' : ' dim') + '" id="smartSave" data-a="smartSave">' + (fresh.length > 1 ? 'Save ' + fresh.length + ' purchases' : 'Save purchase') + '</button>'
+        '<button type="button" class="cta pk-press-solid ink' + (ready ? '' : ' dim') + '" id="smartSave" data-a="smartSave">' + (fresh.length > 1 ? 'Save ' + fresh.length + ' purchases' : 'Save purchase') + '</button>'
       : '<p class="small sh" id="smartNone">' + (list.length > 1 ? 'These are' : 'This is') + ' already in your purchases, so there’s nothing new to save. <button class="tlink" data-a="smartClear">Clear the box</button></p>') +
     (many ? '' : '<button class="textlink" data-a="smartToForm">Edit in the form</button>') +
     '<p class="said">Your words are kept with each purchase.</p>' + learnedLink()
@@ -211,7 +211,7 @@ function previewOne(p) {
   if (!p.item) h += '<label class="row kv ask"><span class="k">What was it?</span><input class="kvin wide" id="smartItem" placeholder="e.g. Snacks" autocomplete="off"></label>';
   h += '<label class="row kv' + (p.catFrom === 'guess' ? ' guess' : '') + '"><span class="k">Category</span><select class="kvsel" data-smart-cat="0" aria-label="Category">' + opts(CATS, p.category) + '</select></label>';
   if (p.catFrom === 'tie')
-    h += '<div class="either"><p>' + esc(p.tie[0]) + ' or ' + esc(p.tie[1]) + '?</p>' + p.tie.map((c) => '<button class="chip' + (p.picked === c ? ' on' : '') + '" data-a="smartPick" data-v="0" data-k="' + esc(c) + '">' + esc(c) + '</button>').join('') + '</div>';
+    h += '<div class="either pk-static"><p>' + esc(p.tie[0]) + ' or ' + esc(p.tie[1]) + '?</p>' + p.tie.map((c) => '<button class="chip pk-chip' + (p.picked === c ? ' on' : '') + '" data-a="smartPick" data-v="0" data-k="' + esc(c) + '">' + esc(c) + '</button>').join('') + '</div>';
   h += kv('When', esc(relDay(p.date)) + (p.future ? ' <span class="badge warn">In the future</span>' : ''), p.future ? 'warn' : '');
   if (p.location) h += kv('Location' + (p.locAuto ? '<small>' + (p.date === localISO() ? 'from earlier today' : 'from that day') + '</small>' : ''), esc(p.location));
   if (p.venue) h += kv('Where bought', esc(p.venue));

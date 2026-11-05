@@ -99,7 +99,7 @@ def run(b, t):
     ok(len(amts) >= 4 and amts == sorted(amts, reverse=True), f'the breakdown lists each category, biggest first ({amts})')
     pg.click('#rangeSeg [data-v=week]'); pg.wait_for_timeout(100)
     ok(pg.locator('#chart .col').count() == 7 and 'This week' in pg.inner_text('#spendSum'), 'W shows this week, a bar a day')
-    ok(pg.evaluate("getComputedStyle(document.getElementById('rangeSeg')).getPropertyValue('--i').trim()") == '1', 'the knob moves to W')
+    ok(pg.evaluate("getComputedStyle(document.getElementById('rangeSeg')).getPropertyValue('--pk-i').trim()") == '1', 'the knob moves to W')
     wk = pg.locator('#spendList [data-a=openPurchase]').count()
     pg.click('#rangeSeg [data-v=day]'); pg.wait_for_timeout(100)
     ok(pg.locator('#chart').count() == 0 and 'Today' in pg.inner_text('#spendSum') and pg.locator('#spendList [data-a=openPurchase]').count() <= wk, 'D shows today, and the list follows')

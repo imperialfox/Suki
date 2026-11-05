@@ -49,7 +49,7 @@ function welcomeBody() {
   return (
     '<div class="wel"><img class="wico" src="apple-touch-icon.png" alt="" width="84" height="84"><h1>Welcome to Suki</h1>' +
     WELCOME_ROWS.map((r) => '<div class="wrow">' + stile(r[1], r[0]) + '<div><b>' + r[2] + '</b><span>' + r[3] + '</span></div></div>').join('') +
-    '<div class="wsp"></div><p class="wnote">Works with no signal once it’s been opened.</p><button class="cta" data-a="welcomeGo">Continue</button></div>'
+    '<div class="wsp"></div><p class="wnote">Works with no signal once it’s been opened.</p><button class="cta pk-press-solid" data-a="welcomeGo">Continue</button></div>'
   );
 }
 function ahsBody(safari) {
@@ -60,7 +60,7 @@ function ahsBody(safari) {
     '<div class="row">' + stile('plus', 'blue') + '<span class="lbl"><b>2. Choose Add to Home Screen</b><small>Keep Open as Web App on, then tap Add</small></span></div>' +
     '<div class="row"><img class="appico" src="apple-touch-icon.png" alt="" width="30" height="30"><span class="lbl"><b>3. Open Suki from your Home Screen</b></span></div>' +
     '</div>' +
-    (safari ? '<button class="cta" data-a="ahsGot">Got it</button><button class="ghost" data-a="ahsLater">Not now</button>' : '')
+    (safari ? '<button class="cta pk-press-solid" data-a="ahsGot">Got it</button><button class="ghost" data-a="ahsLater">Not now</button>' : '')
   );
 }
 // Settings › Help › Log by voice with Siri (Q15): the Shortcut he builds on his phone, how to run it, and pasting
@@ -240,7 +240,7 @@ function scrHelp() {
     '<h1>Help</h1>' +
     '<div class="grp tiled set">' +
     '<button class="row" data-a="showWelcome">' + stile('star', 'orange') + '<span class="lbl"><b>Show welcome</b><small>The card new users see first</small></span>' + ICON.chev + '</button>' +
-    '<label class="row toggle">' + stile('bulb', 'yellow') + '<span class="lbl"><b>Show tips</b></span><input type="checkbox" role="switch" data-a="tipsToggle"' + (OB && OB.tips ? ' checked' : '') + '><span class="sw-ui" aria-hidden="true"></span></label>' +
+    '<label class="row toggle">' + stile('bulb', 'yellow') + '<span class="lbl"><b>Show tips</b></span><input type="checkbox" role="switch" data-a="tipsToggle"' + (OB && OB.tips ? ' checked' : '') + '>' + switchUI(!!(OB && OB.tips)) + '</label>' +
     '</div><p class="foot">Tips appear once each, next to what they explain. Turning this on shows them all again.</p>' +
     hdr('Hidden gestures') +
     '<div class="grp tiled set">' + gest.map((g) => '<div class="row">' + stile(g[0], 'gray') + '<span class="lbl"><b>' + g[1] + '</b><small>' + g[2] + '</small></span></div>').join('') + '</div>' +

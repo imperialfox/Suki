@@ -161,9 +161,9 @@ def run(b, t):
     ok(pg.get_attribute('#noteSeg', 'aria-label') == 'Note animation', 'VoiceOver reads the group as “Note animation”')
     pg.click('#noteSeg [data-v=slot]')
     ok(pg.evaluate("localStorage.getItem('suki:noteAnim')") == 'slot' and pg.evaluate("noteAnim()") == 'slot', 'choosing Slot keeps it on this device')
-    ok(pg.get_attribute('#noteSeg [data-v=slot]', 'aria-pressed') == 'true' and pg.evaluate("$('noteSeg').style.getPropertyValue('--i')") == '1',
+    ok(pg.get_attribute('#noteSeg [data-v=slot]', 'aria-pressed') == 'true' and pg.evaluate("$('noteSeg').style.getPropertyValue('--pk-i')") == '1',
        'the knob moves to Slot in place')
-    ok(pg.evaluate("$('reduceSeg').style.getPropertyValue('--i')") in ('0', ''), 'Reduce motion is left alone')
+    ok(pg.evaluate("$('reduceSeg').style.getPropertyValue('--pk-i')") in ('0', ''), 'Reduce motion is left alone')
     pg.reload(); pg.wait_for_function("typeof U!=='undefined'&&!document.getElementById('splash')")
     pg.evaluate("go('settings')"); pg.click('[data-a=openAccess]'); pg.wait_for_selector('#noteSeg')
     ok(pg.get_attribute('#noteSeg [data-v=slot]', 'aria-pressed') == 'true', 'Slot survives a reload')

@@ -84,7 +84,7 @@ function purchaseDetail(p, inPane) {
     pricesRow(p) +
     (p.notes ? hdr('Notes') + '<div class="card prose">' + esc(p.notes) + '</div>' : '') +
     (inPane
-      ? '<div class="actions"><button class="btn glass" data-a="editPurchase" data-k="' + esc(p.id) + '">' + ICON.pencil + 'Edit</button><button class="btn glass red" data-a="delPurchase" data-k="' + esc(p.id) + '">' + ICON.bin + 'Delete</button></div>'
+      ? '<div class="actions"><button class="btn glass pk-press" data-a="editPurchase" data-k="' + esc(p.id) + '">' + ICON.pencil + 'Edit</button><button class="btn glass pk-press red" data-a="delPurchase" data-k="' + esc(p.id) + '">' + ICON.bin + 'Delete</button></div>'
       : '<button class="ghost red" data-a="delPurchase" data-k="' + esc(p.id) + '">Delete purchase</button>')
   );
 }
@@ -224,7 +224,7 @@ function itemDetail(id, inPane) {
       ? hdr('You paid', '<span class="hint">' + plural(paid.length, 'time') + '</span>') +
         '<div class="grp">' + paid.slice(0, 5).map((p) => '<button class="row' + lit('paid:' + p.id) + '" data-a="openPurchase" data-k="' + esc(p.id) + '" data-v="push" data-dot="paid:' + esc(p.id) + '"><span class="lbl"><b>' + cash(p.price) + (gbpThen(p) ? ' <span class="gb">' + esc(gbpThen(p)) + '</span>' : '') + '</b><small>' + esc([relDay(p.date), p.location].filter(Boolean).join(' · ')) + '</small></span>' + ICON.chev + '</button>').join('') + '</div>'
       : '') +
-    '<button class="btn glass wide logit" data-a="logItem" data-k="' + esc(id) + '">' + ICON.plus + 'Log what you paid</button>' +
+    '<button class="btn glass pk-press wide logit" data-a="logItem" data-k="' + esc(id) + '">' + ICON.plus + 'Log what you paid</button>' +
     hdr('Your price notes', open ? '' : '<button class="tbtn" data-a="obsForm" data-k="' + esc(id) + '">Add</button>') +
     (open
       ? '<form class="card form" data-form="obs" data-k="' + esc(id) + '" novalidate>' +
@@ -232,7 +232,7 @@ function itemDetail(id, inPane) {
         '<div class="two">' + field('obs-location', 'Location', inp('obs', 'location', f.location, 'placeholder="e.g. Cebu City" autocomplete="off"')) + field('obs-venue', 'Where', sel('obs', 'venue', VENUES, f.venue, 'Not specified')) + '</div>' +
         field('obs-note', 'Size or note', inp('obs', 'note', f.note, 'placeholder="e.g. 500 ml bottle, large serving" autocomplete="off"')) +
         '<p class="err" id="obs-err" role="alert"></p>' +
-        '<div class="actions"><button type="button" class="btn glass" data-a="obsCancel">Cancel</button><button type="submit" class="btn glass tinted">Save note</button></div></form>'
+        '<div class="actions"><button type="button" class="btn glass pk-press" data-a="obsCancel">Cancel</button><button type="submit" class="btn glass pk-press tinted">Save note</button></div></form>'
       : '') +
     (obs.length
       ? '<div class="grp">' +
@@ -329,8 +329,8 @@ document.addEventListener('visibilitychange', tickRateAge);
 let savedUntil = 0;
 const saveBtn = () =>
   Date.now() < savedUntil
-    ? '<button type="submit" class="cta ink saved" id="homeSave"><span class="tk">' + ICON.tick + '</span>Saved</button>'
-    : '<button type="submit" class="cta ink" id="homeSave">Save purchase</button>';
+    ? '<button type="submit" class="cta pk-press-solid ink saved" id="homeSave"><span class="tk">' + ICON.tick + '</span>Saved</button>'
+    : '<button type="submit" class="cta pk-press-solid ink" id="homeSave">Save purchase</button>';
 const byNewest = (a, b) => b.date.localeCompare(a.date) || D.purchases.indexOf(a) - D.purchases.indexOf(b);
 
 /* ===== Quick Till ===== */
@@ -360,7 +360,7 @@ function scrTill() {
     TILL_KEYS.map((k) => '<button type="button" class="dn ' + k[1] + '" data-a="cashAdd" data-v="' + k[0] + '" aria-label="' + k[2] + '">' + k[0] + '</button>').join('') +
     '</div>' +
     '<div class="tillout" id="tillOut" aria-live="polite">' + tillOut() + '</div>' +
-    '<button class="cta ink" id="tillLog" data-a="tillLog"' + (tillState().bill > 0 ? '' : ' disabled') + '>Log this bill</button></div>' +
+    '<button class="cta pk-press-solid ink" id="tillLog" data-a="tillLog"' + (tillState().bill > 0 ? '' : ' disabled') + '>Log this bill</button></div>' +
     '<p class="foot">Tap each note or ₱20 coin you hand over: 20 + 20 makes ₱40.</p>'
   );
 }
@@ -712,8 +712,8 @@ function searchResults() {
   );
 }
 const browseChips = () =>
-  '<div class="chips scroller" id="browse" data-own-gesture="1" role="group" aria-label="Browse by category">' +
-  BROWSE.map((b) => '<button class="chip' + (U.scat === b[0] ? ' on' : '') + '" data-a="scat" data-v="' + b[0] + '" aria-pressed="' + (U.scat === b[0]) + '">' + b[1] + '</button>').join('') + '</div>';
+  '<div class="chips pk-static scroller" id="browse" data-own-gesture="1" role="group" aria-label="Browse by category">' +
+  BROWSE.map((b) => '<button class="chip pk-chip' + (U.scat === b[0] ? ' on' : '') + '" data-a="scat" data-v="' + b[0] + '" aria-pressed="' + (U.scat === b[0]) + '">' + b[1] + '</button>').join('') + '</div>';
 function scrSearch() {
   const list =
     '<label class="searchbox">' + ICON.search +
@@ -941,25 +941,24 @@ function spendRows(list) {
 }
 const SHOW_STEP = 60;
 const rangeSeg = () =>
-  '<div class="segc" id="rangeSeg" role="group" aria-label="Period" style="--n:' + RANGES.length + ';--i:' + Math.max(0, RANGES.findIndex((r) => r[0] === U.range)) + '"><span class="knob glass" aria-hidden="true"></span>' +
-  RANGES.map((r) => '<button data-a="range" data-v="' + r[0] + '" aria-label="' + r[2] + '" aria-pressed="' + (U.range === r[0]) + '">' + r[1] + '</button>').join('') + '</div>';
+  segHTML('rangeSeg', 'Period', RANGES, U.range, 'range');
 function scrSpending() {
   // nothing logged yet: no empty chart or range switch, just one calm card with the way in (Q08)
   if (!D.purchases.length)
     return (
       '<h1>Spending</h1><div class="card nospend">' + '<span class="ic" aria-hidden="true">' + ICON.spending + '</span><b>No spending yet</b>' +
       '<p>Log what you buy and it adds up here, by day and by category.</p>' +
-      '<button class="cta ink" data-a="newPurchase">Log a purchase</button></div>'
+      '<button class="cta pk-press-solid ink" data-a="newPurchase">Log a purchase</button></div>'
     );
   const list = spendingList();
   const counts = {};
   spendingList(true).forEach((p) => (counts[p.category] = (counts[p.category] || 0) + 1));
   const chips =
     D.purchases.length && Object.keys(counts).length
-      ? '<div class="chips scroller" data-own-gesture="1" role="group" aria-label="Filter by category">' +
+      ? '<div class="chips pk-static scroller" data-own-gesture="1" role="group" aria-label="Filter by category">' +
         [['all', 'All', Object.values(counts).reduce((a, b) => a + b, 0)]]
           .concat(CATS.filter((c) => counts[c]).map((c) => [c, c, counts[c]]))
-          .map((c) => '<button class="chip' + (U.cat === c[0] ? ' on' : '') + '" data-a="cat" data-v="' + esc(c[0]) + '" aria-pressed="' + (U.cat === c[0]) + '">' + (c[0] === 'all' ? '' : tileDot(c[0])) + esc(c[1]) + '<span class="n">' + c[2] + '</span></button>')
+          .map((c) => '<button class="chip pk-chip' + (U.cat === c[0] ? ' on' : '') + '" data-a="cat" data-v="' + esc(c[0]) + '" aria-pressed="' + (U.cat === c[0]) + '">' + (c[0] === 'all' ? '' : tileDot(c[0])) + esc(c[1]) + '<span class="n">' + c[2] + '</span></button>')
           .join('') + '</div>'
       : '';
   const main =
@@ -973,7 +972,7 @@ function scrSpending() {
         '<button type="button" class="clr" data-a="clearFilter" aria-label="Clear filter"' + (U.filter ? '' : ' hidden') + '>' + ICON.x + '</button>' + '</label>'
       : '') +
     '<div id="spendList">' + spendRows(list) + '</div>' +
-    (list.length ? '<button class="btn glass wide csv" data-a="csv">' + ICON.upload + 'Export as CSV</button><p class="foot">Exports the purchases shown above, for Numbers or Excel.</p>' : '');
+    (list.length ? '<button class="btn glass pk-press wide csv" data-a="csv">' + ICON.upload + 'Export as CSV</button><p class="foot">Exports the purchases shown above, for Numbers or Excel.</p>' : '');
   if (!split()) return main;
   const p = D.purchases.find((x) => x.id === U.sel);
   return (
@@ -1010,14 +1009,14 @@ function scrConvert() {
   return (
     '<h1>Convert</h1><p class="note">A reference rate only. Your card or Revolut may use a different rate or add fees.</p>' +
     '<div class="card form conv" id="convCard">' + '<div class="cbox" data-c="' + top + '">' + convBox(top, r) + '</div>' +
-    '<div class="swapline"><button type="button" class="circ swap" data-a="swapConv" aria-label="Swap currencies"' + (r ? '' : ' disabled') + '>' + ICON.swap + '</button></div>' +
+    '<div class="swapline"><button type="button" class="circ swap pk-press" data-a="swapConv" aria-label="Swap currencies"' + (r ? '' : ' disabled') + '>' + ICON.swap + '</button></div>' +
     '<div class="cbox" data-c="' + bottom + '">' + convBox(bottom, r) + '</div>' +
     '</div>' +
     // the rate is the door to Rate history (Q23); Refresh stays beside it
     '<div class="raterow"><button class="rdoor" data-a="openHistory" aria-label="' + esc((r ? '£1 = ' + cash(r.value) + '. ' : '') + 'Rate history') + '"><span class="rtx"><b id="rateBadge">' + (r ? '£1 = ' + cash(r.value) : 'No rate yet') + '</b><small><span id="rateLine">' + esc(rateLine()) + '</span> · <em>Rate history</em></small></span>' + ICON.chev + '</button>' +
-    '<button class="btn glass" id="refreshRate" data-a="refreshRate">' + ICON.refresh + 'Refresh</button></div>' +
+    '<button class="btn glass pk-press" id="refreshRate" data-a="refreshRate">' + ICON.refresh + 'Refresh</button></div>' +
     (r
-      ? '<button class="btn glass wide" data-a="copyConv">' + ICON.copy + 'Copy conversion</button>' +
+      ? '<button class="btn glass pk-press wide" data-a="copyConv">' + ICON.copy + 'Copy conversion</button>' +
         hdr('Handy amounts') +
         '<div class="grp quick">' +
         QUICK[top].map((n) => '<button class="row" data-a="quickConv" data-c="' + top + '" data-v="' + n + '"><span class="lbl">' + money(top, n) + '</span><span class="amt">' + (top === 'gbp' ? cash(n * r.value) : gbp(n / r.value)) + '</span></button>').join('') +

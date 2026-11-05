@@ -270,22 +270,14 @@ KNOWN = [
     'corner · body.sheet-open .wrap · border-radius · 28px',
     'corner · .shead · border-radius · 34px',
     'corner · .shead · border-radius · 34px',
-    # Home's two figures shrink to 0.96 and fade until D06 makes card doors highlight (Q28)
-    'press · .sumcard .door:active · transform · scale(0.96)',
-    # the press settle: a 0.5 s pop with no kit name; the kit's press and release springs replace it at Q28
-    'duration · .sumcard .door · transition · 0.5s',
-    'duration · .ratecard · transition · 0.5s',
-    'duration · .cta, .circ, .btn, .chip, .tabbar button, .toptabs button, .sbi · transition · 0.5s',
-    'duration · .row · transition · 0.5s',
+    # the Till's notes keep their own press settle (Q18): a 0.5 s pop with no kit name (Q28 moved every other press to
+    # the kit's press and release springs)
     'duration · .dn · transition · 0.5s',
-    'duration · .tabbar button · transition · 0.5s',
     # iPad and Mac sheets stay Suki's own (S01): dragged back, and their pop's curve, have no kit name (the pop's length
     # is --dur-appear since Q27)
     'duration · .scrim > .sheet.back · transition · 0.32s',
     'ease · .scrim > .sheet.back · transition · cubic-bezier(0.3, 1.2, 0.5, 1)',
     'ease · .scrim > .sheet · animation · cubic-bezier(0.28, 1.25, 0.45, 1)',
-    # the switch knob: 0.3 s until the kit's switch (380 ms, Q28)
-    'duration · .sw-ui::after · transition · 0.3s',
     # Reduce Motion's fade for Suki's own centred sheet and sticky warning: --dur-reduced since Q27 (D20), its keyword
     'ease · html.motion-reduced .scrim > .sheet, html.motion-reduced .toast.sticky · animation · ease-out',
     # swipe to delete stays Suki's own (Vocal Sessions kept its own too)
@@ -317,8 +309,6 @@ KNOWN_SHADOWS = [
     # Liquid Glass and the solid buttons: their own light until the kit's glass and press parts (Q27, Q28)
     'shadow · .glass · box-shadow · inset 0 -0.5px 0 var(--glass-lo), inset 0 0 16px var(--glass-glow), 0 12px 32px var(--glass-shadow)',
     'shadow · .cta · box-shadow · inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 0 0 0.5px rgba(0, 0, 0, 0.12), 0 8px 24px var(--glass-shadow)',
-    'shadow · .sw-ui::after · box-shadow · 0 3px 8px var(--glass-shadow)',
-    'shadow · .segc .knob · box-shadow · 0 3px 8px var(--glass-shadow)',
     # icon tiles' top light, the rate card's navy (Q17) and the launch icon
     'shadow · .tile · box-shadow · inset 0 1px 0 rgba(255, 255, 255, 0.3)',
     'shadow · .ratecard · box-shadow · inset 0 0 0 0.5px var(--suki-rim), 0 8px 24px var(--suki-shadow)',
@@ -354,8 +344,7 @@ KNOWN_JS = [
     'events.js · keyword · ease-out',
     'events.js · keyword · ease-out',
     'events.js · keyword · ease-out',
-    'events.js · keyword · ease-out',
-    'events.js · duration · 450',
+
     'events.js · duration · 180',
     'events.js · duration · 180',
     'gestures.js · keyword · ease-out',
@@ -460,7 +449,8 @@ def speed(b, t):
     deaf = [f'line {l}: {s} · {p} · {d}' for s, p, d, l, f in sp if not f]
     ok(not deaf, 'every stylesheet duration follows the speed: a spring, or times var(--pk-speed)'
        + ('' if not deaf else f' ({"; ".join(deaf[:6])})'))
-    ok(len(sp) > 40, f'the speed check found the durations ({len(sp)})')
+    # 33 since Q28 (the presses, switch and segmented knob are the kit's)
+    ok(len(sp) > 30, f'the speed check found the durations ({len(sp)})')
     sec = lambda v: [round(float(x[:-1]), 3) for x in v.split(',')]
     pg = t.page(b)
     one = pg.evaluate(SPEED_JS, 1)
@@ -547,7 +537,8 @@ def retired(b, t):
     ok(not sizes, f'nothing transitions a size or padding (the folding tab bar’s leftovers are gone) ({sizes[:4]})')
     pg = t.page(b)
     tb = pg.evaluate("[getComputedStyle(document.querySelector('.tabbar')).transitionProperty, getComputedStyle(document.querySelector('.tabbar button')).transitionProperty]")
-    ok(tb[0] == 'all' and 'max-width' not in tb[1] and 'height' not in tb[1],
+    # since Q28 the tab bar is the kit's .pk-tabbar (it transitions its scale and opacity, never its padding)
+    ok('padding' not in tb[0] and 'max-width' not in tb[1] and 'height' not in tb[1],
        f'the tab bar has no padding transition and its buttons no max-width or height ({tb})')
     pg.context.close()
 

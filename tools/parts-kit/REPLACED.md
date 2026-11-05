@@ -2,6 +2,22 @@
 
 One row per old value or part that Suki dropped when it moved onto Parts kit 1.2.0, so the reference sheets and the element sheet (Q30) can see where each came from. Newest first.
 
+## Q28 · 2.32 · Controls and presses (5 Nov 2026)
+
+| Was (Suki 2.31.1) | Where | Now (kit) | Decision |
+|---|---|---|---|
+| Glass circles and capsules (`.circ`, `.btn`) shrinking to `--press` (0.93) and back over 0.5 s on `--ease-pop` | `css/app.css` | Part 12: `.pk-press`, grows 17 pt and lights up (`--lift-max`), the `press` and `release` springs | Q28 |
+| The soft highlight on those buttons in `.glass::after` | `css/app.css` | In their background (`.glass.pk-press`), as the kit's light takes `::after`; the same at rest | Q28 |
+| Solid capsules (`.cta`) shrinking to 0.93 and back over 0.5 s on `--ease-pop` | `css/app.css` | Part 14: `.pk-press-solid`, `--press` in over `--dur-quick`, back on the `release` spring | Q28 |
+| Rows shrinking to `--press-row` (0.98) and back over 0.5 s | `css/app.css` | Part 35: highlight with `--pk-row-press`, no shrink | D06 |
+| Home's figures shrinking to 0.96 and fading to 70%; the rate card shrinking to 0.98 | `css/app.css` | Part 35: one highlight for both card doors (the row press colour) | D06 |
+| Chips shrinking to 0.93 | `css/app.css` | Part 18: `.pk-chip` in a `.pk-static` row, no shrink (Suki's ink picked colour kept) | Q28 |
+| Segmented controls: a glass knob sliding over 450 ms on `--ease-knob` and a 450 ms squish (`squish()` in `events.js`), no drag | `css/app.css`, `js/events.js`, `js/history.js` | Part 23: `.pk-seg` with `.pk-seg-ind`, a 350 ms spring, swells while pressed, draggable, no squish | D04 |
+| Switches: Suki's `.sw-ui`, 51 × 31, a knob moving over 0.3 s on `--ease-knob`, no drag | `css/app.css`, `js/ui.js`, `js/onboard.js` | Part 21: `.pk-switch`, 64 × 28, 380 ms, swells, drag or flick at 200 px/s | Q28 |
+| The tab bar: the picked tab's own `--fill` jumping to the new tab; tabs shrinking to 0.93; 5 pt padding, 2 pt gaps | `css/app.css`, `js/ui.js` | Parts 4 and 15: `.pk-tabbar` with `.pk-tab-ind` sliding on its spring, swelling, draggable; tabs only light up; 4 pt padding, equal tabs | D01 |
+| iPad's top tabs: the same, tabs as wide as their words | `css/app.css`, `js/ui.js` | Part 4: the same highlight, equal tabs | Q28 |
+| The soft edge: `--bg` at 62% with a 14 px blur, solid to 62% then clear, in over `--dur-appear` (0.25 s) | `css/app.css` | Parts 2 and 51: `.pk-edge.pk-text-heavy`, the page colour fading out, no blur, in over `--dur-fade` (0.2 s) on `--ease-out` | Q28 |
+
 ## Q27 · 2.31 · Pop-ups (5 Nov 2026)
 
 | Was (Suki 2.30) | Where | Now (kit) | Decision |

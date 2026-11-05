@@ -14,21 +14,21 @@ function renderBar() {
   bar.classList.toggle('tabsmode', tabsMode);
   const T = $('barT');
   T.classList.toggle('tabs', tabsMode);
-  T.innerHTML = tabsMode ? topTabs() : esc(TAB_TITLE[U.tab]);
+  keepBars(T, () => (T.innerHTML = tabsMode ? topTabs() : esc(TAB_TITLE[U.tab])));
   $('barL').innerHTML =
     // on Mac Settings is a sidebar section, so it has no Back (Q24)
     U.tab === 'settings' && !MQ.wide.matches
-      ? '<button class="circ glass" data-a="tab" data-v="home" aria-label="Back to Home">' + ICON.back + '</button>'
+      ? '<button class="circ glass pk-press" data-a="tab" data-v="home" aria-label="Back to Home">' + ICON.back + '</button>'
       : U.tab === 'help'
-        ? '<button class="circ glass" data-a="tab" data-v="settings" aria-label="Back to Settings">' + ICON.back + '</button>'
+        ? '<button class="circ glass pk-press" data-a="tab" data-v="settings" aria-label="Back to Settings">' + ICON.back + '</button>'
         : U.tab === 'history'
-          ? '<button class="circ glass" data-a="tab" data-v="convert" aria-label="Back to Convert">' + ICON.back + '</button>'
+          ? '<button class="circ glass pk-press" data-a="tab" data-v="convert" aria-label="Back to Convert">' + ICON.back + '</button>'
           : '';
   $('barR').innerHTML =
     (navigator.onLine ? '' : '<span class="pill glass" role="status">Offline</span>') +
-    (U.tab === 'home' ? '<button class="circ glass" data-a="tab" data-v="settings" aria-label="Settings">' + ICON.gear + '</button>' : '') +
+    (U.tab === 'home' ? '<button class="circ glass pk-press" data-a="tab" data-v="settings" aria-label="Settings">' + ICON.gear + '</button>' : '') +
     // Spending's own door to the Log sheet (Q08); with nothing logged, the page's own button does it
-    (U.tab === 'spending' && D.purchases.length ? '<button class="circ glass" data-a="newPurchase" aria-label="Log a purchase">' + ICON.plus + '</button>' : '');
+    (U.tab === 'spending' && D.purchases.length ? '<button class="circ glass pk-press" data-a="newPurchase" aria-label="Log a purchase">' + ICON.plus + '</button>' : '');
 }
 // the tab lit for the page on screen; on Mac, Settings and Help light only the sidebar's Settings (Q24)
 const litTab = () => (MQ.wide.matches && (U.tab === 'settings' || U.tab === 'help') ? null : tabOf(U.tab));
@@ -38,7 +38,10 @@ const tabButtons = (cls, withIcon) =>
       '<button class="' + cls + (litTab() === t[0] ? ' on' : '') + '" data-a="tab" data-v="' + t[0] + '" aria-current="' +
       (litTab() === t[0] ? 'page' : 'false') + '" title="' + t[1] + ' (' + (APPLE ? '⌘' : 'Ctrl+') + (i + 1) + ')">' + (withIcon ? t[2] : '') + '<span>' + t[1] + '</span></button>'
   ).join('');
-const topTabs = () => '<nav class="toptabs glass" aria-label="Tabs">' + tabButtons('', false) + '</nav>';
+// Q28 (parts 4 and 15, D01) the kit's tab bar on iPhone and iPad's top tabs: the picked tab sits on the kit's highlight,
+// which slides to a new tab on its spring (keepBars) and can be dragged; the buttons themselves only light up
+const barIdx = () => 'style="--pk-n:' + TABS.length + ';--pk-i:' + Math.max(0, TABS.findIndex((t) => t[0] === litTab())) + '"';
+const topTabs = () => '<nav class="toptabs pk-tabbar glass" aria-label="Tabs" ' + barIdx() + '><span class="pk-tab-ind" aria-hidden="true"></span>' + tabButtons('pk-tab', false) + '</nav>';
 function renderSide() {
   const el = $('side');
   if (!MQ.wide.matches) {
@@ -57,8 +60,136 @@ function renderDock() {
     $('dock').innerHTML = '';
     return;
   }
-  $('dock').innerHTML = '<nav class="tabbar glass" aria-label="Tabs">' + tabButtons('', true) + '</nav>';
+  keepBars($('dock'), () => ($('dock').innerHTML = '<nav class="tabbar pk-tabbar glass" aria-label="Tabs" ' + barIdx() + '><span class="pk-tab-ind" aria-hidden="true"></span>' + tabButtons('pk-tab', true) + '</nav>'));
 }
+
+/* ===== Q28 Segmented controls and the tab bar: the parts kit's (parts 4 and 23, D04) =====
+   A .segc.pk-seg has the kit's knob (.pk-seg-ind): a 350 ms spring that swells to glass while pressed and can be
+   dragged, with no squish; the tab bar and iPad's top tabs are the kit's .pk-tabbar with its highlight (.pk-tab-ind).
+   The picked button carries .on and the bar --pk-n and --pk-i from the start, so nothing slides when a page first
+   draws. Drawn again (a redraw of the page, the dock, the bar or a sheet), keepBars() starts the new knob or highlight
+   where the old one was on screen, so it slides on from there (mid-slide or after a drag) instead of jumping. A tap's click lands on its button and runs its data-a action as before (the kit's
+   hold on the finger is let go, as in Vocal Sessions); after a drag, the button the knob settled on is clicked. */
+const BAR_SEL = '.pk-tabbar, .pk-seg';
+const barKey = (b) => b.id || (b.classList.contains('toptabs') ? 'toptabs' : 'tabbar');
+function keepBars(root, draw) {
+  const was = {},
+    knob = (b) => b.querySelector(':scope > .pk-tab-ind, :scope > .pk-seg-ind');
+  if (root) root.querySelectorAll(BAR_SEL).forEach((b) => knob(b) && (was[barKey(b)] = getComputedStyle(knob(b)).translate));
+  draw();
+  if (!root || !Parts.motion.on()) return;
+  // the new knob starts where the old one was on screen (mid-slide too), then settles on its own spring
+  root.querySelectorAll(BAR_SEL).forEach((b) => {
+    const k = knob(b),
+      from = was[barKey(b)];
+    if (!k || !from) return;
+    k.style.transition = 'none';
+    k.style.translate = from;
+    void k.offsetWidth;
+    k.style.transition = '';
+    k.style.translate = '';
+  });
+}
+// a button picked in a segmented control: it lights and the knob moves now, before whatever the action redraws
+function segPick(seg, v) {
+  if (!seg) return;
+  const its = [...seg.querySelectorAll(':scope > button')],
+    i = its.findIndex((b) => b.dataset.v === v);
+  its.forEach((b, j) => {
+    b.classList.toggle('on', j === i);
+    b.setAttribute('aria-pressed', String(j === i));
+  });
+  if (i >= 0) Parts.select(seg, i);
+}
+const segBtns = (opts, cur, a) =>
+  opts.map((o) => '<button class="' + (o[0] === cur ? 'on' : '') + '" data-a="' + a + '" data-v="' + o[0] + '"' + (o[2] ? ' aria-label="' + o[2] + '"' : '') + ' aria-pressed="' + (o[0] === cur) + '">' + o[1] + '</button>').join('');
+// the whole control: id, label and options ([value, text, VoiceOver label]); the knob starts on the picked one
+const segHTML = (id, label, opts, cur, a, cls) =>
+  '<div class="segc pk-seg' + (cls ? ' ' + cls : '') + '" id="' + id + '" role="group" aria-label="' + label + '" style="--pk-n:' + opts.length + ';--pk-i:' + Math.max(0, opts.findIndex((o) => o[0] === cur)) + '"><span class="pk-seg-ind" aria-hidden="true"></span>' + segBtns(opts, cur, a) + '</div>';
+(() => {
+  let down = null;
+  document.addEventListener(
+    'pointerdown',
+    (e) => {
+      const bar = e.button > 0 ? null : e.target.closest && e.target.closest(BAR_SEL);
+      down = bar ? { bar, b: e.target.closest('button'), x: e.clientX, clicked: false, moved: false } : null;
+    },
+    true
+  );
+  // the kit follows the finger from the page's pointer events, so letting go of its hold changes nothing for a drag,
+  // and a tap's click lands on its button
+  window.addEventListener('pointerdown', (e) => {
+    if (!down || !down.b) return;
+    try {
+      if (down.bar.hasPointerCapture(e.pointerId)) down.bar.releasePointerCapture(e.pointerId);
+    } catch (er) {}
+  });
+  document.addEventListener('pointermove', (e) => down && Math.abs(e.clientX - down.x) > 6 && (down.moved = true), true);
+  document.addEventListener('click', (e) => down && e.target.closest && e.target.closest('button') && down.bar.contains(e.target) && (down.clicked = true), true);
+  const up = (e) => {
+    const d = down;
+    if (!d || e.type === 'pointercancel') return (down = null);
+    setTimeout(() => {
+      if (down === d) down = null;
+      if (d.clicked) return;
+      const b = d.moved ? d.bar.querySelector(':scope > button.on') : d.b;
+      if (b && b.isConnected && !b.disabled) b.click();
+    }, 0);
+  };
+  document.addEventListener('pointerup', up, true);
+  document.addEventListener('pointercancel', up, true);
+})();
+
+/* ===== Q28 Switches: the parts kit's (part 21: 380 ms, swells while pressed, drag or flick at 200 px/s) =====
+   A switch is still a checkbox in its row (label.row.toggle, the input carrying data-a, role="switch" and the focus),
+   with the kit's .pk-switch drawn beside it in place of Suki's own. A tap anywhere on the row, or Space on the
+   checkbox, changes it as before, and the switch then slides to match (Parts.setSwitch), also when the change drew the
+   page or sheet again. A tap or drag on the switch itself is the kit's: the knob moves, and the checkbox changes only
+   if it ended on the other side. */
+const switchUI = (on) => '<span class="pk-switch' + (on ? ' on' : '') + '" role="presentation" aria-hidden="true"><span class="pk-switch-knob"></span></span>';
+(() => {
+  const swOf = (inp) => inp && inp.parentElement && inp.parentElement.querySelector('.pk-switch');
+  window.addEventListener(
+    'click',
+    (e) => {
+      const sw = e.target.closest && e.target.closest('label.row.toggle .pk-switch'),
+        inp = sw && sw.parentElement.querySelector('input[type=checkbox]');
+      // the kit has already moved the knob: a drag that ended where it started changes nothing
+      if (inp && sw._pkJust && performance.now() - sw._pkJust < 500 && sw.classList.contains('on') === inp.checked) e.preventDefault();
+    },
+    true
+  );
+  document.addEventListener(
+    'change',
+    (e) => {
+      const inp = e.target;
+      if (!inp.matches || !inp.matches('label.row.toggle input[type=checkbox]')) return;
+      const a = inp.dataset.a,
+        was = !inp.checked,
+        old = swOf(inp),
+        kit = old && old._pkJust && performance.now() - old._pkJust < 500;
+      // after the row's own action (and any redraw it made), the switch on screen slides to match
+      setTimeout(() => {
+        const i2 = document.querySelector('label.row.toggle input[data-a="' + a + '"]'),
+          sw = swOf(i2);
+        if (!sw) return;
+        const want = i2.checked;
+        if (sw === old && kit) return sw.classList.toggle('on', want);
+        if (!Parts.motion.on()) return sw.classList.toggle('on', want);
+        if (sw.classList.contains('on') !== was) {
+          const k = sw.querySelector('.pk-switch-knob');
+          [sw, k].forEach((x) => (x.style.transition = 'none'));
+          sw.classList.toggle('on', was);
+          void sw.offsetWidth;
+          [sw, k].forEach((x) => (x.style.transition = ''));
+          void sw.offsetWidth;
+        }
+        Parts.setSwitch(sw, want, true);
+      }, 0);
+    },
+    true
+  );
+})();
 
 /* ===== Drawing ===== */
 const SCREENS = { home: scrHome, till: scrTill, search: scrSearch, spending: scrSpending, convert: scrConvert, settings: scrSettings };
@@ -73,7 +204,7 @@ function render(keepScroll) {
   closeSwipes();
   landNotes(true); // a Till note still in the air lands now, so a redraw leaves nothing behind (Q18)
   drawerReset(); // the till drawer always comes back shut, with nothing left running (Q19)
-  $('app').innerHTML = SCREENS[U.tab]();
+  keepBars($('app'), () => ($('app').innerHTML = SCREENS[U.tab]()));
   if (U.tab === 'home') growSmart();
   if (U.tab === 'history') histAfter();
   $('app').className = 'tab-' + U.tab + (NARROW[U.tab] ? ' narrow' : '');
@@ -361,13 +492,13 @@ function sheetWrap(title, body, tools, label, o) {
     (title === null
       ? ''
       : '<div class="shead">' + (o.lock ? '' : '<div class="grab"></div>') + '<div class="shrow"><h2>' + title + '</h2>' + (tools || '') +
-        (o.lock ? '' : '<button class="circ glass sm" data-a="close" aria-label="Close">' + ICON.x + '</button>') + '</div></div>') +
+        (o.lock ? '' : '<button class="circ glass pk-press sm" data-a="close" aria-label="Close">' + ICON.x + '</button>') + '</div></div>') +
     body + '</div></div>'
   );
 }
 const confirmBody = (text, btn, action, k, extra) =>
   '<p class="note">' + text + '</p>' + (extra || '') +
-  '<button class="cta red" data-a="' + action + '" data-k="' + esc(k || '') + '">' + btn + '</button><button class="ghost" data-a="close">Cancel</button>';
+  '<button class="cta pk-press-solid red" data-a="' + action + '" data-k="' + esc(k || '') + '">' + btn + '</button><button class="ghost" data-a="close">Cancel</button>';
 
 function sheetHTML() {
   const sd = U.sd;
@@ -375,7 +506,7 @@ function sheetHTML() {
     case 'purchase': {
       const p = D.purchases.find((x) => x.id === sd.id);
       if (!p) return null;
-      return sheetWrap('Purchase', purchaseDetail(p), '<button class="circ glass sm" data-a="editPurchase" data-k="' + esc(p.id) + '" aria-label="Edit purchase">' + ICON.pencil + '</button>');
+      return sheetWrap('Purchase', purchaseDetail(p), '<button class="circ glass pk-press sm" data-a="editPurchase" data-k="' + esc(p.id) + '" aria-label="Edit purchase">' + ICON.pencil + '</button>');
     }
     case 'edit': {
       const isNew = !sd.id,
@@ -384,7 +515,7 @@ function sheetHTML() {
       return sheetWrap(
         check ? 'Check purchase' : isNew ? 'Log a purchase' : 'Edit purchase',
         '<form class="card form" data-form="edit" novalidate>' + purchaseForm('edit', F.edit) +
-          '<p class="err" id="edit-err" role="alert"></p><button type="submit" class="cta">' + (check ? 'Done' : isNew ? 'Save purchase' : 'Save changes') + '</button></form>' +
+          '<p class="err" id="edit-err" role="alert"></p><button type="submit" class="cta pk-press-solid">' + (check ? 'Done' : isNew ? 'Save purchase' : 'Save changes') + '</button></form>' +
           (F.edit.said ? '<p class="said">You typed: “' + esc(F.edit.said) + '”</p>' : '')
       );
     }
@@ -414,14 +545,14 @@ function sheetHTML() {
           'Erase everything',
           'eraseYes',
           '',
-          '<button class="btn glass wide" data-a="exportBackup" data-v="push">' + ICON.upload + 'Export a backup first</button>'
+          '<button class="btn glass pk-press wide" data-a="exportBackup" data-v="push">' + ICON.upload + 'Export a backup first</button>'
         )
       );
     case 'rescue':
       return sheetWrap(
         'Recovered data',
         '<p class="note">' + plural(rescueCount(), 'record') + ' saved on this device couldn’t be read, so ' + (rescueCount() === 1 ? 'it was' : 'they were') + ' kept here instead of being lost. Your other purchases and notes are fine.</p>' +
-          '<button class="cta" data-a="saveRescue">Save a copy</button>' +
+          '<button class="cta pk-press-solid" data-a="saveRescue">Save a copy</button>' +
           (RESCUE.some((r) => r && r.saved) ? '<button class="ghost red" data-a="clearRescue">Clear it</button>' : '<p class="foot">Once you’ve saved a copy, you can clear it from here.</p>')
       );
     case 'putback': {
@@ -442,7 +573,7 @@ function sheetHTML() {
       return sheetWrap(
         'Export a backup',
         '<p class="note">' + (sd.file ? 'Your backup is ready: ' + plural(D.purchases.length, 'purchase') + ', ' + plural(D.observations.length, 'price note') + (D.rate ? ' and the saved rate' : '') + '. Save it to Files so you can find it later.' : 'Preparing your backup…') + '</p>' +
-          '<button class="cta" data-a="saveBackup"' + (sd.file ? '' : ' disabled') + '>' + (sd.file ? 'Save backup' : 'Preparing…') + '</button>'
+          '<button class="cta pk-press-solid" data-a="saveBackup"' + (sd.file ? '' : ' disabled') + '>' + (sd.file ? 'Save backup' : 'Preparing…') + '</button>'
       );
     case 'restore': {
       // an alert (Q27, D08): what's here and what's in the backup, in words, since an alert holds no table
@@ -479,7 +610,7 @@ function sheetHTML() {
         mTotal = Object.values(spent).reduce((a, b) => a + b, 0);
       return sheetWrap(
         monthName(m),
-        '<div class="calhead"><span class="small">' + (mTotal ? cash(Math.round(mTotal * 100) / 100) + ' this month' : 'Nothing logged this month') + '</span><span><button class="circ glass sm" data-a="calStep" data-v="-1" aria-label="Earlier month">' + ICON.back + '</button><button class="circ glass sm fwd" data-a="calStep" data-v="1" aria-label="Later month">' + ICON.back + '</button></span></div>' +
+        '<div class="calhead"><span class="small">' + (mTotal ? cash(Math.round(mTotal * 100) / 100) + ' this month' : 'Nothing logged this month') + '</span><span><button class="circ glass pk-press sm" data-a="calStep" data-v="-1" aria-label="Earlier month">' + ICON.back + '</button><button class="circ glass pk-press sm fwd" data-a="calStep" data-v="1" aria-label="Later month">' + ICON.back + '</button></span></div>' +
           '<div class="calgrid"><div class="cdows" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div><div class="cdays">' + cells + '</div>' +
           (mTotal ? '<div class="tkey" aria-hidden="true">Less <i class="t1"></i><i class="t2"></i><i class="t3"></i> More</div>' : '') +
           '</div>' +
@@ -496,23 +627,20 @@ function sheetHTML() {
       );
     }
     case 'access': {
-      const opts = [['auto', 'Match iPhone'], ['on', 'On'], ['off', 'Off']],
-        i = Math.max(0, opts.findIndex((o) => o[0] === MOTION.reducePref()));
+      const opts = [['auto', 'Match iPhone'], ['on', 'On'], ['off', 'Off']];
       return sheetWrap(
         'Accessibility',
         hdr('Reduce motion') +
-          '<div class="segc" id="reduceSeg" role="group" aria-label="Reduce motion" style="--n:3;--i:' + i + '"><span class="knob glass" aria-hidden="true"></span>' +
-          opts.map((o) => '<button data-a="setReduce" data-v="' + o[0] + '" aria-pressed="' + (MOTION.reducePref() === o[0]) + '">' + o[1] + '</button>').join('') + '</div>' +
+          segHTML('reduceSeg', 'Reduce motion', opts, MOTION.reducePref(), 'setReduce') +
           '<p class="foot">Things fade instead of sliding, zooming or springing. Match iPhone follows Settings › Accessibility › Motion on your iPhone.</p>' +
           hdr('Note animation') +
-          '<div class="segc" id="noteSeg" role="group" aria-label="Note animation" style="--n:2;--i:' + (noteAnim() === 'slot' ? 1 : 0) + '"><span class="knob glass" aria-hidden="true"></span>' +
-          [['fly', 'Fly'], ['slot', 'Slot']].map((o) => '<button data-a="setNoteAnim" data-v="' + o[0] + '" aria-pressed="' + (noteAnim() === o[0]) + '">' + o[1] + '</button>').join('') + '</div>' +
+          segHTML('noteSeg', 'Note animation', [['fly', 'Fly'], ['slot', 'Slot']], noteAnim(), 'setNoteAnim') +
           '<p class="foot">How a note you tap on Quick Till goes into the cash box: Fly arcs it in, Slot slides it into a slot under the box. With Reduce motion on, the amount just changes.</p>' +
           hdr('Slow motion') +
-          '<div class="grp"><label class="row toggle"><span class="lbl"><b>Slow motion</b></span><input type="checkbox" role="switch" data-a="slowMotion"' + (MOTION.speed() > 1 ? ' checked' : '') + '><span class="sw-ui" aria-hidden="true"></span></label></div>' +
+          '<div class="grp"><label class="row toggle"><span class="lbl"><b>Slow motion</b></span><input type="checkbox" role="switch" data-a="slowMotion"' + (MOTION.speed() > 1 ? ' checked' : '') + '>' + switchUI(MOTION.speed() > 1) + '</label></div>' +
           '<p class="foot">Plays every movement four times slower, for checking how things move.</p>' +
           hdr('Screen IDs') +
-          '<div class="grp"><label class="row toggle"><span class="lbl"><b>Show screen IDs</b></span><input type="checkbox" role="switch" data-a="screenIds"' + (SCR.idsOn() ? ' checked' : '') + '><span class="sw-ui" aria-hidden="true"></span></label></div>' +
+          '<div class="grp"><label class="row toggle"><span class="lbl"><b>Show screen IDs</b></span><input type="checkbox" role="switch" data-a="screenIds"' + (SCR.idsOn() ? ' checked' : '') + '>' + switchUI(SCR.idsOn()) + '</label></div>' +
           '<p class="foot">Shows each screen’s ID in the top corner, such as SK-001, for pointing at a screen in a note. These settings stay on this device and aren’t saved in backups.</p>'
       );
     }
@@ -622,7 +750,7 @@ function ownSheets(list, html) {
     return null;
   }
   if (over) sheetUnderKeep(was);
-  layer.innerHTML = html;
+  keepBars(layer, () => (layer.innerHTML = html));
   const sh = layer.querySelector('.sheet');
   // the dim is already there, so the new one doesn't fade in from nothing; while the old sheet waits behind, the
   // old dim is the one showing, so it's never doubled
@@ -851,7 +979,7 @@ const HOST = (() => {
       top = c.body.scrollTop,
       oldH = c.el.offsetHeight;
     head(c, sh.cloneNode(true)); // the head moves into the kit's sheet; sh stays whole in case it opens again
-    c.body.innerHTML = inner(sh);
+    keepBars(c.body, () => (c.body.innerHTML = inner(sh)));
     c.body.scrollTop = top;
     // only the top sheet is opened again (it's the last thing in the kit's layer, so nothing is covered)
     if (i !== st.length - 1 || al || Math.abs(natural(c) - oldH) <= 2) return;

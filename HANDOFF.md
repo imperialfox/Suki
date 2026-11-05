@@ -674,7 +674,9 @@ Findings: Recon 3, 6, 10, 11, 12, 14, 21.
 - **For your iPhone:** 1. Delete a purchase: the alert, then Undo. 2. Open a sheet and flick it shut; drag one down from its content. 3. Edit from a purchase: the second sheet rises over the first. 4. Turn on Reduce Motion: quick fades. 5. The Till and drawer feel the same. Also worth a look: a sheet with the phone on its side (it's shorter now, the kit leaves 90 pt above it).
 - **2.31.1:** GitHub's run of 2.31 failed one random-tap seed: the welcome card, opened from Help on a short screen (iPhone SE or on its side), is taller than the screen, so Continue sat below the edge. That was so in 2.30 too, but the kit's sheet takes a finger at the top of its content for dragging, and the welcome card can't be dragged, so it couldn't be scrolled either. Its content now scrolls the usual way (`touch-action: pan-y` on a locked sheet's body), and the random taps scroll a tall sheet before looking for something to tap.
 - **Way back:** the version before Q27 is commit `9246418` (2.30). The tag `suki-2.30` was made but couldn't be pushed from Claude's workspace (as with Vocal Sessions' tags).
+- **GitHub:** 2.31's run failed the random-tap seed above; 2.31.1's run passed 1,523 of 1,523, but was marked failed because GitHub couldn't take the screenshots upload (its artifact service answered with a web page). Pages published both.
 - **Left for later:** queue idea 15 (the kit's rise fix). Q28 brings the buttons, rows, controls and bars.
+- **Receipt:** Q27 · Medium → Medium · 203 steps · 173k written · 84.8M re-read · 1 full test run
 
 ## Q28 · Interface: Parts Kit Controls and Presses
 **Render:** 5 Nov 2026, 09:17, Ivan: "Render for 1-7" · scope as below, with every default in the shared block above · **Build:** awaiting

@@ -37,12 +37,37 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q28 | Interface: Parts Kit Controls and Presses | Shipped · 2.32 | Medium | the Parts gallery | The same audit, findings 9, 13, 15; glass and solid presses, rows and card doors, chips, segmented controls, switches, the tab bar and top bar. Trip guard. After Q27 |
 | Q29 | Interface: Presses and Tap Areas | Shipped · 2.33 | Light | none | The same audit, findings 16, 17. After Q28 |
 | Q30 | Interface: Element Sheet | Approved — awaiting Build | Medium | none | The same audit, finding 20 (element sheet). After Q28 |
+| Q31 | Data: Never Save Before Loading | Approved — awaiting Build | Light | none (wireframe skipped by Ivan) | Cross-audit M01 (F1). Phase 0: on 6 Nov only if phone-checked that evening, else first on the trip |
+| Q32 | Tests: Safari Engine and a Steady Suite | Approved — awaiting Build | Light to medium | none | Cross-audit M08, M17 (ideas list 5). Tests and GitHub only, no app version |
+| Q33 | Data: Other Windows and an Error Notice | Approved — awaiting Build | Light to medium | none (wireframe skipped by Ivan) | Cross-audit M02, M16, M15. After Q31 |
+| Q34 | Rate: Sanity Check | Approved — awaiting Build | Light | none (wireframe skipped by Ivan) | Cross-audit M03 (F6) |
+| Q35 | Prices: Data Checks, Age, Rail Fare and Units | Approved — awaiting Build | Light | none (wireframe skipped by Ivan) | Cross-audit M12, M04, M06 data half |
+| Q36 | Search: Stricter Matching | Approved — awaiting Build | Light to medium | none (wireframe skipped by Ivan) | Cross-audit M05 (F3). After Q35 |
+| Q37 | Prices: Expansion, Stage 1 | Approved — awaiting Build | Medium | none (wireframe skipped by Ivan) | Cross-audit M07 stage 1. After Q36 |
+| Q38 | Prices: Expansion, Stage 2 and Clean-up | Approved — awaiting Build | Medium | none (wireframe skipped by Ivan) | Cross-audit M07 stage 2, M13. After Q37 |
+| Q39 | Interface: Spacing and Type Names | Approved — awaiting Build | Medium | none | Cross-audit M18. No visual change. After Q30, from 3 Dec |
+| Q40 | Interface: Kit 1.3.0, Zoom and Contrast | Approved — awaiting Build | Light to medium | the Parts gallery | Cross-audit M09, M10, M11, Erase gap (ideas list 15). Needs Q39 and parts kit 1.3.0 (its own Render). From 3 Dec |
 
 ## Release order
 
 Build top to bottom; each still needs its own **build**. One line per item: `N. Q## — reason`, with "needs Q##" for anything that must ship first. Names live in the table above.
 
-1. Q30 — the element sheet; needs Q28 (shipped as 2.32) (Ivan, 5 Nov 2026)
+1. Q31 — data safety first; on 6 Nov only if live and phone-checked that evening, otherwise first on the trip (Ivan, 6 Nov 2026)
+2. Q33 — other windows, an error notice and the Delete label; needs Q31 (Ivan, 6 Nov 2026)
+3. Q34 — the live rate's sanity check (Ivan, 6 Nov 2026)
+4. Q35 — price data checks, age, rail fare and units (Ivan, 6 Nov 2026)
+5. Q36 — stricter Search matching; needs Q35 (Ivan, 6 Nov 2026)
+6. Q37 — prices, stage 1; needs Q35, Q36 (Ivan, 6 Nov 2026)
+7. Q38 — prices, stage 2 and clean-up; needs Q37 (Ivan, 6 Nov 2026)
+8. Q30 — the element sheet; needs Q28 (shipped as 2.32); moved behind Q31 to Q38 by the 6 Nov Render, from 3 Dec (Ivan, 5 Nov 2026)
+9. Q39 — spacing and type names; needs Q30; from 3 Dec (Ivan, 6 Nov 2026)
+10. Q40 — kit 1.3.0, zoom and contrast; needs Q39 and parts kit 1.3.0 (its own Render, not yet given); from 3 Dec (Ivan, 6 Nov 2026)
+
+### Any time
+
+- Q32 — tests in Safari's engine and a steady suite; no app version; best before Q33 (Ivan, 6 Nov 2026)
+
+**Render:** 6 Nov 2026, 10:46 · Ivan: "Render", then chose "Phases 0 to 5" and, for wireframes, "Yes, skip them" · scope: Q31 to Q40, the Phases 0 to 5 pieces of the cross-audit Blueprint (6 Nov 2026, project note `suki_cross_audit_blueprint_2026-11-06.md`), exactly as written in HANDOFF.md, with every default in its shared block (the trip rule, Q31 on 6 Nov only if phone-checked that evening, wireframes skipped for Q31 to Q38, other windows reload, contrast S07, main button rule S08), built one at a time in Release order; each starts only when Ivan says build for it. Q30 (already approved) moves behind Q38. Not rendered: the plan's Phase 6 (screens), which needs its wireframe first, and Phase 7; parts kit 1.3.0, which has its own Render in `imperialfox/parts-kit`, so Q40 waits for it.
 
 **Render:** 5 Nov 2026, 09:17 · Ivan: "Render for 1-7" · scope: Q24 to Q30, the seven items of the UI consistency Blueprint (draft 1, 5 Nov 2026), exactly as written in HANDOFF.md, with every default in its shared block (the kit move split in two, the kit version, S03 to S06, the tab bar under a sheet, the trip guard), built one at a time in Release order; each starts only when Ivan says build for it. They replace the parts kit move blueprint of 4 Nov (its A, B and C are Q25, Q26, Q27 and Q28). Q27 and Q28 ship before the 7 Nov trip only if live and checked on the phone by the evening of 6 Nov; otherwise from 3 Dec. **Build (Q24):** 5 Nov 2026, 09:33, Ivan: "Suki Q24 Build" · shipped as 2.28. **Build (Q25):** 5 Nov 2026, 10:42, Ivan: "Suki Q25 Build" · shipped as 2.29. **Build (Q26):** 5 Nov 2026, 14:24, Ivan: "Suki Q26 Build" · shipped as 2.30. **Build (Q27):** 5 Nov 2026, 15:07, Ivan: "Suki Q27 Build" · shipped as 2.31 on kit 1.2.0, with 2.31.1 for the welcome card scrolling on a small iPhone (the version before it is commit `9246418`; the tag `suki-2.30` couldn't be pushed from Claude's workspace). **Build (Q28):** 5 Nov 2026, 18:40, Ivan: "Suki Q28 Build" · shipped as 2.32 (the version before it is commit `e060624`, 2.31.1). **Build (Q29):** 5 Nov 2026, 19:42, Ivan: "Suki Q29 Build" · shipped as 2.33 (the version before it is commit `05f8132`, 2.32).
 
@@ -86,6 +111,9 @@ Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `s
 
 - 3 Nov 2026: Rate history refuses a reply with a day jumping more than 10%, not the handoff's "about 5%": the real ECB series has a 6.8% day (24 Jun 2016), which 5% would throw away (Q23's build).
 - 3 Nov 2026: Rate history's news notes link only to the BSP, the Bank of England or the PSA. The prototype's 16 Oct note ("Peso passes ₱63", put down to US inflation) was left out, as no such record says it; the 2008, 2016 and 2022 notes went in with Bank of England statements (Q23's default).
+- 6 Nov 2026: hotel nights and flights won't go in the price data, as their prices change daily; Search says so instead (Q37). No more rough guides from blogs.
+- 6 Nov 2026: a second window reloads when another saves; no merging records by id (Q33).
+- 6 Nov 2026: wireframes skipped for Q31 to Q38 at Ivan's word, as nothing moves on screen.
 
 ## Ideas, not yet queued
 
@@ -95,7 +123,7 @@ Sorted by priority, highest first: what's broken or helps on the trip (7 Nov –
 2. Nueva Ecija prices: no local tricycle fare or post-rise bus fare is published online yet; add them from price notes during the trip.
 3. Prices by region, using the town from Q16.
 4. Back-dated purchases use Rate history first (added 3 Nov 2026, Q23's build): Q22's one-day lookup could read the saved history and snapshot before asking Frankfurter, so a purchase logged for an earlier day offline gets its real rate at once instead of "estimated". Light.
-5. Tests: fix the flaky fold check in `test_smart.py` ("the side showing is fully there", added 4 Nov 2026, Q21's build). It has now failed on its own three times with nothing near Home's Log card changed (Q18 locally, Q20 and Q21 on GitHub), and a re-run spends one of the build's checks. On 5 Nov 2026 (Q24) it failed on GitHub twice in a row, first run and re-run. Light.
+5. Moved to Q32 (6 Nov 2026): the flaky fold check in `test_smart.py`.
 6. Assets kit (added 3 Nov 2026): switch every element over to the tuning and assets of Ivan's assets kit (coming soon). Waits for the kit, and easier after Q25 (screen IDs): each group swaps once instead of copy by copy. The two can't run at the same time; both touch every screen.
 7. A search circle beside the tab bar (four tabs plus Search), as in iOS 26.
 8. Smart add: a receipt already works through iPhone's Live Text (copy the text from a photo, paste it in). Help could say so.
@@ -105,5 +133,5 @@ Sorted by priority, highest first: what's broken or helps on the trip (7 Nov –
 12. Smart add: the prototype's "Try" example chips were left out of Q14 (they'd put made-up purchases a tap from his real log). They could come back as examples that only fill the box with a clearly made-up line, or as a Help section.
 13. Smart add: the flip (the card turning over on its middle) was prototyped beside the fade; the fade was kept. Kept here for the record.
 14. Rate history, later (from its Recon, 2 Nov 2026): compare two dates with two fingers, as in Stocks (medium); your real rate against the reference, noted when changing money (medium); copy a summary for family (light).
-15. Parts kit: pin a kit version whose sheets that fit their content rise from below the screen (added 5 Nov 2026, Q27's build). With kit 1.2.0 such a sheet is measured in place first, so it simply appears; Suki's `HOST.rise()` in `ui.js` starts it again from below until then, and goes when the fix is pinned. The fix belongs in `imperialfox/parts-kit` as its own version; Vocal Sessions' sheets are affected the same way.
+15. Moved to Q40 (6 Nov 2026): pin the kit version whose sheets that fit their content rise from below, then drop `HOST.rise()`. The kit fix itself is part of parts kit 1.3.0, its own Render.
 16. Chips: take the kit's accent for a picked chip (part 18) instead of Suki's ink (added 5 Nov 2026, Q28's build). Q28 kept the ink so chips look the same at rest; the kit's way would make Search's and Spending's picked chip blue. Polish only.

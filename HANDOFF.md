@@ -754,3 +754,196 @@ Findings: Recon 20 (the element sheet).
 **Done when:** the sheet builds with no gaps and its test passes.
 **Checks:** the new test, the full suite once.
 **For your iPhone:** nothing to check; it's a reference file.
+**Order:** moved behind Q31 to Q38 by the 6 Nov Render (cross-audit order); from 3 Dec.
+
+## Q31 to Q40 · shared: decisions and defaults
+
+From the cross-audit Blueprint of 6 Nov 2026 (the Suki project note `suki_cross_audit_blueprint_2026-11-06.md`, doc "Suki · cross-audit Blueprint · remediation plan"), which merges the UX audit (UX-01 to UX-21) and the stability, accuracy and dataset audit (F1 to F10) of 2.33. Issue IDs M01 to M28 are that plan's. These ten items are its Phases 0 to 5; Q30 (Phase 4) was already approved.
+
+**Defaults, Rendered with the items:**
+1. The trip rule. Q31 to Q38 change no layout and may ship during the trip (7 Nov to 2 Dec), one at a time, each checked on the phone the same day before the next. Each Build tags the version before it. Q30, Q39 and Q40 wait until 3 Dec.
+2. Q31 is built on 6 Nov only if it can be live and checked on the phone that evening. Otherwise it's the first build of the trip. Until it ships, back up before leaving and now and then.
+3. Wireframes skipped for Q31 to Q38 at Ivan's word (6 Nov, 10:46), as for Q05 and Q06. Nothing moves on screen. The two new lines of text (a price's age, "Suki doesn't keep this") are checked on the phone.
+4. Other windows reload when one saves; no merge engine (Q33).
+5. Contrast: Apple's Increase Contrast colours only under `prefers-contrast: more`. The default colours are a written exception, S07 (Q40).
+6. The main button rule is written down as S08: a page's main button is ink, a sheet's is blue (Q39).
+
+**Out of scope for all ten:** screen layout changes (the plan's Phase 6: Search rows, small and sideways iPhones, gaps, Home's top, Settings, the item sheet's labels, the amount reader), which need a wireframe first; any change to the parts kit itself (kit 1.3.0 has its own Render in `imperialfox/parts-kit`); hotel and flight prices; new rough guides from blogs; a ₱200 button (turned down 1 Nov). **Saved data:** one new key, `suki:errors` (Q33, device-only, not backed up); nothing renamed.
+
+## Q31 · Data: Never Save Before Loading
+**Render:** 6 Nov 2026, 10:46, Ivan: "Render", then "Phases 0 to 5" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki, from 2.33 · Needs: 2.33 live on `main`. · Effort: Light.
+Findings: M01 (F1). Phase 0.
+
+**Goal:** no save can replace the stored list before Suki has read it.
+**Agreed:**
+1. `save()` in `js/storage.js` writes nothing until `loadData()` has finished. A purchase logged before then is held and added to the loaded list, then saved. *Default if unanswered:* hold and add, not refuse.
+2. While data is still loading after the launch screen, Home shows a loading line, not its empty state.
+3. When the data lands, the open tab redraws (`boot()` in `js/boot.js` no longer leaves Home as first drawn after `BOOT.CAP`).
+4. The audit's slow-storage test becomes permanent.
+**Out of scope:** two windows (Q33); the backup reminder.
+**Touches:** `js/boot.js`, `js/storage.js`, Home's empty state in `js/screens.js`, a new test.
+**Done when:** with reads delayed 4 s, 4 saved purchases plus 1 logged during the delay are 5 after a reload; Home never shows the empty state while loading; the full suite passes.
+**Checks:** the new test, the full suite once.
+**For your iPhone:** restart the phone, turn on flight mode, open Suki: purchases show straight away. Log one, swipe Suki away, reopen: it's there.
+
+## Q32 · Tests: Safari Engine and a Steady Suite
+**Render:** 6 Nov 2026, 10:46, Ivan: "Render", then "Phases 0 to 5" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: nothing. · Effort: Light to medium. No app version: tests and GitHub only.
+Findings: M08 (both audits ran Chrome only; `tests.yml` installs Chromium only), M17 (ideas list 5).
+
+**Goal:** every build is tested in Safari's engine too, and a red run means a real fault.
+**Agreed:**
+1. `tests/run.py` takes a browser choice. GitHub runs the suite in Chromium and in WebKit.
+2. A test that can't run in WebKit (for example Chrome's processor slow-down) is skipped there with its reason, listed in MAINTAINING.
+3. A WebKit difference that's a test's fault is fixed. One that's Suki's fault is listed and goes to the ideas list, not fixed here.
+4. `test_smart.py`'s fold check is made steady: find why it fails on its own and fix the test.
+5. *Default if unanswered:* the full suite in WebKit. If that more than doubles GitHub's time, a named core set (storage, saves, amounts, layout at 375 and 402 pt, sheets) runs in WebKit instead.
+**Out of scope:** any app change.
+**Touches:** `.github/workflows/tests.yml`, `tests/run.py`, `tests/test_smart.py`, `MAINTAINING.md` › Tests.
+**Done when:** both engines pass on GitHub three runs in a row with no re-run.
+**Checks:** three GitHub runs.
+**For your iPhone:** nothing; it's the tests.
+
+## Q33 · Data: Other Windows and an Error Notice
+**Render:** 6 Nov 2026, 10:46, Ivan: "Render", then "Phases 0 to 5" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q31. · Effort: Light to medium.
+Findings: M02 (F2), M16 (F10), M15 (UX-04).
+
+**Goal:** a second window can't wipe the first one's purchases, an unexpected error never fails silently, and the delete alerts read cleanly.
+**Agreed:**
+1. When another window or tab saves, this one reloads its data before it can save, with a toast ("Updated from another window"). Not a merge (shared default 4).
+2. A global handler for unexpected errors shows Suki's sticky warning (S04): "Something went wrong. Your records are safe." The last 20 errors are kept under `suki:errors`, device-only.
+3. The delete alerts' red buttons say "Delete" (`js/events.js` 643 and 702).
+4. The audit's two-window test becomes permanent, plus a forced-error test.
+**Out of scope:** sync between devices.
+**Touches:** `js/storage.js`, `js/boot.js`, `js/ui.js`, `js/events.js`, tests, `MAINTAINING.md` › Saved data.
+**Done when:** two windows each logging a purchase keep both; a forced error shows the notice and loses nothing; "Delete" fits one line at 375 and 402 pt; the full suite passes.
+**Checks:** the new tests, the full suite once.
+**For your iPhone:** swipe left on a purchase, tap Delete: the alert's red button says "Delete" on one line. Undo.
+
+## Q34 · Rate: Sanity Check
+**Render:** 6 Nov 2026, 10:46, Ivan: "Render", then "Phases 0 to 5" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: nothing. · Effort: Light.
+Findings: M03 (F6).
+
+**Goal:** a wrong live rate is never saved into purchases.
+**Agreed:**
+1. In `rateFrom` (`js/rate.js`), a live rate more than 10% from the saved one (Rate history's limit) is used only if a second source agrees within 1%.
+2. Otherwise the saved rate stays, and the message says the new rate looked wrong so the saved one is still in use.
+3. With no saved rate yet, the 30 to 120 range check stays as it is.
+4. The audit's rate cases become permanent.
+**Out of scope:** money changer or card rates.
+**Touches:** `js/rate.js`, tests.
+**Done when:** ₱119 against a saved ₱74.12 is refused unless a second source agrees; a 3% move updates; the 503, Wi-Fi login page, upside-down rate and timeout cases behave as today.
+**Checks:** the rate tests, the full suite once.
+**For your iPhone:** pull down on Home with signal: the rate updates as usual.
+
+## Q35 · Prices: Data Checks, Age, Rail Fare and Units
+**Render:** 6 Nov 2026, 10:46, Ivan: "Render", then "Phases 0 to 5" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: nothing. · Effort: Light.
+Findings: M12 (F9, F10), M04 (F5), the data half of M06 (F4).
+
+**Goal:** every price has a real date, a secure link and one unit, its age shows, and the rail fares are the ones actually charged.
+**Agreed:**
+1. A data test fails on a missing or broken date, a non-https link, more than one unit in one Search range, a row copied across more than 2 items, or an unknown item id.
+2. Fix what it finds: LRT-2's broken date; the 7 undated rows (dated from their source page, or removed if no date can be found); the 10 mixed-unit items, converted to one unit with a note (pandesal per piece from the pack of 10) or split into two items (SIM card, and Tourist SIM package).
+3. MRT-3 and LRT-2 show the half fare as the headline. The note keeps the full fare and the date the discount began (23 Mar 2026). Recheck the DOTr or LRTA notice at Build.
+4. Age on the item sheet: the DA card notes its age once its week is over 30 days old; typical rows over 90 days old show their month. The "Sources, checked 31 Oct" heading states the real range of dates.
+5. MAINTAINING › Prices: how to add a price so the test passes.
+**Out of scope:** the Search row's layout (Phase 6); new items (Q37, Q38).
+**Touches:** `js/typical.js`, `js/prices.js`, `js/catalog.js` (only for the split), `itemDetail()` in `js/screens.js`, a new data test, `MAINTAINING.md`.
+**Done when:** the data test passes; pandesal and the SIM show one unit each; MRT-3 and LRT-2 show the half fare; the full suite passes.
+**Checks:** the data test, the full suite once.
+**For your iPhone:** search "pandesal" and "MRT": one unit, half fare. Open the tricycle item: older prices show their month.
+
+## Q36 · Search: Stricter Matching
+**Render:** 6 Nov 2026, 10:46, Ivan: "Render", then "Phases 0 to 5" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q35. · Effort: Light to medium.
+Findings: M05 (F3).
+
+**Goal:** Search never shows an unrelated priced item as the answer.
+**Agreed:**
+1. "mango", "medicine", "toll", "coconut", "load" and "kanin" show no unrelated priced item: nothing, or the right item. How is the builder's choice in `searchItems` (`js/catalog.js`).
+2. Whole words, close misspellings, Tagalog and English names still match.
+3. *Default if unanswered:* "kanin" stops matching uncooked rice. It shows no price yet, until a cooked rice price is added.
+4. The audit's search cases become permanent.
+**Out of scope:** new items (Q37); the row's layout.
+**Touches:** `js/catalog.js`, other spellings in the catalogue if needed, the search tests.
+**Done when:** the six searches pass; every existing search test passes unchanged.
+**Checks:** the search tests, the full suite once.
+**For your iPhone:** search "mango", "medicine" and "kanin".
+
+## Q37 · Prices: Expansion, Stage 1
+**Render:** 6 Nov 2026, 10:46, Ivan: "Render", then "Phases 0 to 5" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q35, Q36. · Effort: Medium.
+Findings: M07 (F7), stage 1 of the reliability report's section H.
+
+**Goal:** Search answers the commonest market buys, basic medicine and the trip's own bus route, and says plainly what Suki doesn't keep.
+**Agreed:**
+1. From the latest DA-AMAS weekly bulletin: fish (bangus, tilapia and the other common ones listed), fruit, more vegetables and beef. The DA snapshot moves to that week.
+2. A Health group: paracetamol, loperamide, oral rehydration salts and an antihistamine, from the DOH Drug Price Reference Index or DTI where listed.
+3. The Cubao to San Jose City and Cabanatuan bus fare after the 28 Sep 2026 rise, from the LTFRB matrix, if it's published. If not, the row keeps its "before the rise" flag.
+4. Searches for hotels, rooms, flights, and ferries or boats with no price say Suki doesn't keep these because they change daily, and still offer Log "x".
+5. Every new row passes Q35's test. Official or first-hand sources only.
+6. The audit's 85 realistic searches become a permanent test that tracks how many are priced.
+**Out of scope:** stage 2 (Q38); the row's layout.
+**Touches:** `js/catalog.js`, `js/typical.js`, `js/prices.js`, `js/reader.js` (words) if needed, tests, `MAINTAINING.md` › Prices.
+**Done when:** at least 65 of the 85 searches are priced (59 today); bangus, mango and paracetamol return sourced prices; "hotel" gives the line in 4; the data test passes.
+**Checks:** the data and 85-search tests, the full suite once, new prices checked against their source pages.
+**For your iPhone:** search "bangus", "mango", "paracetamol" and "hotel".
+
+## Q38 · Prices: Expansion, Stage 2 and Clean-up
+**Render:** 6 Nov 2026, 10:46, Ivan: "Render", then "Phases 0 to 5" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q37. · Effort: Medium.
+Findings: M07 (F7, stage 2), M13 (F8).
+
+**Goal:** the everyday non-food needs are priced, and the price list's coverage is honest.
+**Agreed:**
+1. Toiletries: toilet paper, sunscreen, mosquito repellent, nappies, and a price for the listed shampoo (DTI bulletin, supermarket shelf).
+2. Money costs: the ATM fee for a foreign card at the main banks, and how a money changer's margin works, from the banks' own fee pages.
+3. Entrance fees from official sites. *Default if unanswered:* Intramuros and Fort Santiago only.
+4. One "Carinderia plate" item replaces the 13 copied dish rows; the dishes point to it.
+5. The two haircut rows from an AI app's blog are replaced from a better source, or removed.
+6. Accommodation and Activities each have a priced item or a stated reason.
+**Out of scope:** ferries off the plan; the row's layout.
+**Touches:** `js/catalog.js`, `js/typical.js`, tests.
+**Done when:** at least 70 of the 85 searches are priced, and all 85 give an honest answer; the data test passes with no copied row and no AI-blog row.
+**Checks:** the data and 85-search tests, the full suite once, new prices checked against their source pages.
+**For your iPhone:** search "sunscreen", "ATM" and "adobo".
+
+## Q39 · Interface: Spacing and Type Names
+**Render:** 6 Nov 2026, 10:46, Ivan: "Render", then "Phases 0 to 5" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q30. From 3 Dec. · Effort: Medium.
+Findings: M18 (UX-14, UX-07).
+
+**Goal:** name the spacing and text sizes Suki already uses, so they can't drift.
+**Agreed:**
+1. The UX audit's names at the top of `css/app.css`, set to today's values: `--sp-gutter` 16, `--sp-text` 20, `--sp-inset` 16, `--sp-stack` 10, `--sp-section` 24, `--sp-header` 7, `--sp-foot` 8, `--sp-title` 10 on pages and 12 in sheets, `--sp-sheet` 24, `--sp-buttons` 10; `--t-large` 34, `--t-title1` 28, `--t-title2` 22, `--t-title3` 20, `--t-body` 17, `--t-callout` 16, `--t-sub` 15, `--t-foot` 13, `--t-cap1` 12, `--t-cap2` 11, `--t-till` 44. Rules use the names.
+2. `test_values.py`'s "list only shrinks" guard covers padding, margin, gap and font-size. Gaps under 6 pt are exempt. The three drifted gaps (Erase buttons, price notes card, sheet titles) are listed exceptions until the screen round fixes them.
+3. MAINTAINING: the names, and S08 (shared default 6) with a test.
+4. The element sheet (Q30) gains spacing and type columns.
+**Out of scope:** any visual change; the drifted gaps themselves.
+**Touches:** `css/app.css`, `tests/test_values.py`, `MAINTAINING.md`, `reference/elements.md` and its script.
+**Done when:** screenshots of all 31 screens match before and after; the guard and element sheet tests pass.
+**Checks:** the screenshot comparison, the full suite once.
+**For your iPhone:** nothing should look different.
+
+## Q40 · Interface: Kit 1.3.0, Zoom and Contrast
+**Render:** 6 Nov 2026, 10:46, Ivan: "Render", then "Phases 0 to 5" · scope as below, with every default in the shared block above · **Build:** awaiting
+For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q39, and parts kit 1.3.0 built (its own Render in `imperialfox/parts-kit`, not yet given). From 3 Dec. · Effort: Light to medium.
+Findings: M09 (UX-01), M10 (UX-02), M11 (UX-03), the Erase gap in M19 (UX-06), ideas list 15.
+
+**Goal:** Suki works with a keyboard, VoiceOver, zoom and Increase Contrast.
+**Agreed:**
+1. Pin kit 1.3.0 unchanged (checksums match). Its focus handling covers every sheet and alert. `openSheet()` and `closeSheet()` in `js/ui.js` pass the opener, so focus goes back to it.
+2. Erase all data becomes the kit's three-button alert (D23). S03 is retired.
+3. `HOST.rise()` goes, once the kit's sheets that fit their content rise on their own.
+4. `index.html` line 5 drops `maximum-scale` and `user-scalable`. `touch-action: manipulation` stops double-tap zoom.
+5. Under `prefers-contrast: more`: blue #0040dd and red #d70015, dark #409cff and #ff6961. The default colours are S07 (shared default 5).
+6. Tests: focus over every sheet and alert kind, contrast with Increase Contrast on, `test_parts.py` on the new pin.
+**Out of scope:** following the iPhone's text size; other kit changes; Vocal Sessions (its own Render).
+**Touches:** `js/parts-kit.js`, `css/parts-kit.css`, `tools/parts-kit/`, `js/parts.settings.js`, `js/ui.js`, `index.html`, `css/app.css`, `tests/test_parts.py`, `MAINTAINING.md`.
+**Done when:** focus enters, stays in and returns for every sheet and alert; every text pair is at least 4.5:1 with Increase Contrast on; the full suite passes.
+**Checks:** the new tests, the full suite once.
+**For your iPhone:** VoiceOver on with a sheet open, swipe right: it stays in the sheet. Pinch on Home: it zooms. Turn on Increase Contrast: blue text is darker. Settings › Erase all data: the alert shows (tap Cancel).

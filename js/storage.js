@@ -253,7 +253,56 @@ function mergeIn(dbList, lsList) {
   });
   return { list: base, added };
 }
+/* ===== Never save before loading (Q31) =====
+   Until the first load has finished, D is the empty starting list, so a save would write that over everything
+   saved. save() holds its keys instead; anything added meanwhile (a purchase logged on a slow start) is added to
+   the loaded lists, and the held keys are saved once. If loading fails, saves stay held and pull to refresh tries
+   loading again. */
+let READY = false;
+const HELD = new Set(),
+  heldWait = [];
+// records added before loading finished (by id; a learned word's id is the word), and a newer rate, put into the loaded data
+function adoptEarly(early) {
+  if (!early || early === D) return;
+  ['purchases', 'observations', 'learned'].forEach((k) => {
+    const have = new Set(D[k].map((r) => String(r.id))),
+      add = cleanList(early[k], k === 'purchases' ? cleanPurchase : k === 'learned' ? cleanWord : cleanObservation).filter((r) => !have.has(String(r.id)));
+    if (!add.length) return;
+    // purchases are newest first, as Home adds them; notes and words go on the end, as they're added
+    D[k] = k === 'purchases' ? add.concat(D[k]) : D[k].concat(add);
+    HELD.add(k);
+  });
+  const r = cleanRate(early.rate);
+  if (r && (!D.rate || new Date(r.cachedAt) > new Date(D.rate.cachedAt))) {
+    D.rate = r;
+    HELD.add('rate');
+  }
+}
 async function loadData() {
+  // a load that starts before the first one finishes (pull to refresh on a slow start) keeps held records too
+  const early = !READY;
+  try {
+    await readData(early);
+  } catch (e) {
+    // nothing was read, so nothing may be saved: held saves wait for the next load (pull to refresh)
+    if (!READY) return;
+    throw e;
+  }
+  // a second load that finished after the first: anything it put back is saved too
+  if (READY) {
+    const again = [...HELD];
+    HELD.clear();
+    if (again.length) await save(...again);
+    return;
+  }
+  READY = true;
+  const keys = [...HELD],
+    wait = heldWait.splice(0);
+  HELD.clear();
+  const ok = keys.length ? await save(...keys) : true;
+  wait.forEach((done) => done(ok));
+}
+async function readData(early) {
   if (!idb) idb = await openDB();
   STORE_WARN = !idb && 'indexedDB' in window;
   const got = await Promise.all(KEYS.map(readBoth)),
@@ -273,7 +322,9 @@ async function loadData() {
     raw[k] = m.list;
     merged += m.added;
   });
+  const before = D;
   D = cleanData(raw);
+  if (early) adoptEarly(before);
   const [rescue, safety] = await Promise.all([getKey('rescue'), getKey('safety')]);
   RESCUE = Array.isArray(rescue) ? rescue : [];
   SAFETY = safety && typeof safety === 'object' && safety.data ? safety : null;
@@ -299,6 +350,8 @@ const rescueCount = () => RESCUE.reduce((n, r) => n + ((r && r.items && r.items.
 const rescueDue = () => RESCUE.some((r) => r && !r.saved);
 // keep what's on the phone before a restore or Erase; false if it couldn't be kept (then nothing should change)
 async function keepSafetyCopy(why) {
+  // before loading has finished there's nothing true to keep, so a restore or Erase changes nothing (Q31)
+  if (!READY) return false;
   const s = { at: new Date().toISOString(), why, data: { purchases: D.purchases, observations: D.observations, rate: D.rate, learned: D.learned } };
   const ok = await putKey('safety', s);
   if (ok) SAFETY = s;
@@ -308,6 +361,11 @@ async function keepSafetyCopy(why) {
 // The warning stays until it's tapped, so a purchase that wasn't saved never looks saved (Q05)
 async function save(...keys) {
   if (!keys.length) keys = KEYS;
+  // not loaded yet: held, and saved with what's loaded once it lands; this answers when that save has happened (Q31)
+  if (!READY) {
+    keys.forEach((k) => HELD.add(k));
+    return new Promise((done) => heldWait.push(done));
+  }
   const ok = await Promise.all(keys.map((k) => putKey(k, D[k])));
   if (ok.includes(false)) toast('Couldn’t save. Your device may be out of space, so back up soon.', null, true);
   return !ok.includes(false);

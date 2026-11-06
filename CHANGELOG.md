@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.34 · 6 Nov 2026
+*Data: never save before loading (Q31)*
+
+**A slow start can't wipe your purchases**
+- When the phone is slow to hand Suki its saved data (just after a restart, say), Suki no longer saves anything until it has read what's there. Before, a purchase logged in those first seconds could replace every saved purchase with just that one.
+- A purchase, price note or learned word added while Suki is still loading is kept, and added to your saved ones as soon as they arrive.
+- Restore and Erase all data change nothing until loading has finished.
+
+**Home while loading**
+- Home's card says "Loading your purchases…" instead of "Nothing spent yet", and Recent says the same instead of "No purchases yet".
+- When your data arrives, the page you're on redraws with it. If you're typing, what you typed and the cursor stay put.
+
+Screens: SK-001
+
 ## 2.33 · 5 Nov 2026
 *Interface: presses and tap areas (Q29)*
 

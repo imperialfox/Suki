@@ -10,10 +10,13 @@ async function boot() {
   F.home = loadDraft();
   loadSmart();
   if (F.home.item || F.home.price || F.home.notes || F.home.location) U.more = !!(F.home.location || F.home.notes || F.home.venue);
-  // load, but never keep the launch screen up longer than about 2.5 s
-  await Promise.race([loadData().catch(() => {}), new Promise((r) => setTimeout(r, BOOT.CAP))]);
+  // load, but never keep the launch screen up longer than about 2.5 s. Saves wait for it either way (Q31)
+  const loading = loadData().catch(() => {});
+  await Promise.race([loading, new Promise((r) => setTimeout(r, BOOT.CAP))]);
   convFrom('gbp');
   render();
+  // still loading: Home says so, and the open tab redraws when the data lands (Q31)
+  if (!READY) loading.then(dataLanded);
   const wait = MOTION.speed() === 0 ? 0 : Math.max(0, BOOT.MIN - (performance.now() - BOOT.t0));
   setTimeout(() => {
     const s = $('splash');
@@ -31,6 +34,16 @@ async function boot() {
   fixRates();
   checkStorage();
   registerSW();
+}
+
+// the data has landed after the launch screen went: redraw, but not under an open sheet or a box being typed in,
+// where it waits (saving from either redraws anyway). If loading failed, Home keeps its loading line (Q31)
+function dataLanded() {
+  if (!READY) return;
+  const ae = document.activeElement;
+  if (U.sheet || (ae && ae.matches && ae.matches('input,textarea,select'))) return setTimeout(dataLanded, 300);
+  convFrom(U.conv.last || 'gbp');
+  rerender();
 }
 
 /* ===== Settings › About details ===== */

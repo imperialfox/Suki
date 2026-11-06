@@ -261,7 +261,10 @@ function scrHome() {
   // two doors in one card: the total opens all your spending, Today opens today's (Q08)
   const dash =
     rateCard() +
-    (D.purchases.length
+    // still loading after the launch screen (a slow start): say so, never "Nothing spent yet" (Q31)
+    (!READY
+      ? '<div class="card sumcard static none loading" role="status"><span class="stat"><span class="mid">Loading your purchases…</span><span class="cap">This can take a moment after the phone restarts.</span></span></div>'
+      : D.purchases.length
       ? '<div class="card sumcard doors' + (cash(total).length > 11 || cash(today).length > 11 ? ' long' : '') + '">' +
         '<button class="stat door" data-a="toSpend" data-v="all" aria-label="Total spent ' + cash(total) + '. Open all spending"><span class="big">' + cash(total) + '</span><span class="cap">Total spent' + (lb ? ' · ≈ ' + gbp(lb.g) : '') + '<span class="cv" aria-hidden="true"> ›</span></span>' + (lbNote ? '<span class="cap rn">' + lbNote + '</span>' : '') + '</button>' +
         '<button class="stat r door" data-a="toSpend" data-v="day" aria-label="Today ' + cash(today) + '. Open today’s spending"><span class="mid">' + cash(today) + '</span><span class="cap">Today<span class="cv" aria-hidden="true"> ›</span></span></button></div>'
@@ -284,7 +287,7 @@ function scrHome() {
     (recent.length
       ? '<div class="grp tiled">' + recent.map((p) => purchaseRow(p)).join('') +
         (D.purchases.length > recent.length ? '<button class="row more" data-a="toSpend" data-v="all"><span class="lbl">Show all ' + D.purchases.length + ' purchases</span>' + ICON.chev + '</button>' : '') + '</div>'
-      : '<div class="grp"><div class="empty">No purchases yet. Log your first one ' + (split() ? 'here.' : 'above.') + '</div></div>');
+      : '<div class="grp"><div class="empty">' + (READY ? 'No purchases yet. Log your first one ' + (split() ? 'here.' : 'above.') : 'Loading your purchases…') + '</div></div>');
   return (
     // the date and the title both open the calendar (Apple Books style)
     '<button class="dateline hometitle" data-a="calendar" tabindex="-1" aria-hidden="true">' + longDate(localISO()) + '</button>' +

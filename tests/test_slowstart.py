@@ -4,17 +4,26 @@ spent; a purchase logged meanwhile is added to the loaded ones, never saved over
 data lands; and a restore or Erase changes nothing until then."""
 from harness import READ, ready
 
-# 'test:slowdb' (milliseconds): reads from Suki's storage made in that time after the page starts answer only when it's
-# up, as on a phone just restarted. Storage itself opens at once and writes go straight in, so on 2.33 a save in that
-# time replaced the stored list (4 purchases became 1)
+# 'test:slowdb' (milliseconds): reads from Suki's storage answer only once that long has passed since the page started
+# and the test has called __releaseReads() (or after 20 s), as on a phone just restarted. Waiting for the test as well
+# keeps a slower machine from running out the delay before the checks. Storage itself opens at once and writes go
+# straight in, so on 2.33 a save in that time replaced the stored list (4 purchases became 1)
 SLOW = """(()=>{let ms=0;try{ms=+localStorage.getItem('test:slowdb')||0}catch(e){}if(!ms)return;
+ let open=false;const q=[],go=()=>{open=true;q.splice(0).forEach(f=>f())};
+ window.__releaseReads=()=>setTimeout(go,Math.max(0,ms-performance.now()));setTimeout(go,20000);
  const get=IDBObjectStore.prototype.get;
  IDBObjectStore.prototype.get=function(){const r=get.apply(this,arguments);
-  if(this.transaction.db.name!=='suki-db'||performance.now()>=ms)return r;
+  if(open||this.transaction.db.name!=='suki-db')return r;
   let fn=null;Object.defineProperty(r,'onsuccess',{configurable:true,get(){return fn},set(f){fn=f}});
-  r.addEventListener('success',e=>setTimeout(()=>fn&&fn.call(r,e),Math.max(0,ms-performance.now())));return r}})()"""
+  r.addEventListener('success',e=>{const f=()=>fn&&fn.call(r,e);open?f():q.push(f)});return r}})()"""
 # counts every moment Home's empty state shows, from when the launch screen has gone
 WATCH = """()=>{window.__empty=0;setInterval(()=>{const a=document.getElementById('app');if(a&&/Nothing spent yet|No purchases yet/.test(a.innerText))window.__empty++},50)}"""
+
+
+def landed(pg):
+    """Let the held reads answer (no sooner than 4 s after the reload) and wait for the data to land."""
+    pg.evaluate("__releaseReads()")
+    pg.wait_for_function("READY", timeout=15000)
 
 
 def slow_reload(pg, ms=4000):
@@ -36,14 +45,14 @@ def run(b, t):
        'Home’s card says it’s loading your purchases')
     ok('Nothing spent yet' not in pg.inner_text('#app') and 'No purchases yet' not in pg.inner_text('#app'),
        'and never shows the empty state while loading')
-    t.shot(pg, 'loading-375-light')
-    ok(pg.evaluate("keepSafetyCopy('erase')") is False, 'a restore or Erase can’t start while loading, so nothing changes')
+    r = pg.evaluate("async()=>{window.__held=null;save('purchases').then(ok=>window.__held=ok);const safe=await keepSafetyCopy('erase');await new Promise(r=>setTimeout(r,200));return [READY,window.__held,safe]}")
+    ok(r[0] is False and r[1] is None, 'a save while loading is held, not written')
+    ok(r[2] is False, 'a restore or Erase can’t start while loading, so nothing changes')
     pg.fill('#home-item', 'Halo-halo'); pg.fill('#home-price', '95'); pg.click('form[data-form=home] .cta')
     pg.wait_for_function("D.purchases.some(p=>p.item==='Halo-halo')")
-    pg.evaluate("()=>{window.__held=null;save('purchases').then(ok=>window.__held=ok)}")
-    pg.wait_for_timeout(200)
-    ok(pg.evaluate("window.__held") is None, 'a save while loading is held, not written')
-    pg.wait_for_function("READY", timeout=10000)
+    ok(pg.evaluate("!READY&&D.purchases.length===1"), 'a purchase is logged while still loading')
+    t.shot(pg, 'loading-375-light')
+    landed(pg)
     pg.wait_for_function("window.__held===true", timeout=5000)
     ok(True, 'and answers once the real save has happened')
     pg.wait_for_function("!document.querySelector('.sumcard.loading')", timeout=5000)
@@ -61,8 +70,9 @@ def run(b, t):
     slow_reload(pg)
     pg.fill('#home-item', 'Taho'); pg.fill('#home-price', '20'); pg.click('form[data-form=home] .cta')
     pg.wait_for_function("D.purchases.some(p=>p.item==='Taho')")
-    pg.evaluate("undoSave(D.purchases.find(p=>p.item==='Taho').id)")
-    pg.wait_for_function("READY", timeout=10000)
+    pg.evaluate("()=>{undoSave(D.purchases.find(p=>p.item==='Taho').id)}")
+    ok(pg.evaluate("!READY"), 'Undo while still loading')
+    landed(pg)
     pg.wait_for_timeout(300)
     items = pg.evaluate("D.purchases.map(p=>p.item)")
     ok(len(items) == 5 and 'Taho' not in items and len(pg.evaluate(READ, 'purchases')) == 5, 'Undo while loading leaves the 5, with no copy')
@@ -70,24 +80,25 @@ def run(b, t):
     # 3. The open tab redraws when the data lands: Spending, and Home while a box has the cursor
     slow_reload(pg)
     pg.evaluate("go('spending')")
-    pg.wait_for_function("READY", timeout=10000)
+    landed(pg)
     pg.wait_for_function("document.getElementById('app').innerText.includes('Chickenjoy bucket')", timeout=5000)
     ok(True, 'Spending, opened while loading, redraws with your purchases when they land')
     pg.evaluate("go('home')")
     slow_reload(pg)
     pg.focus('#home-item'); pg.keyboard.type('Ube')
-    pg.wait_for_function("READY", timeout=10000)
+    landed(pg)
     pg.wait_for_function("!document.querySelector('.sumcard.loading')", timeout=5000)
     ok(pg.input_value('#home-item') == 'Ube' and pg.evaluate("document.activeElement.id") == 'home-item',
        'typing while the data lands keeps the cursor and what was typed')
     pg.keyboard.type(' halaya')
     ok(pg.input_value('#home-item') == 'Ube halaya', 'and typing carries on in the same box')
 
-    # 4. Loading still in progress after the redraw is in place: a price note and a learned word are kept too
+    # 4. A price note and a learned word added while loading are kept too
     slow_reload(pg)
-    pg.evaluate("""D.observations.push({id:'oq',itemId:'bigas',itemName:'Bigas',price:50,date:localISO(),location:'',venue:'',note:''});
-      D.learned.push({id:'kalesa',word:'kalesa',category:'Transport',label:'kalesa'});save('observations','learned')""")
-    pg.wait_for_function("READY", timeout=10000)
+    pg.evaluate("""()=>{D.observations.push({id:'oq',itemId:'bigas',itemName:'Bigas',price:50,date:localISO(),location:'',venue:'',note:''});
+      D.learned.push({id:'kalesa',word:'kalesa',category:'Transport',label:'kalesa'});save('observations','learned')}""")
+    ok(pg.evaluate("!READY"), 'a price note and a learned word added while still loading')
+    landed(pg)
     pg.wait_for_timeout(300)
     ok(pg.evaluate("D.observations.length") == 3 and len(pg.evaluate(READ, 'observations')) == 3, 'a price note added while loading joins the 2 saved ones')
     ok(pg.evaluate("D.learned.some(w=>w.word==='kalesa')") and any(w['word'] == 'kalesa' for w in pg.evaluate(READ, 'learned')), 'and so does a learned word')
@@ -98,5 +109,5 @@ def run(b, t):
     pg = t.page(b, w=375, h=812, sc='dark', init=SLOW)
     slow_reload(pg)
     t.shot(pg, 'loading-375-dark')
-    pg.wait_for_function("READY", timeout=10000)
+    landed(pg)
     pg.context.close()

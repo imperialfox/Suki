@@ -4,6 +4,7 @@ What each build cost, newest first, so the effort guessed at Render can be check
 
 | Date | Item | Version | Guess | Real | Steps | Written | Re-read | Full test runs | Biggest share |
 |---|---|---|---|---|---|---|---|---|---|
+| 9 Nov 2026 | Q33 | 2.35 | Light to medium | Light to medium | 55 | 46k | 12.9M | 1 | Instructions |
 | 6 Nov 2026 | Q31 | 2.34 | Light | Light to medium | 53 | 42k | 11.8M | 1 | Instructions |
 | 5 Nov 2026 | Q29 | 2.33 | Light | Light to medium | 79 | 70k | 21.8M | 1 | Instructions (62%) |
 | 5 Nov 2026 | Q28 | 2.32 | Medium | Medium | 133 | 107k | 44.3M | 1 | Instructions (62%) |

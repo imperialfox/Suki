@@ -1,8 +1,8 @@
 # Suki
 
-![Version 2.34](https://img.shields.io/badge/version-2.34-blue)
+![Version 2.35](https://img.shields.io/badge/version-2.35-blue)
 
-**Current version: 2.34 · 6 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
+**Current version: 2.35 · 9 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
 
 Suki is a personal travel companion for the Philippines. It checks your change, converts pounds and pesos, looks up prices and keeps track of what you spend. It's a Home Screen web app for iPhone, iPad and Mac, and works offline.
 

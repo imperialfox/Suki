@@ -178,7 +178,7 @@ def run(b, t):
 
     # ── Q05: "Couldn't save" stays up, and an Undo message doesn't hide it ──
     pg = t.page(b)
-    pg.evaluate("putKey=()=>Promise.resolve(false);go('spending')")
+    pg.evaluate("putKey=putChecked=()=>Promise.resolve(false);go('spending')")
     pg.click('[data-a=openPurchase][data-k=a1]'); pg.wait_for_timeout(150)
     pg.click('.sheet [data-a=delPurchase]'); pg.click('#layer .pk-alert [data-a=yes]'); pg.wait_for_timeout(300)
     ok(pg.locator('.toast.sticky').count() == 1 and pg.locator('.toast.undo').count() == 1, 'a failed save shows a warning, and Undo is still there below it')

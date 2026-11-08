@@ -261,28 +261,35 @@ function mergeIn(dbList, lsList) {
 let READY = false;
 const HELD = new Set(),
   heldWait = [];
-// records added before loading finished (by id; a learned word's id is the word), and a newer rate, put into the loaded data
-function adoptEarly(early) {
-  if (!early || early === D) return;
-  ['purchases', 'observations', 'learned'].forEach((k) => {
+// records added before loading finished (by id; a learned word's id is the word), and a newer rate, put into the loaded data.
+// known (Q33): ids this window had already loaded or saved, so only what it added since is carried over. Returns the keys it changed
+function adoptEarly(early, known) {
+  const changed = new Set();
+  if (!early || early === D) return changed;
+  RECORDS.forEach((k) => {
     const have = new Set(D[k].map((r) => String(r.id))),
-      add = cleanList(early[k], k === 'purchases' ? cleanPurchase : k === 'learned' ? cleanWord : cleanObservation).filter((r) => !have.has(String(r.id)));
+      old = (known && known[k]) || new Set(),
+      add = cleanList(early[k], k === 'purchases' ? cleanPurchase : k === 'learned' ? cleanWord : cleanObservation).filter(
+        (r) => !have.has(String(r.id)) && !old.has(String(r.id))
+      );
     if (!add.length) return;
     // purchases are newest first, as Home adds them; notes and words go on the end, as they're added
     D[k] = k === 'purchases' ? add.concat(D[k]) : D[k].concat(add);
-    HELD.add(k);
+    changed.add(k);
   });
   const r = cleanRate(early.rate);
   if (r && (!D.rate || new Date(r.cachedAt) > new Date(D.rate.cachedAt))) {
     D.rate = r;
-    HELD.add('rate');
+    changed.add('rate');
   }
+  return changed;
 }
 async function loadData() {
   // a load that starts before the first one finishes (pull to refresh on a slow start) keeps held records too
   const early = !READY;
   try {
-    await readData(early);
+    // once loaded, a reload waits its turn behind any save (Q33)
+    await (early ? readData(true) : serial(() => readData(false)));
   } catch (e) {
     // nothing was read, so nothing may be saved: held saves wait for the next load (pull to refresh)
     if (!READY) return;
@@ -324,7 +331,10 @@ async function readData(early) {
   });
   const before = D;
   D = cleanData(raw);
-  if (early) adoptEarly(before);
+  // what's stored now, so a save can tell if another window has saved since (Q33)
+  KEYS.forEach((k, i) => (SEEN[k] = sig(idb ? got[i].db : got[i].ls)));
+  knowNow();
+  if (early) adoptEarly(before).forEach((k) => HELD.add(k));
   const [rescue, safety] = await Promise.all([getKey('rescue'), getKey('safety')]);
   RESCUE = Array.isArray(rescue) ? rescue : [];
   SAFETY = safety && typeof safety === 'object' && safety.data ? safety : null;
@@ -338,6 +348,7 @@ async function readData(early) {
   // fallback records now safely in IndexedDB: the fallback copies can go
   if (idb && merged) {
     const ok = await Promise.all(KEYS.map((k) => putKey(k, D[k])));
+    KEYS.forEach((k) => (SEEN[k] = sig(D[k])));
     if (!ok.includes(false))
       KEYS.forEach((k) => {
         try {
@@ -366,10 +377,140 @@ async function save(...keys) {
     keys.forEach((k) => HELD.add(k));
     return new Promise((done) => heldWait.push(done));
   }
-  const ok = await Promise.all(keys.map((k) => putKey(k, D[k])));
-  if (ok.includes(false)) toast('Couldn’t save. Your device may be out of space, so back up soon.', null, true);
-  return !ok.includes(false);
+  const ok = await serial(() => writeKeys(keys));
+  if (!ok) toast('Couldn’t save. Your device may be out of space, so back up soon.', null, true);
+  return ok;
 }
+
+/* ===== Other windows (Q33) =====
+   Two Safari tabs (or a tab and the Home Screen app on a Mac) share one storage. Each window keeps the list it loaded,
+   so a save from a window that hasn't seen the other's purchases would write them away. Not a merge: when another window
+   has saved, this one reloads what's stored, keeps only the records it added itself since, and then saves.
+   - SEEN: what this window last read or wrote for each key. A save of his records reads the key in the same storage
+     transaction and writes only if it's still SEEN, so nothing between the check and the write can slip in.
+   - KNOWN: the ids this window has loaded or saved, so a reload can tell what it added itself.
+   - Every save tells the other windows (BroadcastChannel 'suki'), and they reload straight away, with a toast.
+     Saves and reloads in one window take turns (serial), so a reload never lands in the middle of a save. */
+const RECORDS = ['purchases', 'observations', 'learned'];
+const SEEN = {},
+  KNOWN = {};
+const sig = (v) => (v === undefined || v === null ? '∅' : JSON.stringify(v));
+const idsOf = (list) => new Set((Array.isArray(list) ? list : []).map((r) => r && String(r.id)));
+function knowNow(keys = RECORDS) {
+  keys.forEach((k) => RECORDS.includes(k) && (KNOWN[k] = idsOf(D[k])));
+}
+let CHAIN = Promise.resolve();
+function serial(fn) {
+  const p = CHAIN.then(fn);
+  CHAIN = p.catch(() => {});
+  return p;
+}
+// write one key, but for his records only if nobody has saved it since this window last saw it: true, false, or 'stale'
+function putChecked(k, v, check) {
+  const want = SEEN[k],
+    guard = check && RECORDS.includes(k) && want !== undefined;
+  // taken as it's written: the list can change while the write is under way
+  let snap = null;
+  const take = () => (snap = { sig: sig(v), ids: RECORDS.includes(k) ? idsOf(v) : null }),
+    done = (ok) => {
+      if (ok && snap) {
+        SEEN[k] = snap.sig;
+        if (snap.ids) KNOWN[k] = snap.ids;
+      }
+      return ok;
+    };
+  return new Promise((resolve) => {
+    if (!idb) {
+      if (guard && sig(lsGet(k)) !== want) return resolve('stale');
+      take();
+      return resolve(done(lsSet(k, v)));
+    }
+    // the fallback spot isn't what SEEN describes, so the next save can't check against it
+    let fell = false;
+    const fallback = () => {
+      if (fell) return;
+      fell = true;
+      take();
+      const ok = lsSet(k, v);
+      if (ok && snap.ids) KNOWN[k] = snap.ids;
+      SEEN[k] = undefined;
+      resolve(ok);
+    };
+    try {
+      const t = idb.transaction('kv', 'readwrite'),
+        s = t.objectStore('kv');
+      let stale = false;
+      const write = () => {
+        try {
+          take();
+          s.put(v, k);
+        } catch (e) {
+          t.abort();
+        }
+      };
+      if (!guard) write();
+      else {
+        const r = s.get(k);
+        r.onsuccess = () => (sig(r.result) !== want ? (stale = true) : write());
+      }
+      t.oncomplete = () => resolve(stale ? 'stale' : done(true));
+      t.onerror = t.onabort = fallback;
+    } catch (e) {
+      fallback();
+    }
+  });
+}
+// save the keys; if another window saved first, reload and try again (the third try writes without checking)
+async function writeKeys(keys) {
+  const want = new Set(keys);
+  for (let i = 0; i < 3; i++) {
+    const list = [...want],
+      res = await Promise.all(list.map((k) => putChecked(k, D[k], i < 2)));
+    if (!res.includes('stale')) {
+      tellOthers(list.filter((k, j) => res[j] === true));
+      return !res.includes(false);
+    }
+    (await syncData()).forEach((k) => want.add(k));
+  }
+  return false;
+}
+// read what's stored again and keep what this window added since; returns the keys that still need saving
+async function syncData() {
+  const before = D,
+    known = Object.assign({}, KNOWN),
+    old = Object.assign({}, SEEN);
+  await readData(false);
+  const mine = adoptEarly(before, known),
+    theirs = RECORDS.some((k) => SEEN[k] !== old[k]);
+  if (theirs) toast('Updated from another window');
+  if (theirs || SEEN.rate !== old.rate || mine.size) dataLanded();
+  return mine;
+}
+let CHAN = null;
+function tellOthers(keys) {
+  if (CHAN && keys.length)
+    try {
+      CHAN.postMessage({ keys });
+    } catch (e) {}
+}
+function fromOther(keys) {
+  if (!READY || !Array.isArray(keys) || !keys.some((k) => KEYS.includes(k))) return;
+  serial(async () => {
+    const mine = await syncData();
+    if (mine.size) await writeKeys([...mine]);
+  }).catch(() => {});
+}
+try {
+  CHAN = new BroadcastChannel('suki');
+  CHAN.onmessage = (e) => fromOther(e.data && e.data.keys);
+} catch (e) {
+  CHAN = null;
+}
+// with no IndexedDB, saves go to localStorage, which tells the other windows itself
+window.addEventListener('storage', (e) => {
+  const m = !idb && e.key && /^suki:(\w+)$/.exec(e.key);
+  if (m && KEYS.includes(m[1])) fromOther([m[1]]);
+});
 
 /* ===== Device-only bits (not backed up) ===== */
 // Quick Till's note animation (Q18): 'fly' (the starting setting) or 'slot'. Kept as 'suki:noteAnim' only when it's Slot

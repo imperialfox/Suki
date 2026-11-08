@@ -1230,3 +1230,40 @@ function toast(t, undo, sticky) {
   SCR.mark(el, 'overlay:toast');
   return c;
 }
+
+/* ===== Unexpected errors (Q33) =====
+   Anything that goes wrong without being caught shows Suki's sticky warning instead of failing silently, and is kept
+   on this device under 'suki:errors' (the last 20, never backed up) so it can be looked at later. Nothing is saved or
+   changed: his records are only ever written by save(). A "Couldn't save" warning on screen is left in place, as it
+   matters more. The browser still reports the error as before, so the tests see it too. */
+const ERRORS = { key: 'suki:errors', keep: 20 };
+function noteError(err, where) {
+  const msg = String((err && (err.stack || err.message)) || err || 'Unknown error').slice(0, 600);
+  // Chrome's harmless resize notice isn't a fault
+  if (/ResizeObserver loop/.test(msg)) return;
+  try {
+    let list = JSON.parse(localStorage.getItem(ERRORS.key) || '[]');
+    if (!Array.isArray(list)) list = [];
+    const last = list[list.length - 1],
+      at = new Date().toISOString();
+    // the same error over and over (in a loop, say) is counted, not kept twenty times
+    if (last && last.msg === msg && Date.now() - new Date(last.at) < 5000) {
+      last.n = (last.n || 1) + 1;
+      last.at = at;
+    } else list.push({ at, version: APP_VERSION, where: String(where || '').slice(0, 120), msg });
+    localStorage.setItem(ERRORS.key, JSON.stringify(list.slice(-ERRORS.keep)));
+  } catch (e) {}
+  try {
+    const s = document.querySelector('.toast.sticky');
+    if (s) return;
+    toast('Something went wrong. Your records are safe.', null, true);
+    const w = document.querySelector('.toast.sticky');
+    if (w) w.classList.add('sk-error');
+  } catch (e) {}
+}
+window.addEventListener('error', (e) => {
+  // a picture or file that didn't load isn't a script error
+  if (e.target && e.target !== window) return;
+  noteError(e.error || e.message, (String(e.filename || '').split('/').pop() || '') + (e.lineno ? ':' + e.lineno : ''));
+});
+window.addEventListener('unhandledrejection', (e) => noteError(e.reason, 'promise'));

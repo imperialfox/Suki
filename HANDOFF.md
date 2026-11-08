@@ -807,7 +807,7 @@ Findings: M08 (both audits ran Chrome only; `tests.yml` installs Chromium only),
 **For your iPhone:** nothing; it's the tests.
 
 ## Q33 · Data: Other Windows and an Error Notice
-**Render:** 6 Nov 2026, 10:46, Ivan: "Render", then "Phases 0 to 5" · scope as below, with every default in the shared block above · **Build:** awaiting
+**Render:** 6 Nov 2026, 10:46, Ivan: "Render", then "Phases 0 to 5" · scope as below, with every default in the shared block above · **Build:** 9 Nov 2026, 05:48 (Manila), Ivan: "Suki Q33 Build" · shipped as 2.35 (the version before it is commit `109f3e9`, 2.34)
 For: Ivan · Builder: Claude · Repo: imperialfox/Suki · Needs: Q31. · Effort: Light to medium.
 Findings: M02 (F2), M16 (F10), M15 (UX-04).
 
@@ -822,6 +822,7 @@ Findings: M02 (F2), M16 (F10), M15 (UX-04).
 **Done when:** two windows each logging a purchase keep both; a forced error shows the notice and loses nothing; "Delete" fits one line at 375 and 402 pt; the full suite passes.
 **Checks:** the new tests, the full suite once.
 **For your iPhone:** swipe left on a purchase, tap Delete: the alert's red button says "Delete" on one line. Undo.
+**Debrief (2.35):** Default used: other windows reload, no merge (shared default 4). Each save of `purchases`, `observations` or `learned` goes through `putChecked()`: it reads the key and writes in the same IndexedDB transaction only if it still matches what this window last read or wrote (`SEEN`), so nothing can slip in between. If another window saved first, `syncData()` reloads and keeps only the records this window added since (by id, against `KNOWN`, reusing Q31's `adoptEarly`), then saves; the third try writes unchecked. Every save posts its keys on `BroadcastChannel('suki')` and other windows reload at once with "Updated from another window" (records only; a newer rate is taken quietly); with no IndexedDB the `storage` event does it. Saves and reloads in one window take turns (`serial()`), pull to refresh's reload included. The error notice is `noteError()` in `ui.js` (`error` and `unhandledrejection`): the sticky warning (`.sk-error`) unless a sticky one is already up, the last 20 under `suki:errors` (repeats within 5 s counted as `n`), nothing else changed. The two delete alerts say "Delete". Screens: SK-011, SK-012, SK-016. Tests: new `test_windows.py` (37 checks); with the save check switched off, its missed-message case fails, so the check is what keeps both. `test_parts.py`'s two alert labels updated; `test_data.py`'s faked failed save now replaces `putChecked` too (saves no longer use `putKey`). Full suite 1,636 of 1,637 locally side by side; the one miss was the known launch timeout in `test_offline.py` (small machine), which passed 9 of 9 on its own. While building, the quick suite also showed the known `test_smart.py` fold check (Q32 fixes it). Left for later: an edit or delete made in a window at the instant it's updated from another is lost to the reload (not a merge, by design); errors in files loaded before `ui.js` aren't caught; nothing in Settings shows `suki:errors` yet; Q31's trip rule asks for each build to be phone-checked before the next, and Q31's phone check isn't recorded here.
 
 ## Q34 · Rate: Sanity Check
 **Render:** 6 Nov 2026, 10:46, Ivan: "Render", then "Phases 0 to 5" · scope as below, with every default in the shared block above · **Build:** awaiting

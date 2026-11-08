@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.35 · 9 Nov 2026
+*Data: other windows and an error notice (Q33)*
+
+**Two windows can't wipe each other's purchases**
+- With Suki open in two Safari tabs (or a tab and the Home Screen app on a Mac), a save in one used to write away what the other had saved since it opened. Now when one window saves, the other reloads straight away and says "Updated from another window".
+- A window that missed that (asleep in the background, say) checks before it saves. If the other window saved first, it reloads, keeps the purchase, price note or word it just added, and then saves, so both are kept.
+- This isn't merging: a change made in a window at the very moment it's updated from the other can be undone by the reload. Purchases it added are always kept.
+
+**Something going wrong is never silent**
+- If anything goes wrong that Suki didn't expect, it shows its sticky warning, "Something went wrong. Your records are safe.", with OK. Nothing is saved or changed by it.
+- A "Couldn't save" warning on screen stays put, as it matters more.
+- The last 20 such errors are kept on this device (`suki:errors`) with when they happened and the version, so they can be looked at later. They're not in backups.
+
+**Delete alerts**
+- The red button in "Delete this purchase?" and "Delete this price note?" now just says "Delete".
+
+**Tests**
+- `test_windows.py`: two windows each logging a purchase keep both, a window that missed the message keeping both, a delete reaching the other window, a price note, a rate taken quietly; the error notice for an error and a failed promise, the last 20 kept, one notice for many, the same error counted once, "Couldn't save" staying, nothing lost; "Delete" on one line at 375 and 402 wide.
+
+Screens: SK-011, SK-012, SK-016
+
 ## 2.34 · 6 Nov 2026
 *Data: never save before loading (Q31)*
 

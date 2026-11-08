@@ -640,7 +640,7 @@ const ACT = {
     if (!p) return;
     openSheet(
       'confirm',
-      { title: 'Delete this purchase?', text: p.item + ', ' + cash(p.price) + '.', btn: 'Delete purchase', action: 'delPurchaseYes', k: p.id },
+      { title: 'Delete this purchase?', text: p.item + ', ' + cash(p.price) + '.', btn: 'Delete', action: 'delPurchaseYes', k: p.id },
       !!U.sheet
     );
   },
@@ -699,7 +699,7 @@ const ACT = {
   delObs: (el) => {
     const o = D.observations.find((x) => x.id === el.dataset.k);
     if (!o) return;
-    openSheet('confirm', { title: 'Delete this price note?', text: o.itemName + ', ' + cash(o.price) + ' on ' + shortDate(o.date) + '.', btn: 'Delete note', action: 'delObsYes', k: o.id }, !!U.sheet);
+    openSheet('confirm', { title: 'Delete this price note?', text: o.itemName + ', ' + cash(o.price) + ' on ' + shortDate(o.date) + '.', btn: 'Delete', action: 'delObsYes', k: o.id }, !!U.sheet);
   },
   delObsYes: async (el) => {
     const at = D.observations.findIndex((o) => o.id === el.dataset.k),

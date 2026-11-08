@@ -39,7 +39,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q30 | Interface: Element Sheet | Approved — awaiting Build | Medium | none | The same audit, finding 20 (element sheet). After Q28 |
 | Q31 | Data: Never Save Before Loading | Shipped · 2.34 | Light | none (wireframe skipped by Ivan) | Cross-audit M01 (F1). Phase 0: on 6 Nov only if phone-checked that evening, else first on the trip |
 | Q32 | Tests: Safari Engine and a Steady Suite | Approved — awaiting Build | Light to medium | none | Cross-audit M08, M17 (ideas list 5). Tests and GitHub only, no app version |
-| Q33 | Data: Other Windows and an Error Notice | Approved — awaiting Build | Light to medium | none (wireframe skipped by Ivan) | Cross-audit M02, M16, M15. After Q31 |
+| Q33 | Data: Other Windows and an Error Notice | Shipped · 2.35 | Light to medium | none (wireframe skipped by Ivan) | Cross-audit M02, M16, M15. After Q31 |
 | Q34 | Rate: Sanity Check | Approved — awaiting Build | Light | none (wireframe skipped by Ivan) | Cross-audit M03 (F6) |
 | Q35 | Prices: Data Checks, Age, Rail Fare and Units | Approved — awaiting Build | Light | none (wireframe skipped by Ivan) | Cross-audit M12, M04, M06 data half |
 | Q36 | Search: Stricter Matching | Approved — awaiting Build | Light to medium | none (wireframe skipped by Ivan) | Cross-audit M05 (F3). After Q35 |
@@ -52,15 +52,14 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 
 Build top to bottom; each still needs its own **build**. One line per item: `N. Q## — reason`, with "needs Q##" for anything that must ship first. Names live in the table above.
 
-1. Q33 — other windows, an error notice and the Delete label; needs Q31 (shipped as 2.34) (Ivan, 6 Nov 2026)
-2. Q34 — the live rate's sanity check (Ivan, 6 Nov 2026)
-3. Q35 — price data checks, age, rail fare and units (Ivan, 6 Nov 2026)
-4. Q36 — stricter Search matching; needs Q35 (Ivan, 6 Nov 2026)
-5. Q37 — prices, stage 1; needs Q35, Q36 (Ivan, 6 Nov 2026)
-6. Q38 — prices, stage 2 and clean-up; needs Q37 (Ivan, 6 Nov 2026)
-7. Q30 — the element sheet; needs Q28 (shipped as 2.32); moved behind Q31 to Q38 by the 6 Nov Render, from 3 Dec (Ivan, 5 Nov 2026)
-8. Q39 — spacing and type names; needs Q30; from 3 Dec (Ivan, 6 Nov 2026)
-9. Q40 — kit 1.3.0, zoom and contrast; needs Q39 and parts kit 1.3.0 (its own Render, not yet given); from 3 Dec (Ivan, 6 Nov 2026)
+1. Q34 — the live rate's sanity check (Ivan, 6 Nov 2026)
+2. Q35 — price data checks, age, rail fare and units (Ivan, 6 Nov 2026)
+3. Q36 — stricter Search matching; needs Q35 (Ivan, 6 Nov 2026)
+4. Q37 — prices, stage 1; needs Q35, Q36 (Ivan, 6 Nov 2026)
+5. Q38 — prices, stage 2 and clean-up; needs Q37 (Ivan, 6 Nov 2026)
+6. Q30 — the element sheet; needs Q28 (shipped as 2.32); moved behind Q31 to Q38 by the 6 Nov Render, from 3 Dec (Ivan, 5 Nov 2026)
+7. Q39 — spacing and type names; needs Q30; from 3 Dec (Ivan, 6 Nov 2026)
+8. Q40 — kit 1.3.0, zoom and contrast; needs Q39 and parts kit 1.3.0 (its own Render, not yet given); from 3 Dec (Ivan, 6 Nov 2026)
 
 ### Any time
 

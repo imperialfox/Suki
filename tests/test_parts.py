@@ -146,7 +146,7 @@ def alerts(b, t):
     # delete a purchase: Cancel keeps it; Delete deletes it, then Undo
     pg.evaluate("go('spending')"); pg.evaluate("ACT.delPurchase({dataset:{k:'a1'}})"); pg.wait_for_timeout(60)
     a = q()
-    ok(a and a[0] == 'Delete this purchase?' and a[1] == 'Chickenjoy bucket, ₱459.00.' and a[2] == 'Delete purchase' and a[3] == 'Cancel' and a[4] == 'SK-011',
+    ok(a and a[0] == 'Delete this purchase?' and a[1] == 'Chickenjoy bucket, ₱459.00.' and a[2] == 'Delete' and a[3] == 'Cancel' and a[4] == 'SK-011',
        f'Delete a purchase is the kit’s alert, SK-011 ({a})')
     ok(pg.evaluate(f"(e=>e.querySelector('[data-a=yes]').classList.contains('pk-red')&&getComputedStyle(e).borderTopLeftRadius)(document.querySelector('{ALERT}'))") == '34px',
        'with a red action and 34 corners (--r-alert)')
@@ -174,7 +174,7 @@ def alerts(b, t):
     n = pg.evaluate("D.observations.length")
     pg.click('#layer .sheet [data-a=delObs] >> nth=0'); pg.wait_for_timeout(60)
     a = q()
-    ok(a and a[0] == 'Delete this price note?' and a[2] == 'Delete note' and a[4] == 'SK-012', f'Delete a price note is an alert, SK-012 ({a})')
+    ok(a and a[0] == 'Delete this price note?' and a[2] == 'Delete' and a[4] == 'SK-012', f'Delete a price note is an alert, SK-012 ({a})')
     pg.click(f'{ALERT} [data-a=yes]'); pg.wait_for_timeout(100)
     ok(pg.evaluate("U.sheet") == 'item' and pg.evaluate("D.observations.length") == n - 1 and pg.locator('.toast.undo:not(.pk-leaving)').count() == 1,
        'deleting it goes back to the item, with Undo')

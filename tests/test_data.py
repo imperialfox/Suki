@@ -221,6 +221,90 @@ def run(b, t):
     ok('the saved rate is still in use' in pg.inner_text('.toast'), 'and the refresh says the saved rate is still in use')
     pg.context.close()
 
+    # ── Q34: a live rate far from the saved one needs a second source to agree ──
+    # the audit's case: Frankfurter says ₱119 against a saved ₱74.12, which 2.35 took as "Rate updated"
+    FR = {'api.frankfurter.dev': 119, 'api.frankfurter.app': 119}
+    def refresh(pg, manual=True):
+        if manual: pg.evaluate("go('convert')"); pg.click('#refreshRate')
+        else: pg.evaluate("refreshRate(false)")
+        pg.wait_for_function("!rateBusy"); pg.wait_for_timeout(100)
+    LIVE = lambda u: u.endswith('/rate/GBP/PHP') or 'latest' in u  # the live rate's addresses, not history or day lookups
+    def kept(pg): return pg.evaluate(f"D.rate.value==={RATE}") and pg.evaluate(READ, 'rate')['value'] == RATE
+
+    asked = []
+    pg = t.page(b, rate_opts={'values': FR, 'log': asked})
+    pg.wait_for_function("!rateBusy"); asked.clear()
+    refresh(pg)
+    ok(kept(pg), '₱119 against a saved ₱74.12 is refused when the Currency API says ₱74.12, and the saved rate stays')
+    ok('The new rate looked wrong, so the saved rate is still in use' in pg.inner_text('.toast'), 'and the refresh says the new rate looked wrong')
+    ok(any('jsdelivr' in u for u in asked) and not any('frankfurter.app' in u for u in asked), 'the second opinion comes from the Currency API, not Frankfurter’s other address')
+    ok(pg.evaluate("!RATE_CHECK.ok&&/looked wrong: ₱119\\.00 against the saved ₱74\\.12, and Currency API said ₱74\\.12/.test(RATE_CHECK.fails.at(-1).why)"),
+       'the last rate check keeps why: the new rate, the saved one and what the second source said')
+    pg.evaluate("go('settings')"); pg.wait_for_timeout(100)
+    ok('looked wrong' in pg.inner_text('#app'), 'and Settings › Last rate check shows it')
+    pg.evaluate("go('home')"); pg.wait_for_timeout(100)
+    pg.fill('#home-item', 'After the odd rate'); pg.fill('#home-price', '741.20'); pg.click('form[data-form=home] .cta')
+    pg.wait_for_function("D.purchases.some(p=>p.item==='After the odd rate')")
+    ok(pg.evaluate(f"(p=>p.rateAtPurchase==={RATE}&&p.gbpAtPurchase===10)(D.purchases.find(p=>p.item==='After the odd rate'))"),
+       'a purchase logged after it is saved at the saved rate (£10.00), never at ₱119')
+    refresh(pg, manual=False)
+    ok(kept(pg), 'the quiet refresh on opening refuses it too')
+    pg.context.close()
+
+    pg = t.page(b, rate_opts={'value': 119})
+    refresh(pg)
+    ok(pg.evaluate("D.rate.value===119&&D.rate.source.startsWith('Frankfurter')") and 'Rate updated' in pg.inner_text('.toast'),
+       'when the Currency API agrees (₱119 too), the new rate is taken')
+    pg.context.close()
+
+    pg = t.page(b, rate_opts={'values': {**FR, 'cdn.jsdelivr.net': 119.9}})
+    refresh(pg)
+    ok(pg.evaluate("D.rate.value===119"), 'a second source within 1% (₱119.90) counts as agreeing')
+    pg.context.close()
+
+    pg = t.page(b, rate_opts={'values': {**FR, 'cdn.jsdelivr.net': 117.5, 'currency-api.pages.dev': 117.5}})
+    refresh(pg)
+    ok(kept(pg) and pg.evaluate("/Currency API said ₱117\\.50/.test(RATE_CHECK.fails.at(-1).why)"), 'one more than 1% away (₱117.50) doesn’t, and the saved rate stays')
+    pg.context.close()
+
+    pg = t.page(b, rate_opts={'values': FR, 'down': ['cdn.jsdelivr.net', 'currency-api.pages.dev']})
+    refresh(pg)
+    ok(kept(pg) and pg.evaluate("/no second source to confirm it/.test(RATE_CHECK.fails.at(-1).why)"), 'with no second source answering, the saved rate stays')
+    pg.context.close()
+
+    asked = []
+    pg = t.page(b, rate_opts={'values': {'cdn.jsdelivr.net': 119}, 'down': ['api.frankfurter.dev', 'api.frankfurter.app'], 'log': asked})
+    pg.wait_for_function("!rateBusy"); asked.clear()  # the page may refresh once as it opens
+    refresh(pg)
+    ok(kept(pg) and sum('frankfurter' in u for u in asked if LIVE(u)) == 2, 'Frankfurter down and the Currency API at ₱119: refused, without asking Frankfurter again')
+    pg.context.close()
+
+    asked = []
+    pg = t.page(b, rate_opts={'value': 76.34, 'log': asked})
+    pg.wait_for_function("!rateBusy"); pg.evaluate(f"D.rate.value={RATE}"); asked.clear()
+    refresh(pg)
+    ok(pg.evaluate("D.rate.value===76.34") and 'Rate updated' in pg.inner_text('.toast') and len([u for u in asked if LIVE(u)]) == 1,
+       'a 3% move (₱76.34) updates as usual, with no second source asked')
+    pg.context.close()
+
+    pg = t.page(b, data={**sample(), 'rate': None}, rate_opts={'value': 119})
+    refresh(pg)
+    ok(pg.evaluate("D.rate&&D.rate.value===119"), 'with no saved rate yet, only the 30 to 120 range applies')
+    pg.context.close()
+
+    # the audit's Wi-Fi login page: a web page where the rate should be
+    LOGIN = lambda route: route.fulfill(status=200, content_type='text/html', body='<html><body>Sign in to Wi-Fi</body></html>', headers={'Access-Control-Allow-Origin': '*'})
+    pg = t.page(b, rate_opts={'value': 76.34})
+    pg.context.route('**/*api.frankfurter.dev/**', LOGIN)
+    refresh(pg)
+    ok(pg.evaluate("D.rate.value===76.34&&RATE_CHECK.fails[0].why==='unreadable reply'"), 'a Wi-Fi login page from one source is skipped and the next used')
+    pg.context.close()
+    pg = t.page(b)
+    for h in ('api.frankfurter.dev', 'api.frankfurter.app', 'cdn.jsdelivr.net', 'currency-api.pages.dev'): pg.context.route(f'**/*{h}/**', LOGIN)
+    refresh(pg)
+    ok(kept(pg) and 'the saved rate is still in use' in pg.inner_text('.toast'), 'a Wi-Fi login page from every source leaves the saved rate in use')
+    pg.context.close()
+
     pg = t.page(b)
     pg.context.set_offline(True); pg.wait_for_timeout(100)
     pg.evaluate("go('convert')"); pg.click('#refreshRate'); pg.wait_for_timeout(200)

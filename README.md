@@ -1,8 +1,8 @@
 # Suki
 
-![Version 2.35](https://img.shields.io/badge/version-2.35-blue)
+![Version 2.36](https://img.shields.io/badge/version-2.36-blue)
 
-**Current version: 2.35 · 9 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
+**Current version: 2.36 · 10 Nov 2026.** See the [changelog](CHANGELOG.md) for what's new.
 
 Suki is a personal travel companion for the Philippines. It checks your change, converts pounds and pesos, looks up prices and keeps track of what you spend. It's a Home Screen web app for iPhone, iPad and Mac, and works offline.
 
@@ -65,7 +65,7 @@ The launch images in `splash/` are made from `icon-512.png` by `python tools/spl
 - Backups are JSON files named by month and device (for example "Suki backup · 2026-10 · iPhone.json"), so backing up again in the same month replaces that month's file in Files.
 - Smart add reads what you type on your phone, with word rules. Nothing you type is sent anywhere, and no AI is involved.
 - Location's arrow reads your position once, when you tap it (iPhone asks first). It's matched against the town outlines kept inside the app, so it works offline and is never sent anywhere. Suki doesn't track you in the background, and never asks when it opens.
-- Refreshing the exchange rate contacts Frankfurter for the European Central Bank's rate (`api.frankfurter.dev`, then `api.frankfurter.app`). If neither answers, it falls back to the Currency API (`cdn.jsdelivr.net`, then `currency-api.pages.dev`). Only the currencies are sent, never your records. A purchase logged for an earlier day asks the same services for that day's rate, sending only the date.
+- Refreshing the exchange rate contacts Frankfurter for the European Central Bank's rate (`api.frankfurter.dev`, then `api.frankfurter.app`). If neither answers, it falls back to the Currency API (`cdn.jsdelivr.net`, then `currency-api.pages.dev`). A new rate more than 10% from your saved one is only taken if the other service agrees, so it may ask both. Only the currencies are sent, never your records. A purchase logged for an earlier day asks the same services for that day's rate, sending only the date.
 - Rate history asks Frankfurter (`api.frankfurter.dev`) only for the days it's missing, and keeps them on your phone, apart from your records and out of backups (they can be downloaded again). Only the currencies and dates are sent.
 - This repository and its website are public. Don't add private or licensed content.
 

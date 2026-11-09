@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.36 · 10 Nov 2026
+*Rate: sanity check (Q34)*
+
+**A wrong exchange rate is never taken**
+- If a rate service answers with a rate more than 10% away from your saved one (₱119 when you have ₱74.12, say), Suki now asks a second, different service. It takes the new rate only if that one agrees within 1%.
+- Otherwise your saved rate stays in use, so purchases are never logged at the wrong rate. Refresh says "The new rate looked wrong, so the saved rate is still in use", and Settings › Last rate check shows the new rate, your saved one and what the second service said.
+- Normal moves (a few percent) update straight away, as before, without asking a second service.
+- With no rate saved yet, the 30 to 120 range check is the only one, as before.
+
+**Tests**
+- `test_data.py`: ₱119 refused when the Currency API says ₱74.12, a purchase logged after it keeping the saved rate, the quiet refresh refusing it too, a second service agreeing (exactly and within 1%) or not (₱117.50), no second service answering, Frankfurter down, a 3% move, no saved rate, and a Wi-Fi login page from one or every service. With 2.35's rate code, 10 of these fail.
+
+Screens: SK-005, SK-006
+
 ## 2.35 · 9 Nov 2026
 *Data: other windows and an error notice (Q33)*
 

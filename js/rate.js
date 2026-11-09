@@ -6,6 +6,8 @@
      2. Frankfurter, European Central Bank rate  api.frankfurter.app (v1, the address Suki used up to 2.2)
      3. Currency API                             cdn.jsdelivr.net, then its mirror on currency-api.pages.dev
    A rate outside RATE_RANGE is rejected, so a bad reply can never replace a good saved rate.
+   A rate more than RATE_JUMP from the saved one is taken only if a second source agrees within RATE_AGREE;
+   otherwise the saved rate stays (Q34). With no saved rate yet, only RATE_RANGE applies.
    Why the last check failed is kept for this session (RATE_CHECK) and shown in Settings.
    Plain script (not a module): files share one global scope and load in the order listed in index.html. */
 
@@ -16,6 +18,10 @@ const RATE_SOURCES = [
   { name: 'Currency API', url: 'https://latest.currency-api.pages.dev/v1/currencies/gbp.min.json', read: (j) => [j.gbp && j.gbp.php, j.date] },
 ];
 const RATE_RANGE = [30, 120]; // pesos per pound; anything outside this is a bad reply, not a real rate
+// a live rate this far from the saved one needs a second source to agree (Q34). The same 10% as Rate history's
+// HIST_JUMP: the biggest real one-day move since 2005 is 6.8%
+const RATE_JUMP = 0.1;
+const RATE_AGREE = 0.01; // a second source within 1% of the new rate agrees with it
 const RATE_TIMEOUT = 6000; // per source
 const RATE_STALE = 12 * 3600e3; // refresh quietly on opening if the saved rate is older than this
 let rateBusy = false;
@@ -48,6 +54,37 @@ async function rateFrom(src) {
   return { value: v, date: /^\d{4}-\d{2}-\d{2}/.test(date || '') ? String(date).slice(0, 10) : localISO() };
 }
 
+/* ===== The sanity check (Q34) =====
+   rateFrom also answers back-dated purchases (dayRate, Q22), so the check against the saved rate sits here, where
+   the live rate is taken. A second opinion comes from a source of another name: Frankfurter's two addresses are the
+   same ECB data, as are Currency API's two, so they can't vouch for each other. A source that already failed this
+   check isn't asked again, and two timeouts in all still stop it. */
+const jumped = (v) => !!(D.rate && D.rate.value > 0 && Math.abs(v / D.rate.value - 1) > RATE_JUMP);
+async function secondOpinion(first, fails) {
+  for (const s of RATE_SOURCES) {
+    const host = hostOf(s.url);
+    if (s.name === first.name || fails.some((f) => f.source === host)) continue;
+    if (fails.filter((f) => f.why === 'timed out').length >= 2) break;
+    try {
+      return { value: (await rateFrom(s)).value, source: s.name };
+    } catch (e) {
+      fails.push({ source: host, why: e.message });
+    }
+  }
+  return null;
+}
+// the new rate if it's believable, else null with the reason added to fails
+async function sane(got, src, fails) {
+  if (!jumped(got.value)) return got;
+  const two = await secondOpinion(src, fails);
+  if (two && Math.abs(two.value / got.value - 1) <= RATE_AGREE) return got;
+  fails.push({
+    source: hostOf(src.url),
+    why: 'looked wrong: ' + cash(got.value) + ' against the saved ' + cash(D.rate.value) + (two ? ', and ' + two.source + ' said ' + cash(two.value) : ', with no second source to confirm it'),
+  });
+  return null;
+}
+
 async function refreshRate(manual) {
   if (rateBusy) return;
   if (!navigator.onLine) {
@@ -78,6 +115,12 @@ async function refreshRate(manual) {
       fails.push({ source: hostOf(s.url), why: e.message });
     }
   }
+  // a rate far from the saved one is only taken if a second source agrees (Q34)
+  let odd = null;
+  if (got && !(got = await sane(got, src, fails))) {
+    odd = fails[fails.length - 1];
+    src = null;
+  }
   RATE_CHECK = { at: new Date().toISOString(), ok: !!got, source: src && src.name, fails };
   if (got) {
     D.rate = cleanRate({ value: got.value, date: got.date, cachedAt: new Date().toISOString(), source: src.name });
@@ -90,6 +133,7 @@ async function refreshRate(manual) {
   rerender();
   if (!manual) return;
   if (got) toast('Rate updated: £1 = ' + cash(got.value));
+  else if (odd) toast('The new rate looked wrong, so the saved rate is still in use');
   else toast(D.rate ? 'Couldn’t reach the rate service, so the saved rate is still in use' : 'Couldn’t reach the rate service. Try again in a moment.');
 }
 function autoRate() {

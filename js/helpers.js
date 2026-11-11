@@ -237,6 +237,10 @@ const GLYPH = {
   scissors: '<circle cx="6.5" cy="17" r="2.5"/><circle cx="17.5" cy="17" r="2.5"/><path d="M8.5 15.5 18 4M15.5 15.5 6 4"/>',
   fruit: '<path d="M12 7.5c4.1 0 7 3.4 7 7.2 0 3.4-2.7 5.8-7 5.8s-7-2.4-7-5.8c0-3.8 2.9-7.2 7-7.2zM12 7.5V4.5M12 6c1-1.8 3-2.5 4.5-2"/>',
   pill: '<rect x="3.6" y="8.4" width="16.8" height="7.2" rx="3.6" transform="rotate(-45 12 12)"/><path d="m9.5 9.5 5 5"/>',
+  roll: '<ellipse cx="8" cy="12" rx="4" ry="6.5"/><ellipse cx="8" cy="12" rx="1.3" ry="2.2"/><path d="M8 5.5h8c2.2 0 4 2.9 4 6.5s-1.8 6.5-4 6.5H8"/>',
+  nappy: '<path d="M4 7h16v3.5c0 4.7-3.6 8.5-8 8.5s-8-3.8-8-8.5zM4 10.5h3.5M16.5 10.5H20"/>',
+  cash: '<rect x="3" y="6.5" width="18" height="11" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6.5 9.5v5M17.5 9.5v5"/>',
+  ticket: '<path d="M4 7.5h16v3a1.5 1.5 0 0 0 0 3v3H4v-3a1.5 1.5 0 0 0 0-3zM14.5 7.5v1.5M14.5 11v2M14.5 15v1.5"/>',
   hand: '<path d="M8 13V6a1.5 1.5 0 0 1 3 0v5.5M11 11V4.5a1.5 1.5 0 0 1 3 0V11M14 11V6a1.5 1.5 0 0 1 3 0v8c0 3.6-2.5 6.5-6 6.5-2.6 0-4.3-1.4-5.5-3.6L4 13.5a1.5 1.5 0 0 1 2.6-1.5L8 14"/>',
 };
 const ITEM_GLYPH = {
@@ -254,7 +258,7 @@ const ITEM_GLYPH = {
   veg: 'sibuyas bawang kamatis patatas ampalaya talong-gulay pechay sitaw kalabasa repolyo karot sayote habichuelas sili luya',
   fruit: 'mangga saging kalamansi papaya pakwan suha melon abokado',
   pill: 'paracetamol ors cetirizine loperamide',
-  bottle: 'mantika toyo suka gatorade shampoo',
+  bottle: 'mantika toyo suka gatorade shampoo repellent',
   water: 'tubig',
   can: 'softdrinks sardinas cornedbeef',
   coffee: 'kape latte',
@@ -263,7 +267,7 @@ const ITEM_GLYPH = {
   noodles: 'noodles',
   jar: 'asin asukal',
   soap: 'sabon',
-  tube: 'toothpaste',
+  tube: 'toothpaste sunscreen',
   box: 'detergent',
   burger: 'yumburger',
   jeep: 'jeepney',
@@ -276,6 +280,10 @@ const ITEM_GLYPH = {
   washer: 'laundry',
   scissors: 'haircut',
   hand: 'massage',
+  roll: 'tisyu',
+  nappy: 'diaper',
+  cash: 'atm-fee money-changer',
+  ticket: 'intramuros',
 };
 const glyphFor = {};
 Object.keys(ITEM_GLYPH).forEach((g) => ITEM_GLYPH[g].split(' ').forEach((id) => (glyphFor[id] = g)));

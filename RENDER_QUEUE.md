@@ -44,7 +44,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q35 | Prices: Data Checks, Age, Rail Fare and Units | Shipped · 2.37 | Light | none (wireframe skipped by Ivan) | Cross-audit M12, M04, M06 data half |
 | Q36 | Search: Stricter Matching | Shipped · 2.38 | Light to medium | none (wireframe skipped by Ivan) | Cross-audit M05 (F3). After Q35 |
 | Q37 | Prices: Expansion, Stage 1 | Shipped · 2.39 | Medium | none (wireframe skipped by Ivan) | Cross-audit M07 stage 1. After Q36 |
-| Q38 | Prices: Expansion, Stage 2 and Clean-up | Approved — awaiting Build | Medium | none (wireframe skipped by Ivan) | Cross-audit M07 stage 2, M13. After Q37 |
+| Q38 | Prices: Expansion, Stage 2 and Clean-up | Shipped · 2.40 | Medium | none (wireframe skipped by Ivan) | Cross-audit M07 stage 2, M13. After Q37 |
 | Q39 | Interface: Spacing and Type Names | Approved — awaiting Build | Medium | none | Cross-audit M18. No visual change. After Q30, from 3 Dec |
 | Q40 | Interface: Kit 1.3.0, Zoom and Contrast | Approved — awaiting Build | Light to medium | the Parts gallery | Cross-audit M09, M10, M11, Erase gap (ideas list 15). Needs Q39 and parts kit 1.3.0 (its own Render). From 3 Dec |
 
@@ -52,10 +52,9 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 
 Build top to bottom; each still needs its own **build**. One line per item: `N. Q## — reason`, with "needs Q##" for anything that must ship first. Names live in the table above.
 
-1. Q38 — prices, stage 2 and clean-up; needs Q37 (shipped as 2.39) (Ivan, 6 Nov 2026)
-2. Q30 — the element sheet; needs Q28 (shipped as 2.32); moved behind Q31 to Q38 by the 6 Nov Render, from 3 Dec (Ivan, 5 Nov 2026)
-3. Q39 — spacing and type names; needs Q30; from 3 Dec (Ivan, 6 Nov 2026)
-4. Q40 — kit 1.3.0, zoom and contrast; needs Q39 and parts kit 1.3.0 (its own Render, not yet given); from 3 Dec (Ivan, 6 Nov 2026)
+1. Q30 — the element sheet; needs Q28 (shipped as 2.32); moved behind Q31 to Q38 by the 6 Nov Render, from 3 Dec (Ivan, 5 Nov 2026)
+2. Q39 — spacing and type names; needs Q30; from 3 Dec (Ivan, 6 Nov 2026)
+3. Q40 — kit 1.3.0, zoom and contrast; needs Q39 and parts kit 1.3.0 (its own Render, not yet given); from 3 Dec (Ivan, 6 Nov 2026)
 
 ### Any time
 
@@ -111,6 +110,10 @@ Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `s
 - 11 Nov 2026: Q37 counts the audit's 85 searches strictly (the top result has a price): 50 on 2.38, 59 on 2.39, not the 65 its Done when asked. The Blueprint's "59 today" counted any result, including the wrong ones Q36 removed. Ivan: build as agreed; Q38 carries on toward 70 (Q37's build).
 - 11 Nov 2026: the DA bulletin comes from Ivan's download when Claude's web tools can't open da.gov.ph (Q37's build).
 - 11 Nov 2026: medicines are priced from PhilHealth's GAMOT fees (Circular 2026-0018), with a note that a pharmacy's own shelf price may be higher; the DOH price index couldn't be opened. Ivan chose this over leaving them unpriced (Q37's build).
+- 11 Nov 2026: Q38 reaches 67 of the 85 searches, not the 70 its Done when asked. Everything its scope names is priced; the other 18 are hotels, flights and boats (not kept), sisig, lechon, balut, buko, coconut, kanin, toll, cigarettes, tip, island hopping and diving, none of them in Q38's list. Ivan wasn't there to ask, so it was built as agreed, as for Q37; the test keeps 67 as the floor. The way to 70 is in the ideas (22) (Q38's build).
+- 11 Nov 2026: toiletries come from Watsons' own product pages (a national chain), not Shop Suki, a Mindanao supermarket whose search listings were out of date (Q38's build).
+- 11 Nov 2026: the money changer's "price" is the margin on £100, worked out from BPI's own buying and selling rates on the day, with a note on how to check any changer against Convert. A percentage can't show as a price (Q38's build).
+- 11 Nov 2026: Intramuros sits under the Services chip, so no new chip, but a logged entrance fee goes under Activities (Q38's build).
 
 ## Ideas, not yet queued
 
@@ -137,3 +140,5 @@ Sorted by priority, highest first: what's broken or helps on the trip (7 Nov –
 19. Search: an item and a place in one search ("jeepney to Cubao", "tricycle Alona Beach") shows no price since Q36, because every word must fit. Showing the item for its word, only when the other words are places Suki knows (its towns list), would bring it back without "coconut oil" finding cooking oil (added 11 Nov 2026, Q36's build). Helps; light.
 20. Medicines: a pharmacy's own shelf price (Mercury Drug, Watsons) beside PhilHealth's fee, and a price for loperamide, which PhilHealth's list doesn't have (added 11 Nov 2026, Q37's build). Helps.
 21. Tests: the random taps, seed 13, failed on GitHub twice (Q34 and Q37's first runs): "sheet state confirm but nothing shown" and "page behind a sheet left scaled", after opening a purchase, closing a tip and resizing to 1440×900. Both re-runs passed. Fits with Q32 (a steady suite) (added 11 Nov 2026, Q37's build). Core for the tests.
+22. Prices: the way from 67 to 70 of the audit's 85 searches (added 11 Nov 2026, Q38's build). Candidates, each needing a source: sisig as a carinderia plate or from a menu; lechon, balut or buko from a seller's own page; island hopping from El Nido's set tour rates; the toll from TRB's matrix. Helps.
+23. Search: "sabon" also lists Haircut (₱500), because "salon" is one letter from "sabon" (Q36's slip rule for five-letter words). It showed before Q38 too, with no price (added 11 Nov 2026, Q38's build). Polish.

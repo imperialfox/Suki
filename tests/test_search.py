@@ -175,9 +175,10 @@ def run(b, t):
     prices('mango')
     t.shot(pq, 'q36-mango-light')
 
-    # other loose matches the audits found (Q14's Recon, the cross-audit), checked through the same search
+    # other loose matches the audits found (Q14's Recon, the cross-audit), checked through the same search. Since Q38
+    # "atm" finds its own item, the ATM fee (Q36 allowed nothing, or the right item)
     find = lambda q: pq.evaluate("q=>searchItems(q).map(i=>i.id)", q)
-    for q, want in [('mangoes', ['mangga']), ('spaghetti', []), ('gin', []), ('tollgate', []), ('megamall', []), ('atm', []), ('kanin na hilaw', []), ('coconut milk', []), ('coconut oil', []),
+    for q, want in [('mangoes', ['mangga']), ('spaghetti', []), ('gin', []), ('tollgate', []), ('megamall', []), ('atm', ['atm-fee']), ('kanin na hilaw', []), ('coconut milk', []), ('coconut oil', []),
                     ('loaf', ['tasty']), ('ube', ['bus-naia']), ('egg', ['itlog']), ('milk', ['gatas']), ('vinegar', ['suka']), ('ice', ['halo']),
                     ('uber', ['grab']), ('cab', ['taxi'])]:
         got = find(q)

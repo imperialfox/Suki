@@ -1,5 +1,34 @@
 # Changelog
 
+## 2.40 · 11 Nov 2026
+*Prices: toiletries, money costs, Intramuros and one carinderia plate (Q38)*
+
+**Toiletries**
+- Toilet paper, sunscreen, mosquito repellent (OFF! lotion), nappies and shampoo sachets now have prices, from Watsons' own pages (read 11 Nov 2026). Packs are worked out per roll, per piece or per sachet, with the pack price in the note. They sit under Essentials.
+
+**Money costs**
+- ATM fee for a card from abroad: ₱250 a withdrawal at BDO and at Landbank, from each bank's own fee page. Your own bank may charge on top.
+- Money changer: what a margin costs, worked out from BPI's own buying and selling rates on 11 Nov 2026 (about ₱200 less for every £100 than halfway between). The note says how to check any changer against Convert.
+
+**Intramuros**
+- Fort Santiago, Casa Manila and Baluarte de San Diego: ₱75 for adults, ₱50 discounted, from the Intramuros Administration's own site. "entrance fee" and "museum" find them. Logged, they go under Activities.
+
+**Haircut**
+- A haircut has a price again: ₱500 at one Ortigas barbershop, from its own booking page. The old rows (from an AI app's blog) stay gone, and a test now keeps that site out.
+
+**One carinderia plate**
+- The 13 home-cooked dishes (adobo, sinigang, tinola and the rest) no longer each carry a copy of the same row. They show the one Carinderia plate price, ₱50 to ₱90 for one ulam with rice. Nothing changes on screen.
+
+**Search**
+- 67 of the audit's 85 realistic searches now show a price (59 on 2.39). The other 18 each say something true: Suki doesn't keep this (hotels, flights, boats), No clear match, or sisig's own item with no price yet.
+- "atm" now finds the ATM fee.
+
+**Tests**
+- `test_coverage.py`: 67 priced, the 18 with no price each without a stand-in result, the eight new searches, the new prices and their sources, the dishes pointing to the plate, and "sunscreen", "ATM", "adobo" and "money changer" on screen.
+- `test_prices.py`: no copied row left (the carinderia exception is gone), and no row from the AI app's blog.
+
+Screens: SK-003, SK-009
+
 ## 2.39 · 11 Nov 2026
 *Prices: fish, fruit, more vegetables, beef and basic medicines (Q37)*
 

@@ -3,7 +3,8 @@
    kind: fare (set by LTFRB), srp (DTI suggested retail price), shop (a supermarket shelf price), menu (the chain’s own menu),
    listed (published by the company or a news report), guide (a rough guide from travel writers).
    To update: replace a value and its source, url and date together. Never guess a price.
-   tests/test_prices.py checks every row (MAINTAINING.md › Updating the typical prices). Rechecked 11 Nov 2026 (Q35); medicines added 11 Nov 2026 (Q37). */
+   tests/test_prices.py checks every row (MAINTAINING.md › Updating the typical prices). Rechecked 11 Nov 2026 (Q35); medicines added 11 Nov 2026 (Q37); toiletries, money costs, Intramuros and a haircut added, and the dishes priced
+   as one carinderia plate, 11 Nov 2026 (Q38). */
 window.sukiTypical = {
  "checked": "2026-11-11",
  "items": {
@@ -572,7 +573,7 @@ window.sukiTypical = {
   ],
   "carinderia": [
    {
-    "label": "One ulam with rice",
+    "label": "A carinderia plate: one ulam with rice",
     "low": 50,
     "high": 90,
     "unit": "per plate",
@@ -1072,188 +1073,6 @@ window.sukiTypical = {
     "date": "2026-10-31"
    }
   ],
-  "adobo-p": [
-   {
-    "label": "At a carinderia, with rice",
-    "low": 50,
-    "high": 90,
-    "unit": "per plate",
-    "area": "Metro Manila",
-    "kind": "guide",
-    "source": "Mighty Travels",
-    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
-    "date": "2026-08-01",
-    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
-   }
-  ],
-  "adobo-c": [
-   {
-    "label": "At a carinderia, with rice",
-    "low": 50,
-    "high": 90,
-    "unit": "per plate",
-    "area": "Metro Manila",
-    "kind": "guide",
-    "source": "Mighty Travels",
-    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
-    "date": "2026-08-01",
-    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
-   }
-  ],
-  "sinigang-p": [
-   {
-    "label": "At a carinderia, with rice",
-    "low": 50,
-    "high": 90,
-    "unit": "per plate",
-    "area": "Metro Manila",
-    "kind": "guide",
-    "source": "Mighty Travels",
-    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
-    "date": "2026-08-01",
-    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
-   }
-  ],
-  "sinigang-h": [
-   {
-    "label": "At a carinderia, with rice",
-    "low": 50,
-    "high": 90,
-    "unit": "per plate",
-    "area": "Metro Manila",
-    "kind": "guide",
-    "source": "Mighty Travels",
-    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
-    "date": "2026-08-01",
-    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
-   }
-  ],
-  "tinola": [
-   {
-    "label": "At a carinderia, with rice",
-    "low": 50,
-    "high": 90,
-    "unit": "per plate",
-    "area": "Metro Manila",
-    "kind": "guide",
-    "source": "Mighty Travels",
-    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
-    "date": "2026-08-01",
-    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
-   }
-  ],
-  "menudo": [
-   {
-    "label": "At a carinderia, with rice",
-    "low": 50,
-    "high": 90,
-    "unit": "per plate",
-    "area": "Metro Manila",
-    "kind": "guide",
-    "source": "Mighty Travels",
-    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
-    "date": "2026-08-01",
-    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
-   }
-  ],
-  "afritada": [
-   {
-    "label": "At a carinderia, with rice",
-    "low": 50,
-    "high": 90,
-    "unit": "per plate",
-    "area": "Metro Manila",
-    "kind": "guide",
-    "source": "Mighty Travels",
-    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
-    "date": "2026-08-01",
-    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
-   }
-  ],
-  "karekare": [
-   {
-    "label": "At a carinderia, with rice",
-    "low": 50,
-    "high": 90,
-    "unit": "per plate",
-    "area": "Metro Manila",
-    "kind": "guide",
-    "source": "Mighty Travels",
-    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
-    "date": "2026-08-01",
-    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
-   }
-  ],
-  "paksiw": [
-   {
-    "label": "At a carinderia, with rice",
-    "low": 50,
-    "high": 90,
-    "unit": "per plate",
-    "area": "Metro Manila",
-    "kind": "guide",
-    "source": "Mighty Travels",
-    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
-    "date": "2026-08-01",
-    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
-   }
-  ],
-  "giniling": [
-   {
-    "label": "At a carinderia, with rice",
-    "low": 50,
-    "high": 90,
-    "unit": "per plate",
-    "area": "Metro Manila",
-    "kind": "guide",
-    "source": "Mighty Travels",
-    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
-    "date": "2026-08-01",
-    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
-   }
-  ],
-  "laing": [
-   {
-    "label": "At a carinderia, with rice",
-    "low": 50,
-    "high": 90,
-    "unit": "per plate",
-    "area": "Metro Manila",
-    "kind": "guide",
-    "source": "Mighty Travels",
-    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
-    "date": "2026-08-01",
-    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
-   }
-  ],
-  "pinakbet": [
-   {
-    "label": "At a carinderia, with rice",
-    "low": 50,
-    "high": 90,
-    "unit": "per plate",
-    "area": "Metro Manila",
-    "kind": "guide",
-    "source": "Mighty Travels",
-    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
-    "date": "2026-08-01",
-    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
-   }
-  ],
-  "talong": [
-   {
-    "label": "At a carinderia, with rice",
-    "low": 50,
-    "high": 90,
-    "unit": "per plate",
-    "area": "Metro Manila",
-    "kind": "guide",
-    "source": "Mighty Travels",
-    "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
-    "date": "2026-08-01",
-    "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
-   }
-  ],
   "paracetamol": [
    {
     "label": "Paracetamol 500 mg tablet, PhilHealth GAMOT fee",
@@ -1294,6 +1113,224 @@ window.sukiTypical = {
     "url": "https://www.philhealth.gov.ph/circulars/2026/PC-2026-0018.pdf",
     "date": "2026-10",
     "note": "What PhilHealth pays its partner pharmacies for one tablet under its GAMOT benefit. A pharmacy’s own shelf price may be higher."
+   }
+  ],
+  "tisyu": [
+   {
+    "label": "Orita bathroom tissue, single roll · 2-ply, 400 sheets",
+    "low": 20,
+    "high": 20,
+    "unit": "per roll",
+    "area": "Watsons (online)",
+    "kind": "listed",
+    "source": "Watsons",
+    "url": "https://www.watsons.com.ph/all-brands/b/166070/orita",
+    "date": "2026-11-11"
+   },
+   {
+    "label": "Orita bathroom tissue · 2-ply, from the pack of 12",
+    "low": 12.92,
+    "high": 12.92,
+    "unit": "per roll",
+    "area": "Watsons (online)",
+    "kind": "listed",
+    "source": "Watsons",
+    "url": "https://www.watsons.com.ph/2-ply-bathroom-tissue-12-rolls/p/BP_10078415",
+    "date": "2026-11-11",
+    "note": "Sold in a pack of 12 for ₱155."
+   }
+  ],
+  "sunscreen": [
+   {
+    "label": "Watsons Very High Protection SPF 50+ body lotion · 100 ml",
+    "low": 239,
+    "high": 299,
+    "unit": "per bottle",
+    "area": "Watsons (online)",
+    "kind": "listed",
+    "source": "Watsons",
+    "url": "https://www.watsons.com.ph/skin-care/for-body/c/031160",
+    "date": "2026-11-11",
+    "note": "On sale for ₱239 on 11 Nov 2026; ₱299 when not on sale."
+   },
+   {
+    "label": "Nivea Sun Protect & Moisture SPF 50 · 125 ml",
+    "low": 678,
+    "high": 678,
+    "unit": "per bottle",
+    "area": "Watsons (online)",
+    "kind": "listed",
+    "source": "Watsons",
+    "url": "https://www.watsons.com.ph/skin-care/for-body/c/031160",
+    "date": "2026-11-11"
+   }
+  ],
+  "repellent": [
+   {
+    "label": "OFF! Overtime lotion · 50 ml",
+    "low": 146,
+    "high": 146,
+    "unit": "per bottle",
+    "area": "Watsons (online)",
+    "kind": "listed",
+    "source": "Watsons",
+    "url": "https://www.watsons.com.ph/off-over-time-insect-repellant-50ml/p/BP_10032576",
+    "date": "2026-11-11"
+   },
+   {
+    "label": "OFF! Overtime lotion · 100 ml",
+    "low": 219.25,
+    "high": 219.25,
+    "unit": "per bottle",
+    "area": "Watsons (online)",
+    "kind": "listed",
+    "source": "Watsons",
+    "url": "https://www.watsons.com.ph/p/BP_10032574",
+    "date": "2026-11-11"
+   }
+  ],
+  "diaper": [
+   {
+    "label": "EQ Pants, medium · from the pack of 24",
+    "low": 8.58,
+    "high": 8.58,
+    "unit": "per piece",
+    "area": "Watsons (online)",
+    "kind": "listed",
+    "source": "Watsons",
+    "url": "https://www.watsons.com.ph/mom-and-baby/pants-diapers/c/080102",
+    "date": "2026-11-11",
+    "note": "Sold in a pack of 24 for ₱206."
+   },
+   {
+    "label": "EQ Pants, XL · from the pack of 66",
+    "low": 9.52,
+    "high": 9.52,
+    "unit": "per piece",
+    "area": "Watsons (online)",
+    "kind": "listed",
+    "source": "Watsons",
+    "url": "https://www.watsons.com.ph/mom-and-baby/pants-diapers/c/080102",
+    "date": "2026-11-11",
+    "note": "Sold in a pack of 66 for ₱628."
+   },
+   {
+    "label": "Watsons baby pants, XXL · from the pack of 4",
+    "low": 15,
+    "high": 15,
+    "unit": "per piece",
+    "area": "Watsons (online)",
+    "kind": "listed",
+    "source": "Watsons",
+    "url": "https://www.watsons.com.ph/mom-and-baby/pants-diapers/c/080102",
+    "date": "2026-11-11",
+    "note": "Sold in a pack of 4 for ₱60."
+   }
+  ],
+  "atm-fee": [
+   {
+    "label": "BDO ATM, card issued overseas",
+    "low": 250,
+    "high": 250,
+    "unit": "per withdrawal",
+    "area": "Nationwide (BDO)",
+    "kind": "listed",
+    "source": "BDO",
+    "url": "https://www.bdo.com.ph/personal/digitalbanking/atm-banking",
+    "date": "2026-11-11",
+    "note": "BDO’s own fee. Your card’s bank may charge its own fee on top."
+   },
+   {
+    "label": "Landbank ATM, card issued abroad",
+    "low": 250,
+    "high": 250,
+    "unit": "per withdrawal",
+    "area": "Nationwide (Landbank)",
+    "kind": "listed",
+    "source": "Landbank",
+    "url": "https://www.landbank.com/images/inner_template/1752131646_Bank-Fees-and-Charges-Peso-Transactions-05302025.pdf",
+    "date": "2025-05-13",
+    "note": "Landbank’s fee list as of 13 May 2025. Your card’s bank may charge its own fee on top."
+   }
+  ],
+  "money-changer": [
+   {
+    "label": "BPI’s margin when it buys your pounds",
+    "low": 200,
+    "high": 200,
+    "unit": "per £100 changed",
+    "area": "Nationwide (BPI)",
+    "kind": "listed",
+    "source": "BPI",
+    "url": "https://www.bpi.com.ph/personal/bank/forex/rates",
+    "date": "2026-11-11",
+    "note": "On 11 Nov 2026 BPI bought £1 for ₱82.46 and sold £1 for ₱86.46. Halfway between is ₱84.46, so £100 changed there gets about ₱200 less than halfway. Any money changer works the same way: compare its “we buy” rate with Convert’s rate before you change."
+   }
+  ],
+  "intramuros": [
+   {
+    "label": "Fort Santiago",
+    "low": 75,
+    "high": 75,
+    "unit": "per adult",
+    "area": "Intramuros, Manila",
+    "kind": "listed",
+    "source": "Intramuros Administration",
+    "url": "https://intramuros.gov.ph/?p=11401",
+    "date": "2024-05-21",
+    "note": "₱50 for children under 18, seniors, students, people with disabilities, solo parents and government employees, with ID."
+   },
+   {
+    "label": "Casa Manila or Baluarte de San Diego",
+    "low": 75,
+    "high": 75,
+    "unit": "per adult",
+    "area": "Intramuros, Manila",
+    "kind": "listed",
+    "source": "Intramuros Administration",
+    "url": "https://intramuros.gov.ph/?p=8772",
+    "date": "2022-10",
+    "note": "Each site charges its own fee. ₱50 for children under 18, seniors, students, people with disabilities and government employees, with ID."
+   }
+  ],
+  "haircut": [
+   {
+    "label": "Haircut at a barbershop in Ortigas",
+    "low": 500,
+    "high": 500,
+    "unit": "per cut",
+    "area": "Pasig, Metro Manila",
+    "kind": "listed",
+    "source": "The Elephant’s Nook Barbershop",
+    "url": "https://theelephantsnookbarbershoportigas.setmore.com",
+    "date": "2026-11-11",
+    "note": "One shop’s own booking page. Prices vary a lot from shop to shop."
+   }
+  ],
+  "shampoo": [
+   {
+    "label": "Dove shampoo · 12 ml sachet, from the pack of 6",
+    "low": 8.75,
+    "high": 8.75,
+    "unit": "per sachet",
+    "area": "Watsons (online)",
+    "kind": "listed",
+    "source": "Watsons",
+    "url": "https://www.watsons.com.ph/hair/everyday-shampoo/c/040304",
+    "date": "2026-11-11",
+    "note": "Sold in a pack of 6 for ₱52.50."
+   },
+   {
+    "label": "Palmolive Naturals shampoo · 15 ml sachet, from the pack of 6",
+    "low": 10.17,
+    "high": 10.17,
+    "unit": "per sachet",
+    "area": "Watsons (online)",
+    "kind": "listed",
+    "source": "Watsons",
+    "url": "https://www.watsons.com.ph/hair/everyday-shampoo/c/040304",
+    "date": "2026-11-11",
+    "note": "Sold in a pack of 6 for ₱61."
    }
   ]
  }

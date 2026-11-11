@@ -54,7 +54,7 @@ const CATALOG = [
   ['gatas', 'Gatas', 'Milk', 'Inumin / groceries', 'per litre/carton', 'milk|fresh milk|evaporated milk'],
   ['milo', 'Milo', 'Malted chocolate drink', 'Inumin', 'per serving/pack', 'milo drink'],
   ['sabon', 'Sabon', 'Soap', 'Everyday essentials', 'per bar/pack', 'soap|bath soap'],
-  ['shampoo', 'Shampoo', 'Shampoo', 'Everyday essentials', 'per sachet/bottle', 'shampoo sachet'],
+  ['shampoo', 'Shampoo', 'Shampoo', 'Everyday essentials', 'per sachet', 'shampoo sachet'],
   ['toothpaste', 'Toothpaste', 'Toothpaste', 'Everyday essentials', 'per tube', 'tooth paste|pampinis ng ngipin'],
   ['detergent', 'Detergent', 'Laundry detergent', 'Everyday essentials', 'per sachet/pack', 'washing powder|laundry soap|detergent powder'],
   // added in Q02: transport, services, fast food, drinks, pantry
@@ -82,7 +82,7 @@ const CATALOG = [
   ['chickenmcdo', 'Chicken McDo', 'McDonald’s fried chicken', 'Fast food', 'per meal', 'mcdo|mcdonalds|mcdonald s|chicken mcdo'],
   ['pm1', 'Mang Inasal PM1', 'Grilled chicken with rice', 'Fast food', 'per meal', 'mang inasal|inasal|chicken inasal|pm1|unli rice'],
   ['latte', 'Kape sa café', 'Café latte', 'Fast food', 'per cup', 'starbucks|latte|cafe latte|coffee shop'],
-  ['carinderia', 'Karinderya', 'Carinderia meal', 'Ulam / lutong-bahay', 'per plate', 'carinderia|karinderya|turo turo|turo-turo|ulam with rice|rice meal|silog'],
+  ['carinderia', 'Karinderya', 'Carinderia plate', 'Ulam / lutong-bahay', 'per plate', 'carinderia|karinderya|turo turo|turo-turo|ulam with rice|rice meal|silog|carinderia meal'],
   ['kikiam', 'Kikiam', 'Fried fish roll', 'Street food', 'per stick', 'kikyam|que kiam'],
   ['beer', 'Serbesa', 'Beer', 'Inumin', 'per bottle/can', 'beer|san miguel|pale pilsen|red horse|san mig light|cerveza|alak'],
   ['gatorade', 'Gatorade', 'Sports drink', 'Inumin', 'per bottle', 'sports drink|pocari'],
@@ -120,6 +120,14 @@ const CATALOG = [
   ['ors', 'Oral rehydration salts', 'Oral rehydration salts', 'Essentials / health', 'per sachet', 'ors|oresol|hydrite|rehydration|dehydration|gamot|medicine|medicines|pharmacy|botika|drugstore|parmasya'],
   ['cetirizine', 'Cetirizine', 'Cetirizine 10 mg, an antihistamine', 'Essentials / health', 'per tablet', 'antihistamine|allergy|allergies|virlix|zyrtec|gamot sa allergy|gamot|medicine|medicines|pharmacy|botika|drugstore|parmasya'],
   ['loperamide', 'Loperamide', 'Loperamide 2 mg, for diarrhoea', 'Essentials / health', 'per capsule', 'imodium|diatabs|diarrhea|diarrhoea|lbm|gamot sa pagtatae|gamot|medicine|medicines|pharmacy|botika|drugstore|parmasya'],
+  // added in Q38: toiletries, money costs and an entrance fee
+  ['tisyu', 'Tisyu', 'Toilet paper', 'Everyday essentials', 'per roll', 'toilet paper|toilet tissue|toilet roll|bathroom tissue|loo roll|tissue|tisyu sa banyo'],
+  ['sunscreen', 'Sunscreen', 'Sunscreen', 'Everyday essentials', 'per bottle', 'sunblock|sun block|sun cream|suncream|sun lotion|spf'],
+  ['repellent', 'Off lotion', 'Mosquito repellent', 'Everyday essentials', 'per bottle', 'mosquito repellent|insect repellent|repellent|off lotion|bug spray|kontra lamok|lamok'],
+  ['diaper', 'Diaper', 'Nappies', 'Everyday essentials', 'per piece', 'diaper|diapers|nappy|nappies|lampin|pampers|baby diaper'],
+  ['atm-fee', 'ATM fee', 'ATM fee for a card from abroad', 'Services', 'per withdrawal', 'atm|atm fee|atm fees|atm charge|withdrawal fee|cash withdrawal|foreign card fee'],
+  ['money-changer', 'Money changer', 'Exchange margin', 'Services', 'per £100 changed', 'moneychanger|money exchange|currency exchange|forex|exchange money|change money|palitan ng pera'],
+  ['intramuros', 'Intramuros', 'Fort Santiago and Intramuros entrance', 'Services', 'per adult', 'entrance fee|entrance fees|entrance|admission|fort santiago|casa manila|baluarte de san diego|museum'],
 ].map((a) => ({ id: a[0], name: a[1], english: a[2], group: a[3], unit: a[4], aliases: a[5].split('|') }));
 
 const itemById = (id) => CATALOG.find((i) => i.id === id);
@@ -138,7 +146,11 @@ const OFFICIAL_IDS = () => [...new Set((REFS().records || []).map((r) => r.itemI
 
 /* ===== Typical prices (js/typical.js, Q02) and browsing by kind ===== */
 const TYPICAL = () => (window.sukiTypical && window.sukiTypical.items) || {};
-const typicalFor = (id) => TYPICAL()[id] || [];
+// home-cooked dishes are priced as one carinderia plate (Q38): one sourced row for a plate of one ulam with rice,
+// instead of a copy of that row on every dish. A dish with rows of its own would show those instead.
+const PLATE_DISHES = 'adobo-p adobo-c sinigang-p sinigang-h tinola menudo afritada karekare paksiw giniling laing pinakbet talong'.split(' ');
+const pricedAs = (id) => (PLATE_DISHES.includes(id) && !TYPICAL()[id] ? 'carinderia' : id);
+const typicalFor = (id) => TYPICAL()[pricedAs(id)] || [];
 // the price shown in a list row: the official weekly average where there is one, otherwise the typical range
 function priceOf(id) {
   const o = refFrom(id);
@@ -210,7 +222,9 @@ function strictItemFor(text) {
 }
 
 // the purchase category for a catalogue item, the same mapping as an item's "Log what you paid"
-const catOf = (it) => ({ transport: 'Transport', market: 'Groceries', essentials: 'Shopping', services: 'Other' })[browseOf(it)] || 'Food & drink';
+// an entrance fee is logged as Activities, though it sits under the Services chip (Q38)
+const CAT_FOR = { intramuros: 'Activities' };
+const catOf = (it) => CAT_FOR[it.id] || ({ transport: 'Transport', market: 'Groceries', essentials: 'Shopping', services: 'Other' })[browseOf(it)] || 'Food & drink';
 
 /* ===== Matching a logged purchase to an item (Q14) =====
    Whole words only: an item's name, its English name (up to three words) or one of its other spellings has to appear

@@ -660,10 +660,7 @@
    {
     "location": "Intramuros",
     "price": 100,
-    "tie": [
-     "Activities",
-     "Other"
-    ]
+    "category": "Activities"
    }
   ]
  },

@@ -1,7 +1,7 @@
 """The price data (Q35): every typical price in js/typical.js and every official record in js/prices.js has a real date
 (not in the future), a secure link, a source and a known catalogue id; one item's prices share one unit; no row is copied
-across more than 2 items (the carinderia row is on KNOWN_COPIES until Q38 replaces it; the list can only shrink).
-The check is proven on broken copies. On screen: pandesal, the SIM card and the tourist SIM show one unit; MRT-3 and
+across more than 2 items (KNOWN_COPIES, empty since Q38; the list can only shrink), and none from a host on BANNED_HOSTS.
+The check is proven on broken copies, the AI app blog’s host included (Q38). On screen: pandesal, the SIM card and the tourist SIM show one unit; MRT-3 and
 LRT-2 show the half fare; a typical price over 90 days old shows its month and a newer one doesn't; the sources line
 gives the real range of dates; the DA card notes its age only once its week is over 30 days old. Screenshots at 375 px,
 light and dark."""
@@ -10,11 +10,13 @@ from harness import day
 
 # copies of one row across more than 2 items, allowed for now: (label, why). Remove a line when its copies go.
 KNOWN_COPIES = [
-    ('At a carinderia, with rice', 'Q38 replaces the 13 dish rows with one Carinderia plate item'),
+    # empty since Q38: the 13 dish rows became one Carinderia plate item the dishes point to
 ]
+# hosts no price may come from (Q38): an AI app's blog, behind the two haircut guides Q35 removed
+BANNED_HOSTS = ['visioai.app']
 
 # the check, in the page: returns a list of problems in plain words
-LINT = r"""([typ, refs, ids, today, known]) => {
+LINT = r"""([typ, refs, ids, today, known, banned]) => {
   const out = [], ID = new Set(ids), KINDS = ['fare', 'srp', 'shop', 'menu', 'listed', 'guide'];
   const real = (d) => { const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(d || ''); if (!m) return false;
     const x = new Date(Date.UTC(+m[1], +m[2] - 1, +(m[3] || 1))); return x.getUTCMonth() === +m[2] - 1 && x.getUTCDate() === +(m[3] || 1); };
@@ -35,6 +37,7 @@ LINT = r"""([typ, refs, ids, today, known]) => {
       if (!(r.label || '').trim() || !(r.unit || '').trim()) out.push(at + ': no label or unit');
       if (!(typeof r.low === 'number' && typeof r.high === 'number' && r.low > 0 && r.low <= r.high)) out.push(at + ': price ' + r.low + '–' + r.high);
       if (!KINDS.includes(r.kind)) out.push(at + ': kind ' + JSON.stringify(r.kind));
+      if (banned.some((h) => { try { const u = new URL(r.url).hostname; return u === h || u.endsWith('.' + h); } catch (e) { return false; } })) out.push(at + ': from a host on BANNED_HOSTS');
       const k = JSON.stringify([r.label, r.low, r.high, r.unit, r.url]);
       (copies[k] = copies[k] || new Set()).add(id);
     });
@@ -64,8 +67,8 @@ def lint(pg, change=None):
     return pg.evaluate("""([lint, change]) => {
       const t = JSON.parse(JSON.stringify(window.sukiTypical)), r = JSON.parse(JSON.stringify(window.sukiPriceReferences));
       if (change) new Function('t', 'r', change)(t, r);
-      return eval(lint)([t, r, CATALOG.map((i) => i.id), localISO(), %s]);
-    }""" % json.dumps([k for k, _ in KNOWN_COPIES]), [LINT, change])
+      return eval(lint)([t, r, CATALOG.map((i) => i.id), localISO(), %s, %s]);
+    }""" % (json.dumps([k for k, _ in KNOWN_COPIES]), json.dumps(BANNED_HOSTS)), [LINT, change])
 
 
 def row(pg, q, id):
@@ -110,13 +113,15 @@ def run(b, t):
         ("r.records.push(Object.assign({},r.records[0],{unit:'per sack'}))", 'prices.js · bigas: more than one unit', 'two units in the DA snapshot'),
         ("t.items.taxi[0].source=''", 'no source', 'a missing source'),
         ("t.items.taxi[0].low=99", 'price 99–65', 'a low above the high'),
+        ("t.items.haircut[0].url='https://visioai.app/fil/mga-hairstyle/gupit-ng-lalaki/'", 'from a host on BANNED_HOSTS', 'a row from the AI app’s blog'),
     ]:
         got = lint(pg, change)
         ok(any(want in p for p in got), f'the check catches {what} ({got[:1]})')
-    got = pg.evaluate("([lint])=>eval(lint)([window.sukiTypical, window.sukiPriceReferences, CATALOG.map((i) => i.id), localISO(), ['At a carinderia, with rice','Not copied anywhere']])", [LINT])
+    got = pg.evaluate("([lint])=>eval(lint)([window.sukiTypical, window.sukiPriceReferences, CATALOG.map((i) => i.id), localISO(), ['At a carinderia, with rice','Not copied anywhere'], []])", [LINT])
     ok(any('no longer copied' in p for p in got), 'a KNOWN_COPIES line that’s no longer copied fails, so the list can only shrink')
-    got = pg.evaluate("([lint])=>eval(lint)([window.sukiTypical, window.sukiPriceReferences, CATALOG.map((i) => i.id), localISO(), []])", [LINT])
-    ok(any('At a carinderia, with rice' in p and 'copied across' in p for p in got), f'without its KNOWN_COPIES line the carinderia row fails ({len(got)} problem)')
+    ok(not KNOWN_COPIES and not probs, 'Q38: no row is copied across more than 2 items, with KNOWN_COPIES empty')
+    ok(pg.evaluate("!Object.values(window.sukiTypical.items).flat().some(r => /visioai|At a carinderia, with rice/.test(r.url + r.label))"),
+       'Q38: no AI-blog row and none of the 13 copied dish rows is left')
 
     # ── One unit in each Search row ─────────────────────────────
     pg.click('#dock [data-v=search]')

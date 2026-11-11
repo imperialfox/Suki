@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.41 · 12 Nov 2026
+*The element sheet: every part with its kit part, values and decision (Q30)*
+
+**The element sheet**
+- New `reference/elements.md` lists every named part in Suki: its name, how the app finds it, the parts kit part it is (by its gallery number), how it presses, its corner, its motion (springs and named timings), why it's Suki's own if it isn't a kit part, the decision behind it and its status. The same columns as Vocal Sessions' sheet, plus Decision.
+- It also lists each kind of press, every decision in `js/parts.settings.js` and the values Suki has retired.
+- It's written by `tools/reference/elements.py`, which reads the register and the decisions, then opens the app in a headless browser with the tests' sample data (iPhone with every sheet and alert, iPad and Mac) and maps each value back to its name. 105 of the 141 parts in use are read from the app; the other 36 are listed as not reached. Nothing in the app changes.
+
+**Tests**
+- `test_screens.py` › `reference`: the sheet is up to date, every reached part has a kit part or a reason, every named element has a register line, no part uses a retired value, every decision is a line in `js/parts.settings.js`, and the guard catches each of those on copies.
+
+Screens: none
+
 ## 2.40 · 11 Nov 2026
 *Prices: toiletries, money costs, Intramuros and one carinderia plate (Q38)*
 

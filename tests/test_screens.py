@@ -1,9 +1,15 @@
 """2.29 Screen IDs (Q25): the register (js/register.js) against the code, every screen's and sheet's ID on the page,
 part names (every visible control named, by Vocal Sessions' naming rules), the flows walked by their part names, docs
 links, the Show screen IDs switch and label, the changelog's Screens line, and the saved-data list
-(MAINTAINING › Where data lives) against every storage key in the code."""
-import os, re
+(MAINTAINING › Where data lives) against every storage key in the code. Since 2.41 (Q30) also the element sheet
+(reference/elements.md, `reference`): up to date, every reached part with a kit part or a reason, every named element
+in the register, no retired value, every decision ID in js/parts.settings.js, and the guard itself on copies.
+SUKI_SCREENS=register,page,ipad,overlays,flows,missing,switch,changelog,data,reference runs only those parts."""
+import os, re, sys
 import harness
+
+_only = [x for x in os.environ.get('SUKI_SCREENS', '').split(',') if x]
+wanted = lambda k: not _only or k in _only
 
 
 def until(pg, js, timeout=5000):
@@ -366,13 +372,47 @@ def saved_data(b, t):
     ok('Q25' in row and 'not backed up' in row.lower(), 'suki:screenIds has its row: Q25, not backed up')
 
 
+def reference(b, t):
+    """Q30 the element sheet: built from the register, the value set and js/parts.settings.js, and the app itself."""
+    ok = t.ok
+    sys.path.insert(0, os.path.join(ROOT, 'tools', 'reference'))
+    import elements as E
+    text, vals, reg, unlisted = E.sheet(b)
+    have = open(E.OUT, encoding='utf-8').read() if os.path.exists(E.OUT) else ''
+    ok(have == text, 'reference/elements.md is up to date (if not: python3 tools/reference/elements.py)')
+    live = [p for p in reg if p[3] == 'In use']
+    read = [p for p in live if (p[0], p[1], p[2]) in vals]
+    ok(len(read) >= 100, f'the sheet reads at least 100 parts from the app ({len(read)} of {len(live)})')
+    ok(not E.problems(vals, reg), f'every reached part has a kit part or a reason ({E.problems(vals, reg)})')
+    ok(not unlisted, f'every named element on the page has a line in the register, so a row on the sheet ({unlisted})')
+    ok(not E.retired(vals, reg), f'no part uses a retired value ({E.retired(vals, reg)})')
+    ids = {d[0] for d in E.decisions()}
+    rules = set(sum(E.DECISIONS_BY_KIT.values(), []) + sum(E.DECISIONS_BY_PRESS.values(), []) + sum(E.DECISIONS_BY_SCREEN.values(), [])
+                + sum([x[1] for x in E.DECISIONS_BY_SEL], []))
+    ok(len(ids) >= 15 and not (rules - ids) and not E.unknown_decisions(vals),
+       f'every decision on the sheet is a line in js/parts.settings.js ({sorted(rules - ids) + E.unknown_decisions(vals)})')
+    ok(all('| %s | `%s` |' % (i, k) in text for i, k, _ in E.decisions()), 'every decision in js/parts.settings.js is in the sheet’s Decisions')
+    ok(all('| `%s` |' % E.RETIRED[i][0].replace('|', '\\|') in text for i in range(len(E.RETIRED))), 'every retired value is listed on the sheet')
+
+    # the guard itself, on copies
+    fake = {('SK-001', 'stray-button', '.stray'): [{'kit': [], 'press': None, 'corner': 'none', 'reason': -1, 'dec': [],
+                                                   'motion': ['cubic-bezier(0.3, 1.3, 0.5, 1)'], 'props': ['height']}]}
+    fv = {**vals, **E.values(fake)}
+    freg = reg + [('SK-001', 'stray-button', '.stray', 'In use', '', 'SK-001 · Home')]
+    ok('SK-001 › stray-button' in E.problems(fv, freg), 'the guard catches a part with neither a kit part nor a reason')
+    ok(any(x.startswith('SK-001 › stray-button (') and 'height' in x and '0.3, 1.3' in x for x in E.retired(fv, freg)),
+       'the guard catches a retired curve and a size transition')
+    ok(E.build(vals, freg) != text and '`SK-001 › stray-button`' in E.build(vals, freg), 'a part added to the register changes the sheet and shows as not reached')
+    k = next(iter(vals))
+    ok(E.build({**vals, k: dict(vals[k], corner="`--r-large`")}, reg) != text, 'a changed value changes the sheet')
+    pg = E.open_app(b)
+    pg.evaluate("(()=>{const x=document.createElement('button');x.className='stray';x.textContent='x';x.dataset.name='stray-button';document.getElementById('app').appendChild(x)})()")
+    got = pg.evaluate(E.READ_JS, {'screen': 'SK-001', 'roots': ['#app'], 'inside': E.INSIDE, 'controls': E.CONTROLS, 'reasons': [], 'decisions': []})
+    ok(any(r['key'] is None and r['name'] == 'stray-button' for r in got), 'the guard catches a named element with no register line')
+    pg.context.close()
+
+
 def run(b, t):
-    register(b, t)
-    screens_on_page(b, t)
-    ipad_and_mac(b, t)
-    overlays(b, t)
-    flows(b, t)
-    missing_entry(b, t)
-    switch(b, t)
-    changelog(b, t)
-    saved_data(b, t)
+    for k, f in (('register', register), ('page', screens_on_page), ('ipad', ipad_and_mac), ('overlays', overlays), ('flows', flows),
+                 ('missing', missing_entry), ('switch', switch), ('changelog', changelog), ('data', saved_data), ('reference', reference)):
+        if wanted(k): f(b, t)

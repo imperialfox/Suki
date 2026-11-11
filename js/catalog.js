@@ -36,7 +36,7 @@ const CATALOG = [
   ['ensaymada', 'Ensaymada', 'Sweet cheese bread', 'Tinapay', 'per piece', 'ensaimada'],
   ['puto', 'Puto', 'Steamed rice cake', 'Kakanin', 'per piece', 'puto cheese|puto rice cake'],
   ['bibingka', 'Bibingka', 'Filipino rice cake', 'Kakanin', 'per piece', 'bibingka rice cake'],
-  ['bigas', 'Bigas', 'Uncooked rice', 'Palengke / groceries', 'per kilogram', 'rice|bigas 1 kilo|isang kilong bigas|1 kilo bigas|rice per kilo|kanin na hilaw'],
+  ['bigas', 'Bigas', 'Uncooked rice', 'Palengke / groceries', 'per kilogram', 'rice|bigas 1 kilo|isang kilong bigas|1 kilo bigas|rice per kilo'],
   ['itlog', 'Itlog', 'Eggs', 'Palengke / groceries', 'per piece', 'egg|eggs|isang dosenang itlog|dozen eggs'],
   ['baboy', 'Baboy', 'Pork', 'Palengke / groceries', 'per kilogram', 'pork|karne ng baboy|baboy kilo'],
   ['manok', 'Manok', 'Chicken', 'Palengke / groceries', 'per kilogram', 'chicken|karne ng manok|manok kilo'],
@@ -135,13 +135,20 @@ function browseOf(it) {
   if (/essential/i.test(g)) return 'essentials';
   return 'food';
 }
-// which catalogue item a logged purchase is ("Jeepney to Cubao" is the jeepney), or null when nothing is a clear match
+// the old loose match from before Q36 (Search's scoring then), or null when nothing came close. Nothing in the app
+// uses it now: it's kept so the tests can show the loose matches the whole-word rules guard against
+// (Spaghetti → Massage, Mango → Mang Inasal). Search uses searchItems, purchases strictItemFor and wordMatch.
 const matchCache = {};
 function itemFor(text) {
   const k = norm(text);
   if (k in matchCache) return matchCache[k];
-  const h = searchItems(k, 1)[0];
-  return (matchCache[k] = h && score(h, k) >= 70 ? h.id : null);
+  let best = null,
+    top = 0;
+  CATALOG.forEach((i) => {
+    const s = looseScore(i, k);
+    if (s > top) [best, top] = [i, s];
+  });
+  return (matchCache[k] = best && top >= 70 ? best.id : null);
 }
 
 // the stricter match behind a purchase's "… prices" row (Q08): the item's name or English name must appear in what
@@ -213,14 +220,20 @@ const wordItemFor = (text) => {
   return m ? m.id : null;
 };
 
-/* ===== Fuzzy search =====
-   Exact names and spellings score highest, then names containing what you typed, then word-by-word likeness,
-   so misspellings ("sinigan"), mixed languages and phrases like "1 kilo bigas" still find the right item. */
+/* ===== Search (Q36: stricter matching) =====
+   Search as you type. A word you type counts against a word in an item's name, English name or other spellings when:
+   it's the same word; a plural of it ("eggs"); the start of it, while you're still typing (4 letters or more and at
+   least half the word: "sinig", "chick", "adob"); or a slip of one letter in words of 5 letters or more (two from 8:
+   "chiken", "tricyle"). A word that only starts like a name ("mango" isn't "mang", "pancit" isn't "pan") or sits
+   inside a longer word ("gin" in giniling, "tour" in tourist) doesn't count, and short words need the whole word
+   ("toll" isn't "roll", "load" isn't "loaf"). In an English name, the words after "in", "with", "on" or "and" say what
+   it comes with, so they don't find it on their own: "coconut" isn't laing (Taro leaves in coconut milk) and "rice"
+   isn't Mang Inasal (Grilled chicken with rice). Exact names score highest, then whole phrases, then word by word. */
 function norm(s) {
   return String(s || '')
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
@@ -234,36 +247,52 @@ function editDist(a, b) {
   }
   return p[b.length];
 }
-function likeness(a, b) {
-  if (!a || !b) return 0;
-  if (a === b) return 1;
-  if (a.startsWith(b) || b.startsWith(a)) return (Math.min(a.length, b.length) / Math.max(a.length, b.length)) * 0.4 + 0.6;
-  // short words need to be nearly exact, so "water" doesn't match "batter" or "rice" match "ice"
-  const d = editDist(a, b),
-    n = Math.max(a.length, b.length);
-  if (n <= 5 && d > 1) return 0;
-  return 1 - d / n;
+// how well a typed word (or the whole query) fits a word (or a whole name), 0 to 1, by the rules above
+function fit(t, w) {
+  if (!t || !w) return 0;
+  if (t === w) return 1;
+  if (t === w + 's' || t === w + 'es') return 0.95;
+  if (w.startsWith(t)) return t.length >= 4 && t.length * 2 >= w.length ? 0.6 + 0.4 * (t.length / w.length) : 0;
+  if (Math.min(t.length, w.length) < 5) return 0;
+  const d = editDist(t, w),
+    n = Math.max(t.length, w.length);
+  return d <= (n >= 8 ? 2 : 1) ? 1 - d / n : 0;
 }
-const FILLER = ['kilo', 'kg', 'gram', 'grams', 'g', 'isang', 'na', 'per', 'the', 'a', 'ng', 'for'];
+// the names Search looks in: the item's name, its other spellings and its English name up to "in", "with", "on" or "and"
+const headOf = (english) => norm(english).split(/ (?:in|with|on|and) /)[0];
+const S_NAMES = () =>
+  S_NAMES.v ||
+  (S_NAMES.v = new Map(CATALOG.map((it) => [it, [...new Set([it.name, ...it.aliases].map(norm).concat(headOf(it.english)).filter(Boolean))]])));
+// the query as a run of whole words in a name ("san jose", "fish ball"); its last word may be a word still being typed
+function phraseIn(q, n) {
+  const t = q.split(' '),
+    w = n.split(' ');
+  for (let i = 0; i + t.length <= w.length; i++)
+    if (t.every((x, j) => (j < t.length - 1 ? x === w[i + j] || fit(x, w[i + j]) >= 0.95 : fit(x, w[i + j]) > 0 && x.length >= Math.min(4, w[i + j].length))))
+      return true;
+  return false;
+}
+// words that join others ("jeepney to Cubao", "isang kilong bigas") and don't count on their own
+const FILLER = ['kilo', 'kg', 'gram', 'grams', 'g', 'isang', 'na', 'per', 'the', 'a', 'ng', 'for', 'to', 'from', 'at', 'in', 'on', 'with', 'and', 'of', 'sa'];
+const LOOSE_FILLER = ['kilo', 'kg', 'gram', 'grams', 'g', 'isang', 'na', 'per', 'the', 'a', 'ng', 'for'];
 function score(item, q) {
   q = norm(q);
-  const names = [item.name, item.english, ...item.aliases].map(norm);
-  if (names.includes(q)) return 100;
-  if (names.some((n) => n.includes(q))) return 90;
+  const names = S_NAMES().get(item) || [];
+  if (names.includes(q) || norm(item.english) === q) return 100;
+  if (names.some((n) => phraseIn(q, n))) return 90;
   const toks = q.split(' ').filter((t) => t && !/^\d+(\.\d+)?$/.test(t) && !FILLER.includes(t));
   if (!toks.length) return 0;
   const words = names.join(' ').split(' ');
   let sum = 0;
   for (const t of toks) {
-    const best = Math.max(0, ...words.map((w) => likeness(t, w)));
+    const best = Math.max(0, ...words.map((w) => fit(t, w)));
     if (best >= 0.7) sum += best;
   }
-  return (
-    (sum / toks.length) * 72 + Math.max(0, ...names.map((n) => likeness(q, n))) * 24 + (sum / toks.length === 1 ? 4 : 0)
-  );
+  return (sum / toks.length) * 72 + Math.max(0, ...names.map((n) => fit(q, n))) * 24 + (sum / toks.length === 1 ? 4 : 0);
 }
 function searchItems(q, max = 12) {
   if (!norm(q)) return [];
+  // 40: every word has to fit something, so half a search ("coconut oil", "coconut milk") finds nothing
   const hits = CATALOG.map((i) => ({ i, s: score(i, q) }))
     .filter((x) => x.s >= 40)
     .sort((a, b) => b.s - a.s);
@@ -273,4 +302,30 @@ function searchItems(q, max = 12) {
     .filter((x) => x.s >= top * 0.72)
     .slice(0, max)
     .map((x) => x.i);
+}
+
+/* ===== The loose scoring from before Q36, behind itemFor only (see there) ===== */
+function looseLikeness(a, b) {
+  if (!a || !b) return 0;
+  if (a === b) return 1;
+  if (a.startsWith(b) || b.startsWith(a)) return (Math.min(a.length, b.length) / Math.max(a.length, b.length)) * 0.4 + 0.6;
+  const d = editDist(a, b),
+    n = Math.max(a.length, b.length);
+  if (n <= 5 && d > 1) return 0;
+  return 1 - d / n;
+}
+function looseScore(item, q) {
+  q = norm(q);
+  const names = [item.name, item.english, ...item.aliases].map(norm);
+  if (names.includes(q)) return 100;
+  if (names.some((n) => n.includes(q))) return 90;
+  const toks = q.split(' ').filter((t) => t && !/^\d+(\.\d+)?$/.test(t) && !LOOSE_FILLER.includes(t));
+  if (!toks.length) return 0;
+  const words = names.join(' ').split(' ');
+  let sum = 0;
+  for (const t of toks) {
+    const best = Math.max(0, ...words.map((w) => looseLikeness(t, w)));
+    if (best >= 0.7) sum += best;
+  }
+  return (sum / toks.length) * 72 + Math.max(0, ...names.map((n) => looseLikeness(q, n))) * 24 + (sum / toks.length === 1 ? 4 : 0);
 }

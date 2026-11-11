@@ -151,3 +151,52 @@ def run(b, t):
     ok(pd.evaluate("document.documentElement.scrollWidth<=innerWidth"), 'no sideways scroll at 375 px in dark')
     pd.close()
     ok(pg.evaluate("document.documentElement.scrollWidth<=innerWidth"), 'no sideways scroll at 375 px in light')
+
+    # ── Q36: stricter matching (the cross-audit's search cases, M05 / F3) ─
+    pq = t.page(b, w=375, h=812, data=None)
+    tab(pq, 'search')
+
+    def prices(q):
+        """The item ids in Search's Prices group for q, as he sees them."""
+        search(pq, q)
+        return pq.evaluate("[...document.querySelectorAll('#results .grp:not(#mine):not(#mynotes):not(#notesDoor) [data-a=openItem]')].map(e=>e.dataset.k)")
+
+    # the six from the audit: nothing, or the right item
+    for q in ['mango', 'medicine', 'toll', 'coconut', 'kanin']:
+        got = prices(q)
+        ok(got == [] and 'No clear match' in pq.inner_text('#results') and pq.locator('#results [data-a=newPurchase]').count() == 1,
+           f'“{q}” shows no unrelated price, says “No clear match” and offers to log it (got {got})')
+    got = prices('load')
+    ok(got == ['sim', 'data'], f'“load” shows the SIM card and data promos only (got {got})')
+    t.shot(pq, 'q36-load-light')
+    prices('mango')
+    t.shot(pq, 'q36-mango-light')
+
+    # other loose matches the audits found (Q14's Recon, the cross-audit), checked through the same search
+    find = lambda q: pq.evaluate("q=>searchItems(q).map(i=>i.id)", q)
+    for q, want in [('mangoes', []), ('spaghetti', []), ('gin', []), ('tollgate', []), ('megamall', []), ('atm', []), ('kanin na hilaw', []), ('coconut milk', []), ('coconut oil', []),
+                    ('loaf', ['tasty']), ('ube', ['bus-naia']), ('egg', ['itlog']), ('milk', ['gatas']), ('vinegar', ['suka']), ('ice', ['halo']),
+                    ('uber', ['grab']), ('cab', ['taxi'])]:
+        got = find(q)
+        ok(got == want, f'“{q}” finds {want or "nothing"} (got {got})')
+    for q, never in [('rice', 'halo'), ('chickenjoy', 'manok'), ('fishball', 'isda'), ('turon', 'carinderia')]:
+        ok(never not in find(q), f'“{q}” doesn’t show {never}')
+
+    # still matching: whole words, plurals, close misspellings, Tagalog and English, words still being typed, phrases
+    for q, want in [('jeepney', 'jeepney'), ('jeepneys', 'jeepney'), ('eggs', 'itlog'), ('fish balls', 'fishball'), ('chiken adobo', 'adobo-c'),
+                    ('sinigan baboy', 'sinigang-p'), ('tricyle', 'tricycle'), ('trycicle', 'tricycle'), ('coffe', 'kape'), ('manok', 'manok'),
+                    ('chicken', 'manok'), ('bigas', 'bigas'), ('rice', 'bigas'), ('uncooked rice', 'bigas'), ('1 kilo bigas', 'bigas'), ('isang kilong bigas', 'bigas'),
+                    ('adob', 'adobo-p'), ('sinig', 'sinigang-p'), ('tric', 'tricycle'), ('halo halo', 'halo'), ('bus to san jose', 'bus-sanjose'),
+                    ('taro', 'laing'), ('banana', 'turon'), ('sim', 'sim'), ('pork stew', 'menudo'),
+                    ('taro leaves in coconut milk', 'laing')]:
+        got = find(q)
+        ok(want in got, f'“{q}” still finds {want} (got {got})')
+    missing = pq.evaluate("CATALOG.flatMap(it=>[it.name,it.english,...it.aliases].filter(n=>!searchItems(n).some(x=>x.id===it.id)).map(n=>it.id+': '+n))")
+    ok(missing == [], f'every name, English name and other spelling in the catalogue finds its own item ({missing[:5]})')
+    pq.close()
+
+    pd = t.page(b, w=375, h=812, sc='dark', data=None)
+    tab(pd, 'search')
+    search(pd, 'kanin')
+    t.shot(pd, 'q36-kanin-dark')
+    pd.close()

@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.38 · 11 Nov 2026
+*Search: stricter matching (Q36)*
+
+**Search no longer offers the wrong price**
+- A word now has to match a whole word in an item's name, its English name or another spelling. "Mango" no longer shows Mang Inasal (₱139), "medicine" no longer shows instant noodles, "toll" no longer shows pandesal and "coconut" no longer shows laing. They say "No clear match" and offer to log it instead.
+- "Load" shows the SIM card and data promos, not sliced bread too.
+- "Kanin" (cooked rice) no longer shows uncooked rice. It shows nothing until a cooked rice price is added.
+- Other loose matches the audits found are gone too: spaghetti (massage), gin, ube, tollgate, megamall, ATM, egg (tortang talong, kwek-kwek), milk (laing, Milo), vinegar (paksiw) and ice (eight rice and bread items).
+- A search of two or more words needs every word to match, so "coconut oil" doesn't show cooking oil.
+
+**What still matches**
+- Whole words, plurals ("eggs", "jeepneys"), Tagalog and English names, phrases ("1 kilo bigas", "bus to San Jose").
+- A slip of one letter in words of 5 letters or more ("chiken adobo", "tricyle"), two from 8 letters ("trycicle").
+- A word still being typed, once it's 4 letters and half the word ("sinig", "adob", "tric"). Short slips like "kapi" no longer find kape: type "kape" or "coffee".
+
+**Tests**
+- `test_search.py`: the audit's six searches on screen, 21 more loose matches, 26 searches that must still work, and every name and spelling in the catalogue finding its own item. With 2.37's search, 26 of these fail.
+
+Screens: SK-003
+
 ## 2.37 · 11 Nov 2026
 *Prices: data checks, age, rail fare and units (Q35)*
 

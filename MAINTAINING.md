@@ -45,7 +45,7 @@ Suki shares its foundations with Vocal Sessions (`imperialfox/Vocal-Sessions`): 
 | `js/parts.settings.js` | The kit's settings for Suki: one line per decision, with its ID (D01, S01 …) |
 | `js/motion.js` | **Suki's motion helpers** (`MOTION`) on the kit's springs (Q27, D18): `animate`, `spring`, `stagger`, `land` and `leave` (Q11), the Smart add `fold` (Q14), `iosSpring`, `project` and `rubber` (Q19), and the speed (`suki:motion`; 0 = off, used by the tests) and Reduce Motion (`suki:reduceMotion`) it hands to the kit |
 | `js/catalog.js` | The catalogue (`CATALOG`), official price lookups (`refsFor`, `refFrom`), the fuzzy search (`searchItems`) and the whole-word match for logged purchases (`wordMatch`, Q14) |
-| `js/prices.js` | The official DA-AMAS price snapshot (`window.sukiPriceReferences`) |
+| `js/prices.js` | The official DA-AMAS price snapshot (`window.sukiPriceReferences`), with `periodEnd`, the week's last day (Q35) |
 | `js/typical.js` | Typical prices with their sources (`window.sukiTypical`, Q02): fares, DTI suggested retail prices, shop and menu prices, rough guides |
 | `js/reader.js` | Smart add's sentence reader (`READER`, Q14): word rules only, no screen code |
 | `js/storage.js` | Categories, places and payment methods; checking (`cleanData`) and loading/saving data; the draft and last-backup date |
@@ -350,7 +350,23 @@ A backup is a JSON file: a plain-English `README`, `app: 'Suki'`, `schemaVersion
 
 ## Updating the official prices
 
-Replace the snapshot in `js/prices.js` with the new period, area, source link and records. Each record's `itemId` must be a catalogue id. Mention the new period in the changelog.
+Replace the snapshot in `js/prices.js` with the new period, `periodEnd` (the week's last day), area, source link and records. Each record's `itemId` must be a catalogue id. Mention the new period in the changelog.
+
+## Prices (Q35)
+
+`tests/test_prices.py` checks every price in `js/typical.js` and `js/prices.js` on every run. To add or change a price so it passes:
+
+1. **The id** is a catalogue id from `CATALOG` (`js/catalog.js`). Something not in the catalogue needs a new item first, with a new id (ids are never reused).
+2. **The date** is the date on the source page, as `YYYY-MM-DD`, or `YYYY-MM` when the page gives only a month. Never in the future. If the page has no date: a seller's own live price page (a telco's page, a shop's delivery menu) takes the day you read it; anything else needs a dated source, or the row is left out (as the two undated haircut rows were).
+3. **The link** is https, `source` says who published it, and `low` is at most `high`.
+4. **One unit per item, word for word,** because Search shows one range with one unit. A price sold another way is converted, with a note (pandesal per piece, from the pack of 10), or becomes its own item (the tourist SIM package, `sim-tourist`). Extra detail, like the per-km rate after the first 4 km, goes in `note`.
+5. **No row copied onto more than 2 items.** `KNOWN_COPIES` in the test holds the carinderia row until Q38 replaces it; the list can only shrink (a line whose copies are gone fails too).
+6. **The DA snapshot:** one unit per item, a catalogue `itemId`, and `periodEnd` changed with the period.
+7. Update `checked` at the top of `typical.js`.
+
+**A price's age on the item sheet** (`screens.js`): a typical price over 90 days old (`AGE_ROW`) shows its month after its kind; the sources line reads "Sources dated *first month* to *last month*" from the rows' own dates (`sourcesHead`), or the one date; the DA card says "This week is N weeks old" once `periodEnd` is over 30 days old (`AGE_DA`, `daAge`, `#daAge`). A month-only date counts from the 1st.
+
+**Rail fares:** MRT-3 and LRT-2 show the half fare everyone has paid since 23 Mar 2026 (DOTr, until further notice), from the single-journey matrix; the note keeps the full fare. When the discount ends, put the full fares back as the headline. LRT-1 isn't part of it.
 
 ---
 
@@ -457,6 +473,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 | `test_taps.py` | Q29: every button, link and text box on every screen and sheet in the register (and Home's Smart add side and Search's results) reaches 44 × 44 pt through its middle with nothing else on top, at 375 and 402 wide, or is on `KNOWN` with why (the Till's drawer handle); the known list can only shrink. Measured by walking out from each one's middle with `elementFromPoint`, so an overlapping neighbour shows up with its name. Each text family, Cancel, the bin and the pill fading to `--press-fade` and back; calendar days and the Mac sidebar lighting up like a row; screenshots light and dark. `SUKI_TAPS_LIST=1` prints every one that falls short |
 | `test_flows.py` | Logging (with errors and the draft), Spending (chips, filter, days, details, edit, delete, swipe, CSV), Quick Till, Convert, Search and price notes, Settings, empty states |
 | `test_doors.py` | Q08's doors: Home's two figures, Spending's +, logging on a calendar day, a purchase's prices row (whole words only, and on iPad), the old-rate link, Price notes' links to Search, Search's Log row and Settings rows that open things. Q24: Home's two Show all doors opening All after leaving Spending on Day, the gear, Help and Rate history and their Back, the delete message, Mac's Settings section (one lit, no Back, no movement) and Help zooming there, iPad's zooms |
+| `test_prices.py` | Q35: every typical price and DA record has a real date (not in the future), an https link, a source and a catalogue id, one unit per item, and no row copied across more than 2 items (`KNOWN_COPIES`, can only shrink); the check proven on twelve broken copies; pandesal, the SIM card and the tourist SIM with one unit each; MRT-3 and LRT-2's half fare and notes; a price's month from 91 days and not at 90, a month-only date, the sources line's range; the DA card's age at 10, 30, 31, 40 and 100 days; screenshots at 375 px, light and dark |
 | `test_search.py` | Q09: Prices, In your purchases (three rows, Show all with the same count in Spending), In your price notes, every word in any order (Search and Spending's filter), no match only when nothing of his matches, the notes row on All, the placeholder, screenshots at 375 px light and dark |
 | `test_compare.py` | Q12: the calendar's three tints (thirds, under three days, equal days), the key and footnote, the picked day in solid ink, today's outline; the price range strip's bands, dots, rings, stacking, axis and key, the dot–row link both ways (and back from a purchase), clearing, the label inside at both ends at 375 px, nothing animating, no strip with nothing to compare; screenshots at 375 and 402 px, light and dark |
 | `test_location.py` | Q16, with a stand-in for the phone's position: nothing asked at launch; today's town on Home (beside More details, kept in a reloaded draft, the newest wins) and Spending's +; that day's town from a calendar day, and none; the arrow (allowed, nothing within 40 km, denied, no answer, typing or closing while it looks); 11 real places in the right town; typing and clearing stop the filling; editing never changes a place; the About credit; screenshots at 375 px, light and dark |
@@ -505,6 +522,7 @@ The tests drive the real app in Chromium, served from `localhost` as GitHub Page
 - On 5 Nov 2026 (Q29) the whole suite side by side failed five checks: the launch timeout in `test_offline.py`, a flick in `test_drawer.py`, the `test_smart.py` Reduce Motion crossfade and the two new-row checks in `test_motion.py` (all listed above); one at a time the four files passed 286 of 286. Q29 touches none of their motion.
 - On 9 Nov 2026 (Q33) the quick suite side by side failed the same `test_smart.py` Reduce Motion crossfade check, an eighth time; Q32 is queued to fix it. Q33 doesn't touch Home's Log card. The full suite side by side then timed out once at launch in `test_offline.py` (the Q21 entry above); it passed 9 of 9 on its own.
 - On 10 Nov 2026 (Q34) GitHub's first run failed the random taps, seed 13: "sheet state confirm but nothing shown" and "page behind a sheet left scaled", after opening a purchase, closing a tip and resizing to 1440×900. The re-run passed, and it passed locally. Q34 touches only the rate. If it shows again, it should go in the queue.
+- On 11 Nov 2026 (Q35) the whole suite side by side failed the same `test_smart.py` Reduce Motion crossfade check, a ninth time (Q32 fixes it); the file passed 100 of 100 on its own. Q35 doesn't touch Home's Log card.
 - Since Q33 saves of his records go through `putChecked()`, not `putKey()`. A test that fakes a failed save replaces both (`putKey=putChecked=()=>Promise.resolve(false)`, as `test_data.py` does).
 - Since Q27 the kit's sheets drag with pointer events. A flick in a test goes through `harness.flick()`, which sends the events from the page itself 8 ms apart, so the speed doesn't depend on how busy the machine is; a slow drag uses the mouse with pauses.
 - Since Q27 a sheet under another, and one on its way out, loses `.sheet` (it's `.sk-covered`), so `#layer .sheet` is always the one on top. Alerts are `#layer .pk-alert` with `[data-a=yes]` and `[data-a=no]`; a toast replaced by another stays in the page as `.pk-leaving` for 350 ms × the speed, so look for `.toast:not(.pk-leaving)`.

@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.37 · 11 Nov 2026
+*Prices: data checks, age, rail fare and units (Q35)*
+
+**The train fares you actually pay**
+- MRT-3 now shows ₱6–14 and LRT-2 ₱8–18: the half fare everyone has paid since 23 Mar 2026. The note keeps the full fare (₱13–28 and ₱15–35) and the day the discount began.
+
+**One unit in each price range**
+- Pandesal is per piece throughout: the DTI pack of 10 (₱27.25) now counts as ₱2.73 a piece, so Search shows ₱2–2.73, not ₱2–27.25.
+- The airport tourist SIM package (₱500–1,000) is its own item, Tourist SIM, so the SIM card shows ₱59–99.
+- Jeepney, city bus, tricycle, data promos, Chickenjoy, halo-halo, soft drinks and beer each use one unit; details like the per-km rate after the first 4 km moved to the note.
+
+**How old a price is**
+- On an item's page, a typical price over 90 days old shows its month (the Manila tricycle fare says November 2023).
+- The sources line gives the real range of dates ("Sources dated November 2023 to November 2025") instead of "checked 31 Oct".
+- The DA card says how old its week is once it's over 30 days old ("This week is 4 weeks old. Prices may have moved since.").
+
+**Every price has a date and a secure link**
+- LRT-2's broken date is fixed, with a new source. The seven undated prices were dated: the Globe SIM, eSIM and GoPLUS99 and the Master Siomai menu from their live pages (checked 11 Nov), Smart Magic Data from its March 2021 launch. The two haircut guides had no date anywhere, so they're gone until Q38 finds a better source.
+
+**Tests**
+- New `test_prices.py`: every price has a real date (not in the future), an https link, a source, a known item and one unit per item, and no row is copied across more than 2 items (the carinderia row is allowed until Q38). The check is proven on twelve broken copies. With 2.36's data it fails. Also the half fares, the single units, the ages at 90 and 91 days and the DA card at 30 and 31 days.
+
+Screens: SK-003, SK-009
+
 ## 2.36 · 10 Nov 2026
 *Rate: sanity check (Q34)*
 

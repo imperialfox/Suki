@@ -2,34 +2,35 @@
    Typical prices with their sources, researched 31 Oct 2026 (Q02). Each item id points at a catalogue id.
    kind: fare (set by LTFRB), srp (DTI suggested retail price), shop (a supermarket shelf price), menu (the chain’s own menu),
    listed (published by the company or a news report), guide (a rough guide from travel writers).
-   To update: replace a value and its source, url and date together. Never guess a price. */
+   To update: replace a value and its source, url and date together. Never guess a price.
+   tests/test_prices.py checks every row (MAINTAINING.md › Updating the typical prices). Rechecked 11 Nov 2026 (Q35). */
 window.sukiTypical = {
- "checked": "2026-10-31",
+ "checked": "2026-11-11",
  "items": {
   "jeepney": [
    {
     "label": "Traditional jeepney",
     "low": 14,
     "high": 14,
-    "unit": "first 4 km, then ₱2 a km",
+    "unit": "first 4 km",
     "area": "Nationwide (LTFRB)",
     "kind": "fare",
     "source": "GMA News",
     "url": "https://www.gmanetwork.com/news/money/economy/1003882/puvs-must-post-fare-matrix-before-charging-higher-fares-acto/story/",
     "date": "2026-09-27",
-    "note": "New fare from 28 Sep 2026 (was ₱13). Drivers must show the new fare matrix before charging it."
+    "note": "Then ₱2 a km. New fare from 28 Sep 2026 (was ₱13). Drivers must show the new fare matrix before charging it."
    },
    {
     "label": "Modern jeepney",
     "low": 17,
     "high": 17,
-    "unit": "first 4 km, then ₱2.40 a km",
+    "unit": "first 4 km",
     "area": "Nationwide (LTFRB)",
     "kind": "fare",
     "source": "GMA News",
     "url": "https://www.gmanetwork.com/news/money/economy/1003882/puvs-must-post-fare-matrix-before-charging-higher-fares-acto/story/",
     "date": "2026-09-27",
-    "note": "New fare from 28 Sep 2026 (was ₱15)."
+    "note": "Then ₱2.40 a km. New fare from 28 Sep 2026 (was ₱15)."
    }
   ],
   "bus-city": [
@@ -37,23 +38,25 @@ window.sukiTypical = {
     "label": "Ordinary city bus",
     "low": 15,
     "high": 15,
-    "unit": "first 5 km, then ₱2.49 a km",
+    "unit": "first 5 km",
     "area": "Metro Manila / city buses (LTFRB)",
     "kind": "fare",
     "source": "Top Gear Philippines",
     "url": "https://www.topgear.com.ph/news/industry-news/dotr-fare-hike-september-28-2026-a6941-20260928",
-    "date": "2026-09-28"
+    "date": "2026-09-28",
+    "note": "Then ₱2.49 a km."
    },
    {
     "label": "Air-con city bus",
     "low": 18,
     "high": 18,
-    "unit": "first 5 km, then ₱2.98 a km",
+    "unit": "first 5 km",
     "area": "Metro Manila / city buses (LTFRB)",
     "kind": "fare",
     "source": "Top Gear Philippines",
     "url": "https://www.topgear.com.ph/news/industry-news/dotr-fare-hike-september-28-2026-a6941-20260928",
-    "date": "2026-09-28"
+    "date": "2026-09-28",
+    "note": "Then ₱2.98 a km."
    }
   ],
   "bus-sanjose": [
@@ -87,25 +90,25 @@ window.sukiTypical = {
     "label": "Dagupan, Pangasinan",
     "low": 20,
     "high": 30,
-    "unit": "first 2 km, then ₱10 a km",
+    "unit": "shortest ride",
     "area": "Dagupan City, Pangasinan (Luzon example, not Nueva Ecija)",
     "kind": "listed",
     "source": "Sunday Punch, Dagupan",
     "url": "https://punch.dagupan.com/?p=617793",
     "date": "2025-11-02",
-    "note": "₱20 a passenger on a shared ride, ₱30 for a special trip on your own. No fare for San Jose City is published online."
+    "note": "First 2 km, then ₱10 a km. ₱20 a passenger on a shared ride, ₱30 for a special trip on your own. No fare for San Jose City is published online."
    },
    {
     "label": "City of Manila",
     "low": 16,
     "high": 16,
-    "unit": "first 1 km, then ₱5 every 500 m",
+    "unit": "shortest ride",
     "area": "City of Manila (LGU ordinance)",
     "kind": "listed",
     "source": "Inquirer",
     "url": "https://newsinfo.inquirer.net/1856068/manila-sets-new-tricycle-pedicab-fare-of-p16-for-first-kilometer-of-trip",
     "date": "2023-11-07",
-    "note": "Set in 2023; it may have changed since."
+    "note": "First 1 km, then ₱5 every 500 m. Set in 2023; it may have changed since."
    }
   ],
   "grab": [
@@ -167,15 +170,15 @@ window.sukiTypical = {
   "mrt3": [
    {
     "label": "MRT-3, North Avenue to Taft",
-    "low": 13,
-    "high": 28,
+    "low": 6,
+    "high": 14,
     "unit": "shortest to longest ride",
     "area": "Metro Manila (EDSA)",
     "kind": "listed",
-    "source": "Expressway.ph",
-    "url": "https://www.expressway.ph/transit/mrt-line-guide",
-    "date": "2026-10-03",
-    "note": "Half price for everyone since 23 Mar 2026, until further notice, so about ₱6.50–14."
+    "source": "Manila Bulletin",
+    "url": "https://mb.com.ph/2026/03/19/mrt-3-lrt-2-to-implement-50-fare-discount-starting-march-23",
+    "date": "2026-03-19",
+    "note": "Half price for everyone since 23 Mar 2026 (DOTr), until further notice. Full fare ₱13–28."
    }
   ],
   "lrt1": [
@@ -195,22 +198,22 @@ window.sukiTypical = {
   "lrt2": [
    {
     "label": "LRT-2, Recto to Antipolo",
-    "low": 14,
-    "high": 35,
+    "low": 8,
+    "high": 18,
     "unit": "shortest to longest ride",
     "area": "Metro Manila / Rizal",
-    "kind": "fare",
-    "source": "LRTA",
-    "url": "https://www.lrta.gov.ph/lrt-2-fare-adjustment/",
-    "date": "2023-08 (f",
-    "note": "Half price for everyone since 23 Mar 2026, applied at the gates."
+    "kind": "listed",
+    "source": "Manila Bulletin",
+    "url": "https://mb.com.ph/2026/03/19/mrt-3-lrt-2-to-implement-50-fare-discount-starting-march-23",
+    "date": "2026-03-19",
+    "note": "Half price for everyone since 23 Mar 2026 (DOTr), until further notice. Single-journey ticket; a beep card can be a little less. Full fare ₱15–35 (LRTA, Aug 2023)."
    }
   ],
   "uv": [
    {
     "label": "UV Express",
     "low": 2.6,
-    "high": 3.0,
+    "high": 3,
     "unit": "per km",
     "area": "Nationwide (LTFRB), provisional",
     "kind": "fare",
@@ -230,20 +233,23 @@ window.sukiTypical = {
     "kind": "listed",
     "source": "Globe",
     "url": "https://globe.com.ph/prepaid/5g-sim-guide",
-    "date": "",
+    "date": "2026-11-11",
     "note": "You register it with an ID."
    },
    {
     "label": "Globe prepaid eSIM",
     "low": 99,
     "high": 99,
-    "unit": "per eSIM",
+    "unit": "per SIM",
     "area": "Nationwide",
     "kind": "listed",
     "source": "Globe",
     "url": "https://globe.com.ph/prepaid/5g-sim-guide",
-    "date": ""
-   },
+    "date": "2026-11-11",
+    "note": "Bought in the GlobeOne app. Comes with 2 GB of data and 2 days of unlimited 5G."
+   }
+  ],
+  "sim-tourist": [
    {
     "label": "Smart tourist SIM at the NAIA booth",
     "low": 500,
@@ -259,21 +265,21 @@ window.sukiTypical = {
   ],
   "data": [
    {
-    "label": "Globe GoPLUS99",
+    "label": "Globe GoPLUS99 · 8 GB + 8 GB for apps, 7 days",
     "low": 99,
     "high": 99,
-    "unit": "8 GB + 8 GB for apps, 7 days",
+    "unit": "per promo",
     "area": "Nationwide",
     "kind": "listed",
     "source": "Globe",
     "url": "https://www.globe.com.ph/go/technology/article/ultimate-list-globe-prepaid-data-promos",
-    "date": ""
+    "date": "2026-11-11"
    },
    {
-    "label": "Smart Power All 109",
+    "label": "Smart Power All 109 · 10 GB + extras, 7 days",
     "low": 109,
     "high": 109,
-    "unit": "10 GB + extras, 7 days",
+    "unit": "per promo",
     "area": "Nationwide",
     "kind": "listed",
     "source": "WalasTech",
@@ -281,15 +287,16 @@ window.sukiTypical = {
     "date": "2026-07-01"
    },
    {
-    "label": "Smart Magic Data 99",
+    "label": "Smart Magic Data 99 · 2 GB, no expiry",
     "low": 99,
     "high": 99,
-    "unit": "2 GB, no expiry",
+    "unit": "per promo",
     "area": "Nationwide",
     "kind": "guide",
     "source": "Unbox",
     "url": "https://unbox.ph/news/ph-digital-and-tech/smart-magic-data-no-expiry/amp/",
-    "date": ""
+    "date": "2021-03",
+    "note": "From Smart’s launch of the promo in March 2021."
    }
   ],
   "laundry": [
@@ -303,30 +310,6 @@ window.sukiTypical = {
     "source": "Laundry Atlas",
     "url": "https://laundryatlas.com/blog/how-much-does-laundry-cost-in-manila",
     "date": "2026-03-01"
-   }
-  ],
-  "haircut": [
-   {
-    "label": "Neighbourhood barbershop",
-    "low": 100,
-    "high": 250,
-    "unit": "per cut",
-    "area": "Philippines (urban)",
-    "kind": "guide",
-    "source": "Visio AI",
-    "url": "https://visioai.app/fil/mga-hairstyle/gupit-ng-lalaki/",
-    "date": ""
-   },
-   {
-    "label": "Mall barbershop",
-    "low": 350,
-    "high": 700,
-    "unit": "per cut",
-    "area": "Metro Manila malls",
-    "kind": "guide",
-    "source": "Visio AI",
-    "url": "https://visioai.app/fil/mga-hairstyle/gupit-ng-lalaki/",
-    "date": ""
    }
   ],
   "massage": [
@@ -366,10 +349,10 @@ window.sukiTypical = {
     "date": "2026-01-14"
    },
    {
-    "label": "1-pc Chickenjoy, regular menu",
+    "label": "1-pc Chickenjoy, regular menu, alone or with a drink",
     "low": 106,
     "high": 111,
-    "unit": "per order",
+    "unit": "per meal",
     "area": "Nationwide",
     "kind": "listed",
     "source": "Jon to the World",
@@ -533,8 +516,8 @@ window.sukiTypical = {
     "kind": "guide",
     "source": "foodpanda",
     "url": "https://www.foodpanda.ph/restaurant/q44r/master-siomai-robinsons-holy-spirit",
-    "date": "",
-    "note": "Delivery price; at the kiosk it can be less."
+    "date": "2026-11-11",
+    "note": "Delivery app price, ₱60 on offer and ₱75 normally. At the kiosk it can be less."
    }
   ],
   "halo": [
@@ -542,7 +525,7 @@ window.sukiTypical = {
     "label": "Mang Inasal halo-halo",
     "low": 70,
     "high": 95,
-    "unit": "per cup",
+    "unit": "per serving",
     "area": "Nationwide",
     "kind": "menu",
     "source": "Mang Inasal",
@@ -575,15 +558,16 @@ window.sukiTypical = {
     "note": "Bakers say pieces have shrunk to about 18 g."
    },
    {
-    "label": "Pinoy Pandesal, pack of 10",
-    "low": 27.25,
-    "high": 27.25,
-    "unit": "per pack",
+    "label": "Pinoy Pandesal, from a pack of 10",
+    "low": 2.73,
+    "high": 2.73,
+    "unit": "per piece",
     "area": "Nationwide (DTI SRP)",
     "kind": "srp",
     "source": "DTI price bulletin",
     "url": "https://dtiwebfiles.s3.ap-southeast-1.amazonaws.com/e-Presyo/SRP+Basic+Necessities+and+Prime+Commodities/2026/BNPC+SRP+BULLETIN.11+MAY+2026.0010.PSU+[CLEAN+A3-final].pdf",
-    "date": "2026-05-11"
+    "date": "2026-05-11",
+    "note": "Sold in a pack of 10 for ₱27.25."
    }
   ],
   "carinderia": [
@@ -625,8 +609,8 @@ window.sukiTypical = {
    },
    {
     "label": "Wilkins Pure (purified) · 500 ml",
-    "low": 11.0,
-    "high": 11.0,
+    "low": 11,
+    "high": 11,
     "unit": "per bottle",
     "area": "Nationwide (DTI SRP)",
     "kind": "srp",
@@ -636,8 +620,8 @@ window.sukiTypical = {
    },
    {
     "label": "Wilkins Pure (purified) · 1 L",
-    "low": 18.0,
-    "high": 18.0,
+    "low": 18,
+    "high": 18,
     "unit": "per bottle",
     "area": "Nationwide (DTI SRP)",
     "kind": "srp",
@@ -647,8 +631,8 @@ window.sukiTypical = {
    },
    {
     "label": "Summit Mineralized Water · 500 ml",
-    "low": 12.0,
-    "high": 12.0,
+    "low": 12,
+    "high": 12,
     "unit": "per bottle",
     "area": "Nationwide (DTI SRP)",
     "kind": "srp",
@@ -669,8 +653,8 @@ window.sukiTypical = {
    },
    {
     "label": "Absolute Distilled Water · 1 L",
-    "low": 25.0,
-    "high": 25.0,
+    "low": 25,
+    "high": 25,
     "unit": "per bottle",
     "area": "Nationwide (DTI SRP)",
     "kind": "srp",
@@ -683,8 +667,8 @@ window.sukiTypical = {
    {
     "label": "Coca-Cola can",
     "low": 35.75,
-    "high": 39.0,
-    "unit": "per can",
+    "high": 39,
+    "unit": "per bottle/can",
     "area": "Metro Supermarket online / Pandamart QC",
     "kind": "shop",
     "source": "foodpanda",
@@ -695,7 +679,7 @@ window.sukiTypical = {
     "label": "Coca-Cola 500 ml",
     "low": 38.25,
     "high": 38.25,
-    "unit": "per bottle",
+    "unit": "per bottle/can",
     "area": "Metro Supermarket (online)",
     "kind": "shop",
     "source": "Metro Supermarket",
@@ -706,7 +690,7 @@ window.sukiTypical = {
     "label": "Coca-Cola 1.5 litres",
     "low": 66.75,
     "high": 67.5,
-    "unit": "per bottle",
+    "unit": "per bottle/can",
     "area": "Metro Supermarket online / Pandamart QC",
     "kind": "shop",
     "source": "foodpanda",
@@ -719,7 +703,7 @@ window.sukiTypical = {
     "label": "San Miguel Pale Pilsen, 320 ml bottle",
     "low": 58.3,
     "high": 58.3,
-    "unit": "per bottle",
+    "unit": "per bottle/can",
     "area": "Metro Supermarket (online)",
     "kind": "shop",
     "source": "Metro Supermarket",
@@ -730,8 +714,8 @@ window.sukiTypical = {
    {
     "label": "San Miguel Pale Pilsen, can",
     "low": 54.5,
-    "high": 57.0,
-    "unit": "per can",
+    "high": 57,
+    "unit": "per bottle/can",
     "area": "Metro Supermarket online / Pandamart QC",
     "kind": "shop",
     "source": "Metro Supermarket",
@@ -742,7 +726,7 @@ window.sukiTypical = {
     "label": "Red Horse, 500 ml bottle",
     "low": 70.8,
     "high": 70.8,
-    "unit": "per bottle",
+    "unit": "per bottle/can",
     "area": "Metro Supermarket (online)",
     "kind": "shop",
     "source": "Metro Supermarket",
@@ -751,9 +735,9 @@ window.sukiTypical = {
    },
    {
     "label": "Red Horse, can",
-    "low": 58.0,
+    "low": 58,
     "high": 59.5,
-    "unit": "per can",
+    "unit": "per bottle/can",
     "area": "Metro Supermarket online / Pandamart QC",
     "kind": "shop",
     "source": "Metro Supermarket",
@@ -764,8 +748,8 @@ window.sukiTypical = {
   "gatorade": [
    {
     "label": "Gatorade 500 ml",
-    "low": 49.0,
-    "high": 49.0,
+    "low": 49,
+    "high": 49,
     "unit": "per bottle",
     "area": "Metro Supermarket (online)",
     "kind": "shop",
@@ -788,8 +772,8 @@ window.sukiTypical = {
    },
    {
     "label": "Great Taste Original Twin Pack · 33 g",
-    "low": 10.0,
-    "high": 10.0,
+    "low": 10,
+    "high": 10,
     "unit": "per sachet",
     "area": "Nationwide (DTI SRP)",
     "kind": "srp",
@@ -823,8 +807,8 @@ window.sukiTypical = {
   "noodles": [
    {
     "label": "Lucky Me! Instant Mami (Chicken na Chicken / Beef na Beef) · 55 g",
-    "low": 9.0,
-    "high": 9.0,
+    "low": 9,
+    "high": 9,
     "unit": "per pack",
     "area": "Nationwide (DTI SRP)",
     "kind": "srp",
@@ -917,8 +901,8 @@ window.sukiTypical = {
   "tasty": [
    {
     "label": "Pinoy Tasty (loaf) · 450 g",
-    "low": 44.0,
-    "high": 44.0,
+    "low": 44,
+    "high": 44,
     "unit": "per loaf",
     "area": "Nationwide (DTI SRP)",
     "kind": "srp",
@@ -1006,8 +990,8 @@ window.sukiTypical = {
   "gatas": [
    {
     "label": "Bear Brand Powdered Milk · 135 g",
-    "low": 50.0,
-    "high": 50.0,
+    "low": 50,
+    "high": 50,
     "unit": "per pack",
     "area": "Nationwide (DTI SRP)",
     "kind": "srp",
@@ -1019,8 +1003,8 @@ window.sukiTypical = {
   "sabon": [
    {
     "label": "Safeguard Pure White bath soap · 55 g",
-    "low": 22.0,
-    "high": 22.0,
+    "low": 22,
+    "high": 22,
     "unit": "per bar",
     "area": "Nationwide (DTI SRP)",
     "kind": "srp",
@@ -1030,8 +1014,8 @@ window.sukiTypical = {
    },
    {
     "label": "Safeguard Pure White bath soap · 119 g",
-    "low": 49.0,
-    "high": 49.0,
+    "low": 49,
+    "high": 49,
     "unit": "per bar",
     "area": "Nationwide (DTI SRP)",
     "kind": "srp",
@@ -1043,8 +1027,8 @@ window.sukiTypical = {
   "detergent": [
    {
     "label": "Tide Bar Original Scent (laundry bar) · 380 g",
-    "low": 24.0,
-    "high": 24.0,
+    "low": 24,
+    "high": 24,
     "unit": "per bar",
     "area": "Nationwide (DTI SRP)",
     "kind": "srp",
@@ -1065,8 +1049,8 @@ window.sukiTypical = {
    },
    {
     "label": "Champion Bar (Supra Clean / Citrus Fresh) · 370 g",
-    "low": 25.0,
-    "high": 25.0,
+    "low": 25,
+    "high": 25,
     "unit": "per bar",
     "area": "Nationwide (DTI SRP)",
     "kind": "srp",

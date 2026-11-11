@@ -109,6 +109,7 @@ function officialCard(id) {
   return (
     '<section class="card official" aria-label="Official price reference"><div class="ofhead"><div><div class="eyebrow">Official price · ' + esc(R.area) + '</div><b>' + esc(R.period) + '</b></div><span class="badge">Weekly average</span></div>' +
     rows.map((r) => '<div class="ofrow"><span><b>' + esc(r.item) + '</b><small>' + esc(r.unit) + '</small></span><span class="amt">' + cash(r.price) + (inGbp(r.price) ? '<small>' + esc(inGbp(r.price)) + '</small>' : '') + '</span></div>').join('') +
+    daAge(R.periodEnd) +
     '<p class="small">' + esc(R.source) + ', ' + R.marketCount + ' markets. Prices are for the product described and can differ outside ' + esc(R.area.replace(' markets', '')) + '.</p>' +
     '<a class="link" href="' + esc(R.sourceUrl) + '" target="_blank" rel="noopener">View the DA report ' + ICON.out + '</a></section>'
   );
@@ -121,6 +122,27 @@ const gbpRange = (lo, hi) => {
     b = inGbp(hi);
   return !a ? '' : lo === hi ? a : a + '–' + b.replace('≈ ', '').replace('£', '');
 };
+/* A price's age (Q35): the DA card says how old its week is once that's over AGE_DA days; a typical price over AGE_ROW
+   days old shows its month; the sources line gives the real range of dates. A month-only date counts from the 1st. */
+const AGE_DA = 30,
+  AGE_ROW = 90;
+const dateStart = (d) => (/^\d{4}-\d{2}$/.test(d) ? d + '-01' : d);
+const realDate = (d) => /^\d{4}-\d{2}(-\d{2})?$/.test(d || '') && !isNaN(atNoon(dateStart(d)));
+function daAge(end) {
+  const n = realDate(end) ? dayDiff(end) : 0;
+  if (n <= AGE_DA) return '';
+  return '<p class="small age" id="daAge">This week is ' + (n < 63 ? Math.floor(n / 7) + ' weeks' : Math.floor(n / 30.4) + ' months') + ' old. Prices may have moved since.</p>';
+}
+const oldMonth = (d) => (realDate(d) && dayDiff(dateStart(d)) > AGE_ROW ? monthName(dateStart(d), true) : '');
+function sourcesHead(rows, n) {
+  const ds = [...new Set(rows.map((r) => r.date).filter(realDate))].sort((a, b) => dateStart(a).localeCompare(dateStart(b))),
+    word = n > 1 ? 'Sources' : 'Source';
+  if (!ds.length) return word + ':';
+  if (ds.length === 1) return word + ' dated ' + dateOf(ds[0]) + ':';
+  const a = monthName(dateStart(ds[0]), true),
+    b = monthName(dateStart(ds[ds.length - 1]), true);
+  return word + ' dated ' + (a === b ? a : a + ' to ' + b) + ':';
+}
 const KIND_LABEL = { fare: 'Set fare', srp: 'Suggested retail price', shop: 'Supermarket price', menu: 'Menu price', listed: 'Published price', guide: 'Rough guide' };
 const dateOf = (d) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? shortDate(d) : /^\d{4}-\d{2}$/.test(d) ? monthName(d + '-01', true) : '');
 // typical prices with where each came from: one row per price, the sources listed once underneath (Q02)
@@ -136,13 +158,13 @@ function typicalCard(id, strip) {
     rows
       .map(
         (r) =>
-          '<div class="ofrow"><span><b>' + esc(r.label) + '</b><small>' + esc(r.unit) + '</small><small class="kind k-' + r.kind + '">' + KIND_LABEL[r.kind] + (!one && r.area ? ' · ' + esc(r.area) : '') + '</small>' +
+          '<div class="ofrow"><span><b>' + esc(r.label) + '</b><small>' + esc(r.unit) + '</small><small class="kind k-' + r.kind + '">' + KIND_LABEL[r.kind] + (!one && r.area ? ' · ' + esc(r.area) : '') + (oldMonth(r.date) ? ' · <span class="age">' + oldMonth(r.date) + '</span>' : '') + '</small>' +
           (r.note ? '<small class="tnote">' + esc(r.note) + '</small>' : '') + '</span>' +
           '<span class="amt">' + pesoRange(r.low, r.high) + (gbpRange(r.low, r.high) ? '<small>' + esc(gbpRange(r.low, r.high)) + '</small>' : '') + '</span></div>'
       )
       .join('') +
     (strip || '') +
-    '<p class="small">Sources, checked ' + shortDate(window.sukiTypical.checked) + ':</p>' +
+    '<p class="small">' + sourcesHead(rows, srcs.length) + '</p>' +
     srcs.map((s) => '<a class="link src" href="' + esc(s.url) + '" target="_blank" rel="noopener"><span>' + esc(s.source) + (dateOf(s.date) ? ', ' + dateOf(s.date) : '') + '</span>' + ICON.out + '</a>').join('') +
     '</section>'
   );

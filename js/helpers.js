@@ -267,7 +267,7 @@ const ITEM_GLYPH = {
   trike: 'tricycle',
   car: 'grab taxi taxi-naia',
   train: 'mrt3 lrt1 lrt2',
-  sim: 'sim',
+  sim: 'sim sim-tourist',
   signal: 'data',
   washer: 'laundry',
   scissors: 'haircut',

@@ -70,7 +70,9 @@ const CATALOG = [
   ['lrt1', 'LRT-1', 'Light Rail Transit Line 1', 'Transport', 'per ride', 'lrt|lrt1|lrt 1|light rail|train|tren'],
   ['lrt2', 'LRT-2', 'Light Rail Transit Line 2', 'Transport', 'per ride', 'lrt2|lrt 2|light rail|train|tren'],
   ['uv', 'UV Express', 'Shared van', 'Transport', 'per km', 'uv express|fx|van|shuttle van'],
-  ['sim', 'SIM card', 'Prepaid SIM', 'Services', 'per SIM', 'sim|esim|globe sim|smart sim|tourist sim|load'],
+  ['sim', 'SIM card', 'Prepaid SIM', 'Services', 'per SIM', 'sim|esim|globe sim|smart sim|load'],
+  // added in Q35: the airport package, split from the SIM card so one item has one unit
+  ['sim-tourist', 'Tourist SIM', 'Tourist SIM package', 'Services', 'per package', 'tourist sim|smart tourist sim|airport sim|naia sim|travel sim'],
   ['data', 'Data promo', 'Mobile data', 'Services', 'per promo', 'data|load|mobile data|internet|globe|smart|go99|goplus|magic data|power all'],
   ['laundry', 'Laba', 'Laundry', 'Services', 'per kg', 'laundry|labahan|laundromat|wash dry fold|laundry shop'],
   ['haircut', 'Gupit', 'Haircut', 'Services', 'per cut', 'haircut|barber|barbershop|gupit lalaki|salon'],

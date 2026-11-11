@@ -901,10 +901,10 @@
    {
     "item": "Mangoes",
     "category": "Groceries",
-    "match": null
+    "match": "mangga"
    }
   ],
-  "note": "never Mang Inasal"
+  "note": "never Mang Inasal; its own item, Mangga, since Q37"
  },
  {
   "text": "spaghetti 85",
@@ -973,10 +973,10 @@
   "text": "banana 20",
   "expect": [
    {
-    "match": null
+    "match": "saging"
    }
   ],
-  "note": "never Turon"
+  "note": "never Turon; its own item, Saging, since Q37"
  },
  {
   "text": "UBE express 200",

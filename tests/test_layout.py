@@ -66,7 +66,7 @@ def run(b, t):
                 ok(pg.evaluate("U.sheet") == 'edit' and pg.evaluate(INSIDE, '.sheet'), f'{name}: Edit opens in the middle of the screen')
                 pg.keyboard.press('Escape'); pg.wait_for_timeout(100)
                 pg.evaluate("go('search')"); pg.click('[data-a=openItem][data-k=itlog]'); pg.wait_for_timeout(150)
-                ok(pg.evaluate("U.sheet") is None and '₱8.25' in pg.inner_text('.pane'), f'{name}: an item opens beside the results')
+                ok(pg.evaluate("U.sheet") is None and '₱8.23' in pg.inner_text('.pane'), f'{name}: an item opens beside the results')
                 pg.evaluate("go('home')"); pg.wait_for_timeout(100)
                 ok(pg.locator('.dash > div').count() == 2, f'{name}: Home is two columns')
                 if name != 'mac':

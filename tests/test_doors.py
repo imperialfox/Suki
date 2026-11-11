@@ -91,11 +91,17 @@ def run_q08(b, t):
         pg.evaluate(f"openSheet('purchase',{{id:'{k}'}})"); pg.wait_for_timeout(60)
         got = pg.inner_text('.sheet [data-a=openItem]') if pg.locator('.sheet [data-a=openItem]').count() else ''
         ok(want in got, f'“{name}” shows {want} ({got.splitlines()[0] if got else "no row"})')
-    for k, name in [('w1', 'Spaghetti'), ('w2', 'Mangoes'), ('w4', 'Banana'), ('a3', 'Groceries'), ('a4', 'Island hopping tour')]:
+    # since Q37 mangoes and bananas have their own items, so those two find them, never Mang Inasal or Turon
+    for k, name, want in [('w2', 'Mangoes', 'Mango prices'), ('w4', 'Banana', 'Banana prices')]:
+        pg.evaluate(f"openSheet('purchase',{{id:'{k}'}})"); pg.wait_for_timeout(60)
+        got = pg.inner_text('.sheet [data-a=openItem]') if pg.locator('.sheet [data-a=openItem]').count() else ''
+        ok(want in got, f'“{name}” shows {want}, its own item since Q37 ({got.splitlines()[0] if got else "no row"})')
+    for k, name in [('w1', 'Spaghetti'), ('a3', 'Groceries'), ('a4', 'Island hopping tour')]:
         pg.evaluate(f"openSheet('purchase',{{id:'{k}'}})"); pg.wait_for_timeout(60)
         ok(pg.locator('.sheet [data-a=openItem]').count() == 0, f'“{name}” shows no prices row (no whole-word match)')
-    loose = pg.evaluate("['Spaghetti','Mangoes','Banana'].map(s=>[itemFor(s),strictItemFor(s)])")
-    ok(all(a and b is None for a, b in loose), f'the loose matches the rule guards against are real ({loose})')
+    loose = pg.evaluate("['Spaghetti','Mango Inasal'].map(s=>[itemFor(s),strictItemFor(s)])")
+    ok(loose[0][0] and loose[0][1] is None, f'the loose match the rule guards against is real ({loose[0]})')
+    ok(pg.evaluate("strictItemFor('Mangoes')==='mangga'&&strictItemFor('Banana')==='saging'"), 'Mangoes and Banana find their own items (Q37), never Mang Inasal or Turon')
     ok(pg.evaluate("strictItemFor('Jeepneys')==='jeepney'&&strictItemFor('halo halo')==='halo'&&strictItemFor('Tricycle to Alona Beach')==='tricycle'"),
        'plurals and other spellings of the whole name still match')
     pg.evaluate("closeSheet()"); pg.wait_for_timeout(60)

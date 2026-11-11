@@ -40,7 +40,7 @@ const CATALOG = [
   ['itlog', 'Itlog', 'Eggs', 'Palengke / groceries', 'per piece', 'egg|eggs|isang dosenang itlog|dozen eggs'],
   ['baboy', 'Baboy', 'Pork', 'Palengke / groceries', 'per kilogram', 'pork|karne ng baboy|baboy kilo'],
   ['manok', 'Manok', 'Chicken', 'Palengke / groceries', 'per kilogram', 'chicken|karne ng manok|manok kilo'],
-  ['isda', 'Isda', 'Fish', 'Palengke / groceries', 'per kilogram', 'fish|fresh fish'],
+  ['isda', 'Isda', 'Fish', 'Palengke / groceries', 'per kilogram', 'fish|fresh fish|galunggong|round scad|alumahan|mackerel|tamban|sardines fresh|tambakol|tuna'],
   ['sibuyas', 'Sibuyas', 'Onion', 'Palengke / groceries', 'per kilogram', 'onion|onions'],
   ['bawang', 'Bawang', 'Garlic', 'Palengke / groceries', 'per kilogram', 'garlic'],
   ['kamatis', 'Kamatis', 'Tomato', 'Palengke / groceries', 'per kilogram', 'tomato|tomatoes'],
@@ -92,6 +92,34 @@ const CATALOG = [
   ['tasty', 'Tinapay na tasty', 'Sliced loaf', 'Tinapay', 'per loaf', 'loaf|sliced bread|pinoy tasty|gardenia|white bread'],
   ['asin', 'Asin', 'Salt', 'Palengke / groceries', 'per pack', 'salt|iodized salt'],
   ['asukal', 'Asukal', 'Sugar', 'Palengke / groceries', 'per pack', 'sugar|white sugar'],
+  // added in Q37: fish, beef, more vegetables and fruit from the DA's weekly bulletin, and basic medicines
+  ['bangus', 'Bangus', 'Milkfish', 'Palengke / groceries', 'per kilogram', 'milkfish|bangos|bangus isda'],
+  ['tilapia', 'Tilapia', 'Tilapia', 'Palengke / groceries', 'per kilogram', 'tilapya|pla pla|plapla'],
+  ['pusit', 'Pusit', 'Squid', 'Palengke / groceries', 'per kilogram', 'squid|calamari'],
+  ['baka', 'Baka', 'Beef', 'Palengke / groceries', 'per kilogram', 'beef|karne ng baka|beef brisket|brisket|beef rump'],
+  ['ampalaya', 'Ampalaya', 'Bitter gourd', 'Palengke / groceries', 'per kilogram', 'bitter melon|amplaya|gulay|vegetable|vegetables'],
+  ['talong-gulay', 'Talong', 'Aubergine', 'Palengke / groceries', 'per kilogram', 'eggplant|talong gulay|gulay|vegetable|vegetables'],
+  ['pechay', 'Pechay', 'Pak choi', 'Palengke / groceries', 'per kilogram', 'petsay|pechay baguio|bok choy|pak choy|chinese cabbage|gulay|vegetable|vegetables'],
+  ['sitaw', 'Sitaw', 'String beans', 'Palengke / groceries', 'per kilogram', 'sitao|long beans|yardlong beans|gulay|vegetable|vegetables'],
+  ['kalabasa', 'Kalabasa', 'Squash', 'Palengke / groceries', 'per kilogram', 'squash|pumpkin|gulay|vegetable|vegetables'],
+  ['repolyo', 'Repolyo', 'Cabbage', 'Palengke / groceries', 'per kilogram', 'cabbage|gulay|vegetable|vegetables'],
+  ['karot', 'Karot', 'Carrots', 'Palengke / groceries', 'per kilogram', 'carrot|carrots|gulay|vegetable|vegetables'],
+  ['sayote', 'Sayote', 'Chayote', 'Palengke / groceries', 'per kilogram', 'chayote|choko|gulay|vegetable|vegetables'],
+  ['habichuelas', 'Habichuelas', 'Green beans', 'Palengke / groceries', 'per kilogram', 'baguio beans|green beans|french beans|gulay|vegetable|vegetables'],
+  ['sili', 'Sili', 'Chilli', 'Palengke / groceries', 'per kilogram', 'chili|chilli|siling haba|siling labuyo|siling tingala'],
+  ['luya', 'Luya', 'Ginger', 'Palengke / groceries', 'per kilogram', 'ginger'],
+  ['mangga', 'Mangga', 'Mango', 'Palengke / prutas', 'per kilogram', 'mango|mangoes|carabao mango|manggang hinog|prutas|fruit|fruits'],
+  ['saging', 'Saging', 'Banana', 'Palengke / prutas', 'per kilogram', 'banana|bananas|lakatan|latundan|saba|prutas|fruit|fruits'],
+  ['kalamansi', 'Kalamansi', 'Calamansi', 'Palengke / prutas', 'per kilogram', 'calamansi|calamondin|philippine lime|prutas|fruit|fruits'],
+  ['papaya', 'Papaya', 'Papaya', 'Palengke / prutas', 'per kilogram', 'papaya|prutas|fruit|fruits'],
+  ['pakwan', 'Pakwan', 'Watermelon', 'Palengke / prutas', 'per kilogram', 'watermelon|prutas|fruit|fruits'],
+  ['suha', 'Suha', 'Pomelo', 'Palengke / prutas', 'per kilogram', 'pomelo|prutas|fruit|fruits'],
+  ['melon', 'Melon', 'Melon', 'Palengke / prutas', 'per kilogram', 'cantaloupe|prutas|fruit|fruits'],
+  ['abokado', 'Abokado', 'Avocado', 'Palengke / prutas', 'per kilogram', 'avocado|abukado|prutas|fruit|fruits'],
+  ['paracetamol', 'Paracetamol', 'Paracetamol 500 mg', 'Essentials / health', 'per tablet', 'biogesic|acetaminophen|tempra|gamot sa lagnat|fever|headache|painkiller|gamot|medicine|medicines|pharmacy|botika|drugstore|parmasya'],
+  ['ors', 'Oral rehydration salts', 'Oral rehydration salts', 'Essentials / health', 'per sachet', 'ors|oresol|hydrite|rehydration|dehydration|gamot|medicine|medicines|pharmacy|botika|drugstore|parmasya'],
+  ['cetirizine', 'Cetirizine', 'Cetirizine 10 mg, an antihistamine', 'Essentials / health', 'per tablet', 'antihistamine|allergy|allergies|virlix|zyrtec|gamot sa allergy|gamot|medicine|medicines|pharmacy|botika|drugstore|parmasya'],
+  ['loperamide', 'Loperamide', 'Loperamide 2 mg, for diarrhoea', 'Essentials / health', 'per capsule', 'imodium|diatabs|diarrhea|diarrhoea|lbm|gamot sa pagtatae|gamot|medicine|medicines|pharmacy|botika|drugstore|parmasya'],
 ].map((a) => ({ id: a[0], name: a[1], english: a[2], group: a[3], unit: a[4], aliases: a[5].split('|') }));
 
 const itemById = (id) => CATALOG.find((i) => i.id === id);
@@ -263,12 +291,16 @@ const headOf = (english) => norm(english).split(/ (?:in|with|on|and) /)[0];
 const S_NAMES = () =>
   S_NAMES.v ||
   (S_NAMES.v = new Map(CATALOG.map((it) => [it, [...new Set([it.name, ...it.aliases].map(norm).concat(headOf(it.english)).filter(Boolean))]])));
+// every whole word in the catalogue's names. A typed word that is one of them is a finished word, not the start of a
+// longer one (Q37): "milk" is Gatas's word, so it doesn't find Milkfish; "tric" is no word, so it still finds Tricycle
+const S_WORDS = () => S_WORDS.v || (S_WORDS.v = new Set([...S_NAMES().values()].flat().join(' ').split(' ')));
+const fitTyped = (t, w) => (t !== w && w.startsWith(t) && S_WORDS().has(t) ? 0 : fit(t, w));
 // the query as a run of whole words in a name ("san jose", "fish ball"); its last word may be a word still being typed
 function phraseIn(q, n) {
   const t = q.split(' '),
     w = n.split(' ');
   for (let i = 0; i + t.length <= w.length; i++)
-    if (t.every((x, j) => (j < t.length - 1 ? x === w[i + j] || fit(x, w[i + j]) >= 0.95 : fit(x, w[i + j]) > 0 && x.length >= Math.min(4, w[i + j].length))))
+    if (t.every((x, j) => (j < t.length - 1 ? x === w[i + j] || fit(x, w[i + j]) >= 0.95 : fitTyped(x, w[i + j]) > 0 && x.length >= Math.min(4, w[i + j].length))))
       return true;
   return false;
 }
@@ -285,10 +317,10 @@ function score(item, q) {
   const words = names.join(' ').split(' ');
   let sum = 0;
   for (const t of toks) {
-    const best = Math.max(0, ...words.map((w) => fit(t, w)));
+    const best = Math.max(0, ...words.map((w) => fitTyped(t, w)));
     if (best >= 0.7) sum += best;
   }
-  return (sum / toks.length) * 72 + Math.max(0, ...names.map((n) => fit(q, n))) * 24 + (sum / toks.length === 1 ? 4 : 0);
+  return (sum / toks.length) * 72 + Math.max(0, ...names.map((n) => fitTyped(q, n))) * 24 + (sum / toks.length === 1 ? 4 : 0);
 }
 function searchItems(q, max = 12) {
   if (!norm(q)) return [];
@@ -302,6 +334,26 @@ function searchItems(q, max = 12) {
     .filter((x) => x.s >= top * 0.72)
     .slice(0, max)
     .map((x) => x.i);
+}
+
+/* ===== What Suki doesn't keep (Q37) =====
+   Hotel nights, flights and boat fares change daily, so Suki keeps no price for them (Decided, 6 Nov 2026). A search
+   for one that finds no price says so, and still offers to log it. A word counts whole ("hotel", "boat"); a phrase
+   counts as whole words in a row ("plane ticket"). */
+const NOT_KEPT = {
+  stays: 'hotel hotels room rooms airbnb resort resorts hostel hostels inn lodge lodging motel accommodation accommodations transient staycation booking',
+  flights: 'flight flights plane planes airfare airfares airline airlines|plane ticket|plane tickets|cebu pacific|philippine airlines|airasia|air asia',
+  boats: 'ferry ferries boat boats bangka banca roro fastcraft ship ships barko|ro ro|fast craft|boat ride|2go',
+};
+const NOT_KEPT_WORDS = () =>
+  NOT_KEPT_WORDS.v ||
+  (NOT_KEPT_WORDS.v = Object.values(NOT_KEPT).flatMap((g) => {
+    const [words, ...phrases] = g.split('|');
+    return words.split(' ').concat(phrases).map(norm);
+  }));
+function notKept(q) {
+  const t = ' ' + norm(q) + ' ';
+  return t.trim() !== '' && NOT_KEPT_WORDS().some((w) => t.includes(' ' + w + ' '));
 }
 
 /* ===== The loose scoring from before Q36, behind itemFor only (see there) ===== */

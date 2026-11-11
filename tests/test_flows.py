@@ -215,7 +215,7 @@ def run(b, t):
     # ── Search and price notes ───────────────────────────────────
     tab(pg, 'search')
     heads = [h.upper() for h in pg.locator('#results .hdr h2').all_inner_texts()]
-    ok(heads == ['TRANSPORT', 'FOOD', 'MARKET', 'DRINKS', 'SERVICES', 'ESSENTIALS'] and '₱48.42' in pg.inner_text('#results'), 'Search starts with a few items from each category, official prices included')
+    ok(heads == ['TRANSPORT', 'FOOD', 'MARKET', 'DRINKS', 'SERVICES', 'ESSENTIALS'] and '₱49.08' in pg.inner_text('#results'), 'Search starts with a few items from each category, official prices included')
     # browsing by category (Q02)
     pg.click('#results [data-a=scat][data-v=transport]'); pg.wait_for_timeout(100)
     ok(pg.evaluate("U.scat") == 'transport' and pg.locator('#browse .chip.on').inner_text() == 'Transport' and pg.locator('#results .row').count() >= 10, 'Show all opens the whole category, with its chip on')
@@ -252,7 +252,7 @@ def run(b, t):
     pg.click('#browse [data-v=all]'); pg.wait_for_timeout(60)
     pg.fill('#q', 'bigas'); pg.click('[data-a=openItem][data-k=bigas]'); pg.wait_for_timeout(150)
     txt = pg.inner_text('.sheet')
-    ok('Official price' in txt and '₱48.42' in txt and '₱52.00' in txt, 'an item shows its official price and your notes')
+    ok('Official price' in txt and '₱49.08' in txt and '₱52.00' in txt, 'an item shows its official price and your notes')
     ok(pg.inner_text('.sheet .shead h2') == 'Market', 'its sheet is titled with its category')
     pg.click('.sheet [data-a=obsForm]'); pg.wait_for_timeout(100)
     pg.click('.sheet form button[type=submit]'); pg.wait_for_timeout(100)

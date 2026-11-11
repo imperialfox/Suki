@@ -43,7 +43,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q34 | Rate: Sanity Check | Shipped · 2.36 | Light | none (wireframe skipped by Ivan) | Cross-audit M03 (F6) |
 | Q35 | Prices: Data Checks, Age, Rail Fare and Units | Shipped · 2.37 | Light | none (wireframe skipped by Ivan) | Cross-audit M12, M04, M06 data half |
 | Q36 | Search: Stricter Matching | Shipped · 2.38 | Light to medium | none (wireframe skipped by Ivan) | Cross-audit M05 (F3). After Q35 |
-| Q37 | Prices: Expansion, Stage 1 | Approved — awaiting Build | Medium | none (wireframe skipped by Ivan) | Cross-audit M07 stage 1. After Q36 |
+| Q37 | Prices: Expansion, Stage 1 | Shipped · 2.39 | Medium | none (wireframe skipped by Ivan) | Cross-audit M07 stage 1. After Q36 |
 | Q38 | Prices: Expansion, Stage 2 and Clean-up | Approved — awaiting Build | Medium | none (wireframe skipped by Ivan) | Cross-audit M07 stage 2, M13. After Q37 |
 | Q39 | Interface: Spacing and Type Names | Approved — awaiting Build | Medium | none | Cross-audit M18. No visual change. After Q30, from 3 Dec |
 | Q40 | Interface: Kit 1.3.0, Zoom and Contrast | Approved — awaiting Build | Light to medium | the Parts gallery | Cross-audit M09, M10, M11, Erase gap (ideas list 15). Needs Q39 and parts kit 1.3.0 (its own Render). From 3 Dec |
@@ -52,11 +52,10 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 
 Build top to bottom; each still needs its own **build**. One line per item: `N. Q## — reason`, with "needs Q##" for anything that must ship first. Names live in the table above.
 
-1. Q37 — prices, stage 1; needs Q35, Q36 (shipped as 2.37 and 2.38) (Ivan, 6 Nov 2026)
-2. Q38 — prices, stage 2 and clean-up; needs Q37 (Ivan, 6 Nov 2026)
-3. Q30 — the element sheet; needs Q28 (shipped as 2.32); moved behind Q31 to Q38 by the 6 Nov Render, from 3 Dec (Ivan, 5 Nov 2026)
-4. Q39 — spacing and type names; needs Q30; from 3 Dec (Ivan, 6 Nov 2026)
-5. Q40 — kit 1.3.0, zoom and contrast; needs Q39 and parts kit 1.3.0 (its own Render, not yet given); from 3 Dec (Ivan, 6 Nov 2026)
+1. Q38 — prices, stage 2 and clean-up; needs Q37 (shipped as 2.39) (Ivan, 6 Nov 2026)
+2. Q30 — the element sheet; needs Q28 (shipped as 2.32); moved behind Q31 to Q38 by the 6 Nov Render, from 3 Dec (Ivan, 5 Nov 2026)
+3. Q39 — spacing and type names; needs Q30; from 3 Dec (Ivan, 6 Nov 2026)
+4. Q40 — kit 1.3.0, zoom and contrast; needs Q39 and parts kit 1.3.0 (its own Render, not yet given); from 3 Dec (Ivan, 6 Nov 2026)
 
 ### Any time
 
@@ -109,6 +108,9 @@ Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `s
 - 6 Nov 2026: hotel nights and flights won't go in the price data, as their prices change daily; Search says so instead (Q37). No more rough guides from blogs.
 - 6 Nov 2026: a second window reloads when another saves; no merging records by id (Q33).
 - 6 Nov 2026: wireframes skipped for Q31 to Q38 at Ivan's word, as nothing moves on screen.
+- 11 Nov 2026: Q37 counts the audit's 85 searches strictly (the top result has a price): 50 on 2.38, 59 on 2.39, not the 65 its Done when asked. The Blueprint's "59 today" counted any result, including the wrong ones Q36 removed. Ivan: build as agreed; Q38 carries on toward 70 (Q37's build).
+- 11 Nov 2026: the DA bulletin comes from Ivan's download when Claude's web tools can't open da.gov.ph (Q37's build).
+- 11 Nov 2026: medicines are priced from PhilHealth's GAMOT fees (Circular 2026-0018), with a note that a pharmacy's own shelf price may be higher; the DOH price index couldn't be opened. Ivan chose this over leaving them unpriced (Q37's build).
 
 ## Ideas, not yet queued
 
@@ -133,3 +135,4 @@ Sorted by priority, highest first: what's broken or helps on the trip (7 Nov –
 17. Prices: each row's unit should match its item's (added 11 Nov 2026, Q35's build). Q35's check makes one item's rows agree with each other, not with the item: Bear Brand powdered milk (a 135 g pack) shows as ₱50 "per litre/carton", and the 13 dishes' rows say "per plate" under "per serving". The data test could check each row against the item's unit too. Fits with Q37 or Q38.
 18. Prices: a cooked rice item ("kanin", per cup or plate) so "kanin" finds a price again (added 11 Nov 2026, Q36's build, its default 3). Fits with Q37 or Q38.
 19. Search: an item and a place in one search ("jeepney to Cubao", "tricycle Alona Beach") shows no price since Q36, because every word must fit. Showing the item for its word, only when the other words are places Suki knows (its towns list), would bring it back without "coconut oil" finding cooking oil (added 11 Nov 2026, Q36's build). Helps; light.
+20. Medicines: a pharmacy's own shelf price (Mercury Drug, Watsons) beside PhilHealth's fee, and a price for loperamide, which PhilHealth's list doesn't have (added 11 Nov 2026, Q37's build). Helps.

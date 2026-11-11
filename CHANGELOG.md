@@ -1,5 +1,33 @@
 # Changelog
 
+## 2.39 · 11 Nov 2026
+*Prices: fish, fruit, more vegetables, beef and basic medicines (Q37)*
+
+**New prices from the DA's latest week**
+- The official market prices move to the DA's week of 26 October to 1 November 2026 (36 Metro Manila markets). Rice, eggs, pork, chicken, onions, garlic, tomatoes, potatoes and cooking oil are updated to that week.
+- New items with that week's prices: bangus, tilapia, other fish (galunggong, alumahan, tamban, tambakol, under Isda), squid, beef, ampalaya, aubergine, pechay, sitaw, squash, cabbage, carrots, sayote, Baguio beans, chilli, ginger, mango, banana (saba, latundan, lakatan), calamansi, papaya, watermelon, pomelo, melon and avocado. They sit under Market.
+- "prutas", "fruit", "gulay" and "vegetables" show the fruit and vegetables.
+
+**Medicines**
+- Paracetamol, oral rehydration salts (ORS) and cetirizine (an antihistamine), with what PhilHealth pays its partner pharmacies for one tablet or sachet (₱2.25, ₱12 and ₱11.25, PhilHealth Circular 2026-0018). Each says a pharmacy's own shelf price may be higher.
+- Loperamide (for diarrhoea) is listed with no price yet: PhilHealth's list doesn't have it.
+- "medicine", "pharmacy", "gamot" and "botika" show all four. They sit under Essentials.
+
+**What Suki doesn't keep**
+- Searching for a hotel, room, flight or boat (ferry, bangka, ro-ro) now says Suki doesn't keep these, because their prices change daily, and still offers to log it.
+
+**Search**
+- A typed word that is already a whole word in the price list counts as finished, not as the start of a longer word: "milk" finds milk only, not milkfish. "tric" still finds tricycle.
+- "mango", "mangoes", "banana" and "medicine" now find their own items. A logged "Mangoes" or "Banana" purchase shows that item's prices.
+
+**Not changed**
+- The bus from Cubao to San Jose City and Cabanatuan keeps its "before the rise" note: LTFRB has published only the new per-kilometre rates, not a fare for this route.
+
+**Tests**
+- New `test_coverage.py`: the audit's 85 realistic searches, of which 59 now show a price (50 on 2.38); the number can only go up. The DA week, the new items and their figures, the medicines and their source, the "doesn't keep" line on screen and its Log row.
+
+Screens: SK-003, SK-009
+
 ## 2.38 · 11 Nov 2026
 *Search: stricter matching (Q36)*
 

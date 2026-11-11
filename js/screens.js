@@ -711,7 +711,10 @@ function searchResults() {
       (hits.length
         ? staleRate()
         : // nothing in the price list: say so only if nothing of his matched either, and offer to log it (Q08)
-          (mine.found ? '' : hdr('Matches', '<span class="hint">0 results</span>') + '<div class="grp"><div class="empty"><b>No clear match</b><br>Try fewer words, another spelling or the English name' + (U.scat !== 'all' ? ', or search All' : '') + '.</div></div>') +
+          // hotels, flights and boats: Suki keeps no price for them, and says why (Q37)
+          (notKept(q)
+            ? hdr('Prices') + '<div class="grp"><div class="empty" id="notKept"><b>Suki doesn’t keep this</b><br>Hotel, flight and boat prices change daily, so a saved price would mislead. Check with the seller, then log what you paid.</div></div>'
+            : mine.found ? '' : hdr('Matches', '<span class="hint">0 results</span>') + '<div class="grp"><div class="empty"><b>No clear match</b><br>Try fewer words, another spelling or the English name' + (U.scat !== 'all' ? ', or search All' : '') + '.</div></div>') +
           '<div class="grp tiled spaced"><button class="row more" data-a="newPurchase" data-item="' + esc(q) + '"><span class="lbl">Log “' + esc(q) + '” as a purchase</span>' + ICON.chev + '</button></div>')
     );
   }

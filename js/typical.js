@@ -3,7 +3,7 @@
    kind: fare (set by LTFRB), srp (DTI suggested retail price), shop (a supermarket shelf price), menu (the chain’s own menu),
    listed (published by the company or a news report), guide (a rough guide from travel writers).
    To update: replace a value and its source, url and date together. Never guess a price.
-   tests/test_prices.py checks every row (MAINTAINING.md › Updating the typical prices). Rechecked 11 Nov 2026 (Q35). */
+   tests/test_prices.py checks every row (MAINTAINING.md › Updating the typical prices). Rechecked 11 Nov 2026 (Q35); medicines added 11 Nov 2026 (Q37). */
 window.sukiTypical = {
  "checked": "2026-11-11",
  "items": {
@@ -1252,6 +1252,48 @@ window.sukiTypical = {
     "url": "https://www.mightytravels.com/2026/08/manila-food-budget-reality-284month-carinderias-and-points/",
     "date": "2026-08-01",
     "note": "A plate of one ulam with rice at a carinderia or turo-turo. Prices vary by place and dish."
+   }
+  ],
+  "paracetamol": [
+   {
+    "label": "Paracetamol 500 mg tablet, PhilHealth GAMOT fee",
+    "low": 2.25,
+    "high": 2.25,
+    "unit": "per tablet",
+    "area": "Nationwide (PhilHealth GAMOT)",
+    "kind": "listed",
+    "source": "PhilHealth Circular 2026-0018",
+    "url": "https://www.philhealth.gov.ph/circulars/2026/PC-2026-0018.pdf",
+    "date": "2026-10",
+    "note": "What PhilHealth pays its partner pharmacies for one tablet under its GAMOT benefit. A pharmacy’s own shelf price may be higher."
+   }
+  ],
+  "ors": [
+   {
+    "label": "Oral rehydration salts sachet, PhilHealth GAMOT fee",
+    "low": 12,
+    "high": 12,
+    "unit": "per sachet",
+    "area": "Nationwide (PhilHealth GAMOT)",
+    "kind": "listed",
+    "source": "PhilHealth Circular 2026-0018",
+    "url": "https://www.philhealth.gov.ph/circulars/2026/PC-2026-0018.pdf",
+    "date": "2026-10",
+    "note": "What PhilHealth pays its partner pharmacies for one sachet under its GAMOT benefit. A pharmacy’s own shelf price may be higher."
+   }
+  ],
+  "cetirizine": [
+   {
+    "label": "Cetirizine 10 mg tablet, PhilHealth GAMOT fee",
+    "low": 11.25,
+    "high": 11.25,
+    "unit": "per tablet",
+    "area": "Nationwide (PhilHealth GAMOT)",
+    "kind": "listed",
+    "source": "PhilHealth Circular 2026-0018",
+    "url": "https://www.philhealth.gov.ph/circulars/2026/PC-2026-0018.pdf",
+    "date": "2026-10",
+    "note": "What PhilHealth pays its partner pharmacies for one tablet under its GAMOT benefit. A pharmacy’s own shelf price may be higher."
    }
   ]
  }

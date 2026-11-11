@@ -161,8 +161,11 @@ def run(b, t):
         search(pq, q)
         return pq.evaluate("[...document.querySelectorAll('#results .grp:not(#mine):not(#mynotes):not(#notesDoor) [data-a=openItem]')].map(e=>e.dataset.k)")
 
-    # the six from the audit: nothing, or the right item
-    for q in ['mango', 'medicine', 'toll', 'coconut', 'kanin']:
+    # the six from the audit: nothing, or the right item (Q37 added mango and medicines, so those two find their own)
+    for q, want in [('mango', ['mangga']), ('medicine', ['paracetamol', 'ors', 'cetirizine', 'loperamide'])]:
+        got = prices(q)
+        ok(got == want and 'No clear match' not in pq.inner_text('#results'), f'“{q}” shows only the right item since Q37 (got {got})')
+    for q in ['toll', 'coconut', 'kanin']:
         got = prices(q)
         ok(got == [] and 'No clear match' in pq.inner_text('#results') and pq.locator('#results [data-a=newPurchase]').count() == 1,
            f'“{q}” shows no unrelated price, says “No clear match” and offers to log it (got {got})')
@@ -174,7 +177,7 @@ def run(b, t):
 
     # other loose matches the audits found (Q14's Recon, the cross-audit), checked through the same search
     find = lambda q: pq.evaluate("q=>searchItems(q).map(i=>i.id)", q)
-    for q, want in [('mangoes', []), ('spaghetti', []), ('gin', []), ('tollgate', []), ('megamall', []), ('atm', []), ('kanin na hilaw', []), ('coconut milk', []), ('coconut oil', []),
+    for q, want in [('mangoes', ['mangga']), ('spaghetti', []), ('gin', []), ('tollgate', []), ('megamall', []), ('atm', []), ('kanin na hilaw', []), ('coconut milk', []), ('coconut oil', []),
                     ('loaf', ['tasty']), ('ube', ['bus-naia']), ('egg', ['itlog']), ('milk', ['gatas']), ('vinegar', ['suka']), ('ice', ['halo']),
                     ('uber', ['grab']), ('cab', ['taxi'])]:
         got = find(q)

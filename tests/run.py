@@ -17,7 +17,7 @@ import sys, os, time, json, importlib, traceback, subprocess, tempfile, concurre
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 BROWSERS = ('chromium', 'webkit')
 
-ORDER = ['release', 'screens', 'values', 'parts', 'taps', 'flows', 'doors', 'search', 'prices', 'coverage', 'timedoors', 'compare', 'till', 'notepress', 'drawer', 'drawerfill', 'haul', 'location', 'ratecard', 'rates', 'history', 'smart', 'inbox', 'motion', 'data', 'slowstart', 'windows', 'onboard', 'offline', 'layout', 'fuzz']
+ORDER = ['release', 'screens', 'values', 'parts', 'taps', 'flows', 'doors', 'search', 'prices', 'coverage', 'timedoors', 'compare', 'till', 'notepress', 'drawer', 'drawerfill', 'haul', 'location', 'ratecard', 'rates', 'history', 'smart', 'inbox', 'motion', 'data', 'slowstart', 'windows', 'onboard', 'offline', 'layout', 'fuzz', 'probe']
 QUICK = [n for n in ORDER if n not in ('layout', 'fuzz')]
 HERE = os.path.abspath(__file__)
 

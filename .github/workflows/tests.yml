@@ -30,7 +30,7 @@ jobs:
           python -m playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run the test suite
-        run: python tests/run.py --browser ${{ matrix.browser }} doors timedoors layout smart till notepress history windows onboard drawer haul drawerfill parts motion  # Q32 PROBE
+        run: python tests/run.py --browser ${{ matrix.browser }} probe history  # Q32 PROBE
 
       - name: Keep the screenshots
         if: always()

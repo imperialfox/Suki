@@ -97,6 +97,8 @@ def run(b, t):
     bb = pg.locator('[data-a=cashAdd][data-v="500"]').bounding_box()
     pg.mouse.move(bb['x'] + bb['width'] * 0.9, bb['y'] + bb['height'] * 0.1); pg.mouse.down()
     pg.wait_for_timeout(250)
+    # the tilt is a transition: wait for it to arrive, as WebKit on GitHub's machines can draw it late (Q32)
+    pg.wait_for_function("(e=>e.getAnimations().every(a=>a.playState!=='running'))(document.querySelector('[data-v=\"500\"]'))", timeout=8000)
     tr = pg.evaluate("getComputedStyle(document.querySelector('[data-v=\"500\"]')).transform")
     k = pg.evaluate(KEYS, '[data-v="500"]')
     held = k and k[0][-1]

@@ -234,6 +234,8 @@ def toasts(b, t):
     pg.evaluate("toast('Couldn’t reach the rate service, so the saved rate is still in use')"); pg.wait_for_timeout(100)
     ok(pg.evaluate("(e=>e.classList.contains('sk-long')&&e.scrollWidth<=e.clientWidth+1)(document.querySelector('#layer .pk-toast:not(.pk-leaving)'))"), 'a longer message wraps rather than being cut off')
     pg.evaluate("toast('Couldn’t save.',null,true)"); pg.evaluate("toast('Purchase saved',()=>{})"); pg.wait_for_timeout(700)
+    # and wait for the drop to land, as WebKit on GitHub's machines can draw it late (Q32)
+    pg.wait_for_function("(e=>e.getAnimations().every(a=>a.playState!=='running'))(document.querySelector('#layer .pk-toast:not(.pk-leaving)'))", timeout=8000)
     st = pg.evaluate("[!!document.querySelector('body > .toast.sticky:not(.pk-toast)'),document.querySelector('.toast.sticky').getBoundingClientRect().bottom,document.querySelector('#layer .pk-toast:not(.pk-leaving)').getBoundingClientRect().top]")
     ok(st[0] and st[2] >= st[1], f'the sticky warning stays Suki’s own (S04), and toasts drop in below it ({st})')
     pg.wait_for_timeout(3600)

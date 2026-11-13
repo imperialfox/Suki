@@ -164,6 +164,9 @@ def rate_noise(m):
 
 # which engine the suite runs in (Q32): chromium (Chrome's) or webkit (Safari's). run.py sets it from --browser
 BROWSER = os.environ.get('SUKI_BROWSER', 'chromium')
+# WebKit has no clipboard permissions to give: a page there can write the clipboard after a tap, and reading it back
+# is skipped (test_flows.py)
+PERMS = ['clipboard-read', 'clipboard-write'] if BROWSER == 'chromium' else []
 
 
 class T:
@@ -185,7 +188,7 @@ class T:
         """A fresh app page. data='sample' seeds sample(); None leaves the app empty; a dict seeds that dict."""
         args = dict(viewport={'width': w, 'height': h}, device_scale_factor=2 if w < 500 else 1, color_scheme=sc,
                     has_touch=touch, accept_downloads=True, timezone_id='Europe/London', locale='en-GB',
-                    permissions=['clipboard-read', 'clipboard-write'])
+                    permissions=PERMS)
         if ua: args['user_agent'] = ua
         args.update(ctx_args or {})
         ctx = b.new_context(**args)

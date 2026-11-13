@@ -97,8 +97,6 @@ def run(b, t):
     bb = pg.locator('[data-a=cashAdd][data-v="500"]').bounding_box()
     pg.mouse.move(bb['x'] + bb['width'] * 0.9, bb['y'] + bb['height'] * 0.1); pg.mouse.down()
     pg.wait_for_timeout(250)
-    # the tilt is a transition: wait for it to arrive, as WebKit on GitHub's machines can draw it late (Q32)
-    pg.wait_for_function("(e=>e.getAnimations().every(a=>a.playState!=='running'))(document.querySelector('[data-v=\"500\"]'))", timeout=8000)
     tr = pg.evaluate("getComputedStyle(document.querySelector('[data-v=\"500\"]')).transform")
     k = pg.evaluate(KEYS, '[data-v="500"]')
     held = k and k[0][-1]
@@ -106,6 +104,11 @@ def run(b, t):
        f'held, the ₱500 tips and dips to .94 ({held})')
     rx = float(held.split('rotateX(')[1].split('deg')[0]); ry = float(held.split('rotateY(')[1].split('deg')[0])
     ok(rx > 10 and ry > 10, f'towards the thumb: pressed at its top right, the top tips back and the right side in ({rx}°, {ry}°)')
+    # once the tilt has landed (the same two reads 150 ms apart, not flat): WebKit on GitHub's machines can draw it
+    # late, so the first read above may still be flat there (Q32)
+    pg.wait_for_function("""new Promise(r=>{const e=document.querySelector('[data-v="500"]'),a=getComputedStyle(e).transform;
+      setTimeout(()=>{const b=getComputedStyle(e).transform;r(a===b&&!/^(none|matrix\\(1, 0, 0, 1, 0, 0\\))$/.test(b))},150)})""", timeout=8000)
+    tr = pg.evaluate("getComputedStyle(document.querySelector('[data-v=\"500\"]')).transform")
     pg.wait_for_timeout(300)
     tr2 = pg.evaluate("getComputedStyle(document.querySelector('[data-v=\"500\"]')).transform")
     ok(tr2 == tr, f'it stays tipped while held ({tr} then {tr2})')

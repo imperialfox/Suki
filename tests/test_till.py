@@ -186,7 +186,7 @@ def run(b, t):
     pg.fill('#till-bill', '789.50'); pg.click('[data-a=cashAdd][data-v="1000"]')
     pg.wait_for_timeout(20)
     a = pg.evaluate(ANIMS, '#cashRow [data-k]')
-    ok(a and all(x and all(k[0] in ('', 'none') for k in x[0]) and x[0][0][1] == '0' for x in a), 'with Reduce Motion, new pieces only fade in')
+    ok(a and all(x and all(k[0] in ('', 'none') for k in x[0]) and x[0][0][1] == '0' for x in a), f'with Reduce Motion, new pieces only fade in ({str(a)[:200]})')
     pg.fill('#till-bill', '889.50'); pg.wait_for_timeout(20)
     gh = pg.evaluate("[...document.querySelectorAll('#cashRow .cghost')].map(g=>g.getAnimations().map(a=>a.effect.getKeyframes().map(k=>k.transform||'')))")
     ok(gh and all(all(tr in ('', 'none') for tr in x[0]) for x in gh), 'and a removed one only fades out')

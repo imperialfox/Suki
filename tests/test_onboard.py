@@ -4,7 +4,9 @@ import json, os, tempfile
 from harness import READ, ready, sample, MKTOUCH
 
 FRESH = "localStorage.setItem('test:fresh','1');localStorage.removeItem('suki:onboard')"
-SAFARI = "Object.defineProperty(navigator,'standalone',{value:false,configurable:true})"
+# Safari on an iPhone: not opened from the Home Screen, and a touch screen (WebKit off a phone says 0 touch points
+# even with touch on, so it's set here too, Q32)
+SAFARI = "Object.defineProperty(navigator,'standalone',{value:false,configurable:true});Object.defineProperty(navigator,'maxTouchPoints',{value:5,configurable:true})"
 OB = "JSON.parse(localStorage.getItem('suki:onboard')||'null')"
 # a tip never covers a main button or the tab bar
 CLEAR = """(()=>{const t=document.getElementById('tip');if(!t)return 'no tip';const r=t.getBoundingClientRect();

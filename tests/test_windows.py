@@ -101,7 +101,7 @@ def errors(b, t):
            f'{w}: it’s an alert with OK, Suki’s own sticky warning (S04)')
         log_ = pg.evaluate("JSON.parse(localStorage.getItem('suki:errors'))")
         ok(len(log_) == 1 and 'Test fault' in log_[0]['msg'] and log_[0]['version'] == pg.evaluate("APP_VERSION") and log_[0]['at'],
-           f'{w}: the error is kept on this device under suki:errors, with when and the version')
+           f'{w}: the error is kept on this device under suki:errors, with when and the version ({str(log_)[:300]})')
         ok(pg.evaluate(READ, 'purchases') == before and pg.evaluate("D.purchases.length") == 4, f'{w}: nothing saved or lost')
         ok('errors' not in pg.evaluate("backupJSON(new Date())"), f'{w}: suki:errors isn’t in a backup')
         t.shot(pg, f'error-{w}-light')
@@ -111,7 +111,7 @@ def errors(b, t):
             pg.evaluate("setTimeout(()=>{Promise.reject(new Error('Test reject'))})")
             pg.wait_for_selector('.toast.sticky.sk-error', timeout=5000)
             last = pg.evaluate("JSON.parse(localStorage.getItem('suki:errors')).pop()")
-            ok('Test reject' in last['msg'] and last['where'] == 'promise', 'a promise that fails with nobody catching it shows the notice too')
+            ok('Test reject' in last['msg'] and last['where'] == 'promise', f'a promise that fails with nobody catching it shows the notice too ({str(last)[:200]})')
             pg.click('.toast.sticky button')
             pg.evaluate("for(let i=0;i<25;i++)setTimeout(()=>{throw new Error('Fault '+i)})")
             pg.wait_for_function("JSON.parse(localStorage.getItem('suki:errors')).some(e=>e.msg.includes('Fault 24'))")

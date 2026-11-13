@@ -24,7 +24,9 @@ SHAPE = """(()=>[...document.querySelectorAll('#tillTray i')].map(i=>[i.classNam
 
 
 def settle(pg):
-    pg.wait_for_function(SETTLED, timeout=5000)
+    try: pg.wait_for_function(SETTLED, timeout=5000)
+    except Exception:  # Q32 PROBE
+        print('    PROBE', pg.evaluate("JSON.stringify({h:DR.h,raf:DR.raf,drag:!!DR.drag,fade:!!DR.fade,haul:!!DR.haul,eat:DR.eat,open:DR.open,rest:DR.rest,sp:MOTION.speed(),on:MOTION.on(),red:MOTION.reduced()})")); raise
     pg.wait_for_timeout(30)
 
 

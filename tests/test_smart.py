@@ -65,7 +65,7 @@ def run(b, t):
     pg.click('#smartText'); pg.keyboard.type('jeep to cubao 14')
     ok(pg.evaluate("window.__box===document.getElementById('smartText')&&document.activeElement===window.__box"), 'typing updates the preview in place, keeping the cursor')
     out = pg.inner_text('#smartOut')
-    ok('suki read' in out.lower() and 'Jeepney' in out and '₱14' in out and 'Transport' in out and 'Cubao' in out, 'the preview shows the item, amount, category and place')
+    ok('suki read' in out.lower() and 'Jeepney' in out and '₱14' in out and 'Transport' in out and 'Cubao' in out, f'the preview shows the item, amount, category and place ({out[:160]!r})')
     ok('Within the typical ₱14–17' in out and 'Jeepney prices' in out, 'a whole-word price-list match gets the typical note')
     ok(pg.evaluate("localStorage.getItem('suki:smart')") == 'jeep to cubao 14', 'the half-typed line is kept on this device')
     typed(pg, 'jeep to cubao 40')

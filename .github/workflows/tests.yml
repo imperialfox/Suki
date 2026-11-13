@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [chromium, webkit]
+        browser: [webkit]  # Q32 PROBE
     name: test (${{ matrix.browser }})
     runs-on: ubuntu-24.04  # pinned: Playwright 1.56 supports this image
     timeout-minutes: 25
@@ -30,7 +30,7 @@ jobs:
           python -m playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run the test suite
-        run: python tests/run.py --browser ${{ matrix.browser }}
+        run: python tests/run.py --browser ${{ matrix.browser }} doors timedoors layout smart till notepress history windows onboard drawer haul drawerfill parts motion  # Q32 PROBE
 
       - name: Keep the screenshots
         if: always()

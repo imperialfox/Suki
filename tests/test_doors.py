@@ -39,8 +39,9 @@ def run_q08(b, t):
     ok(pg.evaluate("U.tab==='spending'&&U.range==='all'&&U.cat==='all'&&U.filter===''"), 'Total spent opens Spending on All, with no filter left over')
     tab(pg, 'home')
     pg.click('.sumcard .door[data-v=day]'); pg.wait_for_timeout(120)
-    ok(pg.evaluate("U.tab==='spending'&&U.range==='day'&&U.roff===0") and pg.inner_text('#spendSum .plabel') == 'Today',
-       'Today opens Spending on D, for today')
+    lab = pg.inner_text('#spendSum .plabel')
+    ok(pg.evaluate("U.tab==='spending'&&U.range==='day'&&U.roff===0") and lab == 'Today',
+       f'Today opens Spending on D, for today ({lab!r}, {pg.evaluate("[U.tab,U.range,U.roff]")})')
     ok('Chickenjoy bucket' in pg.inner_text('#spendList') and 'Jeepney' not in pg.inner_text('#spendList'), 'and the list shows only today’s purchases')
 
     # ── 2 · Spending's + opens the same Log sheet ────────────────

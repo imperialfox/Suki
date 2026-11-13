@@ -74,7 +74,7 @@ def run(b, t):
             if name == 'mac' and sc == 'light':
                 ok(pg.is_visible('.side-nav') and pg.locator('.side-nav [data-v=settings]').count() == 1, 'Mac: a sidebar with Settings')
                 pg.keyboard.press('Control+4'); pg.wait_for_timeout(150)
-                ok(pg.evaluate("U.tab") == 'spending', 'Mac: Cmd/Ctrl+4 opens Spending')
+                ok(pg.evaluate("U.tab") == 'spending', f'Mac: Cmd/Ctrl+4 opens Spending ({pg.evaluate("U.tab")})')
             if name == 'landscape' and sc == 'light':
                 pg.evaluate("go('home')")
                 ok(pg.locator('.dash > div').count() == 2 and pg.evaluate("document.querySelector('.tabbar button').getBoundingClientRect().height") <= 44,

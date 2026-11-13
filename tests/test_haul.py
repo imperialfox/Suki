@@ -7,6 +7,7 @@ shut it from any depth, and it reopens to plain open; "Designed by Ivan" (Captio
 VoiceOver) is hidden until the ninth swipe peeks it and the tenth shows it whole; notes still land in their
 compartments; Reduce Motion still hauls; nothing saved; nothing sideways. Screenshots fully hauled at 375 and 402 px,
 light and dark."""
+from harness import BROWSER
 
 ON = "localStorage.setItem('suki:motion','1')"
 REDUCE = "localStorage.setItem('suki:reduceMotion','on')"
@@ -205,32 +206,35 @@ def run(b, t):
     pg.close()
 
     # ── 4 · Real two-finger touches, past the zoom blocker ──────────────────────────────────────────────
-    pg = t.page(b, w=402, h=874, touch=True, init=ON + ';' + FINGERS)
-    till(pg)
-    opened(pg)
-    cdp = pg.context.new_cdp_session(pg)
-    box = pg.locator('#app .cashbox').bounding_box()
-    tray = pg.locator('#tillDrawer').bounding_box()
-    hx, hy = box['x'] + 40, box['y'] + box['height'] / 2
-    sx, sy = tray['x'] + tray['width'] * 0.7, tray['y'] + tray['height'] / 2
+    if BROWSER == 'chromium':
+        pg = t.page(b, w=402, h=874, touch=True, init=ON + ';' + FINGERS)
+        till(pg)
+        opened(pg)
+        cdp = pg.context.new_cdp_session(pg)
+        box = pg.locator('#app .cashbox').bounding_box()
+        tray = pg.locator('#tillDrawer').bounding_box()
+        hx, hy = box['x'] + 40, box['y'] + box['height'] / 2
+        sx, sy = tray['x'] + tray['width'] * 0.7, tray['y'] + tray['height'] / 2
 
-    def touch(kind, pts):
-        cdp.send('Input.dispatchTouchEvent', {'type': kind, 'touchPoints': [{'x': x, 'y': y, 'id': i} for i, x, y in pts]})
+        def touch(kind, pts):
+            cdp.send('Input.dispatchTouchEvent', {'type': kind, 'touchPoints': [{'x': x, 'y': y, 'id': i} for i, x, y in pts]})
 
-    touch('touchStart', [(1, hx, hy)])
-    for _ in range(2):
-        touch('touchStart', [(1, hx, hy), (2, sx, sy)])
-        for i in range(1, 11):
-            touch('touchMove', [(1, hx, hy), (2, sx, sy + i * 35)]); pg.wait_for_timeout(16)
-        touch('touchEnd', [(1, hx, hy)])
-        pg.wait_for_timeout(30)
-    touch('touchEnd', [])
-    settle(pg)
-    h = pg.evaluate(H)
-    ok(near(h, 106 + 24.5, 0.6), f'real two-finger touches haul it: the zoom blocker doesn’t swallow the second finger (two swipes, {h - 106:.2f} pt)')
-    ok(pg.evaluate("document.activeElement.id") != 'till-cash' and pg.evaluate("DR.open"), 'the holding finger in the cash box leaves no cursor there and doesn’t shut it')
-    ok(pg.evaluate("visualViewport.scale") == 1, 'and nothing zoomed')
-    pg.close()
+        touch('touchStart', [(1, hx, hy)])
+        for _ in range(2):
+            touch('touchStart', [(1, hx, hy), (2, sx, sy)])
+            for i in range(1, 11):
+                touch('touchMove', [(1, hx, hy), (2, sx, sy + i * 35)]); pg.wait_for_timeout(16)
+            touch('touchEnd', [(1, hx, hy)])
+            pg.wait_for_timeout(30)
+        touch('touchEnd', [])
+        settle(pg)
+        h = pg.evaluate(H)
+        ok(near(h, 106 + 24.5, 0.6), f'real two-finger touches haul it: the zoom blocker doesn’t swallow the second finger (two swipes, {h - 106:.2f} pt)')
+        ok(pg.evaluate("document.activeElement.id") != 'till-cash' and pg.evaluate("DR.open"), 'the holding finger in the cash box leaves no cursor there and doesn’t shut it')
+        ok(pg.evaluate("visualViewport.scale") == 1, 'and nothing zoomed')
+        pg.close()
+    else:  # Chrome's own touch input (CDP); WebKit has none, and sections 1 to 3 cover the haul with made-up fingers
+        t.skip('real two-finger touches past the zoom blocker: they go through Chrome’s own touch input (CDP)')
 
     # ── 5 · Reduce Motion: it still hauls (it follows the fingers); it shuts with a fade ─────────────────
     pg = t.page(b, w=402, h=874, init=ON + ';' + REDUCE + ';' + FINGERS)

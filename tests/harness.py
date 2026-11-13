@@ -162,10 +162,19 @@ def rate_noise(m):
     return 'Failed to load resource' in m.text and any(h in (m.location or {}).get('url', '') for h in RATE_HOSTS)
 
 
+# which engine the suite runs in (Q32): chromium (Chrome's) or webkit (Safari's). run.py sets it from --browser
+BROWSER = os.environ.get('SUKI_BROWSER', 'chromium')
+
+
 class T:
     """Collects results for one test file."""
     def __init__(self, name):
-        self.name, self.passed, self.fails, self.errors = name, 0, [], []
+        self.name, self.passed, self.fails, self.errors, self.skipped = name, 0, [], [], []
+
+    def skip(self, msg):
+        """A check that can't run in this engine, with why (listed in MAINTAINING › Tests › Skipped in WebKit)."""
+        self.skipped.append(msg)
+        print('  skip  ' + msg, flush=True)
 
     def ok(self, cond, msg):
         if cond: self.passed += 1

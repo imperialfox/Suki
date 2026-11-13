@@ -7,6 +7,12 @@ on:
 
 jobs:
   test:
+    # the suite in Chrome's engine and in Safari's (Q32), side by side; one failing doesn't stop the other
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
+    name: test (${{ matrix.browser }})
     runs-on: ubuntu-24.04  # pinned: Playwright 1.56 supports this image
     timeout-minutes: 25
     env:
@@ -18,18 +24,18 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Playwright and Chromium
+      - name: Install Playwright and ${{ matrix.browser }}
         run: |
           pip install playwright==1.56.0
-          python -m playwright install --with-deps chromium
+          python -m playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run the test suite
-        run: python tests/run.py
+        run: python tests/run.py --browser ${{ matrix.browser }}
 
       - name: Keep the screenshots
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: screenshots
+          name: screenshots-${{ matrix.browser }}
           path: tests/output
           retention-days: 14

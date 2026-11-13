@@ -33,8 +33,11 @@ def run_file(name):
         b = getattr(p, harness.BROWSER).launch(**({'args': getattr(mod, 'LAUNCH_ARGS', [])} if harness.BROWSER == 'chromium' else {}))
         try:
             mod.run(b, t)
-        except Exception:
-            t.fails.append('crashed: ' + traceback.format_exc().strip().splitlines()[-1])
+        except Exception as ex:
+            # name the test file's own line, so a crash on GitHub can be found without the traceback
+            at = [f for f in traceback.extract_tb(ex.__traceback__) if os.path.basename(f.filename).startswith('test_')]
+            where = f' (at {os.path.basename(at[-1].filename)}:{at[-1].lineno})' if at else ''
+            t.fails.append('crashed' + where + ': ' + traceback.format_exc().strip().splitlines()[-1])
             traceback.print_exc()
         finally:
             b.close()

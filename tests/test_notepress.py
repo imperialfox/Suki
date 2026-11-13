@@ -235,18 +235,18 @@ def run(b, t):
         pg.locator(sel).first.scroll_into_view_if_needed()
         pg.locator(sel).first.click(click_count=3)
         landed(pg)
-        us = pg.evaluate(f"getComputedStyle(document.querySelector('{sel}')).userSelect")
+        us = pg.evaluate(f"(s=>s.userSelect||s.webkitUserSelect)(getComputedStyle(document.querySelector('{sel}')))")
         ok(pg.evaluate("getSelection().toString()") == '' and us == 'none', f'holding or triple-tapping {name} selects nothing ({us})')
-    ok(pg.evaluate("getComputedStyle($('tillLog')).userSelect") == 'none', 'Log this bill can’t be selected either')
+    ok(pg.evaluate("(s=>s.userSelect||s.webkitUserSelect)(getComputedStyle($('tillLog')))") == 'none', 'Log this bill can’t be selected either')
     pg.evaluate("U.till={bill:'789.50',cash:'1000'};$('till-bill').value='789.50';$('till-cash').value='1000';updateTill()")
     for box in ['#till-bill', '#till-cash']:
         pg.click(box, click_count=3)
-        r = pg.evaluate(f"(()=>{{const e=document.querySelector('{box}');return [getComputedStyle(e).userSelect,e.selectionEnd-e.selectionStart,e.value.length]}})()")
+        r = pg.evaluate(f"(()=>{{const e=document.querySelector('{box}');return [(s=>s.userSelect||s.webkitUserSelect)(getComputedStyle(e)),e.selectionEnd-e.selectionStart,e.value.length]}})()")
         ok(r[0] in ('text', 'auto') and r[1] == r[2] > 0, f'{box[1:]} still selects its text ({r})')
     pg.fill('#till-cash', '500')
     ok(pg.inner_text('#tillFig') == '₱289.50', 'and still takes typing')
     pg.evaluate("go('convert')")
-    ok(pg.evaluate("getComputedStyle(document.getElementById('app')).userSelect") != 'none', 'other pages are left alone')
+    ok(pg.evaluate("(s=>s.userSelect||s.webkitUserSelect)(getComputedStyle(document.getElementById('app')))") != 'none', 'other pages are left alone')
     import os
     css = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'css', 'app.css'), encoding='utf-8').read()
     rule = css.split('#app.tab-till {', 1)[1].split('}', 1)[0] if '#app.tab-till {' in css else ''

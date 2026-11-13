@@ -1,10 +1,9 @@
 """Everyday use: logging, editing and deleting purchases, category chips and the filter, Quick Till, Convert,
 Search and price notes, and the CSV export."""
 import json
-from harness import READ, BAD_TEXT, today, RATE, day, BROWSER
+from harness import READ, BAD_TEXT, today, RATE, day, BROWSER, MKTOUCH
 
-TOUCH = """(a)=>{const [sel,type,x,y]=a;const el=document.querySelector(sel);const t=new Touch({identifier:1,target:el,clientX:x,clientY:y});
-  el.dispatchEvent(new TouchEvent(type,{touches:type==='touchend'?[]:[t],changedTouches:[t],bubbles:true,cancelable:true}))}"""
+TOUCH = """(a)=>{""" + MKTOUCH + """const [sel,type,x,y]=a;const el=document.querySelector(sel);el.dispatchEvent(mkTouch(type,el,x,y))}"""
 
 
 def tab(pg, name):

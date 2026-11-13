@@ -1,7 +1,7 @@
 """Onboarding (Q07): the Home Screen steps in Safari, the welcome card on a fresh install, tips next to the hidden
 gestures, and Settings › Help. An existing install never sees the welcome, and backups leave all of it alone."""
 import json, os, tempfile
-from harness import READ, ready, sample
+from harness import READ, ready, sample, MKTOUCH
 
 FRESH = "localStorage.setItem('test:fresh','1');localStorage.removeItem('suki:onboard')"
 SAFARI = "Object.defineProperty(navigator,'standalone',{value:false,configurable:true})"
@@ -10,8 +10,7 @@ OB = "JSON.parse(localStorage.getItem('suki:onboard')||'null')"
 CLEAR = """(()=>{const t=document.getElementById('tip');if(!t)return 'no tip';const r=t.getBoundingClientRect();
  const bad=[...document.querySelectorAll('#app .cta,#layer .cta,#dock .tabbar')].filter(e=>{const b=e.getBoundingClientRect();
  return b.width&&!(b.right<r.left||b.left>r.right||b.bottom<r.top||b.top>r.bottom)});return bad.length?'covers '+bad.map(e=>e.className).join(','):''})()"""
-TOUCH = """(a)=>{const [sel,type,x,y]=a;const el=document.querySelector(sel);const t=new Touch({identifier:1,target:el,clientX:x,clientY:y});
-  el.dispatchEvent(new TouchEvent(type,{touches:type==='touchend'?[]:[t],changedTouches:[t],bubbles:true,cancelable:true}))}"""
+TOUCH = """(a)=>{""" + MKTOUCH + """const [sel,type,x,y]=a;const el=document.querySelector(sel);el.dispatchEvent(mkTouch(type,el,x,y))}"""
 
 
 def fresh(t, b, data=None, init=None, touch=True):

@@ -1,7 +1,7 @@
 """Random-tap tester (from Vocal Sessions): taps, types, scrolls, resizes and reloads at random, checking after every
 step that nothing is broken. Each seed is a repeatable run. More steps:  SUKI_FUZZ_STEPS=2000 python tests/run.py fuzz"""
 import os, random, collections
-from harness import sample, OUT, ready, url, SEED, rate_route, day, PERMS
+from harness import sample, OUT, ready, url, SEED, rate_route, day, PERMS, BROWSER
 
 STEPS = int(os.environ.get('SUKI_FUZZ_STEPS', '250'))
 SEEDS = [int(s) for s in os.environ.get('SUKI_FUZZ_SEEDS', '11,12,13,14').split(',')]
@@ -42,7 +42,7 @@ def run(b, t):
     for seed in SEEDS:
         R = random.Random(seed); w, h, touch = R.choice(SIZES)
         ctx = b.new_context(viewport={'width': w, 'height': h}, has_touch=touch, color_scheme=R.choice(['light', 'dark']), accept_downloads=True,
-                            timezone_id='Europe/London', locale='en-GB', permissions=PERMS)
+                            timezone_id='Europe/London', locale='en-GB', permissions=PERMS, **({'service_workers': 'block'} if BROWSER == 'webkit' else {}))
         rate_route(ctx)
         ctx.add_init_script("try{localStorage.setItem('suki:motion','0')}catch(e){}")
         pg = ctx.new_page(); errs = []

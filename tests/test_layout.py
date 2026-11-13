@@ -2,7 +2,7 @@
 Also the details pane on iPad and Mac, the tab bar staying clear of every page, keyboard shortcuts and pull to refresh.
 Screenshots of each go to tests/output/."""
 import os
-from harness import READ
+from harness import READ, MKTOUCH
 
 SIZES = [('iphone', 390, 844, True), ('iphone-small', 375, 667, True), ('iphone-se', 320, 568, True), ('landscape', 852, 393, True),
          ('ipad', 820, 1180, True), ('ipad-landscape', 1180, 820, True), ('mac', 1440, 900, False)]
@@ -18,8 +18,7 @@ INSIDE = "sel=>{const e=document.querySelector(sel);if(!e)return false;const r=e
 CLIPPED = """(()=>{const out=[];document.querySelectorAll('#app .row,#app .card,#app .chip:not(.scroller .chip),.sheet .row,.sheet .card').forEach(e=>{
  if(e.closest('.scroller'))return;const r=e.getBoundingClientRect(),p=(e.closest('.sheet')||document.documentElement).getBoundingClientRect();
  if(r.width&&(r.right>p.right+1||r.left<p.left-1))out.push(e.className)});return out.slice(0,3).join(', ')})()"""
-TOUCH = """(a)=>{const [type,y]=a;const t=new Touch({identifier:1,target:document.querySelector('#app h1'),clientX:200,clientY:y});
-  const e=new TouchEvent(type,{touches:type==='touchend'?[]:[t],changedTouches:[t],bubbles:true,cancelable:true});document.querySelector('#app h1').dispatchEvent(e);return e.defaultPrevented}"""
+TOUCH = """(a)=>{""" + MKTOUCH + """const [type,y]=a;const h=document.querySelector('#app h1'),e=mkTouch(type,h,200,y);h.dispatchEvent(e);return e.defaultPrevented}"""
 
 
 def run(b, t):

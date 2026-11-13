@@ -190,6 +190,9 @@ class T:
                     has_touch=touch, accept_downloads=True, timezone_id='Europe/London', locale='en-GB',
                     permissions=PERMS)
         if ua: args['user_agent'] = ua
+        # WebKit doesn't let the tests answer requests from a page its service worker controls (they went to the real
+        # rate sources), so its pages run without one; test_offline.py makes its own context with it (Q32)
+        if BROWSER == 'webkit': args['service_workers'] = 'block'
         args.update(ctx_args or {})
         ctx = b.new_context(**args)
         rate_route(ctx, fail=rate_fail, **(rate_opts or {}))
@@ -214,6 +217,14 @@ class T:
 
     def shot(self, pg, name, **kw):
         pg.screenshot(path=os.path.join(OUT, f'{self.name}-{name}.png'), **kw)
+
+
+# a made-up touch event (Q32): Chrome's Touch and TouchEvent, or, where they can't be made (WebKit off a phone says
+# "Illegal constructor"), a plain event carrying the same touch lists. Paste it at the start of a page function
+MKTOUCH = """const mkTouch=(type,el,x,y)=>{let t,e;try{t=new Touch({identifier:1,target:el,clientX:x,clientY:y});
+ e=new TouchEvent(type,{touches:type==='touchend'?[]:[t],targetTouches:type==='touchend'?[]:[t],changedTouches:[t],bubbles:true,cancelable:true})}
+ catch(_){t={identifier:1,target:el,clientX:x,clientY:y,pageX:x+scrollX,pageY:y+scrollY,screenX:x,screenY:y};e=new Event(type,{bubbles:true,cancelable:true});
+ const l=type==='touchend'?[]:[t];Object.defineProperties(e,{touches:{value:l},targetTouches:{value:l},changedTouches:{value:[t]}})}return e};"""
 
 
 def ready(pg):

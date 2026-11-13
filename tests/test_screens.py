@@ -379,7 +379,10 @@ def reference(b, t):
     import elements as E
     text, vals, reg, unlisted = E.sheet(b)
     have = open(E.OUT, encoding='utf-8').read() if os.path.exists(E.OUT) else ''
-    ok(have == text, 'reference/elements.md is up to date (if not: python3 tools/reference/elements.py)')
+    if harness.BROWSER == 'webkit':  # Q32: MAINTAINING › Tests › Skipped in WebKit
+        t.skip('reference/elements.md is up to date: the sheet is written from Chromium’s reading, and WebKit writes some values its own way')
+    else:
+        ok(have == text, 'reference/elements.md is up to date (if not: python3 tools/reference/elements.py)')
     live = [p for p in reg if p[3] == 'In use']
     read = [p for p in live if (p[0], p[1], p[2]) in vals]
     ok(len(read) >= 100, f'the sheet reads at least 100 parts from the app ({len(read)} of {len(live)})')

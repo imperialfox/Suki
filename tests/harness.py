@@ -186,7 +186,8 @@ class T:
 
     def page(self, b, w=390, h=844, sc='light', touch=False, ua=UA_IPHONE, data='sample', init=None, rate_fail=False, ctx_args=None, rate_opts=None):
         """A fresh app page. data='sample' seeds sample(); None leaves the app empty; a dict seeds that dict."""
-        args = dict(viewport={'width': w, 'height': h}, device_scale_factor=2 if w < 500 else 1, color_scheme=sc,
+        # an iPhone's sharp screen (2×) in Chromium; WebKit draws in software, so it draws a quarter of the pixels (Q32)
+        args = dict(viewport={'width': w, 'height': h}, device_scale_factor=2 if w < 500 and BROWSER == 'chromium' else 1, color_scheme=sc,
                     has_touch=touch, accept_downloads=True, timezone_id='Europe/London', locale='en-GB',
                     permissions=PERMS)
         if ua: args['user_agent'] = ua

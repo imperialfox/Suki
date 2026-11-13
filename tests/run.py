@@ -115,7 +115,9 @@ def main():
             results.append((name, t.passed, t.fails, t.skipped))
     else:
         jobs = jobs_for(picked)
-        n = int(os.environ.get('SUKI_JOBS') or max(2, 2 * (os.cpu_count() or 1)))
+        # WebKit draws in software and needs the processors to itself: one job per processor there, two in Chromium (Q32)
+        per = 1 if harness.BROWSER == 'webkit' else 2
+        n = int(os.environ.get('SUKI_JOBS') or max(2, per * (os.cpu_count() or 1)))
         print(f'{len(jobs)} jobs, {min(n, len(jobs))} at a time\n', flush=True)
         with cf.ThreadPoolExecutor(n) as ex:
             for label, name, r, out, secs in (f.result() for f in cf.as_completed([ex.submit(run_job, j) for j in jobs])):

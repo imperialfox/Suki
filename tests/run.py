@@ -17,7 +17,7 @@ import sys, os, time, json, importlib, traceback, subprocess, tempfile, concurre
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 BROWSERS = ('chromium', 'webkit')
 
-ORDER = ['release', 'screens', 'values', 'parts', 'taps', 'flows', 'doors', 'search', 'prices', 'coverage', 'timedoors', 'compare', 'till', 'notepress', 'drawer', 'drawerfill', 'haul', 'location', 'ratecard', 'rates', 'history', 'smart', 'inbox', 'motion', 'data', 'slowstart', 'windows', 'onboard', 'offline', 'layout', 'fuzz', 'probe']
+ORDER = ['release', 'screens', 'values', 'parts', 'taps', 'flows', 'doors', 'search', 'prices', 'coverage', 'timedoors', 'compare', 'till', 'notepress', 'drawer', 'drawerfill', 'haul', 'location', 'ratecard', 'rates', 'history', 'smart', 'inbox', 'motion', 'data', 'slowstart', 'windows', 'onboard', 'offline', 'layout', 'fuzz']
 QUICK = [n for n in ORDER if n not in ('layout', 'fuzz')]
 HERE = os.path.abspath(__file__)
 
@@ -29,6 +29,10 @@ def run_file(name):
     with sync_playwright() as p:
         mod = importlib.import_module('test_' + name)
         t = harness.T(name)
+        # a whole file that can't run in WebKit says why (WEBKIT_SKIP), and is listed as skipped (Q32)
+        if harness.BROWSER == 'webkit' and getattr(mod, 'WEBKIT_SKIP', None):
+            t.skip(mod.WEBKIT_SKIP)
+            return t
         # LAUNCH_ARGS are Chrome's own switches, so only Chromium gets them
         b = getattr(p, harness.BROWSER).launch(**({'args': getattr(mod, 'LAUNCH_ARGS', [])} if harness.BROWSER == 'chromium' else {}))
         try:

@@ -87,7 +87,7 @@ def run(b, t):
     n = pg.locator('#chart .col').count()
     ok(n == 10 and len(rows(pg)) == 4 and pg.locator('#pickLine').count() == 0, 'All shows ten bars and every purchase, with no “Showing” line')
     tap_bar(pg, n - 2)
-    got, lab = sorted(rows(pg)), pg.inner_text('#spendSum .plabel')
+    got, lab = sorted(rows(pg)), pg.inner_text('#spendSum .plabel').strip()  # WebKit ends a block's text with a line break
     ok(got == ['a2', 'a3'] and lab == 'Yesterday', f'tapping yesterday’s bar narrows the list to yesterday ({got}, {lab!r})')
     ok(pg.inner_text('#pickLine span') == 'Showing Yesterday only', 'a line says “Showing Yesterday only”')
     back = pg.evaluate("'Show '+period().label.replace(/^Since/,'all since')")

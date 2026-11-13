@@ -4,9 +4,10 @@ import json, os, tempfile
 from harness import READ, ready, sample, MKTOUCH
 
 FRESH = "localStorage.setItem('test:fresh','1');localStorage.removeItem('suki:onboard')"
-# Safari on an iPhone: not opened from the Home Screen, and a touch screen (WebKit off a phone says 0 touch points
-# even with touch on, so it's set here too, Q32)
-SAFARI = "Object.defineProperty(navigator,'standalone',{value:false,configurable:true});Object.defineProperty(navigator,'maxTouchPoints',{value:5,configurable:true})"
+# Safari, not opened from the Home Screen. On an iPhone it has a touch screen too: WebKit off a phone says 0 touch
+# points even with touch on, so PHONE_SAFARI sets it (Q32)
+SAFARI = "Object.defineProperty(navigator,'standalone',{value:false,configurable:true})"
+PHONE_SAFARI = SAFARI + ";Object.defineProperty(navigator,'maxTouchPoints',{value:5,configurable:true})"
 OB = "JSON.parse(localStorage.getItem('suki:onboard')||'null')"
 # a tip never covers a main button or the tab bar
 CLEAR = """(()=>{const t=document.getElementById('tip');if(!t)return 'no tip';const r=t.getBoundingClientRect();
@@ -118,7 +119,7 @@ def run(b, t):
     pg.context.close()
 
     # ── in a Safari tab: the Home Screen steps, every time ──
-    pg = fresh(t, b, init=SAFARI)
+    pg = fresh(t, b, init=PHONE_SAFARI)
     ok(pg.evaluate("U.sheet") == 'ahs' and 'Add to Home Screen' in pg.inner_text('.sheet') and 'Open as Web App' in pg.inner_text('.sheet'),
        'opened in Safari, Suki shows the steps to add it to the Home Screen')
     ok(pg.locator('.sheet [data-a=close]').count() == 0 and pg.locator('.sheet [data-a=ahsGot]').count() == 1 and pg.locator('.sheet [data-a=ahsLater]').count() == 1,

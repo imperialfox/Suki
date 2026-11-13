@@ -73,7 +73,8 @@ def run(b, t):
                        f'{name}: tabs move to the top (or the sidebar)')
             if name == 'mac' and sc == 'light':
                 ok(pg.is_visible('.side-nav') and pg.locator('.side-nav [data-v=settings]').count() == 1, 'Mac: a sidebar with Settings')
-                pg.keyboard.press('Control+4'); pg.wait_for_timeout(150)
+                # Cmd on a Mac (WebKit's own name for itself is a Mac's Safari), Ctrl elsewhere, as Suki's APPLE decides
+                pg.keyboard.press('Meta+4' if pg.evaluate("APPLE") else 'Control+4'); pg.wait_for_timeout(150)
                 ok(pg.evaluate("U.tab") == 'spending', f'Mac: Cmd/Ctrl+4 opens Spending ({pg.evaluate("U.tab")})')
             if name == 'landscape' and sc == 'light':
                 pg.evaluate("go('home')")

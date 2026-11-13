@@ -7,6 +7,9 @@ shut it from any depth, and it reopens to plain open; "Designed by Ivan" (Captio
 VoiceOver) is hidden until the ninth swipe peeks it and the tenth shows it whole; notes still land in their
 compartments; Reduce Motion still hauls; nothing saved; nothing sideways. Screenshots fully hauled at 375 and 402 px,
 light and dark."""
+# Q32: skipped in WebKit (MAINTAINING › Tests › Skipped in WebKit)
+WEBKIT_SKIP = "WebKit on GitHub's machines draws the till at about 3 frames a second while the drawer moves (software drawing, no graphics chip), so its springs can't settle or be timed; Chromium runs this file"
+
 from harness import BROWSER
 
 ON = "localStorage.setItem('suki:motion','1')"
@@ -43,9 +46,7 @@ def frames(total, n, ms=16):
 
 
 def settle(pg):
-    try: pg.wait_for_function(SETTLED, timeout=5000)
-    except Exception:  # Q32 PROBE
-        print('    PROBE', pg.evaluate("JSON.stringify({h:DR.h,raf:DR.raf,drag:!!DR.drag,fade:!!DR.fade,haul:!!DR.haul,eat:DR.eat,open:DR.open,rest:DR.rest,sp:MOTION.speed(),on:MOTION.on(),red:MOTION.reduced()})")); raise
+    pg.wait_for_function(SETTLED, timeout=5000)
     pg.wait_for_timeout(30)
 
 

@@ -42,7 +42,9 @@ UA_IPHONE = ('Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit
              '(KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1')
 
 today = dt.date.today()
-def day(n): return (today - dt.timedelta(days=n)).isoformat()
+# n days before the date as it is when asked, not when the file started: a run going past midnight (UK time) kept the
+# old date, so a 90-day-old price read as 91 days to the app (test_prices.py, GitHub's run at 00:00, Q32)
+def day(n): return (dt.date.today() - dt.timedelta(days=n)).isoformat()
 RATE = 74.12
 
 def sample():

@@ -38,7 +38,7 @@ Items are `Q## · Subsystem: Feature`. IDs are never reused. Each item takes the
 | Q29 | Interface: Presses and Tap Areas | Shipped · 2.33 | Light | none | The same audit, findings 16, 17. After Q28 |
 | Q30 | Interface: Element Sheet | Shipped · 2.41 | Medium | none | The same audit, finding 20 (element sheet). After Q28 |
 | Q31 | Data: Never Save Before Loading | Shipped · 2.34 | Light | none (wireframe skipped by Ivan) | Cross-audit M01 (F1). Phase 0: on 6 Nov only if phone-checked that evening, else first on the trip |
-| Q32 | Tests: Safari Engine and a Steady Suite | Approved — awaiting Build | Light to medium | none | Cross-audit M08, M17 (ideas list 5). Tests and GitHub only, no app version |
+| Q32 | Tests: Safari Engine and a Steady Suite | Shipped · no app version (commit `f033762`) | Light to medium | none | Cross-audit M08, M17 (ideas list 5). Tests and GitHub only, no app version |
 | Q33 | Data: Other Windows and an Error Notice | Shipped · 2.35 | Light to medium | none (wireframe skipped by Ivan) | Cross-audit M02, M16, M15. After Q31 |
 | Q34 | Rate: Sanity Check | Shipped · 2.36 | Light | none (wireframe skipped by Ivan) | Cross-audit M03 (F6) |
 | Q35 | Prices: Data Checks, Age, Rail Fare and Units | Shipped · 2.37 | Light | none (wireframe skipped by Ivan) | Cross-audit M12, M04, M06 data half |
@@ -54,10 +54,6 @@ Build top to bottom; each still needs its own **build**. One line per item: `N. 
 
 1. Q39 — spacing and type names; needs Q30 (shipped as 2.41); from 3 Dec (Ivan, 6 Nov 2026)
 2. Q40 — kit 1.3.0, zoom and contrast; needs Q39 and parts kit 1.3.0 (its own Render, not yet given); from 3 Dec (Ivan, 6 Nov 2026)
-
-### Any time
-
-- Q32 — tests in Safari's engine and a steady suite; no app version; best before Q33 (Ivan, 6 Nov 2026)
 
 **Render:** 6 Nov 2026, 10:46 · Ivan: "Render", then chose "Phases 0 to 5" and, for wireframes, "Yes, skip them" · scope: Q31 to Q40, the Phases 0 to 5 pieces of the cross-audit Blueprint (6 Nov 2026, project note `suki_cross_audit_blueprint_2026-11-06.md`), exactly as written in HANDOFF.md, with every default in its shared block (the trip rule, Q31 on 6 Nov only if phone-checked that evening, wireframes skipped for Q31 to Q38, other windows reload, contrast S07, main button rule S08), built one at a time in Release order; each starts only when Ivan says build for it. Q30 (already approved) moves behind Q38. Not rendered: the plan's Phase 6 (screens), which needs its wireframe first, and Phase 7; parts kit 1.3.0, which has its own Render in `imperialfox/parts-kit`, so Q40 waits for it.
 
@@ -115,6 +111,8 @@ Handoffs: [HANDOFF.md](HANDOFF.md). Recon behind these: the Suki project docs `s
 - 11 Nov 2026: Intramuros sits under the Services chip, so no new chip, but a logged entrance fee goes under Activities (Q38's build).
 - 12 Nov 2026: Q30 built during the trip at Ivan's word, ahead of the trip rule's 3 Dec, as it changes no screen. Q39 and Q40 still wait until 3 Dec.
 - 12 Nov 2026: the element sheet's motion is one column of springs and named timings, as Vocal Sessions' (the handoff's "follow Q55 for the columns"), not separate spring and duration columns; Decision is the one column added (Q30's build).
+- 14 Nov 2026: Q32 runs the full suite in WebKit (the handoff's default 5): its job takes 6 to 10 minutes beside Chromium's 5 to 6, side by side, so a result takes less than twice as long. Checks timed frame by frame (the drawer, the haul, the note press's flight, the motion file) are skipped in WebKit, with why, as GitHub's machines draw WebKit's glass a few frames a second (Q32's build).
+- 14 Nov 2026: Q32 also fixed the random taps' out-of-date alert check (ideas 21) and a run going past midnight UK time (`harness.day()`), outside its Touches list, as its Done when (three green runs in a row) needed both; and WebKit gets one more go at a file when the browser falls over by itself, shown as a warning (Q32's build).
 
 ## Ideas, not yet queued
 
@@ -124,7 +122,7 @@ Sorted by priority, highest first: what's broken or helps on the trip (7 Nov –
 2. Nueva Ecija prices: no local tricycle fare or post-rise bus fare is published online yet; add them from price notes during the trip.
 3. Prices by region, using the town from Q16.
 4. Back-dated purchases use Rate history first (added 3 Nov 2026, Q23's build): Q22's one-day lookup could read the saved history and snapshot before asking Frankfurter, so a purchase logged for an earlier day offline gets its real rate at once instead of "estimated". Light.
-5. Moved to Q32 (6 Nov 2026): the flaky fold check in `test_smart.py`.
+5. Moved to Q32 (6 Nov 2026): the flaky fold check in `test_smart.py`. Fixed there (14 Nov 2026).
 6. Assets kit (added 3 Nov 2026): switch every element over to the tuning and assets of Ivan's assets kit (coming soon). Waits for the kit, and easier after Q25 (screen IDs): each group swaps once instead of copy by copy. The two can't run at the same time; both touch every screen.
 7. A search circle beside the tab bar (four tabs plus Search), as in iOS 26.
 8. Smart add: a receipt already works through iPhone's Live Text (copy the text from a photo, paste it in). Help could say so.
@@ -140,6 +138,7 @@ Sorted by priority, highest first: what's broken or helps on the trip (7 Nov –
 18. Prices: a cooked rice item ("kanin", per cup or plate) so "kanin" finds a price again (added 11 Nov 2026, Q36's build, its default 3). Fits with Q37 or Q38.
 19. Search: an item and a place in one search ("jeepney to Cubao", "tricycle Alona Beach") shows no price since Q36, because every word must fit. Showing the item for its word, only when the other words are places Suki knows (its towns list), would bring it back without "coconut oil" finding cooking oil (added 11 Nov 2026, Q36's build). Helps; light.
 20. Medicines: a pharmacy's own shelf price (Mercury Drug, Watsons) beside PhilHealth's fee, and a price for loperamide, which PhilHealth's list doesn't have (added 11 Nov 2026, Q37's build). Helps.
-21. Tests: the random taps, seed 13, failed on GitHub twice (Q34 and Q37's first runs): "sheet state confirm but nothing shown" and "page behind a sheet left scaled", after opening a purchase, closing a tip and resizing to 1440×900. Both re-runs passed. Fits with Q32 (a steady suite) (added 11 Nov 2026, Q37's build). Core for the tests. A third time on 12 Nov 2026, in Q30's full local run (same two findings); seed 13 alone then passed. Then on GitHub's run of Q30's receipt (`8065541`) it failed on the run and on the re-run, so it now fails GitHub every time and hides real failures; worth its own item next. Q30 changes no app code.
+21. Tests: the random taps, seed 13, failed on GitHub twice (Q34 and Q37's first runs): "sheet state confirm but nothing shown" and "page behind a sheet left scaled", after opening a purchase, closing a tip and resizing to 1440×900. Both re-runs passed. Fits with Q32 (a steady suite) (added 11 Nov 2026, Q37's build). Core for the tests. A third time on 12 Nov 2026, in Q30's full local run (same two findings); seed 13 alone then passed. Then on GitHub's run of Q30's receipt (`8065541`) it failed on the run and on the re-run, so it now fails GitHub every time and hides real failures; worth its own item next. Q30 changes no app code. Fixed in Q32 (14 Nov 2026): not flaky, the check was out of date since Q27 (an alert on its own isn't a `.sheet`); MAINTAINING › Known test issues.
 22. Prices: the way from 67 to 70 of the audit's 85 searches (added 11 Nov 2026, Q38's build). Candidates, each needing a source: sisig as a carinderia plate or from a menu; lechon, balut or buko from a seller's own page; island hopping from El Nido's set tour rates; the toll from TRB's matrix. Helps.
 23. Search: "sabon" also lists Haircut (₱500), because "salon" is one letter from "sabon" (Q36's slip rule for five-letter words). It showed before Q38 too, with no price (added 11 Nov 2026, Q38's build). Polish.
+24. Safari: an error's log entry has no words (added 14 Nov 2026, Q32's build). `noteError()` keeps an error's stack first, and Safari's stack carries no message, so on his iPhone `suki:errors` holds "@" and where it happened, not what went wrong. Keeping the message first, then the stack, would fix it. Nothing shows `suki:errors` yet, so it matters once something does. Helps; light. `test_windows.py` skips the log's words in WebKit until then.

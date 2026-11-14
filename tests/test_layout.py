@@ -2,7 +2,7 @@
 Also the details pane on iPad and Mac, the tab bar staying clear of every page, keyboard shortcuts and pull to refresh.
 Screenshots of each go to tests/output/."""
 import os
-from harness import READ
+from harness import READ, MKTOUCH
 
 SIZES = [('iphone', 390, 844, True), ('iphone-small', 375, 667, True), ('iphone-se', 320, 568, True), ('landscape', 852, 393, True),
          ('ipad', 820, 1180, True), ('ipad-landscape', 1180, 820, True), ('mac', 1440, 900, False)]
@@ -18,8 +18,7 @@ INSIDE = "sel=>{const e=document.querySelector(sel);if(!e)return false;const r=e
 CLIPPED = """(()=>{const out=[];document.querySelectorAll('#app .row,#app .card,#app .chip:not(.scroller .chip),.sheet .row,.sheet .card').forEach(e=>{
  if(e.closest('.scroller'))return;const r=e.getBoundingClientRect(),p=(e.closest('.sheet')||document.documentElement).getBoundingClientRect();
  if(r.width&&(r.right>p.right+1||r.left<p.left-1))out.push(e.className)});return out.slice(0,3).join(', ')})()"""
-TOUCH = """(a)=>{const [type,y]=a;const t=new Touch({identifier:1,target:document.querySelector('#app h1'),clientX:200,clientY:y});
-  const e=new TouchEvent(type,{touches:type==='touchend'?[]:[t],changedTouches:[t],bubbles:true,cancelable:true});document.querySelector('#app h1').dispatchEvent(e);return e.defaultPrevented}"""
+TOUCH = """(a)=>{""" + MKTOUCH + """const [type,y]=a;const h=document.querySelector('#app h1'),e=mkTouch(type,h,200,y);h.dispatchEvent(e);return e.defaultPrevented}"""
 
 
 def run(b, t):
@@ -74,8 +73,9 @@ def run(b, t):
                        f'{name}: tabs move to the top (or the sidebar)')
             if name == 'mac' and sc == 'light':
                 ok(pg.is_visible('.side-nav') and pg.locator('.side-nav [data-v=settings]').count() == 1, 'Mac: a sidebar with Settings')
-                pg.keyboard.press('Control+4'); pg.wait_for_timeout(150)
-                ok(pg.evaluate("U.tab") == 'spending', 'Mac: Cmd/Ctrl+4 opens Spending')
+                # Cmd on a Mac (WebKit's own name for itself is a Mac's Safari), Ctrl elsewhere, as Suki's APPLE decides
+                pg.keyboard.press('Meta+4' if pg.evaluate("APPLE") else 'Control+4'); pg.wait_for_timeout(150)
+                ok(pg.evaluate("U.tab") == 'spending', f'Mac: Cmd/Ctrl+4 opens Spending ({pg.evaluate("U.tab")})')
             if name == 'landscape' and sc == 'light':
                 pg.evaluate("go('home')")
                 ok(pg.locator('.dash > div').count() == 2 and pg.evaluate("document.querySelector('.tabbar button').getBoundingClientRect().height") <= 44,

@@ -42,7 +42,9 @@ UA_IPHONE = ('Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit
              '(KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1')
 
 today = dt.date.today()
-def day(n): return (today - dt.timedelta(days=n)).isoformat()
+# n days before the date as it is when asked, not when the file started: a run going past midnight (UK time) kept the
+# old date, so a 90-day-old price read as 91 days to the app (test_prices.py, GitHub's run at 00:00, Q32)
+def day(n): return (dt.date.today() - dt.timedelta(days=n)).isoformat()
 RATE = 74.12
 
 def sample():
@@ -162,10 +164,25 @@ def rate_noise(m):
     return 'Failed to load resource' in m.text and any(h in (m.location or {}).get('url', '') for h in RATE_HOSTS)
 
 
+# which engine the suite runs in (Q32): chromium (Chrome's) or webkit (Safari's). run.py sets it from --browser
+BROWSER = os.environ.get('SUKI_BROWSER', 'chromium')
+# how a browser that fell over shows in a result: run.py gives a file one more go in WebKit when it sees this (Q32)
+CRASHED = 'the page crashed (the browser’s own process)'
+CRASH_SIGNS = (CRASHED, 'Target page, context or browser has been closed', 'Target crashed', 'Page crashed')
+# WebKit has no clipboard permissions to give: a page there can write the clipboard after a tap, and reading it back
+# is skipped (test_flows.py)
+PERMS = ['clipboard-read', 'clipboard-write'] if BROWSER == 'chromium' else []
+
+
 class T:
     """Collects results for one test file."""
     def __init__(self, name):
-        self.name, self.passed, self.fails, self.errors = name, 0, [], []
+        self.name, self.passed, self.fails, self.errors, self.skipped = name, 0, [], [], []
+
+    def skip(self, msg):
+        """A check that can't run in this engine, with why (listed in MAINTAINING › Tests › Skipped in WebKit)."""
+        self.skipped.append(msg)
+        print('  skip  ' + msg, flush=True)
 
     def ok(self, cond, msg):
         if cond: self.passed += 1
@@ -174,10 +191,14 @@ class T:
 
     def page(self, b, w=390, h=844, sc='light', touch=False, ua=UA_IPHONE, data='sample', init=None, rate_fail=False, ctx_args=None, rate_opts=None):
         """A fresh app page. data='sample' seeds sample(); None leaves the app empty; a dict seeds that dict."""
-        args = dict(viewport={'width': w, 'height': h}, device_scale_factor=2 if w < 500 else 1, color_scheme=sc,
+        # an iPhone's sharp screen (2×) in Chromium; WebKit draws in software, so it draws a quarter of the pixels (Q32)
+        args = dict(viewport={'width': w, 'height': h}, device_scale_factor=2 if w < 500 and BROWSER == 'chromium' else 1, color_scheme=sc,
                     has_touch=touch, accept_downloads=True, timezone_id='Europe/London', locale='en-GB',
-                    permissions=['clipboard-read', 'clipboard-write'])
+                    permissions=PERMS)
         if ua: args['user_agent'] = ua
+        # WebKit doesn't let the tests answer requests from a page its service worker controls (they went to the real
+        # rate sources), so its pages run without one; test_offline.py makes its own context with it (Q32)
+        if BROWSER == 'webkit': args['service_workers'] = 'block'
         args.update(ctx_args or {})
         ctx = b.new_context(**args)
         rate_route(ctx, fail=rate_fail, **(rate_opts or {}))
@@ -189,6 +210,7 @@ class T:
         if init: ctx.add_init_script(init)
         pg = ctx.new_page()
         tag = f'{self.name} {w}x{h}'
+        pg.on('crash', lambda p: self.errors.append(f'{tag}: {CRASHED}'))
         pg.on('pageerror', lambda e: self.errors.append(f'{tag}: {str(e).splitlines()[0]}'))
         # a rate source switched off on purpose logs a failed request, which isn't a fault
         quiet = rate_noise
@@ -202,6 +224,14 @@ class T:
 
     def shot(self, pg, name, **kw):
         pg.screenshot(path=os.path.join(OUT, f'{self.name}-{name}.png'), **kw)
+
+
+# a made-up touch event (Q32): Chrome's Touch and TouchEvent, or, where they can't be made (WebKit off a phone says
+# "Illegal constructor"), a plain event carrying the same touch lists. Paste it at the start of a page function
+MKTOUCH = """const mkTouch=(type,el,x,y)=>{let t,e;try{t=new Touch({identifier:1,target:el,clientX:x,clientY:y});
+ e=new TouchEvent(type,{touches:type==='touchend'?[]:[t],targetTouches:type==='touchend'?[]:[t],changedTouches:[t],bubbles:true,cancelable:true})}
+ catch(_){t={identifier:1,target:el,clientX:x,clientY:y,pageX:x+scrollX,pageY:y+scrollY,screenX:x,screenY:y};e=new Event(type,{bubbles:true,cancelable:true});
+ const l=type==='touchend'?[]:[t];Object.defineProperties(e,{touches:{value:l},targetTouches:{value:l},changedTouches:{value:[t]}})}return e};"""
 
 
 def ready(pg):

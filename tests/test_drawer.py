@@ -7,6 +7,9 @@ sheet leave it shut with nothing left running; a hold or a sideways drag in the 
 labels, Enter and Space; Reduce Motion fades only; motion off jumps; no drawer on its side; the card's width, click,
 keys and a mouse drag on iPad and Mac; notes still fly with it open; nothing sideways. Screenshots open and shut at
 375 and 402 px, light and dark, iPad and Mac."""
+# Q32: skipped in WebKit (MAINTAINING › Tests › Skipped in WebKit)
+WEBKIT_SKIP = "WebKit on GitHub's machines draws the till at about 3 frames a second while the drawer moves (software drawing, no graphics chip), so its springs can't settle or be timed; Chromium runs this file"
+
 
 ON = "localStorage.setItem('suki:motion','1')"
 REDUCE = "localStorage.setItem('suki:reduceMotion','on')"

@@ -1,17 +1,21 @@
 """Random-tap tester (from Vocal Sessions): taps, types, scrolls, resizes and reloads at random, checking after every
 step that nothing is broken. Each seed is a repeatable run. More steps:  SUKI_FUZZ_STEPS=2000 python tests/run.py fuzz"""
 import os, random, collections
-from harness import sample, OUT, ready, url, SEED, rate_route, day
+from harness import sample, OUT, ready, url, SEED, rate_route, day, PERMS, BROWSER
 
 STEPS = int(os.environ.get('SUKI_FUZZ_STEPS', '250'))
 SEEDS = [int(s) for s in os.environ.get('SUKI_FUZZ_SEEDS', '11,12,13,14').split(',')]
 SIZES = [(390, 844, True), (375, 667, True), (852, 393, True), (820, 1180, True), (1180, 820, True), (1440, 900, False), (320, 568, True)]
 TEXTS = ['', 'x', '  ', '<b>bold</b> & "quotes" \'single\'', '😀 emoji', 'A' * 300, '-5', '0', '999999', '12.7', '1,000', 'abc', 'Line\nbreak']
+# Since Q27 a yes or no question (ALERTS) is the kit's alert (.pk-alert), not a .sheet, and only the sheets under it
+# scale the page behind (ui.js renderSheet). Before Q32 this check still looked for a .sheet, so an alert on its own
+# (Delete from Spending's pane on iPad or Mac, seed 13 on GitHub) showed as a fault
 INV = r"""(()=>{const p=[];const L=document.getElementById('layer');
  if(document.documentElement.scrollWidth>innerWidth+1)p.push('sideways scroll '+document.documentElement.scrollWidth+'>'+innerWidth);
- if(U.sheet&&!L.querySelector('.sheet'))p.push('sheet state "'+U.sheet+'" but nothing shown');
+ const alertTop=!!(U.sheet&&ALERTS[U.sheet]),under=U.stack.length+(U.sheet&&!alertTop?1:0);
+ if(U.sheet&&!(alertTop?L.querySelector('.pk-alert:not(.pk-leaving)'):L.querySelector('.sheet')))p.push('sheet state "'+U.sheet+'" but nothing shown');
  if(!U.sheet&&L.querySelector('.sheet'))p.push('sheet shown without state');
- if(!!U.sheet!==document.body.classList.contains('sheet-open'))p.push('page behind a sheet left scaled, or not scaled');
+ if((under>0)!==document.body.classList.contains('sheet-open'))p.push('page behind a sheet left scaled, or not scaled');
  if(!U.sheet&&![...document.querySelectorAll('[data-a=tab]')].some(e=>{const r=e.getBoundingClientRect();return r.width>0&&r.bottom>0&&r.top<innerHeight}))p.push('no way to switch tabs');
  const ids=new Set();D.purchases.forEach(x=>{if(!(x.price>0)||!isFinite(x.price))p.push('bad price '+x.id+'='+x.price);
    if(!/^\d{4}-\d{2}-\d{2}$/.test(x.date))p.push('bad date '+x.id+'='+x.date);if(!CATS.includes(x.category))p.push('bad category '+x.category);
@@ -38,7 +42,7 @@ def run(b, t):
     for seed in SEEDS:
         R = random.Random(seed); w, h, touch = R.choice(SIZES)
         ctx = b.new_context(viewport={'width': w, 'height': h}, has_touch=touch, color_scheme=R.choice(['light', 'dark']), accept_downloads=True,
-                            timezone_id='Europe/London', locale='en-GB', permissions=['clipboard-read', 'clipboard-write'])
+                            timezone_id='Europe/London', locale='en-GB', permissions=PERMS, **({'service_workers': 'block'} if BROWSER == 'webkit' else {}))
         rate_route(ctx)
         ctx.add_init_script("try{localStorage.setItem('suki:motion','0')}catch(e){}")
         pg = ctx.new_page(); errs = []

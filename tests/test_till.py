@@ -4,6 +4,7 @@ up exactly, no ₱200 and no 50¢), fans, bundles (₱34,750 and ₱999,999 insi
 colours the same in dark mode, Log this bill staying put, and with motion on: new pieces settle in, removed ones
 shrink away, the figure and a bundle's count never animate, rapid taps leave no stray pieces, Reduce Motion only
 fades. Screenshots at 375 and 402 px, light and dark."""
+from harness import BROWSER
 
 ON = "localStorage.setItem('suki:motion','1')"
 PIECES = "[...document.querySelectorAll('#cashRow [data-k]')].map(e=>e.dataset.k)"
@@ -186,7 +187,10 @@ def run(b, t):
     pg.fill('#till-bill', '789.50'); pg.click('[data-a=cashAdd][data-v="1000"]')
     pg.wait_for_timeout(20)
     a = pg.evaluate(ANIMS, '#cashRow [data-k]')
-    ok(a and all(x and all(k[0] in ('', 'none') for k in x[0]) and x[0][0][1] == '0' for x in a), 'with Reduce Motion, new pieces only fade in')
+    if BROWSER == 'webkit':  # Q32: MAINTAINING › Tests › Skipped in WebKit
+        t.skip('with Reduce Motion, new pieces only fade in: caught 20 ms in, and WebKit on GitHub’s machines may not have drawn a frame by then')
+    else:
+        ok(a and all(x and all(k[0] in ('', 'none') for k in x[0]) and x[0][0][1] == '0' for x in a), f'with Reduce Motion, new pieces only fade in ({str(a)[:200]})')
     pg.fill('#till-bill', '889.50'); pg.wait_for_timeout(20)
     gh = pg.evaluate("[...document.querySelectorAll('#cashRow .cghost')].map(g=>g.getAnimations().map(a=>a.effect.getKeyframes().map(k=>k.transform||'')))")
     ok(gh and all(all(tr in ('', 'none') for tr in x[0]) for x in gh), 'and a removed one only fades out')

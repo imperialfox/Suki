@@ -331,7 +331,10 @@ def run(b, t):
     pg.mouse.up(); pg.wait_for_timeout(20)
     tm = pg.evaluate("document.querySelector('body > .wrap').getAnimations().map(a=>[a.effect.getTiming().easing,a.effect.getTiming().duration])")
     nav = pg.evaluate("MOTION.dur('nav')")
-    ok(tm and tm[0][0].startswith('linear(0 0%, 0.0147') and tm[0][1] == nav, f'letting go runs on the nav spring ({tm[0][1] if tm else None} ms), not its own 280 ms curve')
+    # Chromium writes the curve's stops in full (0.0147…), WebKit to two places (0.01): the first two stops are compared
+    # as numbers (Q32)
+    st = [float(x.split()[0]) for x in tm[0][0][7:].split(',')[:2]] if tm and tm[0][0].startswith('linear(') else None
+    ok(tm and st and st[0] == 0 and abs(st[1] - 0.0147) < 0.006 and tm[0][1] == nav, f'letting go runs on the nav spring ({tm[0][1] if tm else None} ms), not its own 280 ms curve')
     pg.wait_for_function("U.tab==='convert'&&!document.querySelector('#under')", timeout=6000)
     ok(pg.evaluate("document.querySelector('body > .wrap').style.transform") == '', 'and it lands on Convert with nothing left behind')
     pg.context.close()

@@ -21,7 +21,12 @@ def run(b, t):
     pg.on('pageerror', lambda e: errs.append(str(e)))
     pg.goto(url(app)); ready(pg)
     pg.evaluate(SEED, sample()); pg.reload(); ready(pg)
-    pg.wait_for_function("navigator.serviceWorker.controller!==null", timeout=15000)
+    # the helper takes control once it's ready; on a busy machine (two processors here, WebKit on GitHub) that can be
+    # after the page's last load, so the page loads once more, as a phone would next time (Q32, Known test issues)
+    try: pg.wait_for_function("navigator.serviceWorker.controller!==null", timeout=15000)
+    except Exception:
+        pg.evaluate("navigator.serviceWorker.ready.then(()=>1)"); pg.reload(); ready(pg)
+        pg.wait_for_function("navigator.serviceWorker.controller!==null", timeout=15000)
     pg.wait_for_timeout(800)  # let the offline copy finish saving
     ok('Ready' in pg.evaluate("SW_STATE"), 'Settings says it works offline')
 

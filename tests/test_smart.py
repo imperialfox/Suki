@@ -64,8 +64,9 @@ def run(b, t):
     pg.evaluate("window.__box=document.getElementById('smartText')")
     pg.click('#smartText'); pg.keyboard.type('jeep to cubao 14')
     ok(pg.evaluate("window.__box===document.getElementById('smartText')&&document.activeElement===window.__box"), 'typing updates the preview in place, keeping the cursor')
-    out = pg.inner_text('#smartOut')
-    ok('suki read' in out.lower() and 'Jeepney' in out and '₱14' in out and 'Transport' in out and 'Cubao' in out, 'the preview shows the item, amount, category and place')
+    # a picker's chosen option is in Chromium's page text but not WebKit's, so the category is read from the picker too
+    out = pg.inner_text('#smartOut') + ' ' + pg.evaluate("[...document.querySelectorAll('#smartOut select')].map(s=>s.value).join(' ')")
+    ok('suki read' in out.lower() and 'Jeepney' in out and '₱14' in out and 'Transport' in out and 'Cubao' in out, f'the preview shows the item, amount, category and place ({out[:160]!r})')
     ok('Within the typical ₱14–17' in out and 'Jeepney prices' in out, 'a whole-word price-list match gets the typical note')
     ok(pg.evaluate("localStorage.getItem('suki:smart')") == 'jeep to cubao 14', 'the half-typed line is kept on this device')
     typed(pg, 'jeep to cubao 40')
@@ -270,6 +271,9 @@ def run(b, t):
     ok(pg.locator('#logwrap .lghost').count() <= 1 and pg.locator('#logwrap .face:not(.lghost)').count() == 1, 'switching quickly keeps at most one fading copy')
     pg.wait_for_function("!document.querySelector('#logwrap .lghost')", timeout=8000)
     ok(pg.locator('#logwrap > *').count() == 1 and pg.evaluate("[...document.querySelectorAll('[id]')].map(e=>e.id).length===new Set([...document.querySelectorAll('[id]')].map(e=>e.id)).size"), 'rapid switching leaves no stray copy and no repeated ids')
+    # wait for the fades themselves to end, not just the copy: a timer can take the copy away before the page draws
+    # its next frame, so the new side's own fade could still read part way (Q32: the old flaky fold check)
+    pg.wait_for_function("document.getElementById('logwrap').getAnimations({subtree:true}).every(a=>a.playState!=='running')", timeout=8000)
     ok(pg.evaluate("getComputedStyle(document.querySelector('#logwrap .face')).opacity") == '1', 'and the side showing is fully there')
     # a redraw mid-way (a rate arriving) also leaves nothing behind
     pg.click('#sidePill'); pg.wait_for_timeout(100); pg.evaluate("rerender()")
@@ -282,9 +286,11 @@ def run(b, t):
     pg.context.close()
 
     pg = t.page(b, init=ON, ctx_args={'reduced_motion': 'reduce'})
-    pg.click('#sidePill'); pg.wait_for_timeout(40)
-    a = pg.evaluate("[...document.querySelectorAll('#logwrap *')].flatMap(e=>e.getAnimations()).map(a=>a.effect.getKeyframes().map(k=>(k.filter||'')+(k.transform||'')).join(''))")
-    g = pg.evaluate("document.querySelector('#logwrap .lghost')?document.querySelector('#logwrap .lghost').getAnimations().length:0")
+    # switch and look in the same step: the crossfade is 100 ms, so on a busy machine a separate look could come after
+    # the copy has gone (Q32: the old flaky Reduce Motion check)
+    r = pg.evaluate("""(()=>{document.getElementById('sidePill').click();const w=document.getElementById('logwrap'),g=w.querySelector('.lghost');
+      return {a:[...w.querySelectorAll('*')].flatMap(e=>e.getAnimations()).map(a=>a.effect.getKeyframes().map(k=>(k.filter||'')+(k.transform||'')).join('')),g:g?g.getAnimations().length:0}})()""")
+    a, g = r['a'], r['g']
     ok(all(x == '' for x in a) and g >= 1, 'Reduce Motion: a plain crossfade, nothing blurs or moves')
     pg.context.close()
 

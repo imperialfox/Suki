@@ -6,6 +6,9 @@ a sheet opened from a sheet rises over it and the first waits underneath, still 
 (D20); a saved purchase lands in its list while the rows below move; a deleted row shrinks away and Undo brings it back
 the same way; Home's Save button says "Saved"; "Purchase saved" has Undo. Frames at 4× slow motion, light and dark, go
 to tests/output."""
+# Q32: skipped in WebKit (MAINTAINING › Tests › Skipped in WebKit)
+WEBKIT_SKIP = "this file times sheets, rows and pages frame by frame, and WebKit on GitHub's machines draws glass a few frames a second (software drawing, no graphics chip); Chromium runs it"
+
 from harness import READ, flick
 
 SLOW = "localStorage.setItem('suki:motion','4')"

@@ -1,10 +1,9 @@
 """Everyday use: logging, editing and deleting purchases, category chips and the filter, Quick Till, Convert,
 Search and price notes, and the CSV export."""
 import json
-from harness import READ, BAD_TEXT, today, RATE, day
+from harness import READ, BAD_TEXT, today, RATE, day, BROWSER, MKTOUCH
 
-TOUCH = """(a)=>{const [sel,type,x,y]=a;const el=document.querySelector(sel);const t=new Touch({identifier:1,target:el,clientX:x,clientY:y});
-  el.dispatchEvent(new TouchEvent(type,{touches:type==='touchend'?[]:[t],changedTouches:[t],bubbles:true,cancelable:true}))}"""
+TOUCH = """(a)=>{""" + MKTOUCH + """const [sel,type,x,y]=a;const el=document.querySelector(sel);el.dispatchEvent(mkTouch(type,el,x,y))}"""
 
 
 def tab(pg, name):
@@ -195,8 +194,13 @@ def run(b, t):
     ok(pg.input_value('#conv-gbp') == '13.49', 'typing pesos fills in pounds')
     pg.fill('#conv-gbp', '20'); pg.wait_for_timeout(50)
     ok(pg.input_value('#conv-php') == '1,482.40', 'typing pounds fills in pesos')
-    pg.click('[data-a=copyConv]'); pg.wait_for_timeout(150)
-    ok(pg.evaluate("navigator.clipboard.readText()").startswith('£20.00 ≈ ₱1,482.40'), 'Copy conversion copies it')
+    if BROWSER == 'chromium':
+        pg.click('[data-a=copyConv]'); pg.wait_for_timeout(150)
+        ok(pg.evaluate("navigator.clipboard.readText()").startswith('£20.00 ≈ ₱1,482.40'), 'Copy conversion copies it')
+    else:  # WebKit can't be given leave to read the clipboard back, so the words handed to it are caught on the way (Q32)
+        pg.evaluate("window.__copied=null;navigator.clipboard.writeText=t=>{window.__copied=t;return Promise.resolve()}")
+        pg.click('[data-a=copyConv]'); pg.wait_for_timeout(150)
+        ok(str(pg.evaluate("window.__copied")).startswith('£20.00 ≈ ₱1,482.40'), 'Copy conversion copies it')
     pg.click('[data-a=quickConv][data-v="50"]'); pg.wait_for_timeout(100)
     ok(pg.input_value('#conv-php') == '3,706.00', 'a handy amount fills the converter')
     # the swap button puts pesos on top, and the handy amounts follow (Q01)

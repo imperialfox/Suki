@@ -25,7 +25,7 @@ bars     Q28: the tab bar (parts 4 and 15: equal tabs, the highlight sliding and
 SUKI_PARTS=pin,settings,motion,diff,alerts,toasts,sheets,sizes,presses,controls,bars runs only those parts."""
 import os, re, hashlib
 import harness
-from harness import ROOT, READ
+from harness import ROOT, READ, BROWSER
 
 _only = [x for x in os.environ.get('SUKI_PARTS', '').split(',') if x]
 wanted = lambda k: not _only or k in _only
@@ -234,6 +234,8 @@ def toasts(b, t):
     pg.evaluate("toast('Couldn’t reach the rate service, so the saved rate is still in use')"); pg.wait_for_timeout(100)
     ok(pg.evaluate("(e=>e.classList.contains('sk-long')&&e.scrollWidth<=e.clientWidth+1)(document.querySelector('#layer .pk-toast:not(.pk-leaving)'))"), 'a longer message wraps rather than being cut off')
     pg.evaluate("toast('Couldn’t save.',null,true)"); pg.evaluate("toast('Purchase saved',()=>{})"); pg.wait_for_timeout(700)
+    # and wait for the drop to land, as WebKit on GitHub's machines can draw it late (Q32)
+    pg.wait_for_function("(e=>e.getAnimations().every(a=>a.playState!=='running'))(document.querySelector('#layer .pk-toast:not(.pk-leaving)'))", timeout=8000)
     st = pg.evaluate("[!!document.querySelector('body > .toast.sticky:not(.pk-toast)'),document.querySelector('.toast.sticky').getBoundingClientRect().bottom,document.querySelector('#layer .pk-toast:not(.pk-leaving)').getBoundingClientRect().top]")
     ok(st[0] and st[2] >= st[1], f'the sticky warning stays Suki’s own (S04), and toasts drop in below it ({st})')
     pg.wait_for_timeout(3600)
@@ -317,7 +319,7 @@ def sizes(b, t):
 # Q28: a press held from a named element, measured while held, let go without a click (the action isn't run)
 HELD = """(sel)=>{const el=document.querySelector(sel); if(!el) return null; const r=el.getBoundingClientRect(), cs=getComputedStyle(el);
  let p=el.parentElement, cut=[]; while(p&&p!==document.body){const c=getComputedStyle(p); if(/hidden|auto|scroll|clip/.test(c.overflowX+c.overflowY)){const q=p.getBoundingClientRect(); if(r.left<q.left-0.5||r.right>q.right+0.5||r.top<q.top-0.5||r.bottom>q.bottom+0.5) cut.push((p.id||p.className).toString().slice(0,40));} p=p.parentElement;}
- return {w:el.offsetWidth, h:el.offsetHeight, scale:cs.scale, transform:cs.transform, z:cs.zIndex, lit:getComputedStyle(el,'::after').opacity, bg:cs.backgroundColor, cut}}"""
+ return {w:el.offsetWidth, h:el.offsetHeight, scale:cs.scale, transform:cs.transform, z:cs.zIndex, lit:getComputedStyle(el,'::after').opacity, bg:cs.backgroundColor, cut, pressed:el.classList.contains('pk-pressed')}}"""
 NOCLICK = "addEventListener('click', e=>{e.stopPropagation();e.preventDefault()}, {capture:true, once:true})"
 
 
@@ -335,7 +337,17 @@ def hold(pg, sel, ms=450):
     pg.wait_for_timeout(ms)
     a = pg.evaluate(f"getComputedStyle(document.querySelector({sel!r})).scale")
     r['after'] = a == 'none' or abs(float(a) - 1) < 0.01
+    r['released'] = not pg.evaluate(f"document.querySelector({sel!r}).classList.contains('pk-pressed')")
     return r
+
+
+def drawn(r, want, lit='1'):
+    """Pressed and let go as drawn: Chromium reads the grown size and light mid-press and after. WebKit on GitHub's
+    machines draws a glass sheet a few frames a second, so the transition can still be at its start when read: there the
+    press is read from the kit's pk-pressed class while held and gone after (Q32)"""
+    if BROWSER == 'webkit':
+        return r['pressed'] and r['released']
+    return abs(float(r['scale']) - want) < 0.01 and r['lit'] == lit and r['after']
 
 
 def presses(b, t):
@@ -348,7 +360,7 @@ def presses(b, t):
         r = hold(pg, sel)
         want = 1 + 17 / max(r['w'], r['h'])
         glass.append((name, r))
-        ok(abs(float(r['scale']) - want) < 0.01 and r['lit'] == '1' and r['z'] == '20' and not r['cut'] and r['after'],
+        ok(drawn(r, want) and r['z'] == '20' and not r['cut'],
            f'{name}: grows 17 pt (×{want:.3f}) and lights up while pressed, above its neighbours and not cut off, then comes back ({r})')
     g('the gear', '#barR .circ[data-v=settings]')
     pg.evaluate("go('spending')"); pg.wait_for_timeout(200)

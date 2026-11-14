@@ -7,6 +7,9 @@ the compartment giving the nod; pieces fading over 0.22 s, ✕ emptying it the s
 swaying on open and shut, none with Reduce Motion; a redraw drawing exactly the same; nothing sideways or outside the
 drawer at ₱999,999; nothing saved. Screenshots empty, half, full and overloaded (open, and shut with the peek), light
 and dark, at 375 and 402 px."""
+# Q32: skipped in WebKit (MAINTAINING › Tests › Skipped in WebKit)
+WEBKIT_SKIP = "WebKit on GitHub's machines draws the till at about 3 frames a second while the drawer moves (software drawing, no graphics chip), so its springs can't settle or be timed; Chromium runs this file"
+
 
 from harness import BAD_TEXT
 

@@ -166,6 +166,9 @@ def rate_noise(m):
 
 # which engine the suite runs in (Q32): chromium (Chrome's) or webkit (Safari's). run.py sets it from --browser
 BROWSER = os.environ.get('SUKI_BROWSER', 'chromium')
+# how a browser that fell over shows in a result: run.py gives a file one more go in WebKit when it sees this (Q32)
+CRASHED = 'the page crashed (the browser’s own process)'
+CRASH_SIGNS = (CRASHED, 'Target page, context or browser has been closed', 'Target crashed', 'Page crashed')
 # WebKit has no clipboard permissions to give: a page there can write the clipboard after a tap, and reading it back
 # is skipped (test_flows.py)
 PERMS = ['clipboard-read', 'clipboard-write'] if BROWSER == 'chromium' else []
@@ -207,6 +210,7 @@ class T:
         if init: ctx.add_init_script(init)
         pg = ctx.new_page()
         tag = f'{self.name} {w}x{h}'
+        pg.on('crash', lambda p: self.errors.append(f'{tag}: {CRASHED}'))
         pg.on('pageerror', lambda e: self.errors.append(f'{tag}: {str(e).splitlines()[0]}'))
         # a rate source switched off on purpose logs a failed request, which isn't a fault
         quiet = rate_noise

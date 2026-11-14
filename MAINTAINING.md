@@ -544,7 +544,7 @@ The tests drive the real app in Chromium, and on GitHub in WebKit (Safari's engi
 
 ### Running in WebKit (Q32)
 
-`run.py --browser webkit` (or `SUKI_BROWSER=webkit`) runs every file in WebKit; `harness.BROWSER` says which engine a test is in. GitHub runs the full suite in both engines as two jobs (`tests.yml`'s matrix), each with its own screenshots (`screenshots-chromium`, `screenshots-webkit`). The WebKit job takes about 8 minutes, against Chromium's 6. WebKit can't be downloaded in Claude's workspace, so WebKit runs only on GitHub; a push to a side branch is how to try a change there.
+`run.py --browser webkit` (or `SUKI_BROWSER=webkit`) runs every file in WebKit; `harness.BROWSER` says which engine a test is in. GitHub runs the full suite in both engines as two jobs (`tests.yml`'s matrix), each with its own screenshots (`screenshots-chromium`, `screenshots-webkit`). WebKit runs one file per processor side by side (Chromium two) and draws at 1× (Chromium at an iPhone's 2×), as it draws in software; its job takes 7 to 10 minutes, against Chromium's 5 to 6. WebKit can't be downloaded in Claude's workspace, so WebKit runs only on GitHub; a push to a side branch is how to try a change there.
 
 Differences that were the tests' fault, fixed in the tests:
 - WebKit doesn't let the tests answer requests from a page its service worker controls (they went to the real rate sources), so `T.page` and the random taps block the service worker in WebKit. `test_offline.py` makes its own context with it.
@@ -555,12 +555,17 @@ Differences that were the tests' fault, fixed in the tests:
 - WebKit's page text ends a block with a line break (`.strip()`), leaves a picker's chosen option out (read the picker's value), knows `user-select` only as `webkitUserSelect`, and writes `linear()` stops to two places.
 - WebKit on GitHub's machines draws glass slowly (software drawing, a few frames a second while big glass moves), so a check reads a transition only once it has ended (`getAnimations()` not running), and a press in a sheet is read from the kit's `pk-pressed` class (`test_parts.py` › `drawn()`).
 
+WebKit on GitHub's machines now and then falls over by itself (twice in Q32's runs, in `test_motion.py` and `test_parts.py`, each time while a toast came in, and each passing on its next run). `run.py` gives a file whose page or browser fell over (`harness.CRASH_SIGNS`; a page crash is also caught by its `crash` event) one more go in WebKit, and shows it as a warning on GitHub's run page. Falling over again fails the run. If the warning keeps showing for the same file, look at it.
+
 ### Skipped in WebKit
 
 A test or file that can't run in WebKit says why with `t.skip(reason)` (or `WEBKIT_SKIP = 'reason'` for a whole file), and the run lists each skip under its totals. Today:
 - `test_drawer.py`, `test_drawerfill.py`, `test_haul.py`: WebKit on GitHub's machines draws the till at about 3 frames a second while the drawer moves, so its springs can't settle or be timed. Chromium runs them.
 - `test_haul.py` section 4 (real two-finger touches): Chrome's own touch input (CDP). Already inside the file skipped above.
-- `test_motion.py` › "it really moves down": the same slow drawing; 450 ms can pass with no frame.
+- `test_motion.py`: it times sheets, rows and pages frame by frame; the same slow drawing.
+- `test_notepress.py` sections 1 to 3 (Fly, the finger tilt, Slot): timed frame by frame. Sections 4 to 8 run in both.
+- `test_till.py` › "with Reduce Motion, new pieces only fade in": caught 20 ms in, and WebKit may not have drawn a frame by then.
+- `test_screens.py` › "reference/elements.md is up to date": the element sheet is written from Chromium's reading, and WebKit writes some values its own way.
 - `test_windows.py` › the error log's words (both widths, a failed promise, the last 20, the same error counted once, "Couldn’t save" staying): a **Suki difference**, not the tests'. Safari's error stack has no message, and `noteError()` keeps the stack first, so in Safari `suki:errors` holds "@" with no words. In the queue's ideas.
 
 ---
@@ -594,6 +599,7 @@ A test or file that can't run in WebKit says why with `t.skip(reason)` (or `WEBK
 - On 12 Nov 2026 (Q30) the whole suite side by side failed four checks: the launch timeout in `test_offline.py`, the stalled-flick check in `test_drawer.py`, and the random taps, seed 13, with the same two messages as Q34's and Q37's (ideas list 21). Offline and drawer passed 91 of 91 together, and seed 13 passed alone. Q30 changes no app code. It ran on Playwright 1.56.0 with the workspace's Chromium (build 1243) linked in under 1194's name, as 1.56's own couldn't be downloaded; the element sheet maps every value to its name in the same browser, so a newer Chromium doesn't change the sheet.
 - Fixed in Q32 (14 Nov 2026): the `test_smart.py` fold checks. Reduce Motion's crossfade is 100 ms, and the check looked in a separate step after the switch, so on a busy machine the copy had already gone (reproduced: 3 of 6 runs side by side on two processors). It now switches and looks in one step. "The side showing is fully there" now waits for the fades themselves to end, not just the copy: a timer can take the copy away before the page draws its next frame. Eight runs side by side then passed 100 of 100 each.
 - Fixed in Q32 (14 Nov 2026): the random taps, seed 13. Not flaky: the check was out of date. Since Q27 a yes or no question is the kit's alert (`.pk-alert`), not a `.sheet`, and only the sheets under it scale the page behind; the check still looked for a `.sheet`. Delete from Spending's pane on iPad or Mac (an alert on its own) showed as both faults. GitHub's wider fonts most likely steered seed 13 there, which is why it failed on GitHub every time and only now and then elsewhere. `test_fuzz.py` now follows `ALERTS` and `U.stack` as `renderSheet()` does.
+- Fixed in Q32 (14 Nov 2026): a run going past midnight UK time. `harness.day()` took the date the file started, so on GitHub's run at 00:00 a 90-day-old price read as 91 days to the app (`test_prices.py`, two checks). It now takes the date when it's asked. The module's `today` still holds the start date for the few tests that use it directly.
 - Since Q33 saves of his records go through `putChecked()`, not `putKey()`. A test that fakes a failed save replaces both (`putKey=putChecked=()=>Promise.resolve(false)`, as `test_data.py` does).
 - Since Q27 the kit's sheets drag with pointer events. A flick in a test goes through `harness.flick()`, which sends the events from the page itself 8 ms apart, so the speed doesn't depend on how busy the machine is; a slow drag uses the mouse with pauses.
 - Since Q27 a sheet under another, and one on its way out, loses `.sheet` (it's `.sk-covered`), so `#layer .sheet` is always the one on top. Alerts are `#layer .pk-alert` with `[data-a=yes]` and `[data-a=no]`; a toast replaced by another stays in the page as `.pk-leaving` for 350 ms × the speed, so look for `.toast:not(.pk-leaving)`.

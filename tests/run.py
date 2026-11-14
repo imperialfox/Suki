@@ -126,6 +126,20 @@ def main():
                 print(f'  {r["passed"]} passed, {len(r["fails"])} failed{skips(r.get("skipped", []))} in {secs:.0f}s\n', flush=True)
                 results.append((label, r['passed'], r['fails'], r.get('skipped', [])))
 
+    # WebKit on GitHub's machines now and then falls over by itself (twice in Q32's runs, in different files, each time
+    # passing on its next run). A file whose page or browser fell over gets one more go there, shown as a warning on
+    # GitHub's run page; falling over again fails as usual (Q32)
+    if harness.BROWSER == 'webkit' and '--one-at-a-time' not in args:
+        again = [r for r in results if r[2] and all(any(c in f for c in harness.CRASH_SIGNS) for f in r[2])]
+        for r in again:
+            job = next(j for j in jobs_for(picked) if j[0] == r[0])
+            label, name, r2, out, secs = run_job(job)
+            print(f'── {label}, one more go after WebKit fell over ' + '─' * 4, flush=True)
+            print(out.rstrip(), flush=True)
+            print(f'  {r2["passed"]} passed, {len(r2["fails"])} failed{skips(r2.get("skipped", []))} in {secs:.0f}s\n', flush=True)
+            if os.environ.get('GITHUB_ACTIONS'): print(f'::warning title={label}::WebKit fell over and the file ran again ({r[2][0][:120]})'.replace('\n', ' '))
+            results[results.index(r)] = (label + ' (second go)', r2['passed'], r2['fails'], r2.get('skipped', []))
+
     failed = [(n, f) for n, _, fs, _ in results for f in fs]
     skipped = [(n, k) for n, _, _, ks in results for k in ks]
     print('═' * 44)
